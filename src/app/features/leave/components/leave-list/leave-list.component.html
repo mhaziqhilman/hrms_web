@@ -1,0 +1,297 @@
+<div class="p-6 bg-background min-h-screen">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-foreground">Leave Management</h1>
+      <p class="text-muted-foreground">View and track all leave applications</p>
+    </div>
+    <div class="flex gap-2">
+      <button z-button zType="outline" routerLink="/dashboard/leave/balance" class="gap-2">
+        <z-icon zType="activity" class="w-4 h-4" />
+        View Balance
+      </button>
+      <button z-button zType="outline" routerLink="/dashboard/leave/approvals" class="gap-2">
+        <z-icon zType="circle-check" class="w-4 h-4" />
+        Approvals
+      </button>
+      <button z-button routerLink="/dashboard/leave/apply" class="gap-2">
+        <z-icon zType="plus" class="w-4 h-4" />
+        Apply Leave
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="flex flex-wrap items-center gap-3 mb-6">
+    <!-- Status Filter -->
+    <div z-menu [zMenuTriggerFor]="statusMenu">
+      <button z-button zType="outline" class="gap-2">
+        <z-icon zType="circle" class="w-4 h-4" />
+        {{ getStatusDisplayName() }}
+        <z-icon zType="chevron-down" class="w-4 h-4 ml-1" />
+      </button>
+    </div>
+    <ng-template #statusMenu>
+      <div z-menu-content class="w-48">
+        <button type="button" z-menu-item (click)="selectedStatus.set(''); onFilterChange()">
+          All Status
+        </button>
+        <button type="button" z-menu-item (click)="selectedStatus.set(LeaveStatus.PENDING); onFilterChange()">
+          Pending
+        </button>
+        <button type="button" z-menu-item (click)="selectedStatus.set(LeaveStatus.APPROVED); onFilterChange()">
+          Approved
+        </button>
+        <button type="button" z-menu-item (click)="selectedStatus.set(LeaveStatus.REJECTED); onFilterChange()">
+          Rejected
+        </button>
+        <button type="button" z-menu-item (click)="selectedStatus.set(LeaveStatus.CANCELLED); onFilterChange()">
+          Cancelled
+        </button>
+      </div>
+    </ng-template>
+
+    <!-- Start Date Filter -->
+    <z-date-picker
+      placeholder="From Date"
+      zFormat="dd-MM-yyyy"
+      [(ngModel)]="startDateValue"
+      (dateChange)="onStartDateChange($event)">
+    </z-date-picker>
+
+    <!-- End Date Filter -->
+    <z-date-picker
+      placeholder="To Date"
+      zFormat="dd-MM-yyyy"
+      [(ngModel)]="endDateValue"
+      (dateChange)="onEndDateChange($event)">
+    </z-date-picker>
+
+    <!-- Clear Filters -->
+    <div class="ml-auto">
+      <button z-button zType="outline" class="gap-2" (click)="clearFilters()">
+        <z-icon zType="x" class="w-4 h-4" />
+        Clear Filters
+      </button>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  @if (error()) {
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-2 text-red-800 mb-6">
+      <z-icon zType="triangle-alert" class="w-5 h-5" />
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  <!-- Loading Spinner -->
+  @if (loading()) {
+    <div class="flex items-center justify-center py-20">
+      <z-icon zType="loader-circle" class="w-8 h-8 animate-spin text-primary" />
+    </div>
+  }
+
+  <!-- Leave Table -->
+  @if (!loading() && !error()) {
+    <!-- Results Summary -->
+    @if (total() > 0) {
+      <div class="mb-4">
+        <span class="text-sm text-muted-foreground">
+          Showing {{ (currentPage() - 1) * limit + 1 }} to
+          {{ Math.min(currentPage() * limit, total()) }} of {{ total() }} records
+        </span>
+      </div>
+    }
+
+    <!-- Table Card -->
+    @if (leaves().length > 0) {
+      <z-card class="mb-6">
+        <div z-card-content class="p-0">
+          <div class="overflow-x-auto">
+            <table z-table class="w-full">
+              <thead z-table-header>
+                <tr z-table-row>
+                  <th z-table-head class="w-[250px]">
+                    <div class="flex items-center gap-2">
+                      <z-icon zType="user" class="w-4 h-4" />
+                      <span>Employee</span>
+                    </div>
+                  </th>
+                  <th z-table-head class="w-[180px]">
+                    <div class="flex items-center gap-2">
+                      <z-icon zType="tag" class="w-4 h-4" />
+                      <span>Leave Type</span>
+                    </div>
+                  </th>
+                  <th z-table-head class="w-[140px]">
+                    <div class="flex items-center gap-2">
+                      <z-icon zType="calendar" class="w-4 h-4" />
+                      <span>Start Date</span>
+                    </div>
+                  </th>
+                  <th z-table-head class="w-[140px]">
+                    <div class="flex items-center gap-2">
+                      <z-icon zType="calendar" class="w-4 h-4" />
+                      <span>End Date</span>
+                    </div>
+                  </th>
+                  <th z-table-head class="w-[100px]">
+                    <div class="flex items-center gap-2">
+                      <z-icon zType="clock" class="w-4 h-4" />
+                      <span>Duration</span>
+                    </div>
+                  </th>
+                  <th z-table-head class="w-[120px]">
+                    <div class="flex items-center gap-2">
+                      <z-icon zType="circle" class="w-4 h-4" />
+                      <span>Status</span>
+                    </div>
+                  </th>
+                  <th z-table-head class="w-[100px] text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody z-table-body>
+                @for (leave of leaves(); track leave.id) {
+                  <tr z-table-row class="group hover:bg-muted/30 transition-colors">
+                    <!-- Employee -->
+                    <td z-table-cell>
+                      <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                          <z-icon zType="user" class="w-5 h-5 text-primary" />
+                        </div>
+                        <div class="min-w-0">
+                          <div class="text-sm font-medium text-foreground truncate">{{ leave.employee?.full_name }}</div>
+                          <div class="text-xs text-muted-foreground">{{ leave.employee?.employee_id }}</div>
+                        </div>
+                      </div>
+                    </td>
+
+                    <!-- Leave Type -->
+                    <td z-table-cell>
+                      <div class="text-sm text-foreground">{{ leave.leave_type?.name || 'N/A' }}</div>
+                      <div class="text-xs text-muted-foreground">{{ leave.leave_type?.is_paid ? 'Paid' : 'Unpaid' }}</div>
+                    </td>
+
+                    <!-- Start Date -->
+                    <td z-table-cell>
+                      <div class="text-sm text-foreground">{{ formatDate(leave.start_date) }}</div>
+                    </td>
+
+                    <!-- End Date -->
+                    <td z-table-cell>
+                      <div class="text-sm text-foreground">{{ formatDate(leave.end_date) }}</div>
+                    </td>
+
+                    <!-- Duration -->
+                    <td z-table-cell>
+                      <div class="text-sm font-medium text-foreground">{{ getDuration(leave) }}</div>
+                    </td>
+
+                    <!-- Status -->
+                    <td z-table-cell>
+                      <z-badge [zType]="getStatusBadgeType(leave.status)" zShape="pill" class="gap-1">
+                        <z-icon [zType]="getStatusIconType(leave.status)" class="w-3 h-3" />
+                        {{ leave.status }}
+                      </z-badge>
+                    </td>
+
+                    <!-- Actions -->
+                    <td z-table-cell class="text-right">
+                      <div class="flex items-center justify-end gap-2">
+                        <!-- View Details Button -->
+                        <button
+                          type="button"
+                          z-button
+                          zType="outline"
+                          zSize="sm"
+                          (click)="viewLeaveDetails(leave)"
+                          class="gap-1">
+                          <z-icon zType="eye" class="w-3 h-3" />
+                          View
+                        </button>
+
+                        <!-- Edit Button (Only for pending) -->
+                        @if (canEdit(leave)) {
+                          <a
+                            z-button
+                            zType="outline"
+                            zSize="sm"
+                            [routerLink]="['/dashboard/leave', leave.id, 'edit']"
+                            class="gap-1">
+                            <z-icon zType="file-text" class="w-3 h-3" />
+                            Edit
+                          </a>
+                        }
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </z-card>
+    }
+
+    <!-- Empty State -->
+    @if (leaves().length === 0) {
+      <z-card>
+        <div z-card-content class="p-12">
+          <div class="flex flex-col items-center justify-center text-center">
+            <z-icon zType="inbox" class="w-16 h-16 text-muted-foreground mb-4" />
+            <h3 class="text-lg font-semibold mb-2">No Leave Applications Found</h3>
+            <p class="text-muted-foreground mb-4">No leave applications match your current filters.</p>
+            <button z-button zType="outline" (click)="clearFilters()">
+              Clear Filters
+            </button>
+          </div>
+        </div>
+      </z-card>
+    }
+
+    <!-- Pagination -->
+    @if (totalPages() > 1) {
+      <div class="flex items-center justify-center gap-2 mt-6">
+        <!-- Previous Button -->
+        <button
+          z-button
+          zType="outline"
+          zSize="sm"
+          (click)="onPageChange(currentPage() - 1)"
+          [disabled]="currentPage() === 1"
+          class="gap-1">
+          <z-icon zType="chevron-left" class="w-4 h-4" />
+          Previous
+        </button>
+
+        <!-- Page Numbers -->
+        @for (page of getPageNumbers(); track $index) {
+          @if (page === -1) {
+            <span class="px-2 text-muted-foreground">...</span>
+          } @else {
+            <button
+              z-button
+              [zType]="currentPage() === page ? 'default' : 'outline'"
+              zSize="sm"
+              (click)="onPageChange(page)"
+              class="min-w-[40px]">
+              {{ page }}
+            </button>
+          }
+        }
+
+        <!-- Next Button -->
+        <button
+          z-button
+          zType="outline"
+          zSize="sm"
+          (click)="onPageChange(currentPage() + 1)"
+          [disabled]="currentPage() === totalPages()"
+          class="gap-1">
+          Next
+          <z-icon zType="chevron-right" class="w-4 h-4" />
+        </button>
+      </div>
+    }
+  }
+</div>

@@ -1,0 +1,26 @@
+.card-flush {
+  box-shadow: 0 0 20px 0 rgba(76, 87, 125, 0.02);
+}
+
+.timeline-label {
+  .timeline-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+
+    .timeline-label {
+      width: 80px;
+      flex-shrink: 0;
+    }
+
+    .timeline-badge {
+      width: 40px;
+      flex-shrink: 0;
+      text-align: center;
+    }
+
+    .timeline-content {
+      flex: 1;
+    }
+  }
+}

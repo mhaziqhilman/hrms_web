@@ -1,0 +1,23 @@
+/* Custom Scrollbar */
+.leave-details-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.leave-details-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.leave-details-container::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 4px;
+}
+
+.leave-details-container::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground));
+}
+
+/* Remove horizontal padding from card content - scoped to approval cards only */
+.description-card ::ng-deep [data-slot="card-content"] {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}

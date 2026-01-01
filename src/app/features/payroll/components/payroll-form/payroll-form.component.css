@@ -1,0 +1,8 @@
+/* Payroll Form Component - ZardUI Migration Complete */
+/* All styles are now using Tailwind CSS utility classes */
+
+/* Custom styling for required label indicator */
+.required::after {
+  content: " *";
+  color: rgb(239 68 68); /* text-red-500 */
+}

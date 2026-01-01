@@ -1,0 +1,54 @@
+/* ZardUI Layout - Custom Styles */
+
+:host {
+  --spacing: 0.25rem;
+  --sidebar-width: calc(var(--spacing) * 60);
+  --sidebar-width-icon: 3rem;
+  --header-height: 4rem;
+}
+
+.scrollbar-custom {
+  scrollbar-width: thin;
+  scrollbar-color: #64748b3d #f5f8fca6;
+}
+
+header {
+  height: var(--header-height);
+}
+
+/* Ensure sidebar navigation uses full height with proper flex layout */
+nav {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Scrollable menu section */
+.menu-scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Fixed bottom profile section */
+.profile-fixed-bottom {
+  flex-shrink: 0;
+  border-top: 1px solid hsl(var(--border));
+}
+
+/* Fix z-content wrapper to allow proper flex layout */
+:host ::ng-deep z-content {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  overflow: hidden !important;
+}
+
+:host ::ng-deep z-content main {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}

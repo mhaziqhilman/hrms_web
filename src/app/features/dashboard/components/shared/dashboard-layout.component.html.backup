@@ -1,0 +1,168 @@
+<div class="d-flex flex-column flex-root">
+  <div class="page d-flex flex-row flex-column-fluid">
+    <!-- Sidebar -->
+    <div id="kt_aside" class="aside" [class.aside-collapsed]="sidebarCollapsed">
+      <!-- <div class="aside-toolbar d-flex align-items-center px-5 py-5">
+        <div class="d-flex align-items-center w-100">
+          <div class="symbol symbol-40px me-3">
+            <i class="bi bi-palette fs-1 text-primary"></i>
+          </div>
+          <div class="d-flex flex-column" *ngIf="!sidebarCollapsed">
+            <span class="fs-5 fw-bold text-dark">My Dashboard</span>
+          </div>
+        </div>
+      </div> -->
+
+      <div class="aside-menu flex-column-fluid ps-5 pe-3">
+        <div class="menu menu-column">
+
+          <div class="menu-item">
+            <a routerLink="/dashboard/admin" routerLinkActive="active" class="menu-link">
+              <span class="menu-icon">
+                <i class="bi bi-person-gear"></i>
+              </span>
+              <span class="menu-title">Admin Dashboard</span>
+            </a>
+          </div>
+
+          <div class="menu-item">
+            <a routerLink="/dashboard/manager" routerLinkActive="active" class="menu-link">
+              <span class="menu-icon">
+                <i class="bi bi-people"></i>
+              </span>
+              <span class="menu-title">Manager Dashboard</span>
+            </a>
+          </div>
+
+          <div class="separator"></div>
+
+          <div class="menu-item">
+            <a routerLink="/dashboard/employees" routerLinkActive="active" class="menu-link">
+              <span class="menu-icon">
+                <i class="bi bi-person-vcard"></i>
+              </span>
+              <span class="menu-title">Employees</span>
+            </a>
+          </div>
+
+          <div class="menu-item">
+            <a routerLink="/dashboard/payroll" routerLinkActive="active" class="menu-link">
+              <span class="menu-icon">
+                <i class="bi bi-cash-stack"></i>
+              </span>
+              <span class="menu-title">Payroll</span>
+            </a>
+          </div>
+
+          <div class="menu-item">
+            <a routerLink="/dashboard/leave" routerLinkActive="active" class="menu-link">
+              <span class="menu-icon">
+                <i class="bi bi-calendar-check"></i>
+              </span>
+              <span class="menu-title">Leave</span>
+            </a>
+          </div>
+
+          <div class="menu-item">
+            <a routerLink="/dashboard/attendance" routerLinkActive="active" class="menu-link">
+              <span class="menu-icon">
+                <i class="bi bi-clock-history"></i>
+              </span>
+              <span class="menu-title">Attendance</span>
+            </a>
+          </div>
+
+          <div class="menu-item">
+            <a routerLink="/dashboard/claims" routerLinkActive="active" class="menu-link">
+              <span class="menu-icon">
+                <i class="bi bi-receipt"></i>
+              </span>
+              <span class="menu-title">Claims</span>
+            </a>
+          </div>
+
+          <div class="menu-item">
+            <a routerLink="/dashboard/communication" routerLinkActive="active" class="menu-link">
+              <span class="menu-icon">
+                <i class="bi bi-megaphone"></i>
+              </span>
+              <span class="menu-title">Communication</span>
+            </a>
+          </div>
+
+          <div class="separator"></div>
+
+          <div class="menu-item">
+            <a href="#" class="menu-link">
+              <span class="menu-icon">
+                <i class="bi bi-gear"></i>
+              </span>
+              <span class="menu-title">Settings</span>
+            </a>
+          </div>
+
+          <div class="menu-item">
+            <a (click)="logout()" class="menu-link">
+              <span class="menu-icon">
+                <i class="bi bi-box-arrow-left"></i>
+              </span>
+              <span class="menu-title">Logout</span>
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="wrapper d-flex flex-column flex-row-fluid">
+      <!-- Header -->
+      <div id="kt_header" class="header align-items-stretch border-bottom">
+        <div class="container-fluid d-flex align-items-stretch justify-content-between">
+          <div class="d-flex align-items-center">
+            <button class="btn btn-icon btn-sm btn-active-light me-3" (click)="toggleSidebar()">
+              <i class="bi bi-list fs-1"></i>
+            </button>
+            <h1 class="text-dark fw-bolder my-0 fs-2">Dashboard</h1>
+          </div>
+
+          <div class="d-flex align-items-center">
+            <div class="d-flex align-items-center ms-3">
+              <div class="btn btn-icon btn-sm btn-active-light position-relative me-2">
+                <i class="bi bi-bell fs-2"></i>
+                <span class="position-absolute top-0 start-100 translate-middle badge badge-circle badge-danger">3</span>
+              </div>
+
+              <div class="d-flex align-items-center cursor-pointer">
+                <div class="symbol symbol-35px me-2">
+                  <img src="assets/theme/media/avatars/blank.png" alt="User">
+                </div>
+                <div class="d-none d-md-flex flex-column">
+                  <span class="text-dark fw-bold fs-7">Admin User</span>
+                  <span class="text-muted fs-8">admin@hrms.com</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div id="kt_content" class="content d-flex flex-column flex-column-fluid">
+        <div class="container-fluid">
+          <router-outlet></router-outlet>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer py-4 d-flex flex-lg-column">
+        <div class="container-fluid d-flex flex-column flex-md-row align-items-center justify-content-between">
+          <div class="text-dark order-2 order-md-1">
+            <span class="text-muted fw-bold me-1">2025©</span>
+            <a href="#" class="text-gray-800 text-hover-primary">HRMS</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

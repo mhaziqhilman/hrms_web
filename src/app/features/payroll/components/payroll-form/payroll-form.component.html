@@ -1,0 +1,330 @@
+<div class="max-w-5xl mx-auto p-6">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
+    <div>
+      <h2 class="text-3xl font-semibold text-foreground">
+        {{ isEditMode() ? 'Edit Payroll' : 'Calculate Payroll' }}
+      </h2>
+      <p class="text-muted-foreground mt-1">
+        {{ isEditMode() ? 'Update payroll record details' : 'Calculate and create new payroll record' }}
+      </p>
+    </div>
+    <a
+      routerLink="/dashboard/payroll"
+      z-button
+      zType="outline"
+      class="flex items-center gap-2"
+    >
+      <z-icon zType="arrow-left" class="w-4 h-4" />
+      Back to List
+    </a>
+  </div>
+
+  <!-- Error Alert -->
+  <z-card *ngIf="error()" class="mb-6 border-destructive">
+    <div class="flex items-center gap-2 text-destructive">
+      <z-icon zType="circle-alert" class="w-5 h-5" />
+      <span>{{ error() }}</span>
+    </div>
+  </z-card>
+
+  <!-- Loading State -->
+  <z-card *ngIf="loading()" class="mb-6">
+    <div class="flex flex-col items-center justify-center py-12">
+      <z-icon zType="loader-circle" class="w-12 h-12 text-primary animate-spin" />
+      <p class="text-muted-foreground mt-4">Loading payroll data...</p>
+    </div>
+  </z-card>
+
+  <!-- Form -->
+  <form [formGroup]="payrollForm" (ngSubmit)="onSubmit()" *ngIf="!loading()">
+    <!-- Basic Information -->
+    <z-card class="mb-6">
+      <h3 class="text-xl font-semibold text-foreground mb-6">Basic Information</h3>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Employee -->
+        <z-form-field>
+          <label z-form-label for="employee" class="required">Employee</label>
+          <z-select
+            id="employee"
+            formControlName="employee_id"
+            placeholder="Select Employee"
+            (ngModelChange)="onEmployeeChange($event)"
+            [disabled]="isEditMode()"
+          >
+            <z-select-item zValue="">Select Employee</z-select-item>
+            <z-select-item *ngFor="let emp of employees()" [zValue]="emp.id">
+              {{ emp.full_name }} ({{ emp.employee_id }})
+            </z-select-item>
+          </z-select>
+          <z-form-message *ngIf="isFieldInvalid('employee_id')">
+            {{ getFieldError('employee_id') }}
+          </z-form-message>
+        </z-form-field>
+
+        <!-- Year -->
+        <z-form-field>
+          <label z-form-label for="year" class="required">Year</label>
+          <z-select id="year" formControlName="year">
+            <z-select-item *ngFor="let y of years" [zValue]="y">{{ y }}</z-select-item>
+          </z-select>
+          <z-form-message *ngIf="isFieldInvalid('year')">
+            {{ getFieldError('year') }}
+          </z-form-message>
+        </z-form-field>
+
+        <!-- Month -->
+        <z-form-field>
+          <label z-form-label for="month" class="required">Month</label>
+          <z-select id="month" formControlName="month">
+            <z-select-item *ngFor="let m of months" [zValue]="m">
+              {{ getMonthName(m) }}
+            </z-select-item>
+          </z-select>
+          <z-form-message *ngIf="isFieldInvalid('month')">
+            {{ getFieldError('month') }}
+          </z-form-message>
+        </z-form-field>
+      </div>
+    </z-card>
+
+    <!-- Earnings -->
+    <z-card class="mb-6">
+      <h3 class="text-xl font-semibold text-foreground mb-6">Earnings</h3>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Basic Salary -->
+        <z-form-field>
+          <label z-form-label for="basic_salary" class="required">Basic Salary</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">RM</span>
+            <input
+              z-input
+              type="number"
+              id="basic_salary"
+              formControlName="basic_salary"
+              placeholder="0.00"
+              step="0.01"
+              min="0"
+              class="pl-12"
+            />
+          </div>
+          <z-form-message *ngIf="isFieldInvalid('basic_salary')">
+            {{ getFieldError('basic_salary') }}
+          </z-form-message>
+        </z-form-field>
+
+        <!-- Allowances -->
+        <z-form-field>
+          <label z-form-label for="allowances">Allowances</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">RM</span>
+            <input
+              z-input
+              type="number"
+              id="allowances"
+              formControlName="allowances"
+              placeholder="0.00"
+              step="0.01"
+              min="0"
+              class="pl-12"
+            />
+          </div>
+        </z-form-field>
+
+        <!-- Overtime Pay -->
+        <z-form-field>
+          <label z-form-label for="overtime_pay">Overtime Pay</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">RM</span>
+            <input
+              z-input
+              type="number"
+              id="overtime_pay"
+              formControlName="overtime_pay"
+              placeholder="0.00"
+              step="0.01"
+              min="0"
+              class="pl-12"
+            />
+          </div>
+        </z-form-field>
+
+        <!-- Bonus -->
+        <z-form-field>
+          <label z-form-label for="bonus">Bonus</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">RM</span>
+            <input
+              z-input
+              type="number"
+              id="bonus"
+              formControlName="bonus"
+              placeholder="0.00"
+              step="0.01"
+              min="0"
+              class="pl-12"
+            />
+          </div>
+        </z-form-field>
+
+        <!-- Commission -->
+        <z-form-field>
+          <label z-form-label for="commission">Commission</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">RM</span>
+            <input
+              z-input
+              type="number"
+              id="commission"
+              formControlName="commission"
+              placeholder="0.00"
+              step="0.01"
+              min="0"
+              class="pl-12"
+            />
+          </div>
+        </z-form-field>
+      </div>
+    </z-card>
+
+    <!-- Deductions -->
+    <z-card class="mb-6">
+      <h3 class="text-xl font-semibold text-foreground mb-6">Deductions</h3>
+
+      <div class="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+        <div class="flex items-start gap-2">
+          <z-icon zType="info" class="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+          <p class="text-sm text-blue-800 dark:text-blue-200">
+            Statutory deductions (EPF, SOCSO, EIS, PCB) will be calculated automatically by the system.
+          </p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Unpaid Leave Deduction -->
+        <z-form-field>
+          <label z-form-label for="unpaid_leave_deduction">Unpaid Leave Deduction</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">RM</span>
+            <input
+              z-input
+              type="number"
+              id="unpaid_leave_deduction"
+              formControlName="unpaid_leave_deduction"
+              placeholder="0.00"
+              step="0.01"
+              min="0"
+              class="pl-12"
+            />
+          </div>
+        </z-form-field>
+
+        <!-- Other Deductions -->
+        <z-form-field>
+          <label z-form-label for="other_deductions">Other Deductions</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">RM</span>
+            <input
+              z-input
+              type="number"
+              id="other_deductions"
+              formControlName="other_deductions"
+              placeholder="0.00"
+              step="0.01"
+              min="0"
+              class="pl-12"
+            />
+          </div>
+        </z-form-field>
+      </div>
+    </z-card>
+
+    <!-- Payment Details -->
+    <z-card class="mb-6">
+      <h3 class="text-xl font-semibold text-foreground mb-6">Payment Details</h3>
+
+      <div class="grid grid-cols-1 gap-6">
+        <!-- Payment Date -->
+        <z-form-field class="md:w-1/2">
+          <label z-form-label for="payment_date" class="required">Payment Date</label>
+          <input
+            z-input
+            type="date"
+            id="payment_date"
+            formControlName="payment_date"
+          />
+          <z-form-message *ngIf="isFieldInvalid('payment_date')">
+            {{ getFieldError('payment_date') }}
+          </z-form-message>
+        </z-form-field>
+
+        <!-- Notes -->
+        <z-form-field>
+          <label z-form-label for="notes">Notes</label>
+          <textarea
+            z-input
+            id="notes"
+            formControlName="notes"
+            rows="3"
+            placeholder="Add any additional notes..."
+            class="resize-none"
+          ></textarea>
+        </z-form-field>
+      </div>
+    </z-card>
+
+    <!-- Calculation Summary -->
+    <z-card class="mb-6 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+      <h3 class="text-xl font-semibold text-foreground mb-6">Calculation Summary</h3>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-background rounded-lg p-4 border border-border">
+          <span class="text-sm text-muted-foreground block mb-2">Gross Salary</span>
+          <span class="text-2xl font-semibold text-foreground">{{ formatCurrency(calculatedGrossSalary()) }}</span>
+        </div>
+
+        <div class="bg-background rounded-lg p-4 border border-border">
+          <span class="text-sm text-muted-foreground block mb-2">Estimated Deductions</span>
+          <span class="text-2xl font-semibold text-orange-600 dark:text-orange-400">{{ formatCurrency(calculatedTotalDeductions()) }}</span>
+        </div>
+
+        <div class="bg-background rounded-lg p-4 border border-border">
+          <span class="text-sm text-muted-foreground block mb-2">Estimated Net Salary</span>
+          <span class="text-2xl font-semibold text-green-600 dark:text-green-400">{{ formatCurrency(calculatedNetSalary()) }}</span>
+        </div>
+      </div>
+
+      <div class="mt-6 flex items-start gap-2 text-sm text-muted-foreground">
+        <z-icon zType="info" class="w-4 h-4 flex-shrink-0 mt-0.5" />
+        <p>
+          Note: This is an estimated calculation. Final statutory deductions will be calculated precisely by the system.
+        </p>
+      </div>
+    </z-card>
+
+    <!-- Form Actions -->
+    <div class="flex justify-end gap-4">
+      <button
+        type="button"
+        z-button
+        zType="outline"
+        (click)="onCancel()"
+        [disabled]="submitting()"
+      >
+        Cancel
+      </button>
+      <button
+        type="submit"
+        z-button
+        zType="default"
+        [disabled]="payrollForm.invalid || submitting()"
+        class="min-w-[200px]"
+      >
+        <z-icon *ngIf="submitting()" zType="loader-circle" class="w-4 h-4 mr-2 animate-spin" />
+        {{ isEditMode() ? 'Update Payroll' : 'Calculate Payroll' }}
+      </button>
+    </div>
+  </form>
+</div>

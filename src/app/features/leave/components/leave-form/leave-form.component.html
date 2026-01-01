@@ -1,0 +1,346 @@
+<div class="p-6 bg-background min-h-screen">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-foreground">
+        {{ isEditMode() ? 'Edit Leave Application' : 'Apply for Leave' }}
+      </h1>
+      <p class="text-muted-foreground">
+        {{ isEditMode() ? 'Update your leave application details' : 'Submit a new leave application' }}
+      </p>
+    </div>
+    <button z-button zType="outline" routerLink="/dashboard/leave" class="gap-2">
+      <z-icon zType="arrow-left" class="w-4 h-4" />
+      Back to List
+    </button>
+  </div>
+
+  <!-- Error Message -->
+  @if (error()) {
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-2 text-red-800 mb-6">
+      <z-icon zType="triangle-alert" class="w-5 h-5" />
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  <!-- Loading Spinner -->
+  @if (loading()) {
+    <div class="flex items-center justify-center py-20">
+      <z-icon zType="loader-circle" class="w-8 h-8 animate-spin text-primary" />
+    </div>
+  }
+
+  <!-- Form -->
+  @if (!loading()) {
+    <form [formGroup]="leaveForm" (ngSubmit)="onSubmit()">
+      <!-- Masonry Grid Layout -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        <!-- Left Column: Leave Application (Employee, Leave Type, Date & Duration) -->
+        <div class="lg:col-span-1 space-y-4">
+          <!-- Employee, Leave Type & Date Duration Card -->
+          <z-card class="hover:shadow-md transition-shadow">
+            <div z-card-content class="p-5">
+              <div class="flex items-center gap-2 mb-4">
+                <z-icon zType="user" class="w-5 h-5 text-primary" />
+                <h3 class="text-lg font-semibold text-foreground">Leave Application</h3>
+              </div>
+
+              <div class="space-y-4">
+                <!-- Employee -->
+                <div>
+                  <label class="block text-sm font-medium text-foreground mb-2">
+                    Employee <span class="text-red-500">*</span>
+                  </label>
+                  <z-select
+                    zPlaceholder="Select Employee"
+                    formControlName="employee_id"
+                    (zValueChange)="onEmployeeChange($event)"
+                    [zDisabled]="isEditMode()">
+                    @for (emp of employees(); track emp.id) {
+                      <z-select-item [zValue]="emp.id">
+                        {{ emp.full_name }} ({{ emp.employee_id }})
+                      </z-select-item>
+                    }
+                  </z-select>
+                  @if (isFieldInvalid('employee_id')) {
+                    <p class="text-xs text-red-600 mt-1">{{ getFieldError('employee_id') }}</p>
+                  }
+                </div>
+
+                <!-- Leave Type -->
+                <div>
+                  <label class="block text-sm font-medium text-foreground mb-2">
+                    Leave Type <span class="text-red-500">*</span>
+                  </label>
+                  <z-select
+                    zPlaceholder="Select Leave Type"
+                    formControlName="leave_type_id">
+                    @for (type of leaveTypes(); track type.id) {
+                      <z-select-item [zValue]="type.id">
+                        {{ type.name }}
+                      </z-select-item>
+                    }
+                  </z-select>
+                  @if (isFieldInvalid('leave_type_id')) {
+                    <p class="text-xs text-red-600 mt-1">{{ getFieldError('leave_type_id') }}</p>
+                  }
+                </div>
+
+                <!-- Leave Balance Alert -->
+                @if (leaveBalance()) {
+                  <div class="rounded-lg border border-border bg-background p-4">
+                    <div class="flex items-start gap-3">
+                      <z-icon zType="calendar-plus" class="w-5 h-5 text-primary mt-0.5" />
+                      <div class="flex-1">
+                        <h5 class="text-sm font-semibold text-foreground mb-1">Available Balance</h5>
+                        <p class="text-sm text-muted-foreground">{{ getAvailableBalance() }} days remaining</p>
+                      </div>
+                    </div>
+                  </div>
+                }
+
+                <div class="pt-2 border-t border-border">
+                  <h4 class="text-sm font-semibold text-foreground mb-3">Date & Duration</h4>
+
+                  <div class="space-y-4">
+                    <!-- Start Date -->
+                    <div>
+                      <label class="block text-sm font-medium text-foreground mb-2">
+                        Start Date <span class="text-red-500">*</span>
+                      </label>
+                      <z-date-picker
+                        placeholder="Select start date"
+                        formControlName="start_date">
+                      </z-date-picker>
+                      @if (isFieldInvalid('start_date')) {
+                        <p class="text-xs text-red-600 mt-1">{{ getFieldError('start_date') }}</p>
+                      }
+                    </div>
+
+                    <!-- End Date -->
+                    <div>
+                      <label class="block text-sm font-medium text-foreground mb-2">
+                        End Date <span class="text-red-500">*</span>
+                      </label>
+                      <z-date-picker
+                        placeholder="Select end date"
+                        formControlName="end_date">
+                      </z-date-picker>
+                      @if (isFieldInvalid('end_date')) {
+                        <p class="text-xs text-red-600 mt-1">{{ getFieldError('end_date') }}</p>
+                      }
+                    </div>
+
+                    <!-- Half Day Checkbox -->
+                    <div class="pt-2 border-t border-border">
+                      <label class="flex items-center gap-2 cursor-pointer p-3 rounded-lg hover:bg-muted/30 transition-colors">
+                        <input
+                          type="checkbox"
+                          id="is_half_day"
+                          class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
+                          formControlName="is_half_day"
+                          (change)="onHalfDayChange()">
+                        <span class="text-sm font-medium text-foreground">Half Day Leave</span>
+                      </label>
+                    </div>
+
+                    <!-- Half Day Period -->
+                    @if (leaveForm.get('is_half_day')?.value) {
+                      <div>
+                        <label class="block text-sm font-medium text-foreground mb-2">Period</label>
+                        <z-select
+                          zPlaceholder="Select Period"
+                          formControlName="half_day_period">
+                          <z-select-item [zValue]="'AM'">Morning (AM)</z-select-item>
+                          <z-select-item [zValue]="'PM'">Afternoon (PM)</z-select-item>
+                        </z-select>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+          </z-card>
+        </div>
+
+        <!-- Right Column: Reason & Attachments (Full Width) -->
+        <div class="lg:col-span-1 space-y-4">
+          <!-- Reason & Attachment Card -->
+          <z-card class="hover:shadow-md transition-shadow">
+            <div z-card-content class="p-5">
+              <div class="flex items-center gap-2 mb-4">
+                <z-icon zType="file-text" class="w-5 h-5 text-primary" />
+                <h3 class="text-lg font-semibold text-foreground">Details & Attachment</h3>
+              </div>
+
+              <div class="space-y-4">
+                <!-- Reason -->
+                <div>
+                  <label class="block text-sm font-medium text-foreground mb-2">
+                    Reason <span class="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    z-input
+                    [zStatus]="isFieldInvalid('reason') ? 'error' : undefined"
+                    formControlName="reason"
+                    rows="4"
+                    class="!h-auto resize-none"
+                    placeholder="Please provide a reason for your leave application..."></textarea>
+                  @if (isFieldInvalid('reason')) {
+                    <p class="text-xs text-red-600 mt-1">{{ getFieldError('reason') }}</p>
+                  }
+                </div>
+
+                <!-- Attachment -->
+                <div class="pt-2 border-t border-border">
+                  <div class="flex items-center justify-between mb-3">
+                    <label class="block text-sm font-medium text-foreground">
+                      Attachment @if (requiresDocument()) {<span class="text-red-500">*</span>}
+                    </label>
+                    @if (!isEditMode()) {
+                      <div class="flex items-center gap-2">
+                        @if (requiresDocument()) {
+                          <z-badge zType="destructive" class="text-xs">Required</z-badge>
+                        } @else {
+                          <z-badge zType="secondary" class="text-xs">Optional</z-badge>
+                        }
+                        @if (!requiresDocument()) {
+                          <button
+                            type="button"
+                            class="text-xs text-primary hover:underline font-medium"
+                            (click)="toggleAttachmentMode()">
+                            {{ showUrlInput() ? 'Use File Upload' : 'Add from URL' }}
+                          </button>
+                        }
+                      </div>
+                    }
+                  </div>
+
+                  @if (!isEditMode()) {
+                    @if (!requiresDocument() && showUrlInput()) {
+                      <!-- URL Input Mode (for optional attachments) -->
+                      <input
+                        z-input
+                        type="text"
+                        formControlName="attachment_url"
+                        placeholder="https://example.com/document.pdf">
+                      <p class="text-xs text-muted-foreground mt-2 flex items-start gap-1">
+                        <z-icon zType="info" class="w-3 h-3 mt-0.5" />
+                        <span>Provide a link to supporting documents</span>
+                      </p>
+                    } @else {
+                      <!-- File Upload Component (for required or when file upload mode is selected) -->
+                      <div class="mb-2">
+                        <app-file-upload
+                          [acceptedTypes]="getAcceptedFileTypes()"
+                          [multiple]="true"
+                          [maxFiles]="5"
+                          [showPreview]="true"
+                          [autoUpload]="false"
+                          [metadata]="fileUploadMetadata"
+                          (filesSelected)="onFilesSelected($event)"
+                          (uploadComplete)="onFileUploadComplete($event)"
+                          (uploadError)="onFileUploadError($event)">
+                        </app-file-upload>
+                        <div class="mt-3 p-3 bg-muted/30 rounded-lg">
+                          <p class="text-xs text-muted-foreground flex items-start gap-2">
+                            <z-icon zType="info" class="w-4 h-4 mt-0" />
+                            <span>{{ getDocumentDescription() }}</span>
+                          </p>
+                        </div>
+                      </div>
+                    }
+                  } @else {
+                    <!-- View Uploaded Files (Edit Mode) -->
+                    <app-file-list
+                      [category]="'leave_document'"
+                      [relatedToLeaveId]="leaveId()!"
+                      [showFilters]="false"
+                      [showActions]="true"
+                      [maxDisplay]="10">
+                    </app-file-list>
+                  }
+                </div>
+              </div>
+            </div>
+          </z-card>
+        </div>
+      </div>
+
+      <!-- Document Upload Section - COMMENTED OUT: Now integrated into Details & Attachment card -->
+      <!--
+      @if (requiresDocument() || isEditMode()) {
+        <z-card class="mb-6 hover:shadow-md transition-shadow">
+          <div z-card-content class="p-6">
+            <div class="flex items-center gap-2 mb-6">
+              <z-icon zType="file-text" class="w-5 h-5 text-primary" />
+              <h3 class="text-xl font-semibold text-foreground">{{ getDocumentTitle() }}</h3>
+              @if (requiresDocument()) {
+                <z-badge zType="destructive" class="text-xs">Required</z-badge>
+              } @else {
+                <z-badge zType="secondary" class="text-xs">Optional</z-badge>
+              }
+            </div>
+
+            <! -- File Upload Component -- >
+            @if (!isEditMode()) {
+              <div class="mb-4">
+                <app-file-upload
+                  [acceptedTypes]="getAcceptedFileTypes()"
+                  [multiple]="true"
+                  [maxFiles]="5"
+                  [showPreview]="true"
+                  [autoUpload]="false"
+                  [metadata]="fileUploadMetadata"
+                  (filesSelected)="onFilesSelected($event)"
+                  (uploadComplete)="onFileUploadComplete($event)"
+                  (uploadError)="onFileUploadError($event)">
+                </app-file-upload>
+                <div class="mt-3 p-3 bg-muted/30 rounded-lg">
+                  <p class="text-xs text-muted-foreground flex items-start gap-2">
+                    <z-icon zType="info" class="w-4 h-4 mt-0" />
+                    <span>{{ getDocumentDescription() }}</span>
+                  </p>
+                </div>
+              </div>
+            }
+
+            <! -- View Uploaded Files (Edit Mode) -- >
+            @if (isEditMode() && leaveId()) {
+              <app-file-list
+                [category]="'leave_document'"
+                [relatedToLeaveId]="leaveId()!"
+                [showFilters]="false"
+                [showActions]="true"
+                [maxDisplay]="10">
+              </app-file-list>
+            }
+          </div>
+        </z-card>
+      }
+      -->
+
+      <!-- Form Actions -->
+      <div class="flex items-center justify-end gap-3">
+        <button
+          z-button
+          zType="outline"
+          type="button"
+          (click)="onCancel()"
+          [disabled]="submitting()">
+          Cancel
+        </button>
+        <button
+          z-button
+          type="submit"
+          class="gap-2"
+          [disabled]="leaveForm.invalid || submitting()">
+          @if (submitting()) {
+            <z-icon zType="loader-circle" class="w-4 h-4 animate-spin" />
+          }
+          {{ isEditMode() ? 'Update Application' : 'Submit Application' }}
+        </button>
+      </div>
+    </form>
+  }
+</div>

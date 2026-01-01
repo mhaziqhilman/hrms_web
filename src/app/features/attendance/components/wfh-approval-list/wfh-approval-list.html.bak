@@ -1,0 +1,217 @@
+<div class="wfh-approval-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">WFH Approval Requests</h2>
+      <p class="page-subtitle">Review and approve/reject Work From Home applications from your team</p>
+    </div>
+    <a routerLink="/dashboard/attendance" class="btn btn-outline-secondary">
+      <i class="bi bi-arrow-left me-2"></i>
+      Back to Attendance
+    </a>
+  </div>
+
+  <!-- Success Message -->
+  <div *ngIf="success()" class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="bi bi-check-circle-fill me-2"></i>
+    {{ success() }}
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="error()" class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    {{ error() }}
+  </div>
+
+  <!-- Filters -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="row g-3">
+        <!-- Status Filter -->
+        <div class="col-md-3">
+          <label for="statusFilter" class="form-label">Status</label>
+          <select
+            id="statusFilter"
+            class="form-select"
+            [(ngModel)]="selectedStatus"
+            (change)="onFilterChange()">
+            <option value="">All Status</option>
+            <option value="Pending">Pending</option>
+            <option value="Approved">Approved</option>
+            <option value="Rejected">Rejected</option>
+          </select>
+        </div>
+
+        <!-- Search -->
+        <div class="col-md-6">
+          <label for="search" class="form-label">Search Employee</label>
+          <input
+            type="text"
+            id="search"
+            class="form-control"
+            placeholder="Search by employee name..."
+            [(ngModel)]="searchQuery"
+            (input)="onSearchChange()">
+        </div>
+
+        <!-- Results Count -->
+        <div class="col-md-3 d-flex align-items-end">
+          <div class="w-100">
+            <label class="form-label">Total Records</label>
+            <div class="badge bg-primary w-100 py-2 fs-6">{{ totalRecords() }} applications</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading()" class="loading-container">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="loading-text">Loading WFH applications...</p>
+  </div>
+
+  <!-- Applications List -->
+  <div *ngIf="!loading() && wfhApplications().length > 0" class="applications-list">
+    <div class="card mb-3" *ngFor="let application of wfhApplications()">
+      <div class="card-body">
+        <div class="row align-items-center">
+          <!-- Employee Info -->
+          <div class="col-md-3">
+            <h6 class="mb-1">{{ application.employee?.full_name || 'Unknown Employee' }}</h6>
+            <small class="text-muted">{{ application.employee?.employee_code || 'N/A' }}</small>
+          </div>
+
+          <!-- WFH Date -->
+          <div class="col-md-2">
+            <label class="text-muted small">WFH Date</label>
+            <div class="fw-bold">{{ formatDate(application.date) }}</div>
+          </div>
+
+          <!-- Reason -->
+          <div class="col-md-3">
+            <label class="text-muted small">Reason</label>
+            <div class="text-truncate" [title]="application.reason">{{ application.reason }}</div>
+          </div>
+
+          <!-- Status -->
+          <div class="col-md-2">
+            <label class="text-muted small">Status</label>
+            <div>
+              <span [class]="getStatusBadgeClass(application.status)">
+                {{ application.status }}
+              </span>
+            </div>
+            <small class="text-muted d-block mt-1" *ngIf="application.approved_at">
+              {{ formatDateTime(application.approved_at) }}
+            </small>
+          </div>
+
+          <!-- Actions -->
+          <div class="col-md-2 text-end">
+            <div class="btn-group" *ngIf="canApproveReject(application)">
+              <button
+                type="button"
+                class="btn btn-sm btn-success"
+                (click)="approveApplication(application.id)"
+                title="Approve">
+                <i class="bi bi-check-lg"></i>
+              </button>
+              <button
+                type="button"
+                class="btn btn-sm btn-danger"
+                (click)="openRejectionModal(application.id)"
+                title="Reject">
+                <i class="bi bi-x-lg"></i>
+              </button>
+            </div>
+            <span *ngIf="!canApproveReject(application)" class="badge bg-secondary">
+              {{ isPastDate(application.date) ? 'Past Date' : 'Processed' }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Rejection Reason (if rejected) -->
+        <div *ngIf="application.status === 'Rejected' && application.rejection_reason" class="mt-3 pt-3 border-top">
+          <label class="text-muted small">Rejection Reason:</label>
+          <div class="text-danger">{{ application.rejection_reason }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading() && wfhApplications().length === 0" class="empty-state">
+    <i class="bi bi-inbox"></i>
+    <h4>No WFH Applications Found</h4>
+    <p>There are no WFH applications matching your filters</p>
+  </div>
+
+  <!-- Pagination -->
+  <nav *ngIf="totalPages() > 1" class="mt-4" aria-label="WFH applications pagination">
+    <ul class="pagination justify-content-center">
+      <li class="page-item" [class.disabled]="currentPage() === 1">
+        <a class="page-link" (click)="onPageChange(currentPage() - 1)" tabindex="-1">
+          <i class="bi bi-chevron-left"></i>
+        </a>
+      </li>
+
+      <li
+        class="page-item"
+        *ngFor="let page of getPageNumbers()"
+        [class.active]="page === currentPage()"
+        [class.disabled]="page === -1">
+        <a
+          class="page-link"
+          *ngIf="page !== -1"
+          (click)="onPageChange(page)">
+          {{ page }}
+        </a>
+        <span class="page-link" *ngIf="page === -1">...</span>
+      </li>
+
+      <li class="page-item" [class.disabled]="currentPage() === totalPages()">
+        <a class="page-link" (click)="onPageChange(currentPage() + 1)">
+          <i class="bi bi-chevron-right"></i>
+        </a>
+      </li>
+    </ul>
+  </nav>
+</div>
+
+<!-- Rejection Modal -->
+<div class="modal fade show d-block" *ngIf="showRejectionModal()" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Reject WFH Application</h5>
+        <button type="button" class="btn-close" (click)="closeRejectionModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label for="rejectionReason" class="form-label">Rejection Reason <span class="text-danger">*</span></label>
+          <textarea
+            id="rejectionReason"
+            class="form-control"
+            rows="4"
+            [(ngModel)]="rejectionReason"
+            placeholder="Please provide a reason for rejecting this WFH application..."
+            required></textarea>
+          <small class="form-text text-muted">This reason will be shared with the employee.</small>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeRejectionModal()">Cancel</button>
+        <button
+          type="button"
+          class="btn btn-danger"
+          (click)="submitRejection()"
+          [disabled]="!rejectionReason().trim()">
+          Reject Application
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

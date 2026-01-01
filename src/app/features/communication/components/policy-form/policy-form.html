@@ -1,0 +1,254 @@
+<div class="policy-form-container">
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="loading()">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-3 text-muted">Loading policy...</p>
+  </div>
+
+  <!-- Form Content -->
+  <div *ngIf="!loading()" class="form-content">
+    <!-- Header -->
+    <div class="form-header">
+      <div>
+        <h2 class="page-title">
+          <i class="bi bi-file-earmark-text"></i>
+          {{ isEditMode() ? 'Edit Policy' : 'Create New Policy' }}
+        </h2>
+        <p class="page-subtitle">
+          {{ isEditMode() ? 'Update the policy details below' : 'Create and manage company policies' }}
+        </p>
+      </div>
+      <div class="header-actions">
+        <button
+          *ngIf="isEditMode()"
+          class="btn btn-info"
+          (click)="createNewVersion()">
+          <i class="bi bi-plus-circle"></i>
+          New Version
+        </button>
+        <button class="btn btn-outline-secondary" (click)="cancel()">
+          <i class="bi bi-x-circle"></i>
+          Cancel
+        </button>
+      </div>
+    </div>
+
+    <!-- Error Alert -->
+    <div class="alert alert-danger" *ngIf="error()">
+      <i class="bi bi-exclamation-triangle"></i>
+      {{ error() }}
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="form" class="policy-form">
+      <!-- Basic Information Card -->
+      <div class="form-card">
+        <h4 class="card-title">
+          <i class="bi bi-info-circle"></i>
+          Basic Information
+        </h4>
+
+        <!-- Policy Code and Version -->
+        <div class="row">
+          <div class="col-md-8">
+            <div class="form-group">
+              <label for="policy_code" class="form-label required">Policy Code</label>
+              <input
+                type="text"
+                id="policy_code"
+                class="form-control"
+                formControlName="policy_code"
+                placeholder="e.g., HR-001, IT-SECURITY-002"
+                [class.is-invalid]="isFieldInvalid('policy_code')">
+              <div class="invalid-feedback" *ngIf="isFieldInvalid('policy_code')">
+                {{ getFieldError('policy_code') }}
+              </div>
+              <small class="text-muted">Unique identifier for this policy</small>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-group">
+              <label for="version" class="form-label required">Version</label>
+              <input
+                type="text"
+                id="version"
+                class="form-control"
+                formControlName="version"
+                placeholder="e.g., 1.0, 2.1"
+                [class.is-invalid]="isFieldInvalid('version')">
+              <div class="invalid-feedback" *ngIf="isFieldInvalid('version')">
+                {{ getFieldError('version') }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Title -->
+        <div class="form-group">
+          <label for="title" class="form-label required">Policy Title</label>
+          <input
+            type="text"
+            id="title"
+            class="form-control"
+            formControlName="title"
+            placeholder="Enter policy title..."
+            [class.is-invalid]="isFieldInvalid('title')">
+          <div class="invalid-feedback" *ngIf="isFieldInvalid('title')">
+            {{ getFieldError('title') }}
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+          <label for="description" class="form-label">Description</label>
+          <textarea
+            id="description"
+            class="form-control"
+            formControlName="description"
+            rows="2"
+            placeholder="Brief description (optional, max 500 characters)..."
+            [class.is-invalid]="isFieldInvalid('description')"></textarea>
+          <div class="invalid-feedback" *ngIf="isFieldInvalid('description')">
+            {{ getFieldError('description') }}
+          </div>
+          <small class="text-muted">{{ form.get('description')?.value?.length || 0 }} / 500 characters</small>
+        </div>
+
+        <!-- Category -->
+        <div class="form-group">
+          <label for="category" class="form-label required">Category</label>
+          <select id="category" class="form-select" formControlName="category">
+            <option *ngFor="let category of categories" [value]="category">
+              {{ category }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Content Card -->
+      <div class="form-card">
+        <h4 class="card-title">
+          <i class="bi bi-file-text"></i>
+          Policy Content
+        </h4>
+
+        <div class="form-group">
+          <label class="form-label required">Policy Details</label>
+          <quill-editor
+            formControlName="content"
+            [modules]="quillConfig"
+            placeholder="Write your policy content here. Include all necessary details, procedures, and guidelines..."
+            [class.is-invalid]="isFieldInvalid('content')">
+          </quill-editor>
+          <div class="invalid-feedback d-block" *ngIf="isFieldInvalid('content')">
+            {{ getFieldError('content') }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Policy Dates Card -->
+      <div class="form-card">
+        <h4 class="card-title">
+          <i class="bi bi-calendar3"></i>
+          Policy Dates
+        </h4>
+
+        <div class="row">
+          <div class="col-md-4">
+            <div class="form-group">
+              <label for="effective_from" class="form-label">Effective From</label>
+              <input
+                type="date"
+                id="effective_from"
+                class="form-control"
+                formControlName="effective_from">
+              <small class="text-muted">When this policy becomes effective</small>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-group">
+              <label for="review_date" class="form-label">Review Date</label>
+              <input
+                type="date"
+                id="review_date"
+                class="form-control"
+                formControlName="review_date">
+              <small class="text-muted">When this policy should be reviewed</small>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-group">
+              <label for="expires_at" class="form-label">Expires On</label>
+              <input
+                type="date"
+                id="expires_at"
+                class="form-control"
+                formControlName="expires_at">
+              <small class="text-muted">Leave empty if no expiration</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings Card -->
+      <div class="form-card">
+        <h4 class="card-title">
+          <i class="bi bi-gear"></i>
+          Policy Settings
+        </h4>
+
+        <div class="form-check">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="requires_acknowledgment"
+            formControlName="requires_acknowledgment">
+          <label class="form-check-label" for="requires_acknowledgment">
+            <strong>Require Employee Acknowledgment</strong>
+            <br>
+            <small class="text-muted">Employees must acknowledge they have read and understood this policy</small>
+          </label>
+        </div>
+
+        <!-- Hidden field for parent policy -->
+        <input type="hidden" formControlName="parent_policy_id">
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="form-actions">
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          (click)="cancel()"
+          [disabled]="saving()">
+          <i class="bi bi-x-circle"></i>
+          Cancel
+        </button>
+
+        <div class="primary-actions">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            (click)="saveAsDraft()"
+            [disabled]="saving()">
+            <span class="spinner-border spinner-border-sm me-2" *ngIf="saving()"></span>
+            <i class="bi bi-save" *ngIf="!saving()"></i>
+            Save as Draft
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-success"
+            (click)="activate()"
+            [disabled]="saving()">
+            <span class="spinner-border spinner-border-sm me-2" *ngIf="saving()"></span>
+            <i class="bi bi-check-circle" *ngIf="!saving()"></i>
+            {{ isEditMode() ? 'Update & Activate' : 'Activate Policy' }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

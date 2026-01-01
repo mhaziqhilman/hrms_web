@@ -1,0 +1,243 @@
+.clock-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.page-subtitle {
+  color: #6c757d;
+  margin: 0.25rem 0 0;
+  font-size: 0.95rem;
+}
+
+/* Time Display */
+.time-display-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 2.5rem;
+  border-radius: 15px;
+  text-align: center;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.current-time {
+  font-size: 3.5rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin-bottom: 0.5rem;
+}
+
+.current-date {
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+/* Clock Grid */
+.clock-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.clock-card,
+.status-card {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+}
+
+/* Time Details */
+.time-details {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.time-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+
+  label {
+    color: #6c757d;
+    font-weight: 500;
+    font-size: 0.95rem;
+  }
+
+  .time-value {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2c3e50;
+  }
+}
+
+/* Status Card */
+.status-badge-container {
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1rem 2rem;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: 600;
+
+  &.status-success {
+    background-color: #d4edda;
+    color: #155724;
+  }
+
+  &.status-warning {
+    background-color: #fff3cd;
+    color: #856404;
+  }
+
+  &.status-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+
+  &.status-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+  }
+
+  &.status-none {
+    background-color: #e9ecef;
+    color: #6c757d;
+  }
+}
+
+.attendance-details {
+  margin-top: 1.5rem;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 0;
+  color: #495057;
+  font-size: 0.95rem;
+
+  i {
+    flex-shrink: 0;
+  }
+
+  .location-text {
+    font-size: 0.85rem;
+    color: #6c757d;
+  }
+}
+
+.no-attendance {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #6c757d;
+
+  i {
+    font-size: 3rem;
+    opacity: 0.3;
+  }
+
+  p {
+    margin: 0;
+    font-size: 1rem;
+  }
+}
+
+/* Instructions Card */
+.instructions-card {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+  border-left: 4px solid #667eea;
+}
+
+.instructions-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.instructions-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  li {
+    padding: 0.5rem 0;
+    color: #495057;
+    display: flex;
+    align-items: flex-start;
+
+    i {
+      color: #667eea;
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .clock-container {
+    padding: 1rem;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .current-time {
+    font-size: 2.5rem;
+  }
+
+  .current-date {
+    font-size: 1rem;
+  }
+
+  .clock-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .clock-card,
+  .status-card {
+    padding: 1.5rem;
+  }
+}

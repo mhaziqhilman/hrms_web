@@ -1,0 +1,297 @@
+<div class="file-list-container">
+  <!-- Header with Filters -->
+  @if (showFilters) {
+    <div class="file-list-header">
+      <div class="filters-section">
+        <!-- Category Filter -->
+        @if (!category) {
+          <div class="filter-group">
+            <label for="category-filter">Category:</label>
+            <select
+              id="category-filter"
+              [value]="selectedCategory()"
+              (change)="onCategoryChange($any($event.target).value)"
+              class="filter-select"
+            >
+              @for (cat of categories; track cat.value) {
+                <option [value]="cat.value">{{ cat.label }}</option>
+              }
+            </select>
+          </div>
+        }
+
+        <!-- Search -->
+        <div class="filter-group search-group">
+          <label for="search-input">Search:</label>
+          <input
+            id="search-input"
+            type="text"
+            placeholder="Search files..."
+            (input)="onSearch($event)"
+            class="search-input"
+          />
+        </div>
+
+        <!-- Sort -->
+        <div class="filter-group">
+          <label>Sort by:</label>
+          <div class="sort-buttons">
+            <button
+              type="button"
+              [class.active]="sortBy() === 'date'"
+              (click)="onSortChange('date')"
+              class="sort-btn"
+            >
+              Date
+              @if (sortBy() === 'date') {
+                <i class="material-icons">{{ sortOrder() === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</i>
+              }
+            </button>
+            <button
+              type="button"
+              [class.active]="sortBy() === 'name'"
+              (click)="onSortChange('name')"
+              class="sort-btn"
+            >
+              Name
+              @if (sortBy() === 'name') {
+                <i class="material-icons">{{ sortOrder() === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</i>
+              }
+            </button>
+            <button
+              type="button"
+              [class.active]="sortBy() === 'size'"
+              (click)="onSortChange('size')"
+              class="sort-btn"
+            >
+              Size
+              @if (sortBy() === 'size') {
+                <i class="material-icons">{{ sortOrder() === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</i>
+              }
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results Summary -->
+      <div class="results-summary">
+        @if (!loading()) {
+          <span>{{ totalItems() }} file(s) found</span>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Error Message -->
+  @if (error()) {
+    <div class="error-banner">
+      <i class="material-icons">error</i>
+      <span>{{ error() }}</span>
+      <button type="button" (click)="error.set(null)" class="close-btn">
+        <i class="material-icons">close</i>
+      </button>
+    </div>
+  }
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="loading-state">
+      <div class="spinner-large"></div>
+      <p>Loading files...</p>
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (!loading() && files().length === 0) {
+    <div class="empty-state">
+      <i class="material-icons">folder_open</i>
+      <h3>No files found</h3>
+      <p>
+        @if (searchTerm() || selectedCategory() !== 'all') {
+          Try adjusting your filters or search term
+        } @else {
+          No files have been uploaded yet
+        }
+      </p>
+    </div>
+  }
+
+  <!-- Files Display -->
+  @if (!loading() && files().length > 0) {
+    @if (displayMode === 'compact') {
+      <!-- Compact List View -->
+      <div class="space-y-3">
+        @for (file of files(); track file.id) {
+          <div class="flex items-center gap-4 p-4 bg-background border border-border rounded-lg hover:border-primary/50 transition-colors bg-card text-card-foreground gap-6 rounded-xl border shadow-sm p-4">
+            <!-- File Icon -->
+            <div class="flex-shrink-0 w-12 h-12 flex items-center justify-center bg-red-50 rounded-lg">
+              <z-icon zType="file-text" class="w-6 h-6 text-red-500" />
+            </div>
+
+            <!-- File Info -->
+            <div class="flex-1 min-w-0">
+              <h4 class="text-sm font-medium text-foreground truncate" [title]="file.original_filename">
+                {{ file.original_filename }}
+              </h4>
+              <p class="text-xs text-muted-foreground">{{ formatFileSize(file.file_size) }}</p>
+            </div>
+
+            <!-- Actions -->
+            @if (showActions) {
+              <div class="flex items-center gap-2">
+                <button
+                  type="button"
+                  (click)="previewFile(file)"
+                  class="p-2 hover:bg-muted rounded-md transition-colors"
+                  [title]="canPreview(file.mime_type) ? 'Preview' : 'View'"
+                >
+                  <z-icon zType="eye" class="w-4 h-4 text-muted-foreground" />
+                </button>
+                <button
+                  type="button"
+                  (click)="downloadFile(file)"
+                  class="p-2 hover:bg-muted rounded-md transition-colors"
+                  title="Download"
+                >
+                  <z-icon zType="arrow-up" class="w-4 h-4 text-muted-foreground rotate-180" />
+                </button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    } @else {
+      <!-- Grid View -->
+      <div class="files-grid">
+        @for (file of files(); track file.id) {
+          <div class="file-card">
+            <!-- File Preview/Icon -->
+            <div class="file-preview">
+              @if (file.mime_type.startsWith('image/')) {
+                @if (getImagePreviewUrl(file.id); as previewUrl) {
+                  <img
+                    [src]="previewUrl"
+                    [alt]="file.original_filename"
+                  />
+                } @else {
+                  <div class="preview-loading">
+                    <i class="material-icons">image</i>
+                  </div>
+                }
+              } @else {
+                <i class="material-icons file-icon">{{ getFileIcon(file.mime_type) }}</i>
+              }
+            </div>
+
+            <!-- File Info -->
+            <div class="file-info">
+              <h4 class="file-name" [title]="file.original_filename">
+                {{ file.original_filename }}
+              </h4>
+              <div class="file-meta">
+                <span class="file-size">{{ formatFileSize(file.file_size) }}</span>
+                <span class="separator">•</span>
+                <span class="file-category">{{ getCategoryLabel(file.category) }}</span>
+              </div>
+              <div class="file-date">
+                <i class="material-icons">schedule</i>
+                {{ formatDate(file.uploaded_at) }}
+              </div>
+              @if (file.description) {
+                <p class="file-description">{{ file.description }}</p>
+              }
+            </div>
+
+            <!-- Actions -->
+            @if (showActions) {
+              <div class="file-actions">
+                <button
+                  type="button"
+                  (click)="previewFile(file)"
+                  class="action-btn preview-btn"
+                  [title]="canPreview(file.mime_type) ? 'Preview' : 'Download'"
+                >
+                  <i class="material-icons">
+                    {{ canPreview(file.mime_type) ? 'visibility' : 'download' }}
+                  </i>
+                </button>
+                <button
+                  type="button"
+                  (click)="downloadFile(file)"
+                  class="action-btn download-btn"
+                  title="Download"
+                >
+                  <i class="material-icons">file_download</i>
+                </button>
+                <button
+                  type="button"
+                  (click)="deleteFile(file)"
+                  class="action-btn delete-btn"
+                  title="Delete"
+                >
+                  <i class="material-icons">delete</i>
+                </button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+
+    <!-- Pagination -->
+    @if (totalPages() > 1 && !maxDisplay) {
+      <div class="pagination">
+        <button
+          type="button"
+          [disabled]="currentPage() === 1"
+          (click)="onPageChange(currentPage() - 1)"
+          class="page-btn"
+        >
+          <i class="material-icons">chevron_left</i>
+        </button>
+
+        @for (page of paginationPages; track page) {
+          @if (page === -1) {
+            <span class="page-ellipsis">...</span>
+          } @else {
+            <button
+              type="button"
+              [class.active]="currentPage() === page"
+              (click)="onPageChange(page)"
+              class="page-btn"
+            >
+              {{ page }}
+            </button>
+          }
+        }
+
+        <button
+          type="button"
+          [disabled]="currentPage() === totalPages()"
+          (click)="onPageChange(currentPage() + 1)"
+          class="page-btn"
+        >
+          <i class="material-icons">chevron_right</i>
+        </button>
+      </div>
+    }
+  }
+</div>
+
+<!-- File Preview Modal -->
+@if (showPreviewModal() && previewingFile()) {
+  <div class="modal-backdrop" (click)="closePreviewModal()">
+    <div class="modal-dialog" (click)="$event.stopPropagation()">
+      <div class="modal-content">
+        <app-file-viewer
+          [file]="previewingFile()!"
+          [showHeader]="true"
+          [showActions]="showActions"
+          (closed)="closePreviewModal()"
+          (deleted)="closePreviewModal(); loadFiles()">
+        </app-file-viewer>
+      </div>
+    </div>
+  </div>
+}

@@ -1,0 +1,142 @@
+<div class="file-viewer-container">
+  <!-- Header -->
+  @if (showHeader && fileMetadata()) {
+    <div class="viewer-header">
+      <div class="file-info-header">
+        <i class="material-icons file-type-icon">{{ getFileIcon(fileMetadata()!.mime_type) }}</i>
+        <div class="file-details">
+          <h3 class="file-title">{{ fileMetadata()!.original_filename }}</h3>
+          <div class="file-meta-info">
+            <span class="meta-item">
+              <i class="material-icons">storage</i>
+              {{ formatFileSize(fileMetadata()!.file_size) }}
+            </span>
+            <span class="separator">•</span>
+            <span class="meta-item">
+              <i class="material-icons">label</i>
+              {{ getCategoryLabel(fileMetadata()!.category) }}
+            </span>
+            <span class="separator">•</span>
+            <span class="meta-item">
+              <i class="material-icons">schedule</i>
+              {{ formatDate(fileMetadata()!.uploaded_at) }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        @if (showActions) {
+          <button
+            type="button"
+            (click)="downloadFile()"
+            class="action-button download-button"
+            title="Download"
+          >
+            <i class="material-icons">file_download</i>
+            <span>Download</span>
+          </button>
+          <button
+            type="button"
+            (click)="deleteFile()"
+            class="action-button delete-button"
+            title="Delete"
+          >
+            <i class="material-icons">delete</i>
+          </button>
+        }
+        <button
+          type="button"
+          (click)="close()"
+          class="action-button close-button"
+          title="Close"
+        >
+          <i class="material-icons">close</i>
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- File Description -->
+  @if (fileMetadata() && fileMetadata()!.description) {
+    <div class="file-description-section">
+      <i class="material-icons">description</i>
+      <p>{{ fileMetadata()!.description }}</p>
+    </div>
+  }
+
+  <!-- Error Message -->
+  @if (error()) {
+    <div class="error-container">
+      <i class="material-icons">error</i>
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>Loading file preview...</p>
+    </div>
+  }
+
+  <!-- Preview Content -->
+  @if (!loading() && viewMode() === 'preview' && previewUrl()) {
+    <div class="preview-container">
+      <!-- Image Preview -->
+      @if (isImage()) {
+        <div class="image-preview">
+          <img [src]="previewUrl()!" [alt]="fileMetadata()!.original_filename" />
+        </div>
+      }
+
+      <!-- PDF Preview -->
+      @if (isPDF()) {
+        <div class="pdf-preview">
+          <iframe [src]="previewUrl()!" [title]="fileMetadata()!.original_filename"></iframe>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Download Only View -->
+  @if (!loading() && viewMode() === 'download' && fileMetadata()) {
+    <div class="download-only-container">
+      <div class="download-only-content">
+        <i class="material-icons large-icon">{{ getFileIcon(fileMetadata()!.mime_type) }}</i>
+        <h3>Preview not available</h3>
+        <p class="preview-message">
+          This file type cannot be previewed in the browser.<br />
+          Click the button below to download the file.
+        </p>
+        <button
+          type="button"
+          (click)="downloadFile()"
+          class="download-large-button"
+        >
+          <i class="material-icons">file_download</i>
+          Download {{ fileMetadata()!.original_filename }}
+        </button>
+        <div class="file-info-details">
+          <div class="info-row">
+            <span class="info-label">File Size:</span>
+            <span class="info-value">{{ formatFileSize(fileMetadata()!.file_size) }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">File Type:</span>
+            <span class="info-value">{{ fileMetadata()!.mime_type }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Category:</span>
+            <span class="info-value">{{ getCategoryLabel(fileMetadata()!.category) }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Uploaded:</span>
+            <span class="info-value">{{ formatDate(fileMetadata()!.uploaded_at) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

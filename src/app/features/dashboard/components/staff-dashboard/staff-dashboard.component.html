@@ -1,0 +1,274 @@
+<div class="mb-8">
+  <h1 class="text-3xl font-bold text-foreground mb-2">My Dashboard</h1>
+  <p class="text-muted-foreground">Welcome back! Here's your personal overview.</p>
+</div>
+
+<!-- Clock In/Out Card -->
+<div class="mb-8">
+  <z-card class="bg-gradient-to-r from-primary to-primary/80 border-0">
+    <div class="p-10">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        <div class="text-center md:text-left">
+          <h2 class="text-white text-2xl font-bold mb-3 flex items-center justify-center md:justify-start">
+            <z-icon zType="clock" class="mr-2 text-white" />
+            {{ isClockedIn ? 'Clocked In' : 'Ready to start your day?' }}
+          </h2>
+
+          @if (!isClockedIn) {
+            <div class="text-white/75 text-xl mb-5">
+              Current Time: {{ currentTime | date:'hh:mm:ss a' }}
+            </div>
+          }
+
+          @if (isClockedIn) {
+            <div class="text-white text-2xl font-bold mb-3">
+              Working Hours: {{ workingHours }}
+            </div>
+          }
+
+          @if (isClockedIn) {
+            <div class="text-white/75 mb-5">
+              Clocked in at: {{ clockInTime | date:'hh:mm a' }}
+            </div>
+          }
+
+          @if (!isClockedIn) {
+            <button
+              (click)="clockIn()"
+              z-button
+              zSize="lg"
+              class="bg-white text-primary hover:bg-white/90">
+              <z-icon zType="arrow-right" class="mr-2" />
+              Clock In
+            </button>
+          }
+
+          @if (isClockedIn) {
+            <button
+              (click)="clockOut()"
+              z-button
+              zType="destructive"
+              zSize="lg">
+              <z-icon zType="log-out" class="mr-2" />
+              Clock Out
+            </button>
+          }
+        </div>
+
+        <div class="text-center">
+          <div class="bg-white/20 rounded-lg p-8">
+            <h1 class="text-white text-6xl font-bold mb-0">
+              {{ currentTime | date:'HH:mm' }}
+            </h1>
+            <div class="text-white/75 text-lg mt-2">
+              {{ currentTime | date:'EEEE, d MMMM yyyy' }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </z-card>
+</div>
+
+<!-- Leave Balance Cards -->
+<div class="mb-8">
+  <h3 class="text-xl font-bold text-foreground mb-4">Leave Balance</h3>
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+    @for (leave of leaveBalance; track leave.type) {
+      <z-card class="h-full">
+        <div class="p-6">
+          <div class="flex justify-between items-start mb-5">
+            <div class="flex-grow">
+              <span class="text-muted-foreground font-semibold block text-sm">{{leave.type}}</span>
+              <span class="text-foreground font-bold block text-3xl">{{leave.available}}</span>
+              <span class="text-muted-foreground text-xs">days available</span>
+            </div>
+            <div class="flex items-center justify-center w-12 h-12 rounded-md bg-primary/10">
+              <z-icon zType="calendar" class="text-primary" />
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <div class="flex justify-between text-xs text-muted-foreground">
+              <span>Total: {{leave.total}}</span>
+              <span>Used: {{leave.used}} | Pending: {{leave.pending}}</span>
+            </div>
+            <div class="w-full bg-secondary rounded-full h-1.5">
+              <div
+                class="h-1.5 rounded-full transition-all"
+                [class.bg-primary]="leave.color === 'primary'"
+                [class.bg-green-500]="leave.color === 'success'"
+                [class.bg-yellow-500]="leave.color === 'warning'"
+                [class.bg-red-500]="leave.color === 'danger'"
+                [style.width.%]="getProgressPercentage(leave)">
+              </div>
+            </div>
+          </div>
+        </div>
+      </z-card>
+    }
+  </div>
+</div>
+
+<!-- Attendance & Claims -->
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
+  <!-- Recent Attendance -->
+  <z-card
+    class="h-full"
+    [zTitle]="'Recent Attendance'"
+    [zDescription]="'Last 5 days'"
+    [zHeaderBorder]="true">
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead>
+          <tr class="border-b">
+            <th class="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Date</th>
+            <th class="text-left py-3 px-2 text-sm font-semibold text-muted-foreground">Clock In</th>
+            <th class="text-left py-3 px-2 text-sm font-semibold text-muted-foreground">Clock Out</th>
+            <th class="text-left py-3 px-2 text-sm font-semibold text-muted-foreground">Hours</th>
+            <th class="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (attendance of attendanceHistory; track attendance.date) {
+            <tr class="border-b last:border-0">
+              <td class="py-3 px-4">
+                <span class="text-foreground font-semibold text-sm">{{attendance.date}}</span>
+              </td>
+              <td class="py-3 px-2 text-sm">{{attendance.clockIn}}</td>
+              <td class="py-3 px-2 text-sm">{{attendance.clockOut}}</td>
+              <td class="py-3 px-2">
+                <span class="text-foreground font-semibold text-sm">{{attendance.hours}}</span>
+              </td>
+              <td class="py-3 px-4">
+                <z-badge
+                  [zType]="attendance.status === 'On Time' ? 'default' : 'secondary'">
+                  {{attendance.status}}
+                </z-badge>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </z-card>
+
+  <!-- My Claims -->
+  <z-card
+    class="h-full"
+    [zTitle]="'My Claims'"
+    [zDescription]="'Recent submissions'"
+    [zHeaderBorder]="true"
+    [zAction]="'New Claim'">
+    <div class="space-y-4">
+      @for (claim of myClaims; track claim.date; let last = $last) {
+        <div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center flex-grow">
+              <div class="flex items-center justify-center w-12 h-12 rounded-md bg-primary/10 mr-4">
+                <z-icon zType="file-text" class="text-primary" />
+              </div>
+              <div class="flex-grow">
+                <span class="text-foreground font-semibold block text-sm">{{claim.type}}</span>
+                <span class="text-muted-foreground text-xs block">{{claim.description}}</span>
+                <span class="text-muted-foreground text-xs">{{claim.date}}</span>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-foreground font-bold text-lg mb-1">RM {{claim.amount.toFixed(2)}}</div>
+              <z-badge
+                [zType]="claim.status === 'Approved' ? 'default' : claim.status === 'Paid' ? 'secondary' : 'outline'">
+                {{claim.status}}
+              </z-badge>
+            </div>
+          </div>
+          @if (!last) {
+            <z-divider class="my-4" />
+          }
+        </div>
+      }
+    </div>
+  </z-card>
+</div>
+
+<!-- Upcoming Leaves & Memos -->
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+  <!-- Upcoming Leaves -->
+  <z-card
+    class="h-full"
+    [zTitle]="'Upcoming Leaves'"
+    [zDescription]="'Scheduled & pending leaves'"
+    [zHeaderBorder]="true"
+    [zAction]="'Apply Leave'">
+    @if (upcomingLeaves.length > 0) {
+      <div class="space-y-4">
+        @for (leave of upcomingLeaves; track leave.from; let last = $last) {
+          <div>
+            <div class="flex items-center">
+              <div class="flex items-center justify-center w-12 h-12 rounded-md bg-yellow-500/10 mr-4">
+                <z-icon zType="calendar" class="text-yellow-600" />
+              </div>
+              <div class="flex-grow">
+                <span class="text-foreground font-semibold block text-sm">{{leave.type}}</span>
+                <span class="text-muted-foreground text-xs">{{leave.from}} to {{leave.to}}</span>
+                <span class="text-muted-foreground text-xs block">{{leave.days}} days</span>
+              </div>
+              <z-badge
+                [zType]="leave.status === 'Approved' ? 'default' : 'outline'">
+                {{leave.status}}
+              </z-badge>
+            </div>
+            @if (!last) {
+              <z-divider class="my-4" />
+            }
+          </div>
+        }
+      </div>
+    }
+    @if (upcomingLeaves.length === 0) {
+      <div class="text-center py-8">
+        <z-icon zType="calendar" class="text-muted-foreground text-5xl mb-3" />
+        <span class="text-muted-foreground text-sm block">No upcoming leaves</span>
+      </div>
+    }
+  </z-card>
+
+  <!-- HR Memos -->
+  <z-card
+    class="h-full"
+    [zTitle]="'HR Memos & Announcements'"
+    [zDescription]="'Company updates'"
+    [zHeaderBorder]="true">
+    <div class="space-y-4">
+      @for (memo of recentMemos; track memo.title; let last = $last) {
+        <div>
+          <div class="flex items-start">
+            <div class="flex items-center justify-center w-12 h-12 rounded-md mr-4"
+                 [class.bg-red-500/10]="memo.urgent"
+                 [class.bg-primary/10]="!memo.urgent">
+              <z-icon
+                [zType]="memo.urgent ? 'triangle-alert' : 'bell'"
+                [class.text-red-600]="memo.urgent"
+                [class.text-primary]="!memo.urgent" />
+            </div>
+            <div class="flex-grow">
+              <a href="#" class="text-foreground font-semibold hover:text-primary text-sm block">
+                {{memo.title}}
+                @if (!memo.read) {
+                  <span class="inline-block w-2 h-2 bg-red-500 rounded-full ml-2"></span>
+                }
+              </a>
+              <span class="text-muted-foreground text-xs">{{memo.date}}</span>
+              @if (memo.urgent) {
+                <z-badge zType="destructive" class="ml-2 text-xs">Urgent</z-badge>
+              }
+            </div>
+          </div>
+          @if (!last) {
+            <z-divider class="my-4" />
+          }
+        </div>
+      }
+    </div>
+  </z-card>
+</div>

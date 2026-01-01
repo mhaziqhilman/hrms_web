@@ -1,0 +1,178 @@
+<div class="leave-details-container min-h-screen bg-background">
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="flex items-center justify-center py-20">
+      <z-icon zType="loader-circle" class="w-8 h-8 animate-spin text-primary" />
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (error() && !loading()) {
+    <div class="max-w-4xl mx-auto p-6">
+      <div class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+        <z-icon zType="triangle-alert" class="w-12 h-12 text-red-500 mx-auto mb-4" />
+        <h3 class="text-lg font-semibold text-red-800 mb-2">Error Loading Leave Details</h3>
+        <p class="text-red-600 mb-4">{{ error() }}</p>
+        <button z-button zType="outline" routerLink="/dashboard/leave">
+          <z-icon zType="arrow-left" class="w-4 h-4 mr-2" />
+          Back to Leave List
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Content -->
+  @if (leave() && !loading()) {
+    <div class="max-w-4xl mx-auto p-6 space-y-6">
+      <!-- Header -->
+      <div class="flex items-start justify-between gap-4">
+        <div class="flex-1 space-y-1">
+          <button z-button zType="ghost" (click)="goBack()" class="gap-2 -ml-3 mb-2">
+            <z-icon zType="arrow-left" class="w-4 h-4" />
+            Back
+          </button>
+          <h1 class="text-3xl font-semibold text-foreground">{{ leave()!.leave_type?.name || 'Leave Application' }}</h1>
+        </div>
+        <div class="flex items-center gap-2">
+          <z-badge [zType]="getStatusBadgeType(leave()!.status)">
+            {{ leave()!.status }}
+          </z-badge>
+          <button z-button zType="ghost" class="w-8 h-8 p-0">
+            <z-icon zType="ellipsis" class="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      <!-- Grid Layout: Details and Attachments -->
+      <div class="grid gap-6 md:grid-cols-2">
+        <!-- Left Column: Details -->
+        <div class="space-y-6">
+          <!-- Employee -->
+          <div>
+            <div class="text-sm text-muted-foreground mb-3">Employee</div>
+            <div class="flex items-center gap-3">
+              <span class="flex items-center justify-center w-10 h-10 bg-primary text-white rounded-full text-sm font-semibold">
+                {{ getInitials(leave()!.employee?.full_name) }}
+              </span>
+              <div>
+                <div class="text-sm font-medium text-foreground">{{ leave()!.employee?.full_name }}</div>
+                <div class="text-xs text-muted-foreground">{{ leave()!.employee?.employee_id }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Date -->
+          <div>
+            <div class="text-sm text-muted-foreground mb-3">Date</div>
+            <div class="flex items-center gap-2 text-sm font-medium">
+              <z-icon zType="calendar" class="w-4 h-4 text-muted-foreground" />
+              <span>{{ formatDate(leave()!.start_date) }} - {{ formatDate(leave()!.end_date) }}</span>
+            </div>
+          </div>
+
+          <!-- Duration -->
+          <div>
+            <div class="text-sm text-muted-foreground mb-3">Duration</div>
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-medium">{{ leave()!.total_days }} {{ leave()!.total_days === 1 ? 'day' : 'days' }}</span>
+              @if (leave()!.is_half_day) {
+                <z-badge zType="default">{{ leave()!.half_day_period }}</z-badge>
+              }
+            </div>
+          </div>
+
+          <!-- Leave Type -->
+          <div>
+            <div class="text-sm text-muted-foreground mb-3">Leave Type</div>
+            <div class="flex items-center justify-between">
+              <span class="text-sm font-medium">{{ leave()!.leave_type?.name }}</span>
+              @if (leave()!.leave_type?.is_paid) {
+                <z-badge zType="default">Paid</z-badge>
+              } @else {
+                <z-badge zType="secondary">Unpaid</z-badge>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Attachments -->
+        <div class="space-y-3">
+          <div class="text-sm text-muted-foreground">Attachment</div>
+          <app-file-list
+            category="leave_document"
+            [relatedToLeaveId]="leave()!.id"
+            [showActions]="true"
+            [showFilters]="false"
+            displayMode="compact"
+          />
+        </div>
+      </div>
+
+      <!-- Description Card -->
+      <z-card class="description-card w-full p-4">
+        <div z-card-content class="p-0">
+          <div class="border-l-4 border-primary p-6">
+            <h3 class="text-sm font-semibold mb-3">Reason</h3>
+            <p class="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{{ leave()!.reason }}</p>
+          </div>
+        </div>
+      </z-card>
+
+      <!-- Rejection Reason Card (if rejected) -->
+      @if (leave()!.rejection_reason) {
+        <z-card>
+          <div z-card-content class="p-0">
+            <div class="border-l-4 border-red-500 p-6 bg-red-50">
+              <h3 class="text-sm font-semibold text-red-900 mb-3">Rejection Reason</h3>
+              <p class="text-sm text-red-800 leading-relaxed">{{ leave()!.rejection_reason }}</p>
+            </div>
+          </div>
+        </z-card>
+      }
+
+      <!-- Timeline & Approval Section -->
+      <div class="space-y-6">
+        <h3 class="text-sm font-semibold">Timeline</h3>
+
+        <div class="space-y-4">
+          <!-- Created -->
+          <div class="flex items-start gap-3">
+            <div class="w-2 h-2 rounded-full bg-primary mt-2"></div>
+            <div class="flex-1">
+              <div class="text-xs font-medium text-muted-foreground uppercase tracking-wide">Created</div>
+              <div class="text-sm font-medium text-foreground mt-1">{{ formatDateTime(leave()!.created_at) }}</div>
+            </div>
+          </div>
+
+          <!-- Last Updated -->
+          <div class="flex items-start gap-3">
+            <div class="w-2 h-2 rounded-full bg-muted mt-2"></div>
+            <div class="flex-1">
+              <div class="text-xs font-medium text-muted-foreground uppercase tracking-wide">Last Updated</div>
+              <div class="text-sm font-medium text-foreground mt-1">{{ formatDateTime(leave()!.updated_at) }}</div>
+            </div>
+          </div>
+
+          <!-- Approved/Rejected (if applicable) -->
+          @if (leave()!.status === LeaveStatus.APPROVED || leave()!.status === LeaveStatus.REJECTED) {
+            <div class="flex items-start gap-3">
+              <div class="w-2 h-2 rounded-full mt-2"
+                   [class.bg-green-500]="leave()!.status === LeaveStatus.APPROVED"
+                   [class.bg-red-500]="leave()!.status === LeaveStatus.REJECTED">
+              </div>
+              <div class="flex-1">
+                <div class="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  {{ leave()!.status === LeaveStatus.APPROVED ? 'Approved By' : 'Rejected By' }}
+                </div>
+                <div class="text-sm font-medium text-foreground mt-1">{{ leave()!.approver?.email || 'N/A' }}</div>
+                @if (leave()!.approved_at) {
+                  <div class="text-xs text-muted-foreground mt-1">{{ formatDateTime(leave()!.approved_at) }}</div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>

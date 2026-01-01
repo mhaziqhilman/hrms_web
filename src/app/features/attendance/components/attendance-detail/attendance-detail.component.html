@@ -1,0 +1,215 @@
+<div class="p-6 bg-background min-h-screen">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-8">
+    <button z-button zType="ghost" (click)="goBack()" class="gap-2">
+      <z-icon zType="arrow-left" class="w-4 h-4" />
+    </button>
+    @if (attendance()) {
+      <div class="flex gap-2">
+        <button z-button zType="outline" (click)="deleteAttendance()" class="gap-2">
+          <z-icon zType="trash" class="w-4 h-4" />
+          Delete
+        </button>
+      </div>
+    }
+  </div>
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="flex items-center justify-center py-20">
+      <z-icon zType="loader-circle" class="w-8 h-8 animate-spin text-primary" />
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (error()) {
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-2 text-red-800 mb-6">
+      <z-icon zType="triangle-alert" class="w-5 h-5" />
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  <!-- Attendance Details -->
+  @if (!loading() && attendance()) {
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Main Content -->
+      <div class="lg:col-span-2 space-y-6">
+        <!-- Date & Status Card -->
+        <div z-card>
+          <div z-card-content class="p-6">
+            <h2 class="text-2xl font-bold text-foreground mb-2">
+              {{ formatDate(attendance()!.clock_in_time) }}
+            </h2>
+            <p class="text-sm text-muted-foreground mb-4">
+              Attendance Record #{{ attendance()!.id }}
+            </p>
+            <div class="flex gap-2">
+              <z-badge
+                [zType]="attendance()!.type === 'Office' ? 'default' : 'secondary'"
+                class="px-3 py-1">
+                {{attendance()!.type}}
+              </z-badge>
+              <z-badge
+                [zType]="attendance()!.is_late || attendance()!.is_early_leave ? 'destructive' : 'default'"
+                class="px-3 py-1">
+                {{getStatusText()}}
+              </z-badge>
+            </div>
+          </div>
+        </div>
+
+        <!-- Time Details Card -->
+        <div z-card>
+          <div z-card-content class="p-6">
+            <h3 class="text-lg font-semibold text-foreground mb-6">Time Details</h3>
+            <div class="grid grid-cols-3 gap-6">
+              <div>
+                <p class="text-sm text-muted-foreground mb-2">Clock In Time</p>
+                <div class="flex items-center gap-2">
+                  <z-icon zType="arrow-right" class="w-5 h-5 text-green-600" />
+                  <span class="text-xl font-semibold text-foreground">{{ formatTime(attendance()!.clock_in_time) }}</span>
+                </div>
+              </div>
+              <div>
+                <p class="text-sm text-muted-foreground mb-2">Clock Out Time</p>
+                <div class="flex items-center gap-2">
+                  <z-icon zType="log-out" class="w-5 h-5 text-red-600" />
+                  <span class="text-xl font-semibold text-foreground">{{ formatTime(attendance()!.clock_out_time) }}</span>
+                </div>
+              </div>
+              <div>
+                <p class="text-sm text-muted-foreground mb-2">Total Working Hours</p>
+                <div class="flex items-center gap-2">
+                  <z-icon zType="clock" class="w-5 h-5 text-foreground" />
+                  <span class="text-xl font-semibold text-foreground">{{ formatHours(attendance()!.total_hours) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Punctuality Details Card -->
+        @if (attendance()!.is_late || attendance()!.is_early_leave) {
+          <div z-card>
+            <div z-card-content class="p-6">
+              <h3 class="text-lg font-semibold text-foreground mb-6">Punctuality Details</h3>
+              <div class="grid grid-cols-2 gap-6">
+                @if (attendance()!.is_late) {
+                  <div>
+                    <p class="text-sm text-muted-foreground mb-2">Late Arrival</p>
+                    <div class="flex items-center gap-2">
+                      <z-icon zType="clock" class="w-5 h-5 text-orange-600" />
+                      <span class="text-xl font-semibold text-orange-600">{{ attendance()!.late_minutes }} minutes late</span>
+                    </div>
+                  </div>
+                }
+                @if (attendance()!.is_early_leave) {
+                  <div>
+                    <p class="text-sm text-muted-foreground mb-2">Early Leave</p>
+                    <div class="flex items-center gap-2">
+                      <z-icon zType="arrow-left" class="w-5 h-5 text-blue-600" />
+                      <span class="text-xl font-semibold text-blue-600">{{ attendance()!.early_leave_minutes }} minutes early</span>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Employee Information Card -->
+        @if (attendance()!.employee) {
+          <div z-card>
+            <div z-card-content class="p-6">
+              <h3 class="text-lg font-semibold text-foreground mb-4">Employee Information</h3>
+              <div class="space-y-3">
+                <div class="flex items-center gap-3">
+                  <z-avatar
+                    [zFallback]="(attendance()!.employee?.full_name || 'N/A').charAt(0)"
+                    class="w-10 h-10" />
+                  <div>
+                    <p class="font-semibold text-foreground">{{ attendance()!.employee?.full_name || 'N/A' }}</p>
+                    <p class="text-sm text-muted-foreground">{{ attendance()!.employee?.employee_code || 'N/A' }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Location Details Card -->
+        @if (attendance()!.clock_in_location_address || attendance()!.clock_out_location_address) {
+          <div z-card>
+            <div z-card-content class="p-6">
+              <h3 class="text-lg font-semibold text-foreground mb-4">Location Details</h3>
+              <div class="space-y-4">
+                @if (attendance()!.clock_in_location_address) {
+                  <div class="bg-muted/30 rounded-lg p-4">
+                    <p class="text-sm text-muted-foreground mb-1">Clock In Location</p>
+                    <p class="text-base text-foreground">{{ attendance()!.clock_in_location_address }}</p>
+                    @if (attendance()!.clock_in_location_lat && attendance()!.clock_in_location_long) {
+                      <p class="text-xs text-muted-foreground mt-1">
+                        Lat: {{ attendance()!.clock_in_location_lat?.toFixed(6) }},
+                        Long: {{ attendance()!.clock_in_location_long?.toFixed(6) }}
+                      </p>
+                    }
+                  </div>
+                }
+                @if (attendance()!.clock_out_location_address) {
+                  <div class="bg-muted/30 rounded-lg p-4">
+                    <p class="text-sm text-muted-foreground mb-1">Clock Out Location</p>
+                    <p class="text-base text-foreground">{{ attendance()!.clock_out_location_address }}</p>
+                    @if (attendance()!.clock_out_location_lat && attendance()!.clock_out_location_long) {
+                      <p class="text-xs text-muted-foreground mt-1">
+                        Lat: {{ attendance()!.clock_out_location_lat?.toFixed(6) }},
+                        Long: {{ attendance()!.clock_out_location_long?.toFixed(6) }}
+                      </p>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Remarks Card -->
+        @if (attendance()!.remarks) {
+          <div z-card>
+            <div z-card-content class="p-6">
+              <h3 class="text-lg font-semibold text-foreground mb-4">Remarks</h3>
+              <p class="text-base text-foreground">{{ attendance()!.remarks }}</p>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Sidebar -->
+      <div class="space-y-6">
+        <!-- Record Information Card -->
+        <div z-card>
+          <div z-card-content class="p-6">
+            <h3 class="text-lg font-semibold text-foreground mb-4">Record Information</h3>
+            <div class="space-y-4">
+              <div>
+                <p class="text-sm text-muted-foreground mb-1">Record ID</p>
+                <p class="text-base font-semibold text-foreground">#{{ attendance()!.id }}</p>
+              </div>
+              <z-divider />
+              <div>
+                <p class="text-sm text-muted-foreground mb-1">Created</p>
+                <p class="text-base text-foreground">{{ formatDate(attendance()!.created_at) }}</p>
+                <p class="text-sm text-muted-foreground">{{ formatTime(attendance()!.created_at) }}</p>
+              </div>
+              <z-divider />
+              <div>
+                <p class="text-sm text-muted-foreground mb-1">Last Updated</p>
+                <p class="text-base text-foreground">{{ formatDate(attendance()!.updated_at) }}</p>
+                <p class="text-sm text-muted-foreground">{{ formatTime(attendance()!.updated_at) }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

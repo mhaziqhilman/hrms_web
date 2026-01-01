@@ -1,0 +1,19 @@
+/* Payslip View Component - ZardUI Migration Complete */
+/* All styles are now using Tailwind CSS utility classes */
+
+/* Print Styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: white;
+  }
+
+  /* Ensure colors print correctly */
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

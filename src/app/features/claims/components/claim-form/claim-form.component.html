@@ -1,0 +1,315 @@
+<div class="p-6 bg-background min-h-screen">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-foreground">{{ isEditMode() ? 'Edit Claim' : 'Submit New Claim' }}</h1>
+      <p class="text-muted-foreground">{{ isEditMode() ? 'Update your expense claim details' : 'Submit your expense claim for approval' }}</p>
+    </div>
+    <button z-button zType="outline" routerLink="/dashboard/claims" class="gap-2">
+      <z-icon zType="arrow-left" class="w-4 h-4" />
+      Back to Claims
+    </button>
+  </div>
+
+  <!-- Error Message -->
+  @if (error()) {
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-2 text-red-800 mb-6">
+      <z-icon zType="triangle-alert" class="w-5 h-5" />
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  <!-- Success Message -->
+  @if (success()) {
+    <div class="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-2 text-green-800 mb-6">
+      <z-icon zType="circle-check" class="w-5 h-5" />
+      <span>{{ success() }}</span>
+    </div>
+  }
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="flex items-center justify-center py-20">
+      <z-icon zType="loader-circle" class="w-8 h-8 animate-spin text-primary mb-3" />
+      <p class="text-muted-foreground">Loading claim details...</p>
+    </div>
+  }
+
+  <!-- Claim Form -->
+  @if (!loading()) {
+    <div z-card class="mb-6">
+      <div z-card-content class="p-6">
+        <form [formGroup]="claimForm" (ngSubmit)="onSubmit()">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Claim Type -->
+            <div>
+              <label for="claimType" class="block text-sm font-medium text-foreground mb-2">
+                Claim Type <span class="text-red-500">*</span>
+              </label>
+              <select
+                id="claimType"
+                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background"
+                [class.border-red-500]="isFieldInvalid('claim_type_id')"
+                formControlName="claim_type_id">
+                <option value="">Select claim type</option>
+                @for (type of claimTypes(); track type.id) {
+                  <option [value]="type.id">{{ type.name }}</option>
+                }
+              </select>
+              @if (isFieldInvalid('claim_type_id')) {
+                <p class="text-xs text-red-600 mt-1">{{ getFieldError('claim_type_id') }}</p>
+              }
+              @if (selectedClaimType()) {
+                <p class="text-xs text-muted-foreground mt-1">{{ selectedClaimType()?.description }}</p>
+              }
+            </div>
+
+            <!-- Date -->
+            <div>
+              <label for="date" class="block text-sm font-medium text-foreground mb-2">
+                Expense Date <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="date"
+                id="date"
+                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background"
+                [class.border-red-500]="isFieldInvalid('date')"
+                formControlName="date"
+                [min]="getMinDate()"
+                [max]="getMaxDate()" />
+              @if (isFieldInvalid('date')) {
+                <p class="text-xs text-red-600 mt-1">{{ getFieldError('date') }}</p>
+              }
+              <p class="text-xs text-muted-foreground mt-1">Claims can be submitted up to 90 days in the past</p>
+            </div>
+
+            <!-- Amount -->
+            <div>
+              <label for="amount" class="block text-sm font-medium text-foreground mb-2">
+                Amount (RM) <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                id="amount"
+                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background"
+                [class.border-red-500]="isFieldInvalid('amount') || isAmountExceedingLimit()"
+                formControlName="amount"
+                step="0.01"
+                min="0.01"
+                placeholder="0.00" />
+              @if (isFieldInvalid('amount')) {
+                <p class="text-xs text-red-600 mt-1">{{ getFieldError('amount') }}</p>
+              }
+              @if (!isFieldInvalid('amount') && isAmountExceedingLimit()) {
+                <p class="text-xs text-red-600 mt-1">
+                  Amount exceeds maximum limit of {{ formatCurrency(selectedClaimType()?.max_amount) }} for this claim type
+                </p>
+              }
+              @if (selectedClaimType()?.max_amount) {
+                <p class="text-xs text-muted-foreground mt-1">
+                  Maximum allowed: {{ formatCurrency(selectedClaimType()?.max_amount) }}
+                </p>
+              }
+            </div>
+
+            <!-- Receipt URL -->
+            <div>
+              <label for="receiptUrl" class="block text-sm font-medium text-foreground mb-2">
+                Receipt URL {{ isReceiptRequired() ? '*' : '(Optional)' }}
+              </label>
+              <input
+                type="url"
+                id="receiptUrl"
+                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background"
+                [class.border-red-500]="isFieldInvalid('receipt_url')"
+                formControlName="receipt_url"
+                placeholder="https://example.com/receipt.jpg" />
+              @if (isFieldInvalid('receipt_url')) {
+                <p class="text-xs text-red-600 mt-1">{{ getFieldError('receipt_url') }}</p>
+              }
+              @if (isReceiptRequired()) {
+                <p class="text-xs text-red-600 mt-1 flex items-center gap-1">
+                  <z-icon zType="circle" class="w-3 h-3" />
+                  Receipt is required for this claim type
+                </p>
+              } @else {
+                <p class="text-xs text-muted-foreground mt-1">Upload receipt image and paste the URL here</p>
+              }
+            </div>
+
+            <!-- Description -->
+            <div class="md:col-span-2">
+              <label for="description" class="block text-sm font-medium text-foreground mb-2">
+                Description <span class="text-red-500">*</span>
+              </label>
+              <textarea
+                id="description"
+                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background"
+                [class.border-red-500]="isFieldInvalid('description')"
+                formControlName="description"
+                rows="4"
+                placeholder="Provide details about this expense (minimum 10 characters)"></textarea>
+              @if (isFieldInvalid('description')) {
+                <p class="text-xs text-red-600 mt-1">{{ getFieldError('description') }}</p>
+              }
+              <p class="text-xs text-muted-foreground mt-1">Describe the purpose and details of this expense claim</p>
+            </div>
+
+            <!-- File Upload Section -->
+            @if (isClaimEditable()) {
+              <div class="md:col-span-2">
+                <h5 class="text-base font-semibold text-foreground mb-3 flex items-center gap-2">
+                  <z-icon zType="circle" class="w-4 h-4" />
+                  Attach Receipt Files
+                  @if (isReceiptRequired()) {
+                    <span class="text-red-500">*</span>
+                  } @else {
+                    <span class="text-muted-foreground">(Optional)</span>
+                  }
+                </h5>
+                <app-file-upload
+                  [acceptedTypes]="'.pdf,.jpg,.jpeg,.png'"
+                  [multiple]="true"
+                  [maxFiles]="5"
+                  [autoUpload]="false"
+                  (filesSelected)="onFilesSelected($event)">
+                </app-file-upload>
+              </div>
+            }
+
+            <!-- View Uploaded Files -->
+            @if (claimId()) {
+              <div class="md:col-span-2">
+                <h5 class="text-base font-semibold text-foreground mb-3 flex items-center gap-2">
+                  <z-icon zType="file-text" class="w-4 h-4" />
+                  Uploaded Receipts
+                </h5>
+                <app-file-list
+                  [relatedToClaimId]="claimId()!"
+                  [category]="'claim_receipt'"
+                  [showFilters]="false"
+                  [showActions]="isClaimEditable()"
+                  [maxDisplay]="10">
+                </app-file-list>
+              </div>
+            }
+          </div>
+
+          <!-- Claim Type Info Card -->
+          @if (selectedClaimType()) {
+            <div class="mt-6 p-4 bg-muted/30 rounded-lg">
+              <h5 class="text-base font-semibold text-foreground mb-3 flex items-center gap-2">
+                <z-icon zType="circle" class="w-4 h-4" />
+                Claim Type Information
+              </h5>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div class="flex justify-between">
+                  <span class="text-sm text-muted-foreground">Name:</span>
+                  <span class="text-sm font-medium text-foreground">{{ selectedClaimType()?.name }}</span>
+                </div>
+                @if (selectedClaimType()?.description) {
+                  <div class="flex justify-between">
+                    <span class="text-sm text-muted-foreground">Description:</span>
+                    <span class="text-sm font-medium text-foreground">{{ selectedClaimType()?.description }}</span>
+                  </div>
+                }
+                @if (selectedClaimType()?.max_amount) {
+                  <div class="flex justify-between">
+                    <span class="text-sm text-muted-foreground">Maximum Amount:</span>
+                    <span class="text-sm font-medium text-foreground">{{ formatCurrency(selectedClaimType()?.max_amount) }}</span>
+                  </div>
+                }
+                <div class="flex justify-between items-center">
+                  <span class="text-sm text-muted-foreground">Receipt Required:</span>
+                  <z-badge [zType]="isReceiptRequired() ? 'destructive' : 'secondary'" class="text-xs">
+                    {{ isReceiptRequired() ? 'Yes' : 'No' }}
+                  </z-badge>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- Form Actions -->
+          <div class="flex items-center justify-end gap-3 mt-6">
+            <button
+              z-button
+              zType="outline"
+              type="button"
+              (click)="claimForm.reset(); receiptFiles.set([])"
+              [disabled]="submitting() || !isClaimEditable()">
+              Reset
+            </button>
+            <button
+              z-button
+              type="submit"
+              class="gap-2"
+              [disabled]="submitting() || claimForm.invalid || isAmountExceedingLimit() || !isClaimEditable() || (isReceiptRequired() && receiptFiles().length === 0)">
+              @if (submitting()) {
+                <z-icon zType="loader-circle" class="w-4 h-4 animate-spin" />
+              } @else {
+                <z-icon zType="circle-check" class="w-4 h-4" />
+              }
+              {{ submitting() ? (isEditMode() ? 'Updating...' : 'Submitting...') : (isEditMode() ? 'Update Claim' : 'Submit Claim') }}
+            </button>
+          </div>
+
+          <!-- Required Receipt Warning -->
+          @if (isReceiptRequired() && receiptFiles().length === 0 && selectedClaimType()) {
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 flex items-center gap-2 text-yellow-800 mt-4">
+              <z-icon zType="triangle-alert" class="w-5 h-5" />
+              <span><strong>Receipt Required:</strong> You must upload at least one receipt file for this claim type.</span>
+            </div>
+          }
+        </form>
+      </div>
+    </div>
+
+    <!-- Help Section -->
+    <div z-card>
+      <div z-card-content class="p-6">
+        <h5 class="text-base font-semibold text-foreground mb-4 flex items-center gap-2">
+          <z-icon zType="circle" class="w-4 h-4" />
+          Need Help?
+        </h5>
+        <ul class="space-y-2">
+          <li class="flex items-start gap-2 text-sm text-foreground">
+            <z-icon zType="circle" class="w-3 h-3 mt-1 text-muted-foreground" />
+            <span>Select the appropriate claim type for your expense</span>
+          </li>
+          <li class="flex items-start gap-2 text-sm text-foreground">
+            <z-icon zType="circle" class="w-3 h-3 mt-1 text-muted-foreground" />
+            <span>Ensure the expense date is within the last 90 days</span>
+          </li>
+          <li class="flex items-start gap-2 text-sm text-foreground">
+            <z-icon zType="circle" class="w-3 h-3 mt-1 text-muted-foreground" />
+            <span>Enter the exact amount you spent (in Malaysian Ringgit)</span>
+          </li>
+          <li class="flex items-start gap-2 text-sm text-foreground">
+            <z-icon zType="circle" class="w-3 h-3 mt-1 text-muted-foreground" />
+            <span><strong>Upload receipt files before submitting</strong> (required for some claim types)</span>
+          </li>
+          <li class="flex items-start gap-2 text-sm text-foreground">
+            <z-icon zType="circle" class="w-3 h-3 mt-1 text-muted-foreground" />
+            <span>Provide a clear description of the expense purpose</span>
+          </li>
+          <li class="flex items-start gap-2 text-sm text-foreground">
+            <z-icon zType="circle" class="w-3 h-3 mt-1 text-muted-foreground" />
+            <span><strong>Once submitted, claims will be sent for approval</strong></span>
+          </li>
+          <li class="flex items-start gap-2 text-sm text-foreground">
+            <z-icon zType="circle" class="w-3 h-3 mt-1 text-muted-foreground" />
+            <span>You can only edit claims with "Pending" status (before approval)</span>
+          </li>
+          <li class="flex items-start gap-2 text-sm text-foreground">
+            <z-icon zType="circle" class="w-3 h-3 mt-1 text-muted-foreground" />
+            <span>Once approved, claims cannot be edited and will be processed for payment</span>
+          </li>
+          <li class="flex items-start gap-2 text-sm text-foreground">
+            <z-icon zType="circle" class="w-3 h-3 mt-1 text-muted-foreground" />
+            <span>Claims go through two-tier approval (Manager then Finance/Admin)</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  }
+</div>

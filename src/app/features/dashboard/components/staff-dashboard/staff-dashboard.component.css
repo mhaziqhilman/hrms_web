@@ -1,0 +1,7 @@
+.card-flush {
+  box-shadow: 0 0 20px 0 rgba(76, 87, 125, 0.02);
+}
+
+.bg-gradient-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}

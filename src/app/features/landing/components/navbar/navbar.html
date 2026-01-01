@@ -1,0 +1,38 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center" routerLink="/">
+      <img src="assets/theme/media/logos/logo-default.svg" alt="HRMS Logo" height="30" class="me-2">
+      <span class="fs-3 fw-bold text-dark">HRMS</span>
+    </a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto align-items-center">
+        <li class="nav-item">
+          <a class="nav-link" href="#features">Features</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#pricing">Pricing</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#contact">Contact</a>
+        </li>
+        <li class="nav-item ms-3">
+          <button (click)="toggleTheme()" class="btn btn-icon btn-light btn-sm" title="Toggle theme">
+            <i class="bi bi-sun-fill" *ngIf="!isDark()"></i>
+            <i class="bi bi-moon-fill" *ngIf="isDark()"></i>
+          </button>
+        </li>
+        <li class="nav-item ms-2">
+          <a routerLink="/auth/login" class="btn btn-primary btn-sm">
+            <i class="bi bi-box-arrow-in-right me-1"></i>
+            Login
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>

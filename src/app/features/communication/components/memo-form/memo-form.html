@@ -1,0 +1,204 @@
+<div class="max-w-5xl mx-auto p-6">
+  <!-- Loading State -->
+  <z-card *ngIf="loading()" class="mb-6">
+    <div class="flex flex-col items-center justify-center py-16">
+      <z-icon zType="loader-circle" class="w-12 h-12 text-primary animate-spin" />
+      <p class="text-muted-foreground mt-4">Loading memo...</p>
+    </div>
+  </z-card>
+
+  <!-- Form Content -->
+  <div *ngIf="!loading()">
+    <!-- Header -->
+    <div class="flex justify-between items-start mb-6 flex-wrap gap-4">
+      <div>
+        <h2 class="text-3xl font-semibold text-foreground flex items-center gap-2">
+          <z-icon zType="megaphone" class="w-8 h-8 text-primary" />
+          {{ isEditMode() ? 'Edit Memo' : 'Create New Memo' }}
+        </h2>
+        <p class="text-muted-foreground mt-1">
+          {{ isEditMode() ? 'Update the memo details below' : 'Create and publish announcements to your team' }}
+        </p>
+      </div>
+      <button z-button zType="outline" (click)="cancel()" class="flex items-center gap-2">
+        <z-icon zType="circle-x" class="w-4 h-4" />
+        Cancel
+      </button>
+    </div>
+
+    <!-- Error Alert -->
+    <z-card *ngIf="error()" class="mb-6 border-destructive">
+      <div class="flex items-center gap-2 text-destructive">
+        <z-icon zType="triangle-alert" class="w-5 h-5" />
+        <span>{{ error() }}</span>
+      </div>
+    </z-card>
+
+    <!-- Form -->
+    <form [formGroup]="form" class="space-y-6">
+      <!-- Basic Information Card -->
+      <z-card>
+        <h4 class="text-xl font-semibold text-foreground mb-6 flex items-center gap-2">
+          <z-icon zType="info" class="w-6 h-6" />
+          Basic Information
+        </h4>
+
+        <!-- Title -->
+        <z-form-field class="mb-6">
+          <label z-form-label [zRequired]="true">Title</label>
+          <input z-input type="text" id="title" formControlName="title" placeholder="Enter memo title..."
+            [class.border-destructive]="isFieldInvalid('title')" />
+          <z-form-message zType="error" *ngIf="isFieldInvalid('title')">
+            {{ getFieldError('title') }}
+          </z-form-message>
+        </z-form-field>
+
+        <!-- Summary -->
+        <z-form-field class="mb-6">
+          <label z-form-label>Summary</label>
+          <textarea z-input id="summary" formControlName="summary" rows="2"
+            placeholder="Brief summary (optional, max 500 characters)..."
+            [class.border-destructive]="isFieldInvalid('summary')"></textarea>
+          <z-form-message zType="error" *ngIf="isFieldInvalid('summary')">
+            {{ getFieldError('summary') }}
+          </z-form-message>
+          <z-form-message>{{ form.get('summary')?.value?.length || 0 }} / 500 characters</z-form-message>
+        </z-form-field>
+
+        <!-- Priority and Expires At -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <z-form-field>
+            <label z-form-label [zRequired]="true">Priority</label>
+            <z-select formControlName="priority" placeholder="Select priority">
+              <z-select-item *ngFor="let priority of priorities" [zValue]="priority">
+                {{ priority }}
+              </z-select-item>
+            </z-select>
+          </z-form-field>
+
+          <z-form-field>
+            <label z-form-label>Expires At</label>
+            <input z-input type="datetime-local" id="expires_at" formControlName="expires_at" />
+            <z-form-message>Leave empty for no expiration</z-form-message>
+          </z-form-field>
+        </div>
+      </z-card>
+
+      <!-- Content Card -->
+      <z-card>
+        <h4 class="text-xl font-semibold text-foreground mb-6 flex items-center gap-2">
+          <z-icon zType="file-text" class="w-6 h-6" />
+          Content
+        </h4>
+
+        <form>
+          <label z-form-label [zRequired]="true">Memo Content</label>
+          <quill-editor formControlName="content" [modules]="quillConfig" placeholder="Write your memo content here..."
+            [class.border-destructive]="isFieldInvalid('content')" class="border rounded-md"></quill-editor>
+          <z-form-message zType="error" *ngIf="isFieldInvalid('content')">
+            {{ getFieldError('content') }}
+          </z-form-message>
+        </form>
+      </z-card>
+
+      <!-- Target Audience Card -->
+      <z-card>
+        <h4 class="text-xl font-semibold text-foreground mb-6 flex items-center gap-2">
+          <z-icon zType="users" class="w-6 h-6" />
+          Target Audience
+        </h4>
+
+        <z-form-field class="mb-6">
+          <label z-form-label [zRequired]="true">Audience Type</label>
+          <z-select formControlName="target_audience" placeholder="Select audience type">
+            <z-select-item *ngFor="let audience of targetAudiences" [zValue]="audience">
+              {{ audience }}
+            </z-select-item>
+          </z-select>
+        </z-form-field>
+
+        <!-- Department Selection -->
+        <div *ngIf="form.get('target_audience')?.value === 'Department'">
+          <label z-form-label class="mb-3">Select Departments</label>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div *ngFor="let dept of departments" class="flex items-center space-x-2">
+              <input type="checkbox" [id]="'dept-' + dept" [checked]="isDepartmentSelected(dept)"
+                (change)="toggleDepartment(dept)"
+                class="w-4 h-4 text-primary bg-background border-border rounded focus:ring-primary focus:ring-2" />
+              <label [for]="'dept-' + dept" class="text-sm font-medium text-foreground cursor-pointer">
+                {{ dept }}
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Position Selection -->
+        <div *ngIf="form.get('target_audience')?.value === 'Position'">
+          <label z-form-label class="mb-3">Select Positions</label>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div *ngFor="let pos of positions" class="flex items-center space-x-2">
+              <input type="checkbox" [id]="'pos-' + pos" [checked]="isPositionSelected(pos)"
+                (change)="togglePosition(pos)"
+                class="w-4 h-4 text-primary bg-background border-border rounded focus:ring-primary focus:ring-2" />
+              <label [for]="'pos-' + pos" class="text-sm font-medium text-foreground cursor-pointer">
+                {{ pos }}
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Specific Employees (Placeholder) -->
+        <div *ngIf="form.get('target_audience')?.value === 'Specific'"
+          class="p-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
+          <div class="flex items-center gap-2 text-blue-800 dark:text-blue-200">
+            <z-icon zType="info" class="w-5 h-5" />
+            <span>Employee selection feature will be implemented in a future update. For now, please use Department or
+              Position targeting.</span>
+          </div>
+        </div>
+      </z-card>
+
+      <!-- Settings Card -->
+      <z-card>
+        <h4 class="text-xl font-semibold text-foreground mb-6 flex items-center gap-2">
+          <z-icon zType="settings" class="w-6 h-6" />
+          Settings
+        </h4>
+
+        <div class="flex items-start space-x-2">
+          <input type="checkbox" id="requires_acknowledgment" formControlName="requires_acknowledgment"
+            class="w-4 h-4 mt-1 text-primary bg-background border-border rounded focus:ring-primary focus:ring-2" />
+          <label for="requires_acknowledgment" class="flex flex-col cursor-pointer">
+            <span class="font-semibold text-foreground">Require Acknowledgment</span>
+            <span class="text-sm text-muted-foreground">Employees must acknowledge they have read this memo</span>
+          </label>
+        </div>
+      </z-card>
+
+      <!-- Action Buttons -->
+      <div class="flex justify-between items-center gap-4 pt-4">
+        <button type="button" z-button zType="outline" (click)="cancel()" [disabled]="saving()"
+          class="flex items-center gap-2">
+          <z-icon zType="circle-x" class="w-4 h-4" />
+          Cancel
+        </button>
+
+        <div class="flex gap-3">
+          <button type="button" z-button zType="secondary" (click)="saveAsDraft()" [disabled]="saving()"
+            class="flex items-center gap-2">
+            <z-icon *ngIf="!saving()" zType="save" class="w-4 h-4" />
+            <z-icon *ngIf="saving()" zType="loader-circle" class="w-4 h-4 animate-spin" />
+            Save as Draft
+          </button>
+
+          <button type="button" z-button zType="default" (click)="publish()" [disabled]="saving()"
+            class="flex items-center gap-2">
+            <z-icon *ngIf="!saving()" zType="send" class="w-4 h-4" />
+            <z-icon *ngIf="saving()" zType="loader-circle" class="w-4 h-4 animate-spin" />
+            {{ isEditMode() ? 'Update & Publish' : 'Publish Memo' }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

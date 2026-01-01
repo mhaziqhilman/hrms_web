@@ -1,0 +1,644 @@
+<div class="p-6 bg-background min-h-screen">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-8">
+    <div class="flex items-center gap-4">
+      <button z-button zType="ghost" zSize="sm" (click)="onCancel()" class="p-2">
+        <z-icon zType="arrow-left" class="w-5 h-5" />
+      </button>
+      <div>
+        <h1 class="text-3xl font-bold text-foreground">{{ isEditMode() ? 'Edit Employee' : 'Add New Employee' }}</h1>
+        <p class="text-muted-foreground text-sm mt-1">{{ isEditMode() ? 'Update employee information' : 'Enter employee details to create a new record' }}</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <button z-button zType="outline" (click)="onCancel()" [disabled]="loading()">
+        Discard
+      </button>
+      <button z-button type="submit" form="employeeForm" [disabled]="loading()">
+        @if (loading()) {
+          <z-icon zType="loader-circle" class="w-4 h-4 mr-2 animate-spin" />
+        }
+        {{ isEditMode() ? 'Update Employee' : 'Create Employee' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Success Message -->
+  @if (successMessage()) {
+    <div class="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-2 text-green-800 mb-6">
+      <z-icon zType="circle-check" class="w-5 h-5" />
+      <span>{{ successMessage() }}</span>
+    </div>
+  }
+
+  <!-- Error Message -->
+  @if (error()) {
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-2 text-red-800 mb-6">
+      <z-icon zType="triangle-alert" class="w-5 h-5" />
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  <!-- Form -->
+  <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()" id="employeeForm">
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <!-- Left Column (2/3 width) -->
+      <div class="xl:col-span-2 space-y-6">
+        <!-- Basic Information -->
+        <z-card
+          [zTitle]="'Basic Information'"
+          [zDescription]="'Personal details and identification'"
+          [zHeaderBorder]="true">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <z-form-field>
+              <label z-form-label [zRequired]="true">Employee ID</label>
+              <z-form-control>
+                <input
+                  z-input
+                  type="text"
+                  formControlName="employee_id"
+                  [zStatus]="employeeIdControl?.invalid && employeeIdControl?.touched ? 'error' : undefined"
+                  placeholder="e.g., EMP001"
+                />
+              </z-form-control>
+              @if (employeeIdControl?.hasError('required') && employeeIdControl?.touched) {
+                <z-form-message zType="error">Employee ID is required.</z-form-message>
+              } @else if (employeeIdControl?.hasError('minlength') && employeeIdControl?.touched) {
+                <z-form-message zType="error">Employee ID must be at least 3 characters long.</z-form-message>
+              } @else if (employeeIdControl?.hasError('maxlength') && employeeIdControl?.touched) {
+                <z-form-message zType="error">Employee ID must not exceed 20 characters.</z-form-message>
+              } @else {
+                <z-form-message>Unique identifier for the employee.</z-form-message>
+              }
+            </z-form-field>
+
+            <z-form-field>
+              <label z-form-label [zRequired]="true">Full Name</label>
+              <z-form-control>
+                <input
+                  z-input
+                  type="text"
+                  formControlName="full_name"
+                  [zStatus]="fullNameControl?.invalid && fullNameControl?.touched ? 'error' : undefined"
+                  placeholder="Full name as per IC/Passport"
+                />
+              </z-form-control>
+              @if (fullNameControl?.hasError('required') && fullNameControl?.touched) {
+                <z-form-message zType="error">Full name is required.</z-form-message>
+              } @else if (fullNameControl?.hasError('minlength') && fullNameControl?.touched) {
+                <z-form-message zType="error">Full name must be at least 2 characters long.</z-form-message>
+              } @else if (fullNameControl?.hasError('maxlength') && fullNameControl?.touched) {
+                <z-form-message zType="error">Full name must not exceed 150 characters.</z-form-message>
+              } @else {
+                <z-form-message>Enter full name as per IC/Passport.</z-form-message>
+              }
+            </z-form-field>
+
+            <z-form-field>
+              <label z-form-label>IC Number</label>
+              <z-form-control>
+                <input
+                  z-input
+                  type="text"
+                  formControlName="ic_no"
+                  [zStatus]="icNoControl?.invalid && icNoControl?.touched ? 'error' : undefined"
+                  placeholder="12 digits without dashes"
+                  maxlength="12"
+                />
+              </z-form-control>
+              @if (icNoControl?.hasError('pattern') && icNoControl?.touched) {
+                <z-form-message zType="error">IC number must be exactly 12 digits.</z-form-message>
+              } @else {
+                <z-form-message>12-digit IC number without dashes.</z-form-message>
+              }
+            </z-form-field>
+
+            <z-form-field>
+              <label z-form-label>Passport Number</label>
+              <z-form-control>
+                <input
+                  z-input
+                  type="text"
+                  formControlName="passport_no"
+                  [zStatus]="passportNoControl?.invalid && passportNoControl?.touched ? 'error' : undefined"
+                  placeholder="For non-Malaysian citizens"
+                />
+              </z-form-control>
+              @if (passportNoControl?.hasError('maxlength') && passportNoControl?.touched) {
+                <z-form-message zType="error">Passport number must not exceed 20 characters.</z-form-message>
+              } @else {
+                <z-form-message>For non-Malaysian citizens only.</z-form-message>
+              }
+            </z-form-field>
+
+            <z-form-field>
+              <label z-form-label>Date of Birth</label>
+              <z-form-control>
+                <z-date-picker
+                  formControlName="date_of_birth"
+                  placeholder="Pick date of birth"
+                  zFormat="dd-MM-yyyy">
+                </z-date-picker>
+              </z-form-control>
+            </z-form-field>
+
+            <z-form-field>
+              <label z-form-label [zRequired]="true">Gender</label>
+              <z-form-control>
+                <z-select
+                  formControlName="gender"
+                  zPlaceholder="Select Gender">
+                  @for (gender of genders; track gender) {
+                    <z-select-item [zValue]="gender">{{ gender }}</z-select-item>
+                  }
+                </z-select>
+              </z-form-control>
+              @if (genderControl?.hasError('required') && genderControl?.touched) {
+                <z-form-message zType="error">Gender is required.</z-form-message>
+              } @else {
+                <z-form-message>Select employee's gender.</z-form-message>
+              }
+            </z-form-field>
+
+            <z-form-field>
+              <label z-form-label>Marital Status</label>
+              <z-form-control>
+                <z-select
+                  formControlName="marital_status"
+                  zPlaceholder="Select Status">
+                  @for (status of maritalStatuses; track status) {
+                    <z-select-item [zValue]="status">{{ status }}</z-select-item>
+                  }
+                </z-select>
+              </z-form-control>
+              <z-form-message>Select marital status if applicable.</z-form-message>
+            </z-form-field>
+
+            <z-form-field>
+              <label z-form-label>Nationality</label>
+              <z-form-control>
+                <input
+                  z-input
+                  type="text"
+                  formControlName="nationality"
+                  [zStatus]="nationalityControl?.invalid && nationalityControl?.touched ? 'error' : undefined"
+                  placeholder="e.g., Malaysian"
+                />
+              </z-form-control>
+              @if (nationalityControl?.hasError('maxlength') && nationalityControl?.touched) {
+                <z-form-message zType="error">Nationality must not exceed 50 characters.</z-form-message>
+              } @else {
+                <z-form-message>Employee's nationality.</z-form-message>
+              }
+            </z-form-field>
+
+            <z-form-field>
+              <label z-form-label>Race</label>
+              <z-form-control>
+                <input
+                  z-input
+                  type="text"
+                  formControlName="race"
+                  [zStatus]="raceControl?.invalid && raceControl?.touched ? 'error' : undefined"
+                  placeholder="e.g., Malay, Chinese, Indian"
+                />
+              </z-form-control>
+              @if (raceControl?.hasError('maxlength') && raceControl?.touched) {
+                <z-form-message zType="error">Race must not exceed 50 characters.</z-form-message>
+              } @else {
+                <z-form-message>Employee's race or ethnicity.</z-form-message>
+              }
+            </z-form-field>
+
+            <z-form-field>
+              <label z-form-label>Religion</label>
+              <z-form-control>
+                <input
+                  z-input
+                  type="text"
+                  formControlName="religion"
+                  [zStatus]="religionControl?.invalid && religionControl?.touched ? 'error' : undefined"
+                  placeholder="e.g., Islam, Buddhism"
+                />
+              </z-form-control>
+              @if (religionControl?.hasError('maxlength') && religionControl?.touched) {
+                <z-form-message zType="error">Religion must not exceed 50 characters.</z-form-message>
+              } @else {
+                <z-form-message>Employee's religion if applicable.</z-form-message>
+              }
+            </z-form-field>
+          </div>
+        </z-card>
+
+        <!-- Contact Information -->
+        <z-card
+          [zTitle]="'Contact Information'"
+          [zDescription]="'Communication and address details'"
+          [zHeaderBorder]="true">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <z-form-field>
+              <label z-form-label>Mobile Number</label>
+              <z-form-control>
+                <input
+                  z-input
+                  type="tel"
+                  formControlName="mobile"
+                  [zStatus]="mobileControl?.invalid && mobileControl?.touched ? 'error' : undefined"
+                  placeholder="e.g., +60123456789"
+                />
+              </z-form-control>
+              @if (mobileControl?.hasError('pattern') && mobileControl?.touched) {
+                <z-form-message zType="error">Invalid phone number format. Use 10-15 digits with optional + prefix.</z-form-message>
+              } @else {
+                <z-form-message>Include country code (e.g., +60).</z-form-message>
+              }
+            </z-form-field>
+
+            <z-form-field>
+              <label z-form-label>Email Address</label>
+              <z-form-control>
+                <input
+                  z-input
+                  type="email"
+                  formControlName="email"
+                  [zStatus]="emailControl?.invalid && emailControl?.touched ? 'error' : undefined"
+                  placeholder="employee@company.com"
+                />
+              </z-form-control>
+              @if (emailControl?.hasError('email') && emailControl?.touched) {
+                <z-form-message zType="error">Invalid email format.</z-form-message>
+              } @else if (emailControl?.hasError('maxlength') && emailControl?.touched) {
+                <z-form-message zType="error">Email must not exceed 100 characters.</z-form-message>
+              } @else {
+                <z-form-message>Company or personal email address.</z-form-message>
+              }
+            </z-form-field>
+
+            <z-form-field>
+              <label z-form-label>Emergency Contact Name</label>
+              <z-form-control>
+                <input
+                  z-input
+                  type="text"
+                  formControlName="emergency_contact_name"
+                  [zStatus]="emergencyContactNameControl?.invalid && emergencyContactNameControl?.touched ? 'error' : undefined"
+                  placeholder="Next of kin"
+                />
+              </z-form-control>
+              @if (emergencyContactNameControl?.hasError('maxlength') && emergencyContactNameControl?.touched) {
+                <z-form-message zType="error">Name must not exceed 100 characters.</z-form-message>
+              } @else {
+                <z-form-message>Name of emergency contact person.</z-form-message>
+              }
+            </z-form-field>
+
+            <z-form-field>
+              <label z-form-label>Emergency Contact Phone</label>
+              <z-form-control>
+                <input
+                  z-input
+                  type="tel"
+                  formControlName="emergency_contact_phone"
+                  [zStatus]="emergencyContactPhoneControl?.invalid && emergencyContactPhoneControl?.touched ? 'error' : undefined"
+                  placeholder="Contact number"
+                />
+              </z-form-control>
+              @if (emergencyContactPhoneControl?.hasError('pattern') && emergencyContactPhoneControl?.touched) {
+                <z-form-message zType="error">Invalid phone number format. Use 10-15 digits with optional + prefix.</z-form-message>
+              } @else {
+                <z-form-message>Emergency contact phone number.</z-form-message>
+              }
+            </z-form-field>
+
+            <z-form-field class="md:col-span-2">
+              <label z-form-label>Current Address</label>
+              <z-form-control>
+                <textarea
+                  z-input
+                  formControlName="current_address"
+                  [zStatus]="currentAddressControl?.invalid && currentAddressControl?.touched ? 'error' : undefined"
+                  rows="4"
+                  placeholder="Current residential address"
+                ></textarea>
+              </z-form-control>
+              @if (currentAddressControl?.hasError('maxlength') && currentAddressControl?.touched) {
+                <z-form-message zType="error">Address must not exceed 500 characters.</z-form-message>
+              } @else {
+                <z-form-message>Current residential address.</z-form-message>
+              }
+            </z-form-field>
+
+            <z-form-field class="md:col-span-2">
+              <div class="flex justify-between items-center">
+                <label z-form-label>Permanent Address</label>
+                <button
+                  type="button"
+                  z-button
+                  zType="ghost"
+                  zSize="sm"
+                  (click)="copyCurrentToPermanent()"
+                  class="text-xs -mt-2">
+                  <z-icon zType="copy" class="w-3 h-3 mr-1" />
+                  Same as Current
+                </button>
+              </div>
+              <z-form-control>
+                <textarea
+                  z-input
+                  formControlName="permanent_address"
+                  [zStatus]="permanentAddressControl?.invalid && permanentAddressControl?.touched ? 'error' : undefined"
+                  rows="4"
+                  placeholder="Permanent address"
+                ></textarea>
+              </z-form-control>
+              @if (permanentAddressControl?.hasError('maxlength') && permanentAddressControl?.touched) {
+                <z-form-message zType="error">Address must not exceed 500 characters.</z-form-message>
+              } @else {
+                <z-form-message>Permanent residential address.</z-form-message>
+              }
+            </z-form-field>
+          </div>
+        </z-card>
+
+        <!-- Banking Information -->
+        <z-card
+          [zTitle]="'Banking Information'"
+          [zDescription]="'Salary payment details'"
+          [zHeaderBorder]="true">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <z-form-field>
+              <label z-form-label>Bank Name</label>
+              <z-form-control>
+                <input
+                  z-input
+                  type="text"
+                  formControlName="bank_name"
+                  [zStatus]="bankNameControl?.invalid && bankNameControl?.touched ? 'error' : undefined"
+                  placeholder="e.g., Maybank, CIMB"
+                />
+              </z-form-control>
+              @if (bankNameControl?.hasError('maxlength') && bankNameControl?.touched) {
+                <z-form-message zType="error">Bank name must not exceed 100 characters.</z-form-message>
+              } @else {
+                <z-form-message>Name of the bank.</z-form-message>
+              }
+            </z-form-field>
+
+            <z-form-field>
+              <label z-form-label>Account Number</label>
+              <z-form-control>
+                <input
+                  z-input
+                  type="text"
+                  formControlName="bank_account_no"
+                  [zStatus]="bankAccountNoControl?.invalid && bankAccountNoControl?.touched ? 'error' : undefined"
+                  placeholder="Bank account number"
+                />
+              </z-form-control>
+              @if (bankAccountNoControl?.hasError('maxlength') && bankAccountNoControl?.touched) {
+                <z-form-message zType="error">Account number must not exceed 50 characters.</z-form-message>
+              } @else {
+                <z-form-message>Bank account number for salary.</z-form-message>
+              }
+            </z-form-field>
+
+            <z-form-field>
+              <label z-form-label>Account Holder Name</label>
+              <z-form-control>
+                <input
+                  z-input
+                  type="text"
+                  formControlName="bank_account_holder"
+                  [zStatus]="bankAccountHolderControl?.invalid && bankAccountHolderControl?.touched ? 'error' : undefined"
+                  placeholder="Name as per bank account"
+                />
+              </z-form-control>
+              @if (bankAccountHolderControl?.hasError('maxlength') && bankAccountHolderControl?.touched) {
+                <z-form-message zType="error">Account holder name must not exceed 150 characters.</z-form-message>
+              } @else {
+                <z-form-message>Name as registered with the bank.</z-form-message>
+              }
+            </z-form-field>
+          </div>
+        </z-card>
+
+        <!-- Statutory Information -->
+        <z-card
+          [zTitle]="'Statutory Information'"
+          [zDescription]="'EPF, SOCSO, and tax details'"
+          [zHeaderBorder]="true">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <z-form-field>
+              <label z-form-label>EPF Number</label>
+              <z-form-control>
+                <input
+                  z-input
+                  type="text"
+                  formControlName="epf_no"
+                  [zStatus]="epfNoControl?.invalid && epfNoControl?.touched ? 'error' : undefined"
+                  placeholder="EPF number"
+                />
+              </z-form-control>
+              @if (epfNoControl?.hasError('maxlength') && epfNoControl?.touched) {
+                <z-form-message zType="error">EPF number must not exceed 20 characters.</z-form-message>
+              } @else {
+                <z-form-message>Employee Provident Fund number.</z-form-message>
+              }
+            </z-form-field>
+
+            <z-form-field>
+              <label z-form-label>SOCSO Number</label>
+              <z-form-control>
+                <input
+                  z-input
+                  type="text"
+                  formControlName="socso_no"
+                  [zStatus]="socsoNoControl?.invalid && socsoNoControl?.touched ? 'error' : undefined"
+                  placeholder="SOCSO number"
+                />
+              </z-form-control>
+              @if (socsoNoControl?.hasError('maxlength') && socsoNoControl?.touched) {
+                <z-form-message zType="error">SOCSO number must not exceed 20 characters.</z-form-message>
+              } @else {
+                <z-form-message>Social Security Organization number.</z-form-message>
+              }
+            </z-form-field>
+
+            <z-form-field>
+              <label z-form-label>Income Tax Number</label>
+              <z-form-control>
+                <input
+                  z-input
+                  type="text"
+                  formControlName="tax_no"
+                  [zStatus]="taxNoControl?.invalid && taxNoControl?.touched ? 'error' : undefined"
+                  placeholder="Tax number"
+                />
+              </z-form-control>
+              @if (taxNoControl?.hasError('maxlength') && taxNoControl?.touched) {
+                <z-form-message zType="error">Tax number must not exceed 20 characters.</z-form-message>
+              } @else {
+                <z-form-message>Income tax reference number.</z-form-message>
+              }
+            </z-form-field>
+
+            <z-form-field>
+              <label z-form-label>Tax Category</label>
+              <z-form-control>
+                <input
+                  z-input
+                  type="text"
+                  formControlName="tax_category"
+                  [zStatus]="taxCategoryControl?.invalid && taxCategoryControl?.touched ? 'error' : undefined"
+                  placeholder="e.g., Individual"
+                />
+              </z-form-control>
+              @if (taxCategoryControl?.hasError('maxlength') && taxCategoryControl?.touched) {
+                <z-form-message zType="error">Tax category must not exceed 50 characters.</z-form-message>
+              } @else {
+                <z-form-message>Tax category classification.</z-form-message>
+              }
+            </z-form-field>
+          </div>
+        </z-card>
+      </div>
+
+      <!-- Right Column (1/3 width) -->
+      <div class="xl:col-span-1 space-y-6">
+        <!-- Employment Information -->
+        <z-card
+          [zTitle]="'Employment Details'"
+          [zDescription]="'Position and work information'"
+          [zHeaderBorder]="true">
+          <div class="space-y-4 grid gap-0">
+            <z-form-field>
+              <label z-form-label>Position</label>
+              <z-form-control>
+                <input
+                  z-input
+                  type="text"
+                  formControlName="position"
+                  [zStatus]="positionControl?.invalid && positionControl?.touched ? 'error' : undefined"
+                  placeholder="Job title"
+                />
+              </z-form-control>
+              @if (positionControl?.hasError('maxlength') && positionControl?.touched) {
+                <z-form-message zType="error">Position must not exceed 100 characters.</z-form-message>
+              } @else {
+                <z-form-message>Employee's job title.</z-form-message>
+              }
+            </z-form-field>
+
+            <z-form-field>
+              <label z-form-label>Department</label>
+              <z-form-control>
+                <input
+                  z-input
+                  type="text"
+                  formControlName="department"
+                  [zStatus]="departmentControl?.invalid && departmentControl?.touched ? 'error' : undefined"
+                  placeholder="Department name"
+                />
+              </z-form-control>
+              @if (departmentControl?.hasError('maxlength') && departmentControl?.touched) {
+                <z-form-message zType="error">Department must not exceed 100 characters.</z-form-message>
+              } @else {
+                <z-form-message>Department or division name.</z-form-message>
+              }
+            </z-form-field>
+
+            <z-form-field>
+              <label z-form-label>Employment Type</label>
+              <z-form-control>
+                <z-select
+                  formControlName="employment_type"
+                  zPlaceholder="Select Employment Type">
+                  @for (type of employmentTypes; track type) {
+                    <z-select-item [zValue]="type">{{ type }}</z-select-item>
+                  }
+                </z-select>
+              </z-form-control>
+              <z-form-message>Type of employment contract.</z-form-message>
+            </z-form-field>
+
+            <z-form-field>
+              <label z-form-label>Work Location</label>
+              <z-form-control>
+                <input
+                  z-input
+                  type="text"
+                  formControlName="work_location"
+                  [zStatus]="workLocationControl?.invalid && workLocationControl?.touched ? 'error' : undefined"
+                  placeholder="Office location"
+                />
+              </z-form-control>
+              @if (workLocationControl?.hasError('maxlength') && workLocationControl?.touched) {
+                <z-form-message zType="error">Work location must not exceed 100 characters.</z-form-message>
+              } @else {
+                <z-form-message>Primary office or work location.</z-form-message>
+              }
+            </z-form-field>
+          </div>
+        </z-card>
+
+        <!-- Salary & Dates -->
+        <z-card
+          [zTitle]="'Salary & Dates'"
+          [zDescription]="'Compensation and timeline'"
+          [zHeaderBorder]="true">
+          <div class="space-y-4 grid gap-0">
+            <z-form-field>
+              <label z-form-label [zRequired]="true">Basic Salary (MYR)</label>
+              <z-form-control>
+                <input
+                  z-input
+                  type="number"
+                  formControlName="basic_salary"
+                  [zStatus]="basicSalaryControl?.invalid && basicSalaryControl?.touched ? 'error' : undefined"
+                  placeholder="0.00"
+                  step="0.01"
+                  min="0"
+                />
+              </z-form-control>
+              @if (basicSalaryControl?.hasError('required') && basicSalaryControl?.touched) {
+                <z-form-message zType="error">Basic salary is required.</z-form-message>
+              } @else if (basicSalaryControl?.hasError('min') && basicSalaryControl?.touched) {
+                <z-form-message zType="error">Salary must be a positive number.</z-form-message>
+              } @else {
+                <z-form-message>Monthly basic salary in Malaysian Ringgit.</z-form-message>
+              }
+            </z-form-field>
+
+            <z-form-field>
+              <label z-form-label [zRequired]="true">Join Date</label>
+              <z-form-control>
+                <z-date-picker
+                  formControlName="join_date"
+                  placeholder="Pick join date"
+                  zFormat="dd-MM-yyyy">
+                </z-date-picker>
+              </z-form-control>
+              @if (joinDateControl?.hasError('required') && joinDateControl?.touched) {
+                <z-form-message zType="error">Join date is required.</z-form-message>
+              } @else {
+                <z-form-message>Employee's start date.</z-form-message>
+              }
+            </z-form-field>
+
+            <z-form-field>
+              <label z-form-label>Confirmation Date</label>
+              <z-form-control>
+                <z-date-picker
+                  formControlName="confirmation_date"
+                  placeholder="Pick confirmation date"
+                  zFormat="dd-MM-yyyy">
+                </z-date-picker>
+              </z-form-control>
+              <z-form-message>Date when probation was confirmed.</z-form-message>
+            </z-form-field>
+          </div>
+        </z-card>
+      </div>
+    </div>
+  </form>
+</div>

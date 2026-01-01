@@ -1,0 +1,219 @@
+<div class="max-w-5xl mx-auto p-6">
+  <!-- Action Bar (No Print) -->
+  <div class="flex justify-between items-center mb-6 no-print">
+    <a
+      routerLink="/dashboard/payroll"
+      z-button
+      zType="outline"
+      class="flex items-center gap-2"
+    >
+      <z-icon zType="arrow-left" class="w-4 h-4" />
+      Back to List
+    </a>
+    <div class="flex gap-3">
+      <button
+        type="button"
+        z-button
+        zType="outline"
+        (click)="printPayslip()"
+        class="flex items-center gap-2"
+      >
+        <z-icon zType="file-text" class="w-4 h-4" />
+        Print
+      </button>
+      <button
+        type="button"
+        z-button
+        zType="default"
+        (click)="downloadPayslip()"
+        [disabled]="downloading()"
+        class="flex items-center gap-2 min-w-[150px]"
+      >
+        <z-icon *ngIf="downloading()" zType="loader-circle" class="w-4 h-4 animate-spin" />
+        <z-icon *ngIf="!downloading()" zType="download" class="w-4 h-4" />
+        Download PDF
+      </button>
+    </div>
+  </div>
+
+  <!-- Error Alert -->
+  <z-card *ngIf="error()" class="mb-6 border-destructive no-print">
+    <div class="flex items-center gap-2 text-destructive">
+      <z-icon zType="circle-alert" class="w-5 h-5" />
+      <span>{{ error() }}</span>
+    </div>
+  </z-card>
+
+  <!-- Loading State -->
+  <z-card *ngIf="loading()" class="mb-6 no-print">
+    <div class="flex flex-col items-center justify-center py-12">
+      <z-icon zType="loader-circle" class="w-12 h-12 text-primary animate-spin" />
+      <p class="text-muted-foreground mt-4">Loading payslip...</p>
+    </div>
+  </z-card>
+
+  <!-- Payslip Document -->
+  <div *ngIf="payslip() && !loading()" class="bg-white shadow-lg rounded-lg overflow-hidden print:shadow-none">
+    <!-- Company Header -->
+    <div class="bg-primary text-primary-foreground p-8 print:bg-white print:text-foreground print:border-b-2 print:border-primary">
+      <div class="flex justify-between items-start">
+        <div>
+          <h1 class="text-3xl font-bold mb-2">Company Name</h1>
+          <p class="text-sm opacity-90">Company Address</p>
+        </div>
+        <div class="text-right">
+          <h2 class="text-2xl font-bold mb-2">PAYSLIP</h2>
+          <p class="text-sm">
+            {{ getMonthName(payslip()!.pay_period.month) }} {{ payslip()!.pay_period.year }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Employee Details -->
+    <div class="p-8 bg-muted/20">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="flex flex-col gap-1">
+          <span class="text-sm text-muted-foreground">Employee ID</span>
+          <span class="font-semibold">{{ payslip()!.employee.employee_id }}</span>
+        </div>
+        <div class="flex flex-col gap-1">
+          <span class="text-sm text-muted-foreground">Employee Name</span>
+          <span class="font-semibold">{{ payslip()!.employee.full_name }}</span>
+        </div>
+        <div class="flex flex-col gap-1">
+          <span class="text-sm text-muted-foreground">Department</span>
+          <span class="font-semibold">{{ payslip()!.employee.department || 'N/A' }}</span>
+        </div>
+        <div class="flex flex-col gap-1">
+          <span class="text-sm text-muted-foreground">Position</span>
+          <span class="font-semibold">{{ payslip()!.employee.position || 'N/A' }}</span>
+        </div>
+        <div class="flex flex-col gap-1">
+          <span class="text-sm text-muted-foreground">Payment Date</span>
+          <span class="font-semibold">{{ formatDate(payslip()!.pay_period.payment_date) }}</span>
+        </div>
+        <div class="flex flex-col gap-1">
+          <span class="text-sm text-muted-foreground">Bank Account</span>
+          <span class="font-semibold">{{ payslip()!.bank_details.account_no || 'N/A' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Earnings and Deductions -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-8">
+      <!-- Earnings Column -->
+      <div>
+        <h3 class="text-lg font-semibold text-foreground mb-4 pb-2 border-b-2 border-border">Earnings</h3>
+        <table class="w-full">
+          <tbody class="text-sm">
+            <tr class="border-b border-border">
+              <td class="py-2">Basic Salary</td>
+              <td class="py-2 text-right font-medium">{{ formatCurrency(payslip()!.earnings.basic_salary) }}</td>
+            </tr>
+            <tr *ngIf="payslip()!.earnings.allowances > 0" class="border-b border-border">
+              <td class="py-2">Allowances</td>
+              <td class="py-2 text-right font-medium">{{ formatCurrency(payslip()!.earnings.allowances) }}</td>
+            </tr>
+            <tr *ngIf="payslip()!.earnings.overtime_pay > 0" class="border-b border-border">
+              <td class="py-2">Overtime Pay</td>
+              <td class="py-2 text-right font-medium">{{ formatCurrency(payslip()!.earnings.overtime_pay) }}</td>
+            </tr>
+            <tr *ngIf="payslip()!.earnings.bonus > 0" class="border-b border-border">
+              <td class="py-2">Bonus</td>
+              <td class="py-2 text-right font-medium">{{ formatCurrency(payslip()!.earnings.bonus) }}</td>
+            </tr>
+            <tr *ngIf="payslip()!.earnings.commission > 0" class="border-b border-border">
+              <td class="py-2">Commission</td>
+              <td class="py-2 text-right font-medium">{{ formatCurrency(payslip()!.earnings.commission) }}</td>
+            </tr>
+            <tr class="bg-muted/30">
+              <td class="py-3 font-bold">Gross Salary</td>
+              <td class="py-3 text-right font-bold">{{ formatCurrency(payslip()!.earnings.gross_salary) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Deductions Column -->
+      <div>
+        <h3 class="text-lg font-semibold text-foreground mb-4 pb-2 border-b-2 border-border">Deductions</h3>
+        <table class="w-full">
+          <tbody class="text-sm">
+            <tr class="border-b border-border">
+              <td class="py-2">EPF (Employee)</td>
+              <td class="py-2 text-right font-medium">{{ formatCurrency(payslip()!.deductions.epf_employee) }}</td>
+            </tr>
+            <tr class="border-b border-border">
+              <td class="py-2">SOCSO (Employee)</td>
+              <td class="py-2 text-right font-medium">{{ formatCurrency(payslip()!.deductions.socso_employee) }}</td>
+            </tr>
+            <tr class="border-b border-border">
+              <td class="py-2">EIS (Employee)</td>
+              <td class="py-2 text-right font-medium">{{ formatCurrency(payslip()!.deductions.eis_employee) }}</td>
+            </tr>
+            <tr *ngIf="payslip()!.deductions.pcb_deduction > 0" class="border-b border-border">
+              <td class="py-2">PCB (Tax)</td>
+              <td class="py-2 text-right font-medium">{{ formatCurrency(payslip()!.deductions.pcb_deduction) }}</td>
+            </tr>
+            <tr *ngIf="payslip()!.deductions.unpaid_leave_deduction > 0" class="border-b border-border">
+              <td class="py-2">Unpaid Leave</td>
+              <td class="py-2 text-right font-medium">{{ formatCurrency(payslip()!.deductions.unpaid_leave_deduction) }}</td>
+            </tr>
+            <tr *ngIf="payslip()!.deductions.other_deductions > 0" class="border-b border-border">
+              <td class="py-2">Other Deductions</td>
+              <td class="py-2 text-right font-medium">{{ formatCurrency(payslip()!.deductions.other_deductions) }}</td>
+            </tr>
+            <tr class="bg-muted/30">
+              <td class="py-3 font-bold">Total Deductions</td>
+              <td class="py-3 text-right font-bold">{{ formatCurrency(payslip()!.deductions.total_deductions) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Employer Contributions -->
+    <div class="p-8 bg-muted/10">
+      <h3 class="text-lg font-semibold text-foreground mb-4">Employer Contributions</h3>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="flex flex-col gap-1">
+          <span class="text-sm text-muted-foreground">EPF (Employer)</span>
+          <span class="font-semibold">{{ formatCurrency(payslip()!.employer_contributions.epf_employer) }}</span>
+        </div>
+        <div class="flex flex-col gap-1">
+          <span class="text-sm text-muted-foreground">SOCSO (Employer)</span>
+          <span class="font-semibold">{{ formatCurrency(payslip()!.employer_contributions.socso_employer) }}</span>
+        </div>
+        <div class="flex flex-col gap-1">
+          <span class="text-sm text-muted-foreground">EIS (Employer)</span>
+          <span class="font-semibold">{{ formatCurrency(payslip()!.employer_contributions.eis_employer) }}</span>
+        </div>
+        <div class="flex flex-col gap-1">
+          <span class="text-sm text-muted-foreground">Total</span>
+          <span class="font-semibold">{{ formatCurrency(payslip()!.employer_contributions.epf_employer + payslip()!.employer_contributions.socso_employer + payslip()!.employer_contributions.eis_employer) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Net Salary -->
+    <div class="p-8 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950 print:bg-gray-50">
+      <div class="flex justify-between items-center">
+        <span class="text-xl font-bold text-foreground">NET SALARY PAYABLE</span>
+        <span class="text-3xl font-bold text-green-600 dark:text-green-400">{{ formatCurrency(payslip()!.net_salary) }}</span>
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div class="p-8" *ngIf="payslip()!.notes">
+      <h4 class="text-lg font-semibold text-foreground mb-2">Notes</h4>
+      <p class="text-muted-foreground">{{ payslip()!.notes }}</p>
+    </div>
+
+    <!-- Footer -->
+    <div class="p-8 bg-muted/20 text-center text-sm text-muted-foreground space-y-1">
+      <p>This is a computer-generated payslip and does not require a signature.</p>
+      <p>For any queries, please contact the HR department.</p>
+    </div>
+  </div>
+</div>

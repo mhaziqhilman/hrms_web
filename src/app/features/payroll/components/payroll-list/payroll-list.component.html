@@ -1,0 +1,289 @@
+<div class="max-w-7xl mx-auto p-6">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
+    <div>
+      <h2 class="text-3xl font-semibold text-foreground">Payroll Management</h2>
+      <p class="text-muted-foreground mt-1">Manage employee payroll records</p>
+    </div>
+    <a
+      routerLink="/dashboard/payroll/calculate"
+      z-button
+      zType="default"
+      class="flex items-center gap-2"
+    >
+      <z-icon zType="plus" class="w-4 h-4" />
+      Calculate Payroll
+    </a>
+  </div>
+
+  <!-- Filters Card -->
+  <z-card class="mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <!-- Status Filter -->
+      <z-form-field>
+        <label z-form-label for="statusFilter">Status</label>
+        <z-select
+          id="statusFilter"
+          [(ngModel)]="selectedStatus"
+          (ngModelChange)="onFilterChange()"
+          placeholder="All Status"
+        >
+          <z-select-item zValue="">All Status</z-select-item>
+          <z-select-item [zValue]="PayrollStatus.DRAFT">Draft</z-select-item>
+          <z-select-item [zValue]="PayrollStatus.PENDING">Pending</z-select-item>
+          <z-select-item [zValue]="PayrollStatus.APPROVED">Approved</z-select-item>
+          <z-select-item [zValue]="PayrollStatus.PAID">Paid</z-select-item>
+          <z-select-item [zValue]="PayrollStatus.CANCELLED">Cancelled</z-select-item>
+        </z-select>
+      </z-form-field>
+
+      <!-- Year Filter -->
+      <z-form-field>
+        <label z-form-label for="yearFilter">Year</label>
+        <z-select
+          id="yearFilter"
+          [(ngModel)]="selectedYear"
+          (ngModelChange)="onFilterChange()"
+        >
+          <z-select-item *ngFor="let year of years" [zValue]="year">{{ year }}</z-select-item>
+        </z-select>
+      </z-form-field>
+
+      <!-- Month Filter -->
+      <z-form-field>
+        <label z-form-label for="monthFilter">Month</label>
+        <z-select
+          id="monthFilter"
+          [(ngModel)]="selectedMonth"
+          (ngModelChange)="onFilterChange()"
+          placeholder="All Months"
+        >
+          <z-select-item zValue="">All Months</z-select-item>
+          <z-select-item *ngFor="let month of MONTH_NAMES; let i = index" [zValue]="i + 1">
+            {{ month }}
+          </z-select-item>
+        </z-select>
+      </z-form-field>
+
+      <!-- Clear Filters -->
+      <div class="flex items-end">
+        <button
+          type="button"
+          z-button
+          zType="outline"
+          class="w-full flex items-center justify-center gap-2"
+          (click)="clearFilters()"
+        >
+          <z-icon zType="arrow-left" class="w-4 h-4" />
+          Clear Filters
+        </button>
+      </div>
+    </div>
+  </z-card>
+
+  <!-- Error Alert -->
+  <z-card *ngIf="error()" class="mb-6 border-destructive">
+    <div class="flex items-center gap-2 text-destructive">
+      <z-icon zType="circle-alert" class="w-5 h-5" />
+      <span>{{ error() }}</span>
+    </div>
+  </z-card>
+
+  <!-- Loading State -->
+  <z-card *ngIf="loading()" class="mb-6">
+    <div class="flex flex-col items-center justify-center py-12">
+      <z-icon zType="loader-circle" class="w-12 h-12 text-primary animate-spin" />
+      <p class="text-muted-foreground mt-4">Loading payroll records...</p>
+    </div>
+  </z-card>
+
+  <!-- Payroll Table -->
+  <z-card *ngIf="!loading() && !error()">
+    <!-- Results Summary -->
+    <div class="px-6 py-4 border-b border-border" *ngIf="total() > 0">
+      <span class="text-sm text-muted-foreground">
+        Showing {{ (currentPage() - 1) * limit + 1 }} to
+        {{ Math.min(currentPage() * limit, total()) }} of {{ total() }} records
+      </span>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto" *ngIf="payrolls().length > 0">
+      <table z-table>
+        <thead>
+          <tr>
+            <th>Employee</th>
+            <th>Period</th>
+            <th>Basic Salary</th>
+            <th>Gross Salary</th>
+            <th>Deductions</th>
+            <th>Net Salary</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let payroll of payrolls()">
+            <!-- Employee -->
+            <td>
+              <div class="flex flex-col">
+                <span class="font-medium text-foreground">{{ payroll.employee?.full_name }}</span>
+                <span class="text-sm text-muted-foreground">ID: {{ payroll.employee?.employee_id }}</span>
+              </div>
+            </td>
+
+            <!-- Period -->
+            <td>
+              <div class="flex flex-col">
+                <span class="font-medium">{{ getMonthName(payroll.month) }}</span>
+                <span class="text-sm text-muted-foreground">{{ payroll.year }}</span>
+              </div>
+            </td>
+
+            <!-- Basic Salary -->
+            <td>{{ formatCurrency(payroll.basic_salary) }}</td>
+
+            <!-- Gross Salary -->
+            <td>{{ formatCurrency(payroll.gross_salary) }}</td>
+
+            <!-- Deductions -->
+            <td>{{ formatCurrency(payroll.total_deductions) }}</td>
+
+            <!-- Net Salary -->
+            <td>
+              <span class="font-semibold text-green-600">{{ formatCurrency(payroll.net_salary) }}</span>
+            </td>
+
+            <!-- Status -->
+            <td>
+              <z-badge [zType]="getStatusBadgeVariant(payroll.status)">
+                {{ payroll.status }}
+              </z-badge>
+            </td>
+
+            <!-- Actions -->
+            <td>
+              <div class="flex gap-2 flex-wrap">
+                <!-- View Payslip -->
+                <a
+                  [routerLink]="['/dashboard/payroll', payroll.id]"
+                  z-button
+                  zType="outline"
+                  zSize="sm"
+                  [zTooltip]="'View Payslip'"
+                >
+                  <z-icon zType="eye" class="w-4 h-4" />
+                </a>
+
+                <!-- Edit -->
+                <a
+                  *ngIf="canEdit(payroll)"
+                  [routerLink]="['/dashboard/payroll', payroll.id, 'edit']"
+                  z-button
+                  zType="outline"
+                  zSize="sm"
+                  [zTooltip]="'Edit'"
+                >
+                  <z-icon zType="pencil" class="w-4 h-4" />
+                </a>
+
+                <!-- Approve -->
+                <button
+                  *ngIf="canApprove(payroll)"
+                  (click)="approvePayroll(payroll)"
+                  z-button
+                  zType="outline"
+                  zSize="sm"
+                  [zTooltip]="'Approve'"
+                  class="text-green-600 hover:text-green-700"
+                >
+                  <z-icon zType="circle-check" class="w-4 h-4" />
+                </button>
+
+                <!-- Mark as Paid -->
+                <button
+                  *ngIf="canMarkPaid(payroll)"
+                  (click)="markAsPaid(payroll)"
+                  z-button
+                  zType="outline"
+                  zSize="sm"
+                  [zTooltip]="'Mark as Paid'"
+                  class="text-blue-600 hover:text-blue-700"
+                >
+                  <z-icon zType="dollar-sign" class="w-4 h-4" />
+                </button>
+
+                <!-- Cancel -->
+                <button
+                  *ngIf="canCancel(payroll)"
+                  (click)="cancelPayroll(payroll)"
+                  z-button
+                  zType="outline"
+                  zSize="sm"
+                  [zTooltip]="'Cancel'"
+                  class="text-red-600 hover:text-red-700"
+                >
+                  <z-icon zType="circle-x" class="w-4 h-4" />
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="payrolls().length === 0" class="flex flex-col items-center justify-center py-16 px-4 text-center">
+      <z-icon zType="inbox" class="w-16 h-16 text-muted-foreground/50 mb-4" />
+      <h4 class="text-lg font-semibold text-foreground mb-2">No Payroll Records Found</h4>
+      <p class="text-muted-foreground mb-6">No payroll records match your current filters.</p>
+      <button z-button zType="outline" (click)="clearFilters()">
+        Clear Filters
+      </button>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="totalPages() > 1" class="px-6 py-4 border-t border-border">
+      <nav class="flex justify-center" aria-label="Payroll pagination">
+        <div class="flex items-center gap-2">
+          <!-- Previous Button -->
+          <button
+            z-button
+            zType="outline"
+            zSize="sm"
+            (click)="onPageChange(currentPage() - 1)"
+            [disabled]="currentPage() === 1"
+            class="flex items-center gap-1"
+          >
+            <z-icon zType="chevron-left" class="w-4 h-4" />
+            Previous
+          </button>
+
+          <!-- Page Numbers -->
+          <button
+            *ngFor="let page of [].constructor(totalPages()); let i = index"
+            z-button
+            [zType]="currentPage() === i + 1 ? 'default' : 'outline'"
+            zSize="sm"
+            (click)="onPageChange(i + 1)"
+          >
+            {{ i + 1 }}
+          </button>
+
+          <!-- Next Button -->
+          <button
+            z-button
+            zType="outline"
+            zSize="sm"
+            (click)="onPageChange(currentPage() + 1)"
+            [disabled]="currentPage() === totalPages()"
+            class="flex items-center gap-1"
+          >
+            Next
+            <z-icon zType="chevron-right" class="w-4 h-4" />
+          </button>
+        </div>
+      </nav>
+    </div>
+  </z-card>
+</div>

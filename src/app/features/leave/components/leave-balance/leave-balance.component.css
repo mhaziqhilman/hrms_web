@@ -1,0 +1,420 @@
+.leave-balance-container {
+  padding: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Page Header */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+
+  .page-title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+  }
+
+  .page-subtitle {
+    color: #6b7280;
+    margin: 0.25rem 0 0;
+    font-size: 0.95rem;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 0.75rem;
+
+    .btn {
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+    }
+  }
+}
+
+/* Filters Card */
+.filters-card {
+  background: white;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.5rem;
+
+  .filters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .form-label {
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .form-select {
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    transition: border-color 0.15s ease-in-out;
+
+    &:focus {
+      border-color: #3b82f6;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+  }
+}
+
+/* Loading Container */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+  .spinner-border {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .loading-text {
+    margin-top: 1rem;
+    color: #6b7280;
+    font-size: 0.95rem;
+  }
+}
+
+/* Balance Content */
+.balance-content {
+  .employee-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+
+    .employee-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+
+      .employee-icon {
+        font-size: 3rem;
+        opacity: 0.9;
+      }
+
+      .employee-name {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin: 0;
+      }
+
+      .employee-id {
+        font-size: 0.9rem;
+        margin: 0.25rem 0 0;
+        opacity: 0.9;
+      }
+    }
+
+    .year-badge {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      backdrop-filter: blur(10px);
+    }
+  }
+
+  .balance-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+/* Balance Card */
+.balance-card {
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+  }
+
+  .card-header {
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    padding: 1rem 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #d1d5db;
+
+    .leave-type-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #1f2937;
+      margin: 0;
+    }
+
+    .badge {
+      padding: 0.25rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.025em;
+    }
+  }
+
+  .card-body {
+    padding: 1.25rem;
+
+    .balance-summary {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+
+      .main-balance {
+        flex: 1;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        text-align: center;
+
+        .balance-label {
+          font-size: 0.85rem;
+          opacity: 0.9;
+          margin-bottom: 0.5rem;
+        }
+
+        .balance-value {
+          font-size: 2.5rem;
+          font-weight: 700;
+          line-height: 1;
+        }
+      }
+
+      .balance-divider {
+        width: 2px;
+        height: 60px;
+        background: #e5e7eb;
+      }
+
+      .balance-stats {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        flex: 1;
+      }
+
+      .balance-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .balance-label {
+          font-size: 0.85rem;
+          color: #6b7280;
+          font-weight: 500;
+        }
+
+        .balance-value {
+          font-size: 1.25rem;
+          font-weight: 600;
+          color: #1f2937;
+
+          &.small {
+            font-size: 1rem;
+          }
+        }
+      }
+    }
+
+    .progress-section {
+      margin-bottom: 1rem;
+
+      .progress-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+
+        .progress-label {
+          font-size: 0.85rem;
+          font-weight: 500;
+          color: #6b7280;
+        }
+
+        .progress-percentage {
+          font-size: 0.85rem;
+          font-weight: 600;
+          color: #374151;
+        }
+      }
+
+      .progress {
+        height: 0.75rem;
+        background-color: #e5e7eb;
+        border-radius: 9999px;
+        overflow: hidden;
+
+        .progress-bar {
+          height: 100%;
+          transition: width 0.3s ease-in-out;
+          border-radius: 9999px;
+        }
+      }
+    }
+
+    .carry-forward-info {
+      background-color: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 0.75rem;
+      border-radius: 0.375rem;
+      font-size: 0.9rem;
+      color: #92400e;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      font-weight: 500;
+    }
+
+    .description {
+      padding-top: 0.75rem;
+      border-top: 1px solid #e5e7eb;
+      font-size: 0.85rem;
+    }
+  }
+}
+
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+  .empty-icon {
+    font-size: 4rem;
+    color: #d1d5db;
+    margin-bottom: 1rem;
+  }
+
+  h4 {
+    color: #374151;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    margin-bottom: 0;
+  }
+}
+
+/* Alert */
+.alert {
+  border-radius: 0.5rem;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+
+  i {
+    font-size: 1.2rem;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .leave-balance-container {
+    padding: 1rem;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+
+    .header-actions {
+      flex-direction: column;
+
+      .btn {
+        justify-content: center;
+      }
+    }
+  }
+
+  .balance-card {
+    .card-body {
+      .balance-summary {
+        flex-direction: column;
+
+        .balance-divider {
+          width: 100%;
+          height: 2px;
+        }
+
+        .balance-stats {
+          width: 100%;
+        }
+      }
+    }
+  }
+
+  .employee-card {
+    flex-direction: column;
+    align-items: stretch;
+
+    .employee-info {
+      .employee-icon {
+        font-size: 2.5rem;
+      }
+
+      .employee-name {
+        font-size: 1.25rem;
+      }
+    }
+
+    .year-badge {
+      justify-content: center;
+    }
+  }
+}

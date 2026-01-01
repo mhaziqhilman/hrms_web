@@ -1,0 +1,174 @@
+<div class="p-6 bg-background min-h-screen">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-foreground">Leave Balance</h1>
+      <p class="text-muted-foreground">View employee leave entitlements and balances</p>
+    </div>
+    <div class="flex gap-2">
+      <button z-button zType="outline" routerLink="/dashboard/leave" class="gap-2">
+        <z-icon zType="arrow-left" class="w-4 h-4" />
+        Back to List
+      </button>
+      <button z-button routerLink="/dashboard/leave/apply" class="gap-2">
+        <z-icon zType="plus" class="w-4 h-4" />
+        Apply Leave
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <z-card class="mb-6">
+    <div z-card-content class="p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Employee Selector -->
+        <div>
+          <label class="block text-sm font-medium text-foreground mb-2">Employee</label>
+          <z-select
+            zPlaceholder="Select employee"
+            [(ngModel)]="selectedEmployeeId"
+            (zValueChange)="onEmployeeChange()">
+            @for (emp of employees(); track emp.id) {
+              <z-select-item [zValue]="emp.id">
+                {{ emp.full_name }} ({{ emp.employee_id }})
+              </z-select-item>
+            }
+          </z-select>
+        </div>
+
+        <!-- Year Selector -->
+        <div>
+          <label class="block text-sm font-medium text-foreground mb-2">Year</label>
+          <z-select
+            zPlaceholder="Select year"
+            [(ngModel)]="selectedYear"
+            (zValueChange)="onYearChange()">
+            @for (year of years; track year) {
+              <z-select-item [zValue]="year">{{ year }}</z-select-item>
+            }
+          </z-select>
+        </div>
+      </div>
+    </div>
+  </z-card>
+
+  <!-- Error Message -->
+  @if (error()) {
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-2 text-red-800 mb-6">
+      <z-icon zType="triangle-alert" class="w-5 h-5" />
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  <!-- Loading Spinner -->
+  @if (loading()) {
+    <div class="flex items-center justify-center py-20">
+      <z-icon zType="loader-circle" class="w-8 h-8 animate-spin text-primary" />
+    </div>
+  }
+
+  <!-- Leave Balance Content -->
+  @if (leaveBalance() && !loading()) {
+    <!-- Employee Info Banner -->
+    <z-card class="mb-6">
+      <div z-card-content class="p-6">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+              <z-icon zType="user" class="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <h3 class="text-xl font-semibold text-foreground">{{ leaveBalance().employee.full_name }}</h3>
+              <p class="text-sm text-muted-foreground">Employee ID: {{ leaveBalance().employee.employee_id }}</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 px-4 py-2 bg-muted/30 rounded-lg">
+            <z-icon zType="calendar" class="w-4 h-4 text-muted-foreground" />
+            <span class="font-semibold text-foreground">{{ leaveBalance().year }}</span>
+          </div>
+        </div>
+      </div>
+    </z-card>
+
+    <!-- Leave Balance Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      @for (entitlement of leaveBalance().entitlements; track entitlement.leave_type.id) {
+        <z-card class="hover:shadow-lg transition-shadow duration-200 py-4">
+          <div z-card-content class="p-2">
+            <!-- Card Header -->
+            <div class="mb-4">
+              <h4 class="text-lg font-semibold text-foreground mb-1">{{ entitlement.leave_type.name }}</h4>
+              <p class="text-sm text-muted-foreground">{{ entitlement.leave_type.is_paid ? 'Paid' : 'Unpaid' }}</p>
+            </div>
+
+            <!-- Date Display -->
+            @if (entitlement.carry_forward_days > 0) {
+              <p class="text-xs text-muted-foreground mb-4">Carry Forward: {{ entitlement.carry_forward_days }} days</p>
+            } @else {
+              <p class="text-xs text-muted-foreground mb-4">Year {{ leaveBalance().year }}</p>
+            }
+
+            <!-- Progress Section -->
+            <div class="mb-4">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-sm text-muted-foreground">Progress</span>
+                <span class="text-sm font-bold text-foreground">
+                  {{ getProgressPercentage(entitlement.used_days, entitlement.total_days).toFixed(0) }}%
+                </span>
+              </div>
+              <z-progress-bar
+                [progress]="getProgressPercentage(entitlement.used_days, entitlement.total_days)"
+                [zType]="getProgressColor(getProgressPercentage(entitlement.used_days, entitlement.total_days))">
+              </z-progress-bar>
+            </div>
+
+            <!-- Bottom Section -->
+            <div class="flex items-center justify-between">
+              <!-- Avatar placeholders (simulated) -->
+              <div class="flex items-center -space-x-2">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 border-2 border-white"></div>
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 border-2 border-white"></div>
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 border-2 border-white"></div>
+              </div>
+
+              <!-- Time Badge -->
+              <z-badge
+                [zType]="entitlement.balance_days > 5 ? 'default' : entitlement.balance_days > 2 ? 'secondary' : 'destructive'"
+                zShape="pill"
+                class="text-xs font-semibold">
+                {{ entitlement.balance_days }} days left
+              </z-badge>
+            </div>
+
+            <!-- Hidden Stats for Tooltip/Detail View -->
+            <div class="mt-4 pt-4 border-t border-border">
+              <div class="grid grid-cols-3 gap-2 text-center">
+                <div>
+                  <div class="text-xs text-muted-foreground mb-1">Total</div>
+                  <div class="text-sm font-semibold text-foreground">{{ entitlement.total_days }}</div>
+                </div>
+                <div>
+                  <div class="text-xs text-muted-foreground mb-1">Used</div>
+                  <div class="text-sm font-semibold text-foreground">{{ entitlement.used_days }}</div>
+                </div>
+                <div>
+                  <div class="text-xs text-muted-foreground mb-1">Pending</div>
+                  <div class="text-sm font-semibold text-foreground">{{ entitlement.pending_days }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </z-card>
+      }
+    </div>
+
+    <!-- Empty State -->
+    @if (!leaveBalance().entitlements || leaveBalance().entitlements.length === 0) {
+      <div class="flex flex-col items-center justify-center py-20 text-center">
+        <z-icon zType="inbox" class="w-16 h-16 text-muted-foreground mb-4" />
+        <h3 class="text-lg font-semibold mb-2">No Leave Entitlements</h3>
+        <p class="text-muted-foreground">No leave entitlements found for this employee.</p>
+      </div>
+    }
+  }
+</div>

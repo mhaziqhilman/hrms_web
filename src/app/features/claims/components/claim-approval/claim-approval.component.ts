@@ -1,0 +1,417 @@
+import { Component, OnInit, signal, ViewContainerRef, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { ClaimService } from '../../services/claim.service';
+import { Claim, ClaimQueryParams } from '../../models/claim.model';
+
+// ZardUI Components
+import { ZardCardComponent } from '@/shared/components/card/card.component';
+import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { ZardIconComponent } from '@/shared/components/icon/icon.component';
+import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
+import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component';
+import { ZardMenuImports } from '@/shared/components/menu/menu.imports';
+import { ZardDialogService } from '@/shared/components/dialog/dialog.service';
+
+// Dialog Components
+import { ApprovalConfirmationDialogComponent } from './dialogs/approval-confirmation-dialog.component';
+import { RejectionDialogComponent } from './dialogs/rejection-dialog.component';
+import { PaymentDialogComponent } from './dialogs/payment-dialog.component';
+
+@Component({
+  selector: 'app-claim-approval',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    ZardCardComponent,
+    ZardButtonComponent,
+    ZardIconComponent,
+    ZardBadgeComponent,
+    ZardAvatarComponent,
+    ZardMenuImports
+  ],
+  templateUrl: './claim-approval.component.html',
+  styleUrl: './claim-approval.component.css'
+})
+export class ClaimApprovalComponent implements OnInit {
+  private dialogService = inject(ZardDialogService);
+  private viewContainerRef = inject(ViewContainerRef);
+
+  claims = signal<Claim[]>([]);
+  loading = signal(false);
+  error = signal<string | null>(null);
+  success = signal<string | null>(null);
+  processingClaimId = signal<number | null>(null);
+
+  // Pagination
+  currentPage = signal(1);
+  totalPages = signal(1);
+  totalRecords = signal(0);
+  limit = 10;
+
+  // Filters
+  selectedStatus = signal<'Pending' | 'Manager_Approved' | 'Finance_Approved' | 'Rejected' | 'Paid' | ''>('');
+  selectedClaimType = signal<number | null>(null);
+
+  // User role (mock for now - should come from auth service)
+  userRole = signal<'Manager' | 'Finance' | 'Admin'>('Manager'); // TODO: Get from auth service
+  userId = signal<number | null>(1); // TODO: Get from auth service
+
+  // Expose Math to template
+  Math = Math;
+
+  constructor(private claimService: ClaimService) {}
+
+  ngOnInit(): void {
+    this.loadClaims();
+  }
+
+  loadClaims(): void {
+    this.loading.set(true);
+    this.error.set(null);
+
+    const params: ClaimQueryParams = {
+      page: this.currentPage(),
+      limit: this.limit
+    };
+
+    // Filter based on user role
+    if (this.userRole() === 'Manager') {
+      // Managers see only Pending claims
+      params.status = 'Pending';
+    } else if (this.userRole() === 'Finance') {
+      // Finance sees Manager_Approved and Finance_Approved claims
+      if (this.selectedStatus()) {
+        params.status = this.selectedStatus() as any;
+      } else {
+        params.status = 'Manager_Approved'; // Default to Manager_Approved
+      }
+    }
+
+    // Override with selected status if user selected one
+    if (this.selectedStatus() && this.userRole() !== 'Manager') {
+      params.status = this.selectedStatus() as any;
+    }
+
+    if (this.selectedClaimType()) {
+      params.claim_type_id = this.selectedClaimType()!;
+    }
+
+    this.claimService.getAllClaims(params).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.claims.set(response.data);
+          this.totalPages.set(response.pagination.totalPages);
+          this.totalRecords.set(response.pagination.total);
+          this.currentPage.set(response.pagination.page);
+        }
+        this.loading.set(false);
+      },
+      error: (err: any) => {
+        this.error.set(err.message || 'Failed to load claims');
+        this.loading.set(false);
+        console.error('Error loading claims:', err);
+      }
+    });
+  }
+
+  onFilterChange(): void {
+    this.currentPage.set(1);
+    this.loadClaims();
+  }
+
+  onPageChange(page: number): void {
+    if (page >= 1 && page <= this.totalPages()) {
+      this.currentPage.set(page);
+      this.loadClaims();
+    }
+  }
+
+  clearFilters(): void {
+    this.selectedStatus.set('');
+    this.selectedClaimType.set(null);
+    this.currentPage.set(1);
+    this.loadClaims();
+  }
+
+  // Manager Approval Actions using Dialog Service
+  openApprovalModal(claim: Claim): void {
+    const dialogRef = this.dialogService.create({
+      zTitle: 'Confirm Approval',
+      zContent: ApprovalConfirmationDialogComponent,
+      zData: claim,
+      zViewContainerRef: this.viewContainerRef,
+      zOkText: 'Confirm Approval',
+      zCancelText: 'Cancel',
+      zOkIcon: 'circle-check',
+      zOnOk: () => {
+        this.confirmApproval(claim);
+      }
+    });
+  }
+
+  openRejectionModal(claim: Claim): void {
+    const dialogRef = this.dialogService.create({
+      zTitle: 'Reject Claim',
+      zContent: RejectionDialogComponent,
+      zData: claim,
+      zViewContainerRef: this.viewContainerRef,
+      zOkText: 'Confirm Rejection',
+      zCancelText: 'Cancel',
+      zOkIcon: 'circle-x',
+      zOkDestructive: true,
+      zOnOk: (instance: RejectionDialogComponent): false | void => {
+        const reason = instance.getRejectionReason();
+        if (!reason.trim()) {
+          this.error.set('Please provide a rejection reason');
+          return false;
+        }
+        this.confirmRejection(claim, reason);
+      }
+    });
+  }
+
+  openPaymentModal(claim: Claim): void {
+    const dialogRef = this.dialogService.create({
+      zTitle: 'Record Payment',
+      zContent: PaymentDialogComponent,
+      zData: claim,
+      zViewContainerRef: this.viewContainerRef,
+      zOkText: 'Confirm Payment',
+      zCancelText: 'Cancel',
+      zOkIcon: 'circle',
+      zOnOk: (instance: PaymentDialogComponent): false | void => {
+        if (!instance.isValid()) {
+          this.error.set('Please provide payment details');
+          return false;
+        }
+        const paymentData = instance.getPaymentData();
+        this.confirmPayment(claim, paymentData);
+      }
+    });
+  }
+
+  confirmApproval(claim: Claim): void {
+    this.processingClaimId.set(claim.id);
+
+    if (this.userRole() === 'Manager') {
+      // Manager approval
+      this.claimService.managerApproval(claim.id, { action: 'approve' }).subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.success.set('Claim approved successfully');
+            this.loadClaims();
+            setTimeout(() => this.success.set(null), 3000);
+          }
+          this.processingClaimId.set(null);
+        },
+        error: (err) => {
+          this.error.set(err.error?.message || 'Failed to approve claim');
+          this.processingClaimId.set(null);
+          console.error('Error approving claim:', err);
+        }
+      });
+    } else if (this.userRole() === 'Finance') {
+      // Finance approval
+      this.claimService.financeApproval(claim.id, { action: 'approve' }).subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.success.set('Claim approved successfully');
+            this.loadClaims();
+            setTimeout(() => this.success.set(null), 3000);
+          }
+          this.processingClaimId.set(null);
+        },
+        error: (err) => {
+          this.error.set(err.error?.message || 'Failed to approve claim');
+          this.processingClaimId.set(null);
+          console.error('Error approving claim:', err);
+        }
+      });
+    }
+  }
+
+  confirmRejection(claim: Claim, reason: string): void {
+    this.processingClaimId.set(claim.id);
+
+    const request = {
+      action: 'reject' as const,
+      rejection_reason: reason
+    };
+
+    if (this.userRole() === 'Manager') {
+      this.claimService.managerApproval(claim.id, request).subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.success.set('Claim rejected successfully');
+            this.loadClaims();
+            setTimeout(() => this.success.set(null), 3000);
+          }
+          this.processingClaimId.set(null);
+        },
+        error: (err) => {
+          this.error.set(err.error?.message || 'Failed to reject claim');
+          this.processingClaimId.set(null);
+          console.error('Error rejecting claim:', err);
+        }
+      });
+    } else if (this.userRole() === 'Finance') {
+      this.claimService.financeApproval(claim.id, request).subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.success.set('Claim rejected successfully');
+            this.loadClaims();
+            setTimeout(() => this.success.set(null), 3000);
+          }
+          this.processingClaimId.set(null);
+        },
+        error: (err) => {
+          this.error.set(err.error?.message || 'Failed to reject claim');
+          this.processingClaimId.set(null);
+          console.error('Error rejecting claim:', err);
+        }
+      });
+    }
+  }
+
+  // Finance Payment Actions
+  confirmPayment(claim: Claim, paymentData: any): void {
+    this.processingClaimId.set(claim.id);
+
+    const request = {
+      action: 'paid' as const,
+      payment_method: paymentData.payment_method,
+      payment_reference: paymentData.payment_reference,
+      payment_date: paymentData.payment_date
+    };
+
+    this.claimService.financeApproval(claim.id, request).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.success.set('Payment recorded successfully');
+          this.loadClaims();
+          setTimeout(() => this.success.set(null), 3000);
+        }
+        this.processingClaimId.set(null);
+      },
+      error: (err) => {
+        this.error.set(err.error?.message || 'Failed to record payment');
+        this.processingClaimId.set(null);
+        console.error('Error recording payment:', err);
+      }
+    });
+  }
+
+  // Helper methods
+  canApprove(claim: Claim): boolean {
+    if (this.userRole() === 'Manager') {
+      return claim.status === 'Pending';
+    } else if (this.userRole() === 'Finance') {
+      return claim.status === 'Manager_Approved';
+    }
+    return false;
+  }
+
+  canReject(claim: Claim): boolean {
+    if (this.userRole() === 'Manager') {
+      return claim.status === 'Pending';
+    } else if (this.userRole() === 'Finance') {
+      return claim.status === 'Manager_Approved';
+    }
+    return false;
+  }
+
+  canMarkAsPaid(claim: Claim): boolean {
+    return this.userRole() === 'Finance' && claim.status === 'Finance_Approved';
+  }
+
+  getStatusBadgeClass(status: string): string {
+    switch (status) {
+      case 'Pending':
+        return 'badge-warning';
+      case 'Manager_Approved':
+        return 'badge-info';
+      case 'Finance_Approved':
+        return 'badge-primary';
+      case 'Paid':
+        return 'badge-success';
+      case 'Rejected':
+        return 'badge-danger';
+      default:
+        return 'badge-secondary';
+    }
+  }
+
+  getStatusDisplayText(status: string): string {
+    switch (status) {
+      case 'Manager_Approved':
+        return 'Manager Approved';
+      case 'Finance_Approved':
+        return 'Finance Approved';
+      default:
+        return status;
+    }
+  }
+
+  formatCurrency(amount: number | string | null | undefined): string {
+    const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+    if (numAmount === null || numAmount === undefined || isNaN(numAmount)) {
+      return 'RM 0.00';
+    }
+    return `RM ${numAmount.toFixed(2)}`;
+  }
+
+  formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-MY', {
+      weekday: 'short',
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  }
+
+  formatDateTime(dateString: string | null | undefined): string {
+    if (!dateString) return '--';
+
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-MY', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  getPageNumbers(): number[] {
+    const total = this.totalPages();
+    const current = this.currentPage();
+    const delta = 2;
+    const range: number[] = [];
+    const rangeWithDots: number[] = [];
+
+    for (let i = Math.max(2, current - delta); i <= Math.min(total - 1, current + delta); i++) {
+      range.push(i);
+    }
+
+    if (current - delta > 2) {
+      rangeWithDots.push(1, -1);
+    } else {
+      rangeWithDots.push(1);
+    }
+
+    rangeWithDots.push(...range);
+
+    if (current + delta < total - 1) {
+      rangeWithDots.push(-1, total);
+    } else if (total > 1) {
+      rangeWithDots.push(total);
+    }
+
+    return rangeWithDots;
+  }
+}

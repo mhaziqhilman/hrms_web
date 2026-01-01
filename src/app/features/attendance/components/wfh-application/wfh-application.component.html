@@ -1,0 +1,262 @@
+<div class="p-6 bg-background min-h-screen">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-foreground">Work From Home Application</h1>
+      <p class="text-muted-foreground">Apply for WFH and view your applications</p>
+    </div>
+    <button z-button zType="outline" routerLink="/dashboard/attendance" class="gap-2">
+      <z-icon zType="arrow-left" class="w-4 h-4" />
+      Back to Attendance
+    </button>
+  </div>
+
+  <!-- Success Message -->
+  @if (success()) {
+    <div class="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-2 text-green-800 mb-6">
+      <z-icon zType="circle-check" class="w-5 h-5" />
+      <span>{{ success() }}</span>
+    </div>
+  }
+
+  <!-- Error Message -->
+  @if (error()) {
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-2 text-red-800 mb-6">
+      <z-icon zType="triangle-alert" class="w-5 h-5" />
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  <!-- Application Form -->
+  <div z-card class="mb-6">
+    <div z-card-content class="p-6">
+      <h3 class="text-xl font-semibold text-foreground mb-6 flex items-center gap-2">
+        <z-icon zType="plus" class="w-5 h-5" />
+        New WFH Application
+      </h3>
+
+      <form [formGroup]="wfhForm" (ngSubmit)="onSubmit()">
+        <!-- Date -->
+        <div class="mb-6">
+          <label for="date" class="block text-sm font-medium text-foreground mb-2">
+            WFH Date <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="date"
+            id="date"
+            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background"
+            [class.border-red-500]="isFieldInvalid('date')"
+            formControlName="date"
+            [min]="getMinDate()"
+            [max]="getMaxDate()" />
+          <p class="text-xs text-muted-foreground mt-1">
+            Must apply at least 1 day in advance
+          </p>
+          @if (isFieldInvalid('date')) {
+            <p class="text-xs text-red-600 mt-1">{{ getFieldError('date') }}</p>
+          }
+        </div>
+
+        <!-- Reason -->
+        <div class="mb-6">
+          <label for="reason" class="block text-sm font-medium text-foreground mb-2">
+            Reason <span class="text-red-500">*</span>
+          </label>
+          <textarea
+            id="reason"
+            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background"
+            [class.border-red-500]="isFieldInvalid('reason')"
+            formControlName="reason"
+            rows="4"
+            placeholder="Please provide a reason for your WFH application..."></textarea>
+          <p class="text-xs text-muted-foreground mt-1">
+            Minimum 10 characters
+          </p>
+          @if (isFieldInvalid('reason')) {
+            <p class="text-xs text-red-600 mt-1">{{ getFieldError('reason') }}</p>
+          }
+        </div>
+
+        <!-- Form Actions -->
+        <div class="flex items-center justify-end gap-3">
+          <button
+            z-button
+            zType="outline"
+            type="button"
+            (click)="wfhForm.reset()"
+            [disabled]="submitting()">
+            Clear
+          </button>
+          <button
+            z-button
+            zType="default"
+            type="submit"
+            class="gap-2"
+            [disabled]="wfhForm.invalid || submitting()">
+            @if (submitting()) {
+              <z-icon zType="loader-circle" class="w-4 h-4 animate-spin" />
+            } @else {
+              <z-icon zType="arrow-right" class="w-4 h-4" />
+            }
+            Submit Application
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Applications List -->
+  <div z-card>
+    <div z-card-content class="p-6">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-xl font-semibold text-foreground flex items-center gap-2">
+          <z-icon zType="file-text" class="w-5 h-5" />
+          My WFH Applications
+        </h3>
+
+        <!-- Filter -->
+        <div z-menu [zMenuTriggerFor]="statusMenu">
+          <button z-button zType="outline" class="gap-2">
+            <z-icon zType="circle" class="w-4 h-4" />
+            @if (selectedStatus()) {
+              {{ selectedStatus() }}
+            } @else {
+              All Status
+            }
+          </button>
+        </div>
+        <ng-template #statusMenu>
+          <div z-menu-content class="w-48">
+            <button type="button" z-menu-item (click)="selectedStatus.set(''); onFilterChange()">
+              All Status
+            </button>
+            <button type="button" z-menu-item (click)="selectedStatus.set('Pending'); onFilterChange()">
+              Pending
+            </button>
+            <button type="button" z-menu-item (click)="selectedStatus.set('Approved'); onFilterChange()">
+              Approved
+            </button>
+            <button type="button" z-menu-item (click)="selectedStatus.set('Rejected'); onFilterChange()">
+              Rejected
+            </button>
+          </div>
+        </ng-template>
+      </div>
+
+      <!-- Loading -->
+      @if (loadingApplications()) {
+        <div class="flex flex-col items-center justify-center py-20">
+          <z-icon zType="loader-circle" class="w-8 h-8 animate-spin text-primary mb-3" />
+          <p class="text-muted-foreground">Loading applications...</p>
+        </div>
+      }
+
+      <!-- Applications Table -->
+      @if (!loadingApplications() && wfhApplications().length > 0) {
+        <div class="bg-card border rounded-lg overflow-hidden">
+          <table class="w-full">
+            <thead class="bg-muted/30 border-b">
+              <tr>
+                <th class="text-left px-4 py-3 text-sm font-semibold text-muted-foreground">Date</th>
+                <th class="text-left px-4 py-3 text-sm font-semibold text-muted-foreground">Reason</th>
+                <th class="text-left px-4 py-3 text-sm font-semibold text-muted-foreground">Status</th>
+                <th class="text-left px-4 py-3 text-sm font-semibold text-muted-foreground">Approver</th>
+                <th class="text-left px-4 py-3 text-sm font-semibold text-muted-foreground">Approved/Rejected At</th>
+                <th class="text-left px-4 py-3 text-sm font-semibold text-muted-foreground">Rejection Reason</th>
+                <th class="w-24 px-4 py-3"></th>
+              </tr>
+            </thead>
+            <tbody class="divide-y">
+              @for (app of wfhApplications(); track app.id) {
+                <tr class="hover:bg-muted/20 transition-colors">
+                  <td class="px-4 py-4 text-sm font-medium text-foreground">
+                    {{ formatDate(app.date) }}
+                  </td>
+                  <td class="px-4 py-4 text-sm text-foreground max-w-xs">
+                    <div class="line-clamp-2">{{ app.reason }}</div>
+                  </td>
+                  <td class="px-4 py-4">
+                    <z-badge
+                      [zType]="app.status === 'Approved' ? 'default' : app.status === 'Rejected' ? 'destructive' : 'secondary'"
+                      zShape="pill"
+                      class="text-xs">
+                      {{ app.status }}
+                    </z-badge>
+                  </td>
+                  <td class="px-4 py-4 text-sm text-foreground">
+                    {{ app.approver_name || '--' }}
+                  </td>
+                  <td class="px-4 py-4 text-sm text-foreground">
+                    {{ formatDateTime(app.approved_at) }}
+                  </td>
+                  <td class="px-4 py-4 text-sm">
+                    @if (app.rejection_reason) {
+                      <span class="text-red-600">{{ app.rejection_reason }}</span>
+                    } @else {
+                      <span class="text-muted-foreground">--</span>
+                    }
+                  </td>
+                  <td class="px-4 py-4">
+                    @if (canCancelApplication(app)) {
+                      <button
+                        z-button
+                        zType="outline"
+                        zSize="sm"
+                        (click)="cancelApplication(app.id)"
+                        class="gap-2">
+                        <z-icon zType="x" class="w-4 h-4" />
+                        Cancel
+                      </button>
+                    } @else {
+                      <span class="text-muted-foreground text-sm">--</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+
+      <!-- Empty State -->
+      @if (!loadingApplications() && wfhApplications().length === 0) {
+        <div class="flex flex-col items-center justify-center py-20 text-center">
+          <z-icon zType="inbox" class="w-16 h-16 text-muted-foreground mb-4" />
+          <h3 class="text-lg font-semibold mb-2">No WFH applications found</h3>
+          <p class="text-muted-foreground mb-4">Submit your first application above</p>
+        </div>
+      }
+
+      <!-- Pagination -->
+      @if (totalPages() > 1) {
+        <div class="flex items-center justify-center gap-2 mt-6">
+          <button
+            z-button
+            zType="outline"
+            zSize="sm"
+            (click)="onPageChange(currentPage() - 1)"
+            [disabled]="currentPage() === 1"
+            class="gap-2">
+            <z-icon zType="chevron-left" class="w-4 h-4" />
+            Previous
+          </button>
+
+          <span class="text-sm text-muted-foreground px-4">
+            Page {{ currentPage() }} of {{ totalPages() }}
+          </span>
+
+          <button
+            z-button
+            zType="outline"
+            zSize="sm"
+            (click)="onPageChange(currentPage() + 1)"
+            [disabled]="currentPage() === totalPages()"
+            class="gap-2">
+            Next
+            <z-icon zType="chevron-right" class="w-4 h-4" />
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+</div>
