@@ -1,2 +1,57 @@
 /* Payroll List Component - ZardUI Migration Complete */
 /* All styles are now using Tailwind CSS utility classes */
+
+/* Tab navigation scrollbar styling (from ZardUI tabs) */
+.nav-tab-scroll {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+.nav-tab-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(209, 209, 209, 0.2);
+  border-radius: 2px;
+}
+
+.nav-tab-scroll::-webkit-scrollbar {
+  height: 4px;
+  width: 4px;
+}
+
+.nav-tab-scroll::-webkit-scrollbar-button {
+  display: none;
+}
+
+/* Table fixed height rows with horizontal scroll */
+.payroll-table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.payroll-table-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.payroll-table-container::-webkit-scrollbar-thumb {
+  background-color: rgba(209, 209, 209, 0.5);
+  border-radius: 4px;
+}
+
+.payroll-table-container::-webkit-scrollbar-track {
+  background-color: rgba(209, 209, 209, 0.1);
+}
+
+.payroll-table tbody tr {
+  height: 60px;
+}
+
+.payroll-table th,
+.payroll-table td {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}
+
+.payroll-table th.th-text-center {
+  text-align: center !important;
+}

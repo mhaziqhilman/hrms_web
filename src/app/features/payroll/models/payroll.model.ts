@@ -66,6 +66,7 @@ export interface PayrollListParams {
   year?: number;
   month?: number;
   employee_id?: number;
+  search?: string;
 }
 
 export interface PayrollListResponse {

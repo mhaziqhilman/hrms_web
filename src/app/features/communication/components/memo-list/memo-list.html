@@ -21,7 +21,7 @@
         Refresh
       </button>
       <a
-        routerLink="/dashboard/communication/memos/new"
+        routerLink="/communication/memos/new"
         z-button
         zType="default"
         class="flex items-center gap-2"
@@ -177,7 +177,7 @@
       <!-- Memo Footer -->
       <div class="flex gap-2 mt-auto">
         <a
-          [routerLink]="['/dashboard/communication/memos', memo.id]"
+          [routerLink]="['/communication/memos', memo.id]"
           z-button
           zType="outline"
           zSize="sm"
@@ -187,7 +187,7 @@
           View Details
         </a>
         <a
-          [routerLink]="['/dashboard/communication/memos', memo.id, 'edit']"
+          [routerLink]="['/communication/memos', memo.id, 'edit']"
           z-button
           zType="outline"
           zSize="sm"
@@ -211,7 +211,7 @@
       No memos have been created yet
     </p>
     <a
-      routerLink="/dashboard/communication/memos/new"
+      routerLink="/communication/memos/new"
       z-button
       zType="default"
       class="flex items-center gap-2"

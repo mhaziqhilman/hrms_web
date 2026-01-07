@@ -226,7 +226,7 @@ export class PayrollFormComponent implements OnInit {
         next: (response) => {
           if (response.success) {
             alert('Payroll updated successfully');
-            this.router.navigate(['/dashboard/payroll']);
+            this.router.navigate(['/payroll']);
           }
           this.submitting.set(false);
         },
@@ -242,7 +242,7 @@ export class PayrollFormComponent implements OnInit {
         next: (response) => {
           if (response.success) {
             alert('Payroll calculated successfully');
-            this.router.navigate(['/dashboard/payroll']);
+            this.router.navigate(['/payroll']);
           }
           this.submitting.set(false);
         },
@@ -257,7 +257,7 @@ export class PayrollFormComponent implements OnInit {
 
   onCancel(): void {
     if (confirm('Are you sure you want to cancel? Any unsaved changes will be lost.')) {
-      this.router.navigate(['/dashboard/payroll']);
+      this.router.navigate(['/payroll']);
     }
   }
 

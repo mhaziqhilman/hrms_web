@@ -21,7 +21,7 @@
         Refresh
       </button>
       <a
-        routerLink="/dashboard/communication/policies/new"
+        routerLink="/communication/policies/new"
         z-button
         zType="default"
         class="flex items-center gap-2"
@@ -142,7 +142,7 @@
             <td>
               <div class="flex flex-col gap-1">
                 <a
-                  [routerLink]="['/dashboard/communication/policies', policy.id]"
+                  [routerLink]="['/communication/policies', policy.id]"
                   class="font-medium text-foreground hover:text-primary hover:underline"
                 >
                   {{ policy.title }}
@@ -202,7 +202,7 @@
             <td>
               <div class="flex gap-2">
                 <a
-                  [routerLink]="['/dashboard/communication/policies', policy.id]"
+                  [routerLink]="['/communication/policies', policy.id]"
                   z-button
                   zType="outline"
                   zSize="sm"
@@ -211,7 +211,7 @@
                   <z-icon zType="eye" class="w-4 h-4" />
                 </a>
                 <a
-                  [routerLink]="['/dashboard/communication/policies', policy.id, 'edit']"
+                  [routerLink]="['/communication/policies', policy.id, 'edit']"
                   z-button
                   zType="outline"
                   zSize="sm"
@@ -238,7 +238,7 @@
       No policies have been created yet
     </p>
     <a
-      routerLink="/dashboard/communication/policies/new"
+      routerLink="/communication/policies/new"
       z-button
       zType="default"
       class="flex items-center gap-2"

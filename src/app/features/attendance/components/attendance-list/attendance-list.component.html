@@ -3,11 +3,11 @@
   <div class="flex items-center justify-between mb-8">
     <h1 class="text-3xl font-bold text-foreground">Attendance Records</h1>
     <div class="flex gap-2">
-      <button z-button zType="outline" [routerLink]="['/dashboard/attendance/wfh']" class="gap-2">
+      <button z-button zType="outline" [routerLink]="['/attendance/wfh']" class="gap-2">
         <z-icon zType="house" class="w-4 h-4" />
         WFH Application
       </button>
-      <button z-button [routerLink]="['/dashboard/attendance/clock']" class="gap-2">
+      <button z-button [routerLink]="['/attendance/clock']" class="gap-2">
         <z-icon zType="clock" class="w-4 h-4" />
         Clock In/Out
       </button>
@@ -186,7 +186,7 @@
                 </div>
                 <ng-template #actionMenu>
                   <div z-menu-content class="w-40">
-                    <button type="button" z-menu-item [routerLink]="['/dashboard/attendance', attendance.id]">
+                    <button type="button" z-menu-item [routerLink]="['/attendance', attendance.id]">
                       <z-icon zType="eye" class="mr-2" />
                       View Details
                     </button>
@@ -208,7 +208,7 @@
           <z-icon zType="calendar" class="w-16 h-16 text-muted-foreground mb-4" />
           <h3 class="text-lg font-semibold mb-2">No Attendance Records Found</h3>
           <p class="text-muted-foreground mb-4">There are no attendance records matching your criteria</p>
-          <button z-button [routerLink]="['/dashboard/attendance/clock']">
+          <button z-button [routerLink]="['/attendance/clock']">
             <z-icon zType="clock" class="mr-2" />
             Clock In Now
           </button>

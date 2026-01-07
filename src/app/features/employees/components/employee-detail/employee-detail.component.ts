@@ -136,12 +136,12 @@ export class EmployeeDetailComponent implements OnInit {
 
   onEdit(): void {
     if (this.employeeId()) {
-      this.router.navigate(['/dashboard/employees', this.employeeId(), 'edit']);
+      this.router.navigate(['/employees', this.employeeId(), 'edit']);
     }
   }
 
   onBack(): void {
-    this.router.navigate(['/dashboard/employees']);
+    this.router.navigate(['/employees']);
   }
 
   formatCurrency(amount: number): string {

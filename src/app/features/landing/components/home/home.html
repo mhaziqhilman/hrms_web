@@ -1,175 +1,402 @@
-<app-navbar></app-navbar>
-
-<div class="d-flex flex-column flex-root">
-  <!-- Hero Section -->
-  <div class="landing-header py-20" style="background-color: #F5F8FA;">
-    <div class="container">
-      <div class="row align-items-center">
-        <!-- Left Content -->
-        <div class="col-lg-7 mb-10 mb-lg-0">
-          <h1 class="display-3 fw-bolder text-dark mb-5">
-            Manage your workforce with ease
-          </h1>
-          <p class="fs-4 text-gray-600 mb-8">
-            Streamline your HR operations, from payroll to performance, with our comprehensive HR Management System
-            designed for Malaysian businesses.
-          </p>
-          <div class="d-flex flex-wrap gap-4">
-            <a routerLink="/auth/login" class="btn btn-primary btn-lg">
-              Get started
-              <i class="bi bi-arrow-right ms-2"></i>
-            </a>
-            <a href="#features" class="btn btn-outline-primary btn-lg">
-              Learn More
-            </a>
-          </div>
-        </div>
-
-        <!-- Right Image -->
-        <div class="col-lg-5 text-center">
-          <img src="assets/theme/media/illustrations/sketchy-1/5.png" class="img-fluid" alt="HRMS Hero" style="max-height: 400px;">
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Features Section -->
-  <div class="py-20" id="features">
-    <div class="container">
-      <div class="text-center mb-15">
-        <h2 class="display-5 fw-bolder text-dark mb-5">
-          Everything you need to manage HR
-        </h2>
-        <p class="fs-4 text-gray-600">
-          Complete HR solution tailored for Malaysian businesses
-        </p>
-      </div>
-
-      <div class="row g-8">
-        <!-- Feature 1 -->
-        <div class="col-lg-4 col-md-6">
-          <div class="card h-100 shadow-sm hover-elevate-up">
-            <div class="card-body p-8">
-              <div class="mb-5">
-                <i class="bi bi-people-fill fs-2x text-primary"></i>
-              </div>
-              <h3 class="fs-2 fw-bolder text-dark mb-4">Employee Management</h3>
-              <p class="text-gray-600">
-                Complete employee lifecycle management from onboarding to exit. Maintain comprehensive employee records with ease.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Feature 2 -->
-        <div class="col-lg-4 col-md-6">
-          <div class="card h-100 shadow-sm hover-elevate-up">
-            <div class="card-body p-8">
-              <div class="mb-5">
-                <i class="bi bi-cash-stack fs-2x text-success"></i>
-              </div>
-              <h3 class="fs-2 fw-bolder text-dark mb-4">Payroll Processing</h3>
-              <p class="text-gray-600">
-                Automated Malaysian statutory calculations including EPF, SOCSO, EIS, and PCB. Generate payslips instantly.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Feature 3 -->
-        <div class="col-lg-4 col-md-6">
-          <div class="card h-100 shadow-sm hover-elevate-up">
-            <div class="card-body p-8">
-              <div class="mb-5">
-                <i class="bi bi-calendar-check fs-2x text-info"></i>
-              </div>
-              <h3 class="fs-2 fw-bolder text-dark mb-4">Leave Management</h3>
-              <p class="text-gray-600">
-                Digital leave applications with approval workflows. Track leave balances and manage team calendars efficiently.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Feature 4 -->
-        <div class="col-lg-4 col-md-6">
-          <div class="card h-100 shadow-sm hover-elevate-up">
-            <div class="card-body p-8">
-              <div class="mb-5">
-                <i class="bi bi-clock-history fs-2x text-warning"></i>
-              </div>
-              <h3 class="fs-2 fw-bolder text-dark mb-4">Attendance Tracking</h3>
-              <p class="text-gray-600">
-                Clock in/out with location tracking. Support for WFH and flexible work arrangements.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Feature 5 -->
-        <div class="col-lg-4 col-md-6">
-          <div class="card h-100 shadow-sm hover-elevate-up">
-            <div class="card-body p-8">
-              <div class="mb-5">
-                <i class="bi bi-receipt fs-2x text-danger"></i>
-              </div>
-              <h3 class="fs-2 fw-bolder text-dark mb-4">Claims Processing</h3>
-              <p class="text-gray-600">
-                Submit and approve expense claims digitally. Upload receipts and track reimbursements in real-time.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Feature 6 -->
-        <div class="col-lg-4 col-md-6">
-          <div class="card h-100 shadow-sm hover-elevate-up">
-            <div class="card-body p-8">
-              <div class="mb-5">
-                <i class="bi bi-file-earmark-text fs-2x text-primary"></i>
-              </div>
-              <h3 class="fs-2 fw-bolder text-dark mb-4">LHDN e-Invoice</h3>
-              <p class="text-gray-600">
-                Generate and submit e-invoices to LHDN. Full compliance with Malaysian e-invoice regulations.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- CTA Section -->
-  <div class="py-20 bg-primary">
-    <div class="container text-center">
-      <h2 class="display-5 fw-bolder text-white mb-5">
-        Ready to streamline your HR operations?
-      </h2>
-      <p class="fs-4 text-white opacity-75 mb-8">
-        Join Malaysian businesses already using our HRMS platform
-      </p>
-      <a routerLink="/auth/register" class="btn btn-light btn-lg">
-        Start Free Trial
-        <i class="bi bi-arrow-right ms-2"></i>
+<div class="min-h-screen bg-background text-foreground flex flex-col">
+  <!-- Header -->
+  <header
+    class="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <div class="container mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
+      <!-- Logo -->
+      <a routerLink="/" class="flex items-center gap-2">
+        <img src="assets/images/Nexura_Logo.webp" alt="Nexura HRMS" class="h-8 w-auto object-contain">
+        <span class="font-bold text-xl tracking-tight hidden sm:inline-block">Nexura</span>
       </a>
+
+      <!-- Desktop Nav -->
+      <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
+        <a href="#features" class="hover:text-foreground transition-colors">Product</a>
+        <a href="#solutions" class="hover:text-foreground transition-colors">Solutions</a>
+        <a href="#resources" class="hover:text-foreground transition-colors">Resources</a>
+        <a href="#pricing" class="hover:text-foreground transition-colors">Pricing</a>
+      </nav>
+
+      <!-- Auth Buttons -->
+      <div class="flex items-center gap-4">
+        <a routerLink="/auth/login" class="text-sm font-medium hover:text-primary transition-colors">Sign In</a>
+        <a routerLink="/auth/register"
+          class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+          Get Started
+        </a>
+      </div>
     </div>
-  </div>
+  </header>
+
+  <main class="flex-1">
+    <!-- Hero Section -->
+    <section class="relative py-20 md:py-32 overflow-hidden">
+      <!-- Background Pattern -->
+      <div
+        class="absolute inset-0 -z-10 h-full w-full bg-background bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]">
+      </div>
+      <div
+        class="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-primary/20 opacity-20 blur-[100px]">
+      </div>
+
+      <div class="container mx-auto px-4 md:px-6 text-center max-w-4xl">
+        <div
+          class="inline-flex items-center rounded-full border border-border bg-muted/50 px-3 py-1 text-sm font-medium text-muted-foreground mb-6 backdrop-blur-sm">
+          <span class="flex h-2 w-2 rounded-full bg-primary mr-2"></span>
+          New: AI-Powered Payroll
+        </div>
+
+        <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 text-foreground">
+          Efficiently Launch Talent with <br class="hidden md:block" />
+          <span class="text-primary">Nexura HRMS</span>
+        </h1>
+
+        <p class="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
+          Nexura is the fastest way to manage independent talent at scale, and the only solution to centralize,
+          classify, contract and pay - all in one modern flow.
+        </p>
+
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <a routerLink="/auth/register"
+            class="inline-flex items-center justify-center rounded-md text-base font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-12 px-8 py-3 w-full sm:w-auto">
+            Get Started
+          </a>
+          <a href="#contact"
+            class="inline-flex items-center justify-center rounded-md text-base font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-12 px-8 py-3 w-full sm:w-auto">
+            Contact Us
+          </a>
+        </div>
+
+        <!-- Hero Dashboard Preview -->
+        <div class="mt-16 md:mt-20 relative mx-auto max-w-5xl">
+          <div class="rounded-xl border border-border bg-card shadow-2xl overflow-hidden">
+            <div class="flex items-center border-b border-border bg-muted/40 px-4 py-2">
+              <div class="flex space-x-2">
+                <div class="h-3 w-3 rounded-full bg-red-500/20"></div>
+                <div class="h-3 w-3 rounded-full bg-yellow-500/20"></div>
+                <div class="h-3 w-3 rounded-full bg-green-500/20"></div>
+              </div>
+              <div class="mx-auto text-xs font-medium text-muted-foreground">Nexura Dashboard</div>
+            </div>
+            <div class="p-6 md:p-8 bg-card">
+              <!-- Abstract Dashboard UI Representation -->
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="rounded-lg border border-border p-4 bg-background/50">
+                  <div class="h-8 w-8 rounded-full bg-primary/10 mb-3 flex items-center justify-center text-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                      <circle cx="9" cy="7" r="4" />
+                      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                    </svg>
+                  </div>
+                  <div class="text-2xl font-bold">3,540</div>
+                  <div class="text-xs text-muted-foreground mt-1">Total Employees</div>
+                </div>
+                <div class="rounded-lg border border-border p-4 bg-background/50">
+                  <div
+                    class="h-8 w-8 rounded-full bg-green-500/10 mb-3 flex items-center justify-center text-green-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect width="20" height="14" x="2" y="5" rx="2" />
+                      <line x1="2" x2="22" y1="10" y2="10" />
+                    </svg>
+                  </div>
+                  <div class="text-2xl font-bold">RM 125k</div>
+                  <div class="text-xs text-muted-foreground mt-1">Payroll Processed</div>
+                </div>
+                <div class="rounded-lg border border-border p-4 bg-background/50">
+                  <div class="h-8 w-8 rounded-full bg-blue-500/10 mb-3 flex items-center justify-center text-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M8 2v4" />
+                      <path d="M16 2v4" />
+                      <rect width="18" height="18" x="3" y="4" rx="2" />
+                      <path d="M3 10h18" />
+                    </svg>
+                  </div>
+                  <div class="text-2xl font-bold">12</div>
+                  <div class="text-xs text-muted-foreground mt-1">Pending Leaves</div>
+                </div>
+              </div>
+              <div
+                class="h-48 rounded-lg border border-border bg-muted/10 w-full flex items-end justify-between px-4 pb-4 gap-2">
+                <div class="w-full bg-primary/20 rounded-t h-[40%]"></div>
+                <div class="w-full bg-primary/30 rounded-t h-[60%]"></div>
+                <div class="w-full bg-primary/40 rounded-t h-[30%]"></div>
+                <div class="w-full bg-primary/50 rounded-t h-[80%]"></div>
+                <div class="w-full bg-primary/60 rounded-t h-[50%]"></div>
+                <div class="w-full bg-primary/70 rounded-t h-[70%]"></div>
+                <div class="w-full bg-primary/80 rounded-t h-[90%]"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20 md:py-32 bg-muted/30">
+      <div class="container mx-auto px-4 md:px-6">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+          <div
+            class="inline-flex items-center rounded-full border border-border bg-background px-3 py-1 text-xs font-medium text-muted-foreground mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+              <path
+                d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+            </svg>
+            Benefits
+          </div>
+          <h2 class="text-3xl md:text-5xl font-bold tracking-tight mb-4">
+            Trusted <span class="text-primary">Innovation</span> in Direct Hiring and Compliance
+          </h2>
+          <p class="text-lg text-muted-foreground">
+            Delivering dependable solutions to ensure smooth and efficient recruitment processes while adhering to
+            regulatory compliance standards.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <!-- Feature 1 -->
+          <div
+            class="group relative overflow-hidden rounded-2xl border border-border bg-background p-8 shadow-sm hover:shadow-md transition-all duration-300">
+            <div class="mb-6 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold mb-3">Unlimited Talent Pool</h3>
+            <p class="text-muted-foreground leading-relaxed">
+              Build an accessible talent pool for your organization. Manage employee records and history with ease.
+            </p>
+          </div>
+
+          <!-- Feature 2 -->
+          <div
+            class="group relative overflow-hidden rounded-2xl border border-border bg-background p-8 shadow-sm hover:shadow-md transition-all duration-300">
+            <div class="mb-6 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
+                <path d="m9 12 2 2 4-4" />
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold mb-3">Compliant Contracting</h3>
+            <p class="text-muted-foreground leading-relaxed">
+              Contract and pay your talent compliantly anywhere. Automated statutory calculations for Malaysia.
+            </p>
+          </div>
+
+          <!-- Feature 3 -->
+          <div
+            class="group relative overflow-hidden rounded-2xl border border-border bg-background p-8 shadow-sm hover:shadow-md transition-all duration-300">
+            <div class="mb-6 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="20" height="14" x="2" y="5" rx="2" />
+                <line x1="2" x2="22" y1="10" y2="10" />
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold mb-3">Blazing Fast Payments</h3>
+            <p class="text-muted-foreground leading-relaxed">
+              One-click global payments paid on time, every time. Generate payslips and claims instantly.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="py-20 md:py-32">
+      <div class="container mx-auto px-4 md:px-6">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+          <div
+            class="inline-flex items-center rounded-full border border-border bg-muted/50 px-3 py-1 text-xs font-medium text-muted-foreground mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+            Our Customers
+          </div>
+          <h2 class="text-3xl md:text-5xl font-bold tracking-tight mb-4">
+            Hear It from <span class="text-primary">Others</span>, Not Just Us
+          </h2>
+          <p class="text-lg text-muted-foreground">
+            Explore the insights and experiences shared by our community of users.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Testimonial 1 -->
+          <div class="rounded-2xl border border-border bg-card p-8 shadow-sm">
+            <p class="text-muted-foreground mb-6 leading-relaxed">
+              "I have been extremely impressed with the ease of both finding new contracts and being paid through
+              Nexura. I highly recommend this platform."
+            </p>
+            <div class="flex items-center gap-4">
+              <div class="h-10 w-10 rounded-full bg-gray-200 overflow-hidden">
+                <!-- Placeholder Avatar -->
+                <svg class="h-full w-full text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                  <path
+                    d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+              </div>
+              <div>
+                <div class="font-semibold text-sm">Jane Cooper</div>
+                <div class="text-xs text-muted-foreground">Marketing Coordinator</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Testimonial 2 -->
+          <div class="rounded-2xl border border-border bg-card p-8 shadow-sm">
+            <p class="text-muted-foreground mb-6 leading-relaxed">
+              "I was skeptical at first, but hearing positive feedback from other users convinced me to give it a try.
+              Now, I'm glad I did!"
+            </p>
+            <div class="flex items-center gap-4">
+              <div class="h-10 w-10 rounded-full bg-gray-200 overflow-hidden">
+                <svg class="h-full w-full text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                  <path
+                    d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+              </div>
+              <div>
+                <div class="font-semibold text-sm">Wade Warren</div>
+                <div class="text-xs text-muted-foreground">Head of Resourcing</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Testimonial 3 -->
+          <div class="rounded-2xl border border-border bg-card p-8 shadow-sm">
+            <p class="text-muted-foreground mb-6 leading-relaxed">
+              "It's reassuring to know that other people have had success with this product. Their testimonials helped
+              me feel confident in my decision."
+            </p>
+            <div class="flex items-center gap-4">
+              <div class="h-10 w-10 rounded-full bg-gray-200 overflow-hidden">
+                <svg class="h-full w-full text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                  <path
+                    d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+              </div>
+              <div>
+                <div class="font-semibold text-sm">Esther Howard</div>
+                <div class="text-xs text-muted-foreground">Medical Assistant</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 md:py-32 bg-primary/5 border-y border-border/50">
+      <div class="container mx-auto px-4 md:px-6 text-center">
+        <h2 class="text-3xl md:text-5xl font-bold tracking-tight mb-6">
+          Ready to streamline your HR operations?
+        </h2>
+        <p class="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
+          Join Malaysian businesses already using Nexura HRMS platform to manage their workforce efficiently.
+        </p>
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <a routerLink="/auth/register"
+            class="inline-flex items-center justify-center rounded-md text-base font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-12 px-8 py-3 w-full sm:w-auto">
+            Get Started Now
+          </a>
+          <a href="#contact"
+            class="inline-flex items-center justify-center rounded-md text-base font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-12 px-8 py-3 w-full sm:w-auto">
+            Contact Sales
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
 
   <!-- Footer -->
-  <div class="py-10 bg-dark">
-    <div class="container">
-      <div class="row">
-        <div class="col-lg-6">
-          <p class="text-white opacity-75 mb-0">
-            © 2025 HRMS. All rights reserved.
+  <footer class="bg-background border-t border-border py-12 md:py-16">
+    <div class="container mx-auto px-4 md:px-6">
+      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 mb-12">
+        <div class="col-span-2 lg:col-span-2">
+          <a routerLink="/" class="flex items-center gap-2 mb-4">
+            <img src="assets/images/Nexura_Logo.webp" alt="Nexura HRMS" class="h-8 w-auto object-contain">
+            <span class="font-bold text-xl tracking-tight">Nexura</span>
+          </a>
+          <p class="text-muted-foreground text-sm max-w-xs mb-6">
+            The complete HR solution tailored for Malaysian businesses. Manage payroll, leave, and claims in one place.
           </p>
+          <div class="flex gap-4">
+            <!-- Social Icons -->
+            <a href="#" class="text-muted-foreground hover:text-primary transition-colors">
+              <span class="sr-only">Twitter</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path
+                  d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" />
+              </svg>
+            </a>
+            <a href="#" class="text-muted-foreground hover:text-primary transition-colors">
+              <span class="sr-only">LinkedIn</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+                <rect width="4" height="12" x="2" y="9" />
+                <circle cx="4" cy="4" r="2" />
+              </svg>
+            </a>
+          </div>
         </div>
-        <div class="col-lg-6 text-lg-end">
-          <a href="#" class="text-white opacity-75 text-decoration-none me-4">Privacy Policy</a>
-          <a href="#" class="text-white opacity-75 text-decoration-none me-4">Terms of Service</a>
-          <a href="#" class="text-white opacity-75 text-decoration-none">Contact Us</a>
+
+        <div>
+          <h4 class="font-semibold mb-4">Product</h4>
+          <ul class="space-y-3 text-sm text-muted-foreground">
+            <li><a href="#" class="hover:text-foreground transition-colors">Features</a></li>
+            <li><a href="#" class="hover:text-foreground transition-colors">Pricing</a></li>
+            <li><a href="#" class="hover:text-foreground transition-colors">Integrations</a></li>
+            <li><a href="#" class="hover:text-foreground transition-colors">Changelog</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="font-semibold mb-4">Resources</h4>
+          <ul class="space-y-3 text-sm text-muted-foreground">
+            <li><a href="#" class="hover:text-foreground transition-colors">Documentation</a></li>
+            <li><a href="#" class="hover:text-foreground transition-colors">API Reference</a></li>
+            <li><a href="#" class="hover:text-foreground transition-colors">Community</a></li>
+            <li><a href="#" class="hover:text-foreground transition-colors">Blog</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="font-semibold mb-4">Company</h4>
+          <ul class="space-y-3 text-sm text-muted-foreground">
+            <li><a href="#" class="hover:text-foreground transition-colors">About</a></li>
+            <li><a href="#" class="hover:text-foreground transition-colors">Careers</a></li>
+            <li><a href="#" class="hover:text-foreground transition-colors">Legal</a></li>
+            <li><a href="#" class="hover:text-foreground transition-colors">Contact</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+        <p class="text-xs text-muted-foreground">
+          © 2025 Nexura HRMS. All rights reserved.
+        </p>
+        <div class="flex gap-6 text-xs text-muted-foreground">
+          <a href="#" class="hover:text-foreground transition-colors">Privacy Policy</a>
+          <a href="#" class="hover:text-foreground transition-colors">Terms of Service</a>
         </div>
       </div>
     </div>
-  </div>
+  </footer>
 </div>

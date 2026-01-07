@@ -1,9 +1,10 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { AuthService } from '../../../../core/services/auth.service';
-import { User } from '../../../../core/models/auth.models';
-import { SidebarMenuGroup } from '../../../../core/models/sidebar.models';
+import { AuthService } from '@/core/services/auth.service';
+import { ThemeService } from '@/core/services/theme';
+import { User } from '@/core/models/auth.models';
+import { SidebarMenuGroup } from '@/core/models/sidebar.models';
 
 // ZardUI Component Imports
 import { LayoutModule } from '@/shared/components/layout/layout.module';
@@ -16,7 +17,7 @@ import { ZardDividerComponent } from '@/shared/components/divider/divider.compon
 import { ZardBreadcrumbModule } from '@/shared/components/breadcrumb/breadcrumb.module';
 
 @Component({
-  selector: 'app-dashboard-layout',
+  selector: 'app-main-layout',
   standalone: true,
   imports: [
     CommonModule,
@@ -32,10 +33,10 @@ import { ZardBreadcrumbModule } from '@/shared/components/breadcrumb/breadcrumb.
     ZardDividerComponent,
     ZardBreadcrumbModule
   ],
-  templateUrl: './dashboard-layout.component.html',
-  styleUrls: ['./dashboard-layout.component.css']
+  templateUrl: './main-layout.component.html',
+  styleUrls: ['./main-layout.component.css']
 })
-export class DashboardLayoutComponent implements OnInit {
+export class MainLayoutComponent implements OnInit {
   sidebarCollapsed = signal(false);
   currentUser: User | null = null;
 
@@ -87,12 +88,7 @@ export class DashboardLayoutComponent implements OnInit {
           title: 'Claims',
           icon: 'file-text',
           route: '/claims'
-        },
-        // {
-        //   title: 'Communication',
-        //   icon: 'mail',
-        //   route: '/communication'
-        // }
+        }
       ]
     },
     {
@@ -108,7 +104,8 @@ export class DashboardLayoutComponent implements OnInit {
   ];
 
   constructor(
-    private authService: AuthService
+    private authService: AuthService,
+    public themeService: ThemeService
   ) {}
 
   ngOnInit(): void {
@@ -137,6 +134,10 @@ export class DashboardLayoutComponent implements OnInit {
     }
 
     return this.currentUser.employee.full_name.substring(0, 2).toUpperCase();
+  }
+
+  toggleTheme() {
+    this.themeService.toggleTheme();
   }
 
   logout() {

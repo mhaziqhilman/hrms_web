@@ -189,7 +189,7 @@ export class MemoFormComponent implements OnInit {
         if (response.success) {
           const action = this.isEditMode() ? 'updated' : 'created';
           alert(`Memo ${action} successfully!`);
-          this.router.navigate(['/dashboard/communication/memos']);
+          this.router.navigate(['/communication/memos']);
         }
         this.saving.set(false);
       },
@@ -203,7 +203,7 @@ export class MemoFormComponent implements OnInit {
 
   cancel(): void {
     if (confirm('Are you sure you want to cancel? Any unsaved changes will be lost.')) {
-      this.router.navigate(['/dashboard/communication/memos']);
+      this.router.navigate(['/communication/memos']);
     }
   }
 

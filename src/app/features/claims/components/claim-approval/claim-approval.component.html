@@ -7,7 +7,7 @@
         {{ userRole() === 'Manager' ? 'Review and approve pending claims' : 'Process manager-approved claims and payments' }}
       </p>
     </div>
-    <button z-button zType="outline" routerLink="/dashboard/claims" class="gap-2">
+    <button z-button zType="outline" routerLink="/claims" class="gap-2">
       <z-icon zType="arrow-left" class="w-4 h-4" />
       Back to Claims
     </button>
@@ -138,7 +138,7 @@
               </td>
               <td class="px-4 py-4">
                 <div class="flex items-center gap-2">
-                  <a [routerLink]="['/dashboard/claims', claim.id]" z-button zType="ghost" zSize="sm" class="gap-1" title="View Details">
+                  <a [routerLink]="['/claims', claim.id]" z-button zType="ghost" zSize="sm" class="gap-1" title="View Details">
                     <z-icon zType="eye" class="w-4 h-4" />
                   </a>
                   @if (canApprove(claim)) {

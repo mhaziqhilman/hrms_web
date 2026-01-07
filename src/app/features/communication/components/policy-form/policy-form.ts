@@ -133,7 +133,7 @@ export class PolicyFormComponent implements OnInit {
         if (response.success) {
           const action = this.isEditMode() ? 'updated' : 'created';
           alert(`Policy ${action} successfully!`);
-          this.router.navigate(['/dashboard/communication/policies']);
+          this.router.navigate(['/communication/policies']);
         }
         this.saving.set(false);
       },
@@ -147,7 +147,7 @@ export class PolicyFormComponent implements OnInit {
 
   cancel(): void {
     if (confirm('Are you sure you want to cancel? Any unsaved changes will be lost.')) {
-      this.router.navigate(['/dashboard/communication/policies']);
+      this.router.navigate(['/communication/policies']);
     }
   }
 
@@ -187,7 +187,7 @@ export class PolicyFormComponent implements OnInit {
     const currentVersion = parseFloat(currentValues.version);
     const newVersion = (currentVersion + 0.1).toFixed(1);
 
-    this.router.navigate(['/dashboard/communication/policies/new'], {
+    this.router.navigate(['/communication/policies/new'], {
       state: {
         parentPolicyId: this.policyId,
         inheritedData: {

@@ -217,6 +217,6 @@ export class LeaveApprovalComponent implements OnInit {
   }
 
   viewLeaveDetails(leave: Leave): void {
-    this.router.navigate(['/dashboard/leave', leave.id]);
+    this.router.navigate(['/leave', leave.id]);
   }
 }

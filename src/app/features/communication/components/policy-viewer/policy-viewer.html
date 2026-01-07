@@ -71,7 +71,7 @@
         </button>
         <a
           *ngIf="canEdit()"
-          [routerLink]="['/dashboard/communication/policies', policy()?.id, 'edit']"
+          [routerLink]="['/communication/policies', policy()?.id, 'edit']"
           z-button
           zType="default"
           class="flex items-center gap-2"
@@ -179,7 +179,7 @@
           <span>
             This is version {{ policy()?.version }}, updated from
             <a
-              [routerLink]="['/dashboard/communication/policies', policy()?.parent?.id]"
+              [routerLink]="['/communication/policies', policy()?.parent?.id]"
               class="underline font-semibold hover:text-blue-600"
             >
               {{ policy()?.parent?.policy_code }} v{{ policy()?.parent?.version }}
@@ -344,7 +344,7 @@
             <span>{{ version.created_at | date:'MMM dd, yyyy' }}</span>
           </div>
           <a
-            [routerLink]="['/dashboard/communication/policies', version.id]"
+            [routerLink]="['/communication/policies', version.id]"
             z-button
             zType="outline"
             zSize="sm"

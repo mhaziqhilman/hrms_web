@@ -32,6 +32,7 @@ export class PayrollService {
       if (params.year) httpParams = httpParams.set('year', params.year.toString());
       if (params.month) httpParams = httpParams.set('month', params.month.toString());
       if (params.employee_id) httpParams = httpParams.set('employee_id', params.employee_id.toString());
+      if (params.search) httpParams = httpParams.set('search', params.search);
     }
 
     return this.http.get<PayrollListResponse>(
@@ -70,7 +71,17 @@ export class PayrollService {
   }
 
   /**
-   * Approve payroll
+   * Submit payroll for approval (Draft -> Pending)
+   */
+  submitForApproval(id: number): Observable<PayrollResponse> {
+    return this.http.patch<PayrollResponse>(
+      `${this.apiUrl}${API_CONFIG.endpoints.payroll.submit(id)}`,
+      {}
+    );
+  }
+
+  /**
+   * Approve payroll (Pending -> Approved)
    */
   approvePayroll(id: number): Observable<PayrollResponse> {
     return this.http.patch<PayrollResponse>(

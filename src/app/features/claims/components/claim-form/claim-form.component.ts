@@ -203,7 +203,7 @@ export class ClaimFormComponent implements OnInit {
           if (response.success) {
             this.success.set('Claim updated successfully!');
             setTimeout(() => {
-              this.router.navigate(['/dashboard/claims']);
+              this.router.navigate(['/claims']);
             }, 1500);
           }
           this.submitting.set(false);
@@ -237,7 +237,7 @@ export class ClaimFormComponent implements OnInit {
               this.success.set('Claim submitted successfully!');
               this.claimForm.reset();
               setTimeout(() => {
-                this.router.navigate(['/dashboard/claims']);
+                this.router.navigate(['/claims']);
               }, 1500);
               this.submitting.set(false);
             }
@@ -331,7 +331,7 @@ export class ClaimFormComponent implements OnInit {
     console.log('Files uploaded successfully:', response);
     this.success.set('Claim and receipts uploaded successfully!');
     setTimeout(() => {
-      this.router.navigate(['/dashboard/claims']);
+      this.router.navigate(['/claims']);
     }, 1500);
   }
 
@@ -366,7 +366,7 @@ export class ClaimFormComponent implements OnInit {
         this.claimForm.reset();
         this.receiptFiles.set([]);
         setTimeout(() => {
-          this.router.navigate(['/dashboard/claims']);
+          this.router.navigate(['/claims']);
         }, 1500);
         this.submitting.set(false);
       },

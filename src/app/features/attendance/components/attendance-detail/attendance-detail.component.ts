@@ -76,7 +76,7 @@ export class AttendanceDetailComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/dashboard/attendance']);
+    this.router.navigate(['/attendance']);
   }
 
   deleteAttendance(): void {

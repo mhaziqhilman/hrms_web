@@ -51,7 +51,7 @@
         </button>
         <a
           *ngIf="canEdit()"
-          [routerLink]="['/dashboard/communication/memos', memo()?.id, 'edit']"
+          [routerLink]="['/communication/memos', memo()?.id, 'edit']"
           z-button
           zType="default"
           class="flex items-center gap-2"

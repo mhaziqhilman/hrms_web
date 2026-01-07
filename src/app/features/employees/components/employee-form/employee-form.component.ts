@@ -160,7 +160,7 @@ export class EmployeeFormComponent implements OnInit {
           if (response.success) {
             this.successMessage.set('Employee updated successfully');
             setTimeout(() => {
-              this.router.navigate(['/dashboard/employees', this.employeeId()]);
+              this.router.navigate(['/employees', this.employeeId()]);
             }, 1500);
           }
           this.loading.set(false);
@@ -178,7 +178,7 @@ export class EmployeeFormComponent implements OnInit {
           if (response.success) {
             this.successMessage.set('Employee created successfully');
             setTimeout(() => {
-              this.router.navigate(['/dashboard/employees']);
+              this.router.navigate(['/employees']);
             }, 1500);
           }
           this.loading.set(false);
@@ -193,9 +193,9 @@ export class EmployeeFormComponent implements OnInit {
 
   onCancel(): void {
     if (this.isEditMode() && this.employeeId()) {
-      this.router.navigate(['/dashboard/employees', this.employeeId()]);
+      this.router.navigate(['/employees', this.employeeId()]);
     } else {
-      this.router.navigate(['/dashboard/employees']);
+      this.router.navigate(['/employees']);
     }
   }
 

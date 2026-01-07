@@ -116,7 +116,7 @@ export class LeaveDetailsComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/dashboard/leave']);
+    this.router.navigate(['/leave']);
   }
 
   getInitials(name?: string): string {

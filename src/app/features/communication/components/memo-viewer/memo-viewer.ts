@@ -135,7 +135,7 @@ export class MemoViewerComponent implements OnInit {
       next: (response) => {
         if (response.success) {
           alert('Memo deleted successfully');
-          this.router.navigate(['/dashboard/communication/memos']);
+          this.router.navigate(['/communication/memos']);
         }
       },
       error: (err) => {
@@ -210,6 +210,6 @@ export class MemoViewerComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/dashboard/communication/memos']);
+    this.router.navigate(['/communication/memos']);
   }
 }

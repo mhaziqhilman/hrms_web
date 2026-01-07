@@ -1,85 +1,308 @@
-<div class="max-w-7xl mx-auto p-6">
+<div class="max-w-8xl mx-auto">
   <!-- Header -->
   <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
     <div>
       <h2 class="text-3xl font-semibold text-foreground">Payroll Management</h2>
       <p class="text-muted-foreground mt-1">Manage employee payroll records</p>
     </div>
-    <a
-      routerLink="/dashboard/payroll/calculate"
-      z-button
-      zType="default"
-      class="flex items-center gap-2"
-    >
+    <a routerLink="/payroll/calculate" z-button zType="default" class="flex items-center gap-2">
       <z-icon zType="plus" class="w-4 h-4" />
       Calculate Payroll
     </a>
   </div>
 
-  <!-- Filters Card -->
-  <z-card class="mb-6">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      <!-- Status Filter -->
-      <z-form-field>
-        <label z-form-label for="statusFilter">Status</label>
-        <z-select
-          id="statusFilter"
-          [(ngModel)]="selectedStatus"
-          (ngModelChange)="onFilterChange()"
-          placeholder="All Status"
-        >
-          <z-select-item zValue="">All Status</z-select-item>
-          <z-select-item [zValue]="PayrollStatus.DRAFT">Draft</z-select-item>
-          <z-select-item [zValue]="PayrollStatus.PENDING">Pending</z-select-item>
-          <z-select-item [zValue]="PayrollStatus.APPROVED">Approved</z-select-item>
-          <z-select-item [zValue]="PayrollStatus.PAID">Paid</z-select-item>
-          <z-select-item [zValue]="PayrollStatus.CANCELLED">Cancelled</z-select-item>
-        </z-select>
-      </z-form-field>
+  <!-- Status Tabs -->
+  <div class="mb-6">
+    <div class="border-b border-border">
+      <nav class="flex gap-1 overflow-auto scroll nav-tab-scroll -mb-px" aria-label="Tabs" role="tablist">
+        <!-- All Request Tab -->
+        <button type="button" role="tab" (click)="onTabChange({index: 0, label: 'All Request'})"
+          [attr.aria-selected]="activeTab() === 'All'" [class]="activeTab() === 'All'
+            ? 'border-b-2 border-b-primary text-primary text-sm'
+            : 'border-b-2 border-transparent text-muted-foreground hover:text-foreground text-sm'"
+          class="hover:bg-transparent rounded-none flex-shrink-0 whitespace-nowrap py-2 px-2 font-medium text-sm transition-colors flex items-center gap-2">
+          <z-icon zType="layers" class="w-4 h-4" />
+          All Request
+          <span
+            [class]="activeTab() === 'All' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'"
+            class="ml-1 py-0.5 px-2.5 rounded-full text-xs font-semibold min-w-[28px] text-center">
+            {{ statusCounts()['All'] }}
+          </span>
+        </button>
 
-      <!-- Year Filter -->
-      <z-form-field>
-        <label z-form-label for="yearFilter">Year</label>
-        <z-select
-          id="yearFilter"
-          [(ngModel)]="selectedYear"
-          (ngModelChange)="onFilterChange()"
-        >
-          <z-select-item *ngFor="let year of years" [zValue]="year">{{ year }}</z-select-item>
-        </z-select>
-      </z-form-field>
+        <!-- Draft Tab -->
+        <button type="button" role="tab" (click)="onTabChange({index: 1, label: 'Draft'})"
+          [attr.aria-selected]="activeTab() === PayrollStatus.DRAFT" [class]="activeTab() === PayrollStatus.DRAFT
+            ? 'border-b-2 border-b-primary text-primary'
+            : 'border-b-2 border-transparent text-muted-foreground hover:text-foreground'"
+          class="hover:bg-transparent rounded-none flex-shrink-0 whitespace-nowrap py-2 px-2 font-medium text-sm transition-colors flex items-center gap-2">
+          <z-icon zType="file-text" class="w-4 h-4" />
+          Draft
+          <span
+            [class]="activeTab() === PayrollStatus.DRAFT ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'"
+            class="ml-1 py-0.5 px-2.5 rounded-full text-xs font-semibold min-w-[28px] text-center">
+            {{ statusCounts()['Draft'] }}
+          </span>
+        </button>
 
-      <!-- Month Filter -->
-      <z-form-field>
-        <label z-form-label for="monthFilter">Month</label>
-        <z-select
-          id="monthFilter"
-          [(ngModel)]="selectedMonth"
-          (ngModelChange)="onFilterChange()"
-          placeholder="All Months"
-        >
-          <z-select-item zValue="">All Months</z-select-item>
-          <z-select-item *ngFor="let month of MONTH_NAMES; let i = index" [zValue]="i + 1">
-            {{ month }}
-          </z-select-item>
-        </z-select>
-      </z-form-field>
+        <!-- Pending Approval Tab -->
+        <button type="button" role="tab" (click)="onTabChange({index: 2, label: 'Pending Approval'})"
+          [attr.aria-selected]="activeTab() === PayrollStatus.PENDING" [class]="activeTab() === PayrollStatus.PENDING
+            ? 'border-b-2 border-b-primary text-primary'
+            : 'border-b-2 border-transparent text-muted-foreground hover:text-foreground'"
+          class="hover:bg-transparent rounded-none flex-shrink-0 whitespace-nowrap py-2 px-2 font-medium text-sm transition-colors flex items-center gap-2">
+          <z-icon zType="clock" class="w-4 h-4" />
+          Pending Approval
+          <span
+            [class]="activeTab() === PayrollStatus.PENDING ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'"
+            class="ml-1 py-0.5 px-2.5 rounded-full text-xs font-semibold min-w-[28px] text-center">
+            {{ statusCounts()['Pending'] }}
+          </span>
+        </button>
 
-      <!-- Clear Filters -->
-      <div class="flex items-end">
-        <button
-          type="button"
-          z-button
-          zType="outline"
-          class="w-full flex items-center justify-center gap-2"
-          (click)="clearFilters()"
-        >
-          <z-icon zType="arrow-left" class="w-4 h-4" />
-          Clear Filters
+        <!-- Approved Tab -->
+        <button type="button" role="tab" (click)="onTabChange({index: 3, label: 'Approved'})"
+          [attr.aria-selected]="activeTab() === PayrollStatus.APPROVED" [class]="activeTab() === PayrollStatus.APPROVED
+            ? 'border-b-2 border-b-primary text-primary'
+            : 'border-b-2 border-transparent text-muted-foreground hover:text-foreground'"
+          class="hover:bg-transparent rounded-none flex-shrink-0 whitespace-nowrap py-2 px-2 font-medium text-sm transition-colors flex items-center gap-2">
+          <z-icon zType="check-circle" class="w-4 h-4" />
+          Approved
+          <span
+            [class]="activeTab() === PayrollStatus.APPROVED ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'"
+            class="ml-1 py-0.5 px-2.5 rounded-full text-xs font-semibold min-w-[28px] text-center">
+            {{ statusCounts()['Approved'] }}
+          </span>
+        </button>
+
+        <!-- Paid Tab -->
+        <button type="button" role="tab" (click)="onTabChange({index: 4, label: 'Paid'})"
+          [attr.aria-selected]="activeTab() === PayrollStatus.PAID" [class]="activeTab() === PayrollStatus.PAID
+            ? 'border-b-2 border-b-primary text-primary'
+            : 'border-b-2 border-transparent text-muted-foreground hover:text-foreground'"
+          class="hover:bg-transparent rounded-none flex-shrink-0 whitespace-nowrap py-2 px-2 font-medium text-sm transition-colors flex items-center gap-2">
+          <z-icon zType="dollar-sign" class="w-4 h-4" />
+          Paid
+          <span
+            [class]="activeTab() === PayrollStatus.PAID ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'"
+            class="ml-1 py-0.5 px-2.5 rounded-full text-xs font-semibold min-w-[28px] text-center">
+            {{ statusCounts()['Paid'] }}
+          </span>
+        </button>
+
+        <!-- Cancelled Tab -->
+        <button type="button" role="tab" (click)="onTabChange({index: 5, label: 'Cancelled'})"
+          [attr.aria-selected]="activeTab() === PayrollStatus.CANCELLED" [class]="activeTab() === PayrollStatus.CANCELLED
+            ? 'border-b-2 border-b-primary text-primary'
+            : 'border-b-2 border-transparent text-muted-foreground hover:text-foreground'"
+          class="hover:bg-transparent rounded-none flex-shrink-0 whitespace-nowrap py-2 px-2 font-medium text-sm transition-colors flex items-center gap-2">
+          <z-icon zType="circle-x" class="w-4 h-4" />
+          Cancelled
+          <span
+            [class]="activeTab() === PayrollStatus.CANCELLED ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'"
+            class="ml-1 py-0.5 px-2.5 rounded-full text-xs font-semibold min-w-[28px] text-center">
+            {{ statusCounts()['Cancelled'] }}
+          </span>
+        </button>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Bulk Actions Bar - Modern SaaS Style -->
+  <div *ngIf="getSelectedCount() > 0"
+    class="mb-4 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 backdrop-blur-sm border-l-4 border-primary shadow-sm">
+    <div class="flex items-center justify-between px-6 py-3 gap-4">
+      <!-- Left: Selection Info -->
+      <div class="flex items-center gap-3">
+        <div class="flex items-center justify-center w-8 h-8 rounded-full bg-primary/20">
+          <z-icon zType="check-circle" class="w-4 h-4 text-primary" />
+        </div>
+        <div class="flex flex-col">
+          <span class="text-sm font-semibold text-foreground">{{ getSelectedCount() }} Selected</span>
+          <span class="text-xs text-muted-foreground">Bulk actions available</span>
+        </div>
+      </div>
+
+      <!-- Right: Action Buttons -->
+      <div class="flex items-center gap-2">
+        <button type="button" (click)="bulkApprove()"
+          class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary/90 rounded-md transition-all duration-200 shadow-sm hover:shadow-md">
+          <z-icon zType="circle-check" class="w-4 h-4" />
+          <span>Approve</span>
+        </button>
+        <button type="button" (click)="bulkDelete()"
+          class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-destructive hover:bg-destructive/90 rounded-md transition-all duration-200 shadow-sm hover:shadow-md">
+          <z-icon zType="trash" class="w-4 h-4" />
+          <span>Delete</span>
+        </button>
+        <div class="w-px h-6 bg-border mx-1"></div>
+        <button type="button" (click)="clearSelection()"
+          class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200">
+          <z-icon zType="x" class="w-4 h-4" />
+          <span>Clear</span>
         </button>
       </div>
     </div>
-  </z-card>
+  </div>
+
+  <!-- Filters -->
+  <div class="flex items-center gap-3 mb-6 flex-wrap justify-between">
+    <div class="flex items-center gap-3 flex-1 flex-wrap">
+      <!-- Search Bar -->
+      <div class="relative flex-1 min-w-[180px] max-w-md">
+        <z-icon zType="search" class="absolute left-1.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+        <input
+          type="text"
+          [ngModel]="searchEmployeeId()"
+          (ngModelChange)="searchEmployeeId.set($event); onFilterChange()"
+          placeholder="Search by employee name or ID..."
+          class="w-full pl-8 pr-2 py-2 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+        />
+      </div>
+      <!-- Status Filter -->
+      <div z-menu [zMenuTriggerFor]="statusMenu">
+      <button z-button zType="outline" [class]="selectedStatus()
+          ? 'gap-2 border border-solid px-2 bg-primary/5 text-primary border-primary'
+          : 'gap-2 border border-dashed px-2'">
+        <z-icon [zType]="selectedStatus() ? 'circle-check' : 'circle-plus'" class="w-4 h-4" />
+        {{ selectedStatus() ? selectedStatus() : 'Status' }}
+      </button>
+    </div>
+    <ng-template #statusMenu>
+      <div z-menu-content class="w-48">
+        <button type="button" z-menu-item (click)="selectedStatus.set(''); onFilterChange()">
+          All Status
+        </button>
+        <button type="button" z-menu-item (click)="selectedStatus.set(PayrollStatus.DRAFT); onFilterChange()">
+          Draft
+        </button>
+        <button type="button" z-menu-item (click)="selectedStatus.set(PayrollStatus.PENDING); onFilterChange()">
+          Pending
+        </button>
+        <button type="button" z-menu-item (click)="selectedStatus.set(PayrollStatus.APPROVED); onFilterChange()">
+          Approved
+        </button>
+        <button type="button" z-menu-item (click)="selectedStatus.set(PayrollStatus.PAID); onFilterChange()">
+          Paid
+        </button>
+        <button type="button" z-menu-item (click)="selectedStatus.set(PayrollStatus.CANCELLED); onFilterChange()">
+          Cancelled
+        </button>
+      </div>
+    </ng-template>
+
+    <!-- Year Filter -->
+    <div z-menu [zMenuTriggerFor]="yearMenu">
+      <button
+        z-button
+        zType="outline"
+        [class]="selectedYear()
+          ? 'gap-2 border border-solid px-2 bg-primary/5 text-primary border-primary'
+          : 'gap-2 border border-dashed px-2'"
+      >
+        <z-icon [zType]="selectedYear() ? 'circle-check' : 'circle-plus'" class="w-4 h-4" />
+        {{ selectedYear() ?? 'Year' }}
+      </button>
+    </div>
+    <ng-template #yearMenu>
+      <div z-menu-content class="w-48">
+        <button type="button" z-menu-item (click)="selectedYear.set(null); onFilterChange()">
+          All Years
+        </button>
+        @for (year of years; track year) {
+        <button type="button" z-menu-item (click)="selectedYear.set(year); onFilterChange()">
+          {{ year }}
+        </button>
+        }
+      </div>
+    </ng-template>
+
+    <!-- Month Filter -->
+    <div z-menu [zMenuTriggerFor]="monthMenu">
+      <button z-button zType="outline" [class]="selectedMonth()
+          ? 'gap-2 border border-solid px-2 bg-primary/5 text-primary border-primary'
+          : 'gap-2 border border-dashed px-2'">
+        <z-icon [zType]="selectedMonth() ? 'circle-check' : 'circle-plus'" class="w-4 h-4" />
+        {{ getSelectedMonthName() }}
+      </button>
+    </div>
+    <ng-template #monthMenu>
+      <div z-menu-content class="w-48">
+        <button type="button" z-menu-item (click)="selectedMonth.set(''); onFilterChange()">
+          All Months
+        </button>
+        @for (month of MONTH_NAMES; track month; let i = $index) {
+        <button type="button" z-menu-item (click)="selectedMonth.set(i + 1); onFilterChange()">
+          {{ month }}
+        </button>
+        }
+      </div>
+    </ng-template>
+
+      <!-- Clear Filters -->
+      <button
+        *ngIf="selectedStatus() || selectedYear() || selectedMonth() || searchEmployeeId()"
+        type="button"
+        z-button
+        zType="outline"
+        class="gap-2 border-none shadow-none px-2"
+        (click)="clearFilters()">
+        Reset
+        <z-icon zType="x" class="w-4 h-4" />
+      </button>
+    </div>
+
+    <!-- Column Toggle - Right Side -->
+    <div z-menu [zMenuTriggerFor]="columnMenu">
+      <button z-button zType="outline" class="gap-2 px-2">
+        <z-icon zType="eye" class="w-4 h-4" />
+        View
+      </button>
+    </div>
+  </div>
+
+  <!-- Column Menu Template -->
+  <ng-template #columnMenu>
+    <div z-menu-content class="w-56">
+      <div class="px-2 py-1.5 text-sm font-semibold text-foreground">Toggle columns</div>
+      <div class="h-px bg-border my-1"></div>
+
+      <button type="button" z-menu-item (click)="toggleColumn('employee')" class="flex items-center justify-between">
+        <span>Employee</span>
+        <z-icon *ngIf="visibleColumns()['employee']" zType="check" class="w-4 h-4" />
+      </button>
+
+      <button type="button" z-menu-item (click)="toggleColumn('period')" class="flex items-center justify-between">
+        <span>Period</span>
+        <z-icon *ngIf="visibleColumns()['period']" zType="check" class="w-4 h-4" />
+      </button>
+
+      <button type="button" z-menu-item (click)="toggleColumn('basicSalary')" class="flex items-center justify-between">
+        <span>Basic Salary</span>
+        <z-icon *ngIf="visibleColumns()['basicSalary']" zType="check" class="w-4 h-4" />
+      </button>
+
+      <button type="button" z-menu-item (click)="toggleColumn('grossSalary')" class="flex items-center justify-between">
+        <span>Gross Salary</span>
+        <z-icon *ngIf="visibleColumns()['grossSalary']" zType="check" class="w-4 h-4" />
+      </button>
+
+      <button type="button" z-menu-item (click)="toggleColumn('deductions')" class="flex items-center justify-between">
+        <span>Deductions</span>
+        <z-icon *ngIf="visibleColumns()['deductions']" zType="check" class="w-4 h-4" />
+      </button>
+
+      <button type="button" z-menu-item (click)="toggleColumn('netSalary')" class="flex items-center justify-between">
+        <span>Net Salary</span>
+        <z-icon *ngIf="visibleColumns()['netSalary']" zType="check" class="w-4 h-4" />
+      </button>
+
+      <button type="button" z-menu-item (click)="toggleColumn('status')" class="flex items-center justify-between">
+        <span>Status</span>
+        <z-icon *ngIf="visibleColumns()['status']" zType="check" class="w-4 h-4" />
+      </button>
+    </div>
+  </ng-template>
 
   <!-- Error Alert -->
   <z-card *ngIf="error()" class="mb-6 border-destructive">
@@ -98,40 +321,95 @@
   </z-card>
 
   <!-- Payroll Table -->
-  <z-card *ngIf="!loading() && !error()">
-    <!-- Results Summary -->
-    <div class="px-6 py-4 border-b border-border" *ngIf="total() > 0">
-      <span class="text-sm text-muted-foreground">
-        Showing {{ (currentPage() - 1) * limit + 1 }} to
-        {{ Math.min(currentPage() * limit, total()) }} of {{ total() }} records
-      </span>
-    </div>
-
-    <!-- Table -->
-    <div class="overflow-x-auto" *ngIf="payrolls().length > 0">
-      <table z-table>
+  <div *ngIf="!loading() && !error()">
+        <!-- Table -->
+    <div class="payroll-table-container rounded-lg border" *ngIf="payrolls().length > 0">
+      <table z-table class="payroll-table">
         <thead>
           <tr>
-            <th>Employee</th>
-            <th>Period</th>
-            <th>Basic Salary</th>
-            <th>Gross Salary</th>
-            <th>Deductions</th>
-            <th>Net Salary</th>
-            <th>Status</th>
-            <th>Actions</th>
+            <th class="!pl-3 w-10 th-text-center">
+              <input type="checkbox" [checked]="selectAll()" (change)="toggleSelectAll()"
+                class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer" />
+            </th>
+            @if (visibleColumns()['employee']) {
+            <th class="!pl-3">
+              <button (click)="onSort('employee')" class="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer" [class.text-primary]="isSortActive('employee')">
+                <span>Employee</span>
+                <z-icon [zType]="getSortIcon('employee')" class="w-4 h-4" />
+              </button>
+            </th>
+            }
+            @if (visibleColumns()['period']) {
+            <th>
+              <button (click)="onSort('period')" class="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer" [class.text-primary]="isSortActive('period')">
+                <span>Period</span>
+                <z-icon [zType]="getSortIcon('period')" class="w-4 h-4" />
+              </button>
+            </th>
+            }
+            @if (visibleColumns()['basicSalary']) {
+            <th>
+              <button (click)="onSort('basicSalary')" class="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer" [class.text-primary]="isSortActive('basicSalary')">
+                <span>Basic Salary</span>
+                <z-icon [zType]="getSortIcon('basicSalary')" class="w-4 h-4" />
+              </button>
+            </th>
+            }
+            @if (visibleColumns()['grossSalary']) {
+            <th>
+              <button (click)="onSort('grossSalary')" class="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer" [class.text-primary]="isSortActive('grossSalary')">
+                <span>Gross Salary</span>
+                <z-icon [zType]="getSortIcon('grossSalary')" class="w-4 h-4" />
+              </button>
+            </th>
+            }
+            @if (visibleColumns()['deductions']) {
+            <th>
+              <button (click)="onSort('deductions')" class="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer" [class.text-primary]="isSortActive('deductions')">
+                <span>Deductions</span>
+                <z-icon [zType]="getSortIcon('deductions')" class="w-4 h-4" />
+              </button>
+            </th>
+            }
+            @if (visibleColumns()['netSalary']) {
+            <th>
+              <button (click)="onSort('netSalary')" class="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer" [class.text-primary]="isSortActive('netSalary')">
+                <span>Net Salary</span>
+                <z-icon [zType]="getSortIcon('netSalary')" class="w-4 h-4" />
+              </button>
+            </th>
+            }
+            @if (visibleColumns()['status']) {
+            <th>
+              <button (click)="onSort('status')" class="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer" [class.text-primary]="isSortActive('status')">
+                <span>Status</span>
+                <z-icon [zType]="getSortIcon('status')" class="w-4 h-4" />
+              </button>
+            </th>
+            }
+            <th class="!pr-3">Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let payroll of payrolls()">
+            <!-- Checkbox -->
+            <td class="!pl-3 text-center">
+              <input type="checkbox" [checked]="isPayrollSelected(payroll.id)"
+                (change)="togglePayrollSelection(payroll.id)"
+                class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer" />
+            </td>
+
+            @if (visibleColumns()['employee']) {
             <!-- Employee -->
-            <td>
+            <td class="!pl-3">
               <div class="flex flex-col">
                 <span class="font-medium text-foreground">{{ payroll.employee?.full_name }}</span>
                 <span class="text-sm text-muted-foreground">ID: {{ payroll.employee?.employee_id }}</span>
               </div>
             </td>
+            }
 
+            @if (visibleColumns()['period']) {
             <!-- Period -->
             <td>
               <div class="flex flex-col">
@@ -139,90 +417,75 @@
                 <span class="text-sm text-muted-foreground">{{ payroll.year }}</span>
               </div>
             </td>
+            }
 
+            @if (visibleColumns()['basicSalary']) {
             <!-- Basic Salary -->
             <td>{{ formatCurrency(payroll.basic_salary) }}</td>
+            }
 
+            @if (visibleColumns()['grossSalary']) {
             <!-- Gross Salary -->
             <td>{{ formatCurrency(payroll.gross_salary) }}</td>
+            }
 
+            @if (visibleColumns()['deductions']) {
             <!-- Deductions -->
             <td>{{ formatCurrency(payroll.total_deductions) }}</td>
+            }
 
+            @if (visibleColumns()['netSalary']) {
             <!-- Net Salary -->
             <td>
               <span class="font-semibold text-green-600">{{ formatCurrency(payroll.net_salary) }}</span>
             </td>
+            }
 
+            @if (visibleColumns()['status']) {
             <!-- Status -->
             <td>
               <z-badge [zType]="getStatusBadgeVariant(payroll.status)">
                 {{ payroll.status }}
               </z-badge>
             </td>
+            }
 
             <!-- Actions -->
-            <td>
-              <div class="flex gap-2 flex-wrap">
+            <td class="!pr-3 text-right">
+              <div class="flex gap-2 flex-nowrap">
                 <!-- View Payslip -->
-                <a
-                  [routerLink]="['/dashboard/payroll', payroll.id]"
-                  z-button
-                  zType="outline"
-                  zSize="sm"
-                  [zTooltip]="'View Payslip'"
-                >
+                <a [routerLink]="['/payroll', payroll.id]" z-button zType="outline" zSize="sm"
+                  [zTooltip]="'View Payslip'">
                   <z-icon zType="eye" class="w-4 h-4" />
                 </a>
 
                 <!-- Edit -->
-                <a
-                  *ngIf="canEdit(payroll)"
-                  [routerLink]="['/dashboard/payroll', payroll.id, 'edit']"
-                  z-button
-                  zType="outline"
-                  zSize="sm"
-                  [zTooltip]="'Edit'"
-                >
+                <a *ngIf="canEdit(payroll)" [routerLink]="['/payroll', payroll.id, 'edit']" z-button zType="outline"
+                  zSize="sm" [zTooltip]="'Edit'">
                   <z-icon zType="pencil" class="w-4 h-4" />
                 </a>
 
+                <!-- Submit for Approval -->
+                <button *ngIf="canSubmit(payroll)" (click)="submitForApproval(payroll)" z-button zType="outline"
+                  zSize="sm" [zTooltip]="'Submit for Approval'" class="text-blue-600 hover:text-blue-700">
+                  <z-icon zType="send" class="w-4 h-4" />
+                </button>
+
                 <!-- Approve -->
-                <button
-                  *ngIf="canApprove(payroll)"
-                  (click)="approvePayroll(payroll)"
-                  z-button
-                  zType="outline"
-                  zSize="sm"
-                  [zTooltip]="'Approve'"
-                  class="text-green-600 hover:text-green-700"
-                >
+                <button *ngIf="canApprove(payroll)" (click)="approvePayroll(payroll)" z-button zType="outline"
+                  zSize="sm" [zTooltip]="'Approve'" class="text-green-600 hover:text-green-700">
                   <z-icon zType="circle-check" class="w-4 h-4" />
                 </button>
 
                 <!-- Mark as Paid -->
-                <button
-                  *ngIf="canMarkPaid(payroll)"
-                  (click)="markAsPaid(payroll)"
-                  z-button
-                  zType="outline"
-                  zSize="sm"
-                  [zTooltip]="'Mark as Paid'"
-                  class="text-blue-600 hover:text-blue-700"
-                >
+                <button *ngIf="canMarkPaid(payroll)" (click)="markAsPaid(payroll)" z-button zType="outline" zSize="sm"
+                  [zTooltip]="'Mark as Paid'" class="text-blue-600 hover:text-blue-700">
                   <z-icon zType="dollar-sign" class="w-4 h-4" />
                 </button>
 
                 <!-- Cancel -->
-                <button
-                  *ngIf="canCancel(payroll)"
-                  (click)="cancelPayroll(payroll)"
-                  z-button
-                  zType="outline"
-                  zSize="sm"
-                  [zTooltip]="'Cancel'"
-                  class="text-red-600 hover:text-red-700"
-                >
+                <button *ngIf="canCancel(payroll)" (click)="cancelPayroll(payroll)" z-button zType="outline" zSize="sm"
+                  [zTooltip]="'Cancel'" class="text-red-600 hover:text-red-700">
                   <z-icon zType="circle-x" class="w-4 h-4" />
                 </button>
               </div>
@@ -230,6 +493,14 @@
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <!-- Results Summary -->
+    <div class="p-2 rounded-md" *ngIf="total() > 0">
+      <span class="text-sm text-muted-foreground">
+        Showing {{ (currentPage() - 1) * limit + 1 }} to
+        {{ Math.min(currentPage() * limit, total()) }} of {{ total() }} records
+      </span>
     </div>
 
     <!-- Empty State -->
@@ -247,43 +518,26 @@
       <nav class="flex justify-center" aria-label="Payroll pagination">
         <div class="flex items-center gap-2">
           <!-- Previous Button -->
-          <button
-            z-button
-            zType="outline"
-            zSize="sm"
-            (click)="onPageChange(currentPage() - 1)"
-            [disabled]="currentPage() === 1"
-            class="flex items-center gap-1"
-          >
+          <button z-button zType="outline" zSize="sm" (click)="onPageChange(currentPage() - 1)"
+            [disabled]="currentPage() === 1" class="flex items-center gap-1">
             <z-icon zType="chevron-left" class="w-4 h-4" />
             Previous
           </button>
 
           <!-- Page Numbers -->
-          <button
-            *ngFor="let page of [].constructor(totalPages()); let i = index"
-            z-button
-            [zType]="currentPage() === i + 1 ? 'default' : 'outline'"
-            zSize="sm"
-            (click)="onPageChange(i + 1)"
-          >
+          <button *ngFor="let page of [].constructor(totalPages()); let i = index" z-button
+            [zType]="currentPage() === i + 1 ? 'default' : 'outline'" zSize="sm" (click)="onPageChange(i + 1)">
             {{ i + 1 }}
           </button>
 
           <!-- Next Button -->
-          <button
-            z-button
-            zType="outline"
-            zSize="sm"
-            (click)="onPageChange(currentPage() + 1)"
-            [disabled]="currentPage() === totalPages()"
-            class="flex items-center gap-1"
-          >
+          <button z-button zType="outline" zSize="sm" (click)="onPageChange(currentPage() + 1)"
+            [disabled]="currentPage() === totalPages()" class="flex items-center gap-1">
             Next
             <z-icon zType="chevron-right" class="w-4 h-4" />
           </button>
         </div>
       </nav>
     </div>
-  </z-card>
+  </div>
 </div>

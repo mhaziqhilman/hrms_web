@@ -194,7 +194,7 @@ export class PolicyViewerComponent implements OnInit {
       next: (response) => {
         if (response.success) {
           alert('Policy deleted successfully');
-          this.router.navigate(['/dashboard/communication/policies']);
+          this.router.navigate(['/communication/policies']);
         }
       },
       error: (err) => {
@@ -234,7 +234,7 @@ export class PolicyViewerComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/dashboard/communication/policies']);
+    this.router.navigate(['/communication/policies']);
   }
 
   downloadPolicy(): void {

@@ -2,7 +2,7 @@
   <!-- Header -->
   <div class="flex items-center justify-between mb-8">
     <h1 class="text-3xl font-bold text-foreground">Users</h1>
-    <button z-button [routerLink]="['/dashboard/employees/new']" class="gap-2">
+    <button z-button [routerLink]="['/employees/new']" class="gap-2">
       <z-icon zType="plus" class="w-4 h-4" />
       Add New User
     </button>
@@ -196,11 +196,11 @@
                 </div>
                 <ng-template #actionMenu>
                   <div z-menu-content class="w-40">
-                    <button type="button" z-menu-item [routerLink]="['/dashboard/employees', employee.id]">
+                    <button type="button" z-menu-item [routerLink]="['/employees', employee.id]">
                       <z-icon zType="eye" class="mr-2" />
                       View Details
                     </button>
-                    <button type="button" z-menu-item [routerLink]="['/dashboard/employees', employee.id, 'edit']">
+                    <button type="button" z-menu-item [routerLink]="['/employees', employee.id, 'edit']">
                       <z-icon zType="file-text" class="mr-2" />
                       Edit
                     </button>
@@ -218,7 +218,7 @@
           <z-icon zType="users" class="w-16 h-16 text-muted-foreground mb-4" />
           <h3 class="text-lg font-semibold mb-2">No Users Found</h3>
           <p class="text-muted-foreground mb-4">There are no users matching your criteria</p>
-          <button z-button [routerLink]="['/dashboard/employees/new']">
+          <button z-button [routerLink]="['/employees/new']">
             <z-icon zType="plus" class="mr-2" />
             Add New User
           </button>

@@ -25,6 +25,7 @@ export const API_CONFIG = {
       base: '/payroll',
       calculate: '/payroll/calculate',
       detail: (id: number) => `/payroll/${id}`,
+      submit: (id: number) => `/payroll/${id}/submit`,
       approve: (id: number) => `/payroll/${id}/approve`,
       markPaid: (id: number) => `/payroll/${id}/mark-paid`,
       payslip: (id: number) => `/payroll/${id}/payslip`

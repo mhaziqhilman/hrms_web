@@ -317,7 +317,7 @@ export class LeaveFormComponent implements OnInit {
         next: (response) => {
           if (response.success) {
             alert('Leave application updated successfully');
-            this.router.navigate(['/dashboard/leave']);
+            this.router.navigate(['/leave']);
           }
           this.submitting.set(false);
         },
@@ -345,7 +345,7 @@ export class LeaveFormComponent implements OnInit {
               this.uploadFilesForLeave(newLeaveId);
             } else {
               alert('Leave application submitted successfully');
-              this.router.navigate(['/dashboard/leave']);
+              this.router.navigate(['/leave']);
               this.submitting.set(false);
             }
           } else {
@@ -369,7 +369,7 @@ export class LeaveFormComponent implements OnInit {
     console.log('Files uploaded successfully:', response);
     const documentType = this.getDocumentTitle().replace(' Upload', '').toLowerCase();
     alert(`Leave application and ${documentType} uploaded successfully`);
-    this.router.navigate(['/dashboard/leave']);
+    this.router.navigate(['/leave']);
   }
 
   onFileUploadError(error: any): void {
@@ -391,7 +391,7 @@ export class LeaveFormComponent implements OnInit {
         const documentType = this.getDocumentTitle().replace(' Upload', '').toLowerCase();
         alert(`Leave application and ${documentType} submitted successfully`);
         this.mcFiles.set([]);
-        this.router.navigate(['/dashboard/leave']);
+        this.router.navigate(['/leave']);
         this.submitting.set(false);
       },
       error: (error) => {
@@ -532,7 +532,7 @@ export class LeaveFormComponent implements OnInit {
 
   onCancel(): void {
     if (confirm('Are you sure you want to cancel? Any unsaved changes will be lost.')) {
-      this.router.navigate(['/dashboard/leave']);
+      this.router.navigate(['/leave']);
     }
   }
 

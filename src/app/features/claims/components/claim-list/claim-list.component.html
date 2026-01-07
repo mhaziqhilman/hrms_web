@@ -6,11 +6,11 @@
       <p class="text-muted-foreground">View and manage expense claims</p>
     </div>
     <div class="flex gap-2">
-      <button z-button zType="outline" routerLink="/dashboard/claims/approval" class="gap-2">
+      <button z-button zType="outline" routerLink="/claims/approval" class="gap-2">
         <z-icon zType="circle-check" class="w-4 h-4" />
         Approval Dashboard
       </button>
-      <button z-button routerLink="/dashboard/claims/submit" class="gap-2">
+      <button z-button routerLink="/claims/submit" class="gap-2">
         <z-icon zType="plus" class="w-4 h-4" />
         Submit Claim
       </button>
@@ -192,12 +192,12 @@
                 </div>
                 <ng-template #actionMenu>
                   <div z-menu-content class="w-40">
-                    <button type="button" z-menu-item [routerLink]="['/dashboard/claims', claim.id]">
+                    <button type="button" z-menu-item [routerLink]="['/claims', claim.id]">
                       <z-icon zType="eye" class="mr-2" />
                       View Details
                     </button>
                     @if (canEdit(claim)) {
-                      <button type="button" z-menu-item [routerLink]="['/dashboard/claims', claim.id, 'edit']">
+                      <button type="button" z-menu-item [routerLink]="['/claims', claim.id, 'edit']">
                         <z-icon zType="circle" class="mr-2" />
                         Edit
                       </button>
@@ -224,7 +224,7 @@
       <z-icon zType="inbox" class="w-16 h-16 text-muted-foreground mb-4" />
       <h3 class="text-lg font-semibold mb-2">No claims found</h3>
       <p class="text-muted-foreground mb-4">Try adjusting your filters or submit a new claim</p>
-      <button z-button routerLink="/dashboard/claims/submit" class="gap-2">
+      <button z-button routerLink="/claims/submit" class="gap-2">
         <z-icon zType="plus" class="w-4 h-4" />
         Submit Claim
       </button>
