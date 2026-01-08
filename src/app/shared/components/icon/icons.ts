@@ -102,6 +102,7 @@ import {
   Users,
   X,
   Zap,
+  UserMinus,
 } from 'lucide-angular';
 
 const DarkMode: LucideIconData = [
@@ -116,6 +117,7 @@ export const ZARD_ICONS = {
   house: House,
   settings: Settings,
   user: User,
+  'user-minus': UserMinus,
   search: Search,
   bell: Bell,
   mail: Mail,

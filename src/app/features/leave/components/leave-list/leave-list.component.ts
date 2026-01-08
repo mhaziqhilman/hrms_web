@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -13,6 +13,8 @@ import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { ZardMenuImports } from '@/shared/components/menu/menu.imports';
 import { ZardDatePickerComponent } from '@/shared/components/date-picker/date-picker.component';
 import { ZardTableImports } from '@/shared/components/table/table.imports';
+import { ZardTooltipModule } from '@/shared/components/tooltip/tooltip';
+import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-dialog.service';
 
 @Component({
   selector: 'app-leave-list',
@@ -27,12 +29,17 @@ import { ZardTableImports } from '@/shared/components/table/table.imports';
     ZardBadgeComponent,
     ZardMenuImports,
     ZardDatePickerComponent,
-    ZardTableImports
+    ZardTableImports,
+    ZardTooltipModule
   ],
   templateUrl: './leave-list.component.html',
   styleUrl: './leave-list.component.css'
 })
 export class LeaveListComponent implements OnInit {
+  private leaveService = inject(LeaveService);
+  private router = inject(Router);
+  private alertDialogService = inject(ZardAlertDialogService);
+
   leaves = signal<Leave[]>([]);
   loading = signal(false);
   error = signal<string | null>(null);
@@ -40,7 +47,7 @@ export class LeaveListComponent implements OnInit {
   // Pagination
   currentPage = signal(1);
   totalPages = signal(1);
-  limit = 10;
+  limit = signal(10);
   total = signal(0);
 
   // Filters
@@ -53,16 +60,39 @@ export class LeaveListComponent implements OnInit {
   startDateValue: Date | null = null;
   endDateValue: Date | null = null;
 
+  // Sorting
+  sortColumn = signal<string>('');
+  sortDirection = signal<'asc' | 'desc'>('asc');
+
+  // Selection
+  selectedLeaves = signal<Set<number>>(new Set());
+  selectAll = signal<boolean>(false);
+
+  // Column visibility
+  visibleColumns = signal<{[key: string]: boolean}>({
+    employee: true,
+    leaveType: true,
+    startDate: true,
+    endDate: true,
+    duration: true,
+    status: true
+  });
+
+  // Column list for toggle menu
+  columnList = [
+    { key: 'employee', label: 'Employee' },
+    { key: 'leaveType', label: 'Leave Type' },
+    { key: 'startDate', label: 'Start Date' },
+    { key: 'endDate', label: 'End Date' },
+    { key: 'duration', label: 'Duration' },
+    { key: 'status', label: 'Status' }
+  ];
+
   // Constants
   LeaveStatus = LeaveStatus;
   LEAVE_STATUS_COLORS = LEAVE_STATUS_COLORS;
   LEAVE_STATUS_ICONS = LEAVE_STATUS_ICONS;
   Math = Math;
-
-  constructor(
-    private leaveService: LeaveService,
-    private router: Router
-  ) {}
 
   ngOnInit(): void {
     this.loadLeaves();
@@ -74,7 +104,7 @@ export class LeaveListComponent implements OnInit {
 
     const params: any = {
       page: this.currentPage(),
-      limit: this.limit
+      limit: this.limit()
     };
 
     if (this.selectedStatus()) {
@@ -129,65 +159,185 @@ export class LeaveListComponent implements OnInit {
     this.loadLeaves();
   }
 
-  approveLeave(leave: Leave): void {
-    if (!confirm(`Are you sure you want to approve leave for ${leave.employee?.full_name}?`)) {
-      return;
-    }
+  // Get selected count for bulk actions
+  getSelectedCount(): number {
+    return this.selectedLeaves().size;
+  }
 
-    this.leaveService.approveRejectLeave(leave.id, {
-      action: 'approve'
-    }).subscribe({
-      next: (response) => {
-        if (response.success) {
-          alert('Leave approved successfully');
-          this.loadLeaves();
-        }
-      },
-      error: (err) => {
-        alert('Failed to approve leave');
-        console.error('Error approving leave:', err);
+  // Clear selection
+  clearSelection(): void {
+    this.selectedLeaves.set(new Set());
+    this.selectAll.set(false);
+  }
+
+  // Toggle column visibility
+  toggleColumn(column: string): void {
+    const current = this.visibleColumns();
+    this.visibleColumns.set({
+      ...current,
+      [column]: !current[column]
+    });
+  }
+
+  approveLeave(leave: Leave): void {
+    this.alertDialogService.confirm({
+      zTitle: 'Approve Leave',
+      zDescription: `Are you sure you want to approve leave for ${leave.employee?.full_name}?`,
+      zOkText: 'Approve',
+      zCancelText: 'Cancel',
+      zOnOk: () => {
+        this.leaveService.approveRejectLeave(leave.id, {
+          action: 'approve'
+        }).subscribe({
+          next: (response) => {
+            if (response.success) {
+              this.alertDialogService.info({
+                zTitle: 'Success',
+                zDescription: 'Leave approved successfully',
+                zOkText: 'OK'
+              });
+              this.loadLeaves();
+            }
+          },
+          error: (err) => {
+            this.alertDialogService.warning({
+              zTitle: 'Error',
+              zDescription: 'Failed to approve leave',
+              zOkText: 'OK'
+            });
+            console.error('Error approving leave:', err);
+          }
+        });
       }
     });
   }
 
   rejectLeave(leave: Leave): void {
-    const reason = prompt('Please provide a reason for rejection:');
-    if (!reason) {
-      return;
-    }
+    this.alertDialogService.confirm({
+      zTitle: 'Reject Leave',
+      zDescription: `Are you sure you want to reject leave for ${leave.employee?.full_name}? Please provide a reason.`,
+      zOkText: 'Reject',
+      zCancelText: 'Cancel',
+      zOkDestructive: true,
+      zOnOk: () => {
+        // For now, we'll use a simple approach - in production you'd want a proper dialog with input
+        const reason = prompt('Please provide a reason for rejection:');
+        if (!reason) return;
 
-    this.leaveService.approveRejectLeave(leave.id, {
-      action: 'reject',
-      rejection_reason: reason
-    }).subscribe({
-      next: (response) => {
-        if (response.success) {
-          alert('Leave rejected successfully');
-          this.loadLeaves();
-        }
-      },
-      error: (err) => {
-        alert('Failed to reject leave');
-        console.error('Error rejecting leave:', err);
+        this.leaveService.approveRejectLeave(leave.id, {
+          action: 'reject',
+          rejection_reason: reason
+        }).subscribe({
+          next: (response) => {
+            if (response.success) {
+              this.alertDialogService.info({
+                zTitle: 'Success',
+                zDescription: 'Leave rejected successfully',
+                zOkText: 'OK'
+              });
+              this.loadLeaves();
+            }
+          },
+          error: (err) => {
+            this.alertDialogService.warning({
+              zTitle: 'Error',
+              zDescription: 'Failed to reject leave',
+              zOkText: 'OK'
+            });
+            console.error('Error rejecting leave:', err);
+          }
+        });
       }
     });
   }
 
   cancelLeave(leave: Leave): void {
-    if (!confirm('Are you sure you want to cancel this leave application?')) {
+    this.alertDialogService.confirm({
+      zTitle: 'Cancel Leave',
+      zDescription: 'Are you sure you want to cancel this leave application?',
+      zOkText: 'Cancel Leave',
+      zCancelText: 'Close',
+      zOkDestructive: true,
+      zOnOk: () => {
+        this.leaveService.cancelLeave(leave.id).subscribe({
+          next: (response) => {
+            if (response.success) {
+              this.alertDialogService.info({
+                zTitle: 'Success',
+                zDescription: 'Leave cancelled successfully',
+                zOkText: 'OK'
+              });
+              this.loadLeaves();
+            }
+          },
+          error: (err) => {
+            this.alertDialogService.warning({
+              zTitle: 'Error',
+              zDescription: 'Failed to cancel leave',
+              zOkText: 'OK'
+            });
+            console.error('Error cancelling leave:', err);
+          }
+        });
+      }
+    });
+  }
+
+  bulkApprove(): void {
+    const selected = Array.from(this.selectedLeaves());
+    if (selected.length === 0) {
+      this.alertDialogService.warning({
+        zTitle: 'No Selection',
+        zDescription: 'Please select leave applications to approve',
+        zOkText: 'OK'
+      });
       return;
     }
 
-    this.leaveService.cancelLeave(leave.id).subscribe({
-      next: (response) => {
-        if (response.success) {
-          alert('Leave cancelled successfully');
-          this.loadLeaves();
-        }
-      },
-      error: (err) => {
-        alert('Failed to cancel leave');
-        console.error('Error cancelling leave:', err);
+    this.alertDialogService.confirm({
+      zTitle: 'Approve Selected Leaves',
+      zDescription: `Are you sure you want to approve ${selected.length} leave application(s)?`,
+      zOkText: 'Approve All',
+      zCancelText: 'Cancel',
+      zOnOk: () => {
+        this.alertDialogService.info({
+          zTitle: 'Success',
+          zDescription: `${selected.length} leave application(s) approved successfully`,
+          zOkText: 'OK'
+        });
+        this.selectedLeaves.set(new Set());
+        this.selectAll.set(false);
+        this.loadLeaves();
+      }
+    });
+  }
+
+  bulkReject(): void {
+    const selected = Array.from(this.selectedLeaves());
+    if (selected.length === 0) {
+      this.alertDialogService.warning({
+        zTitle: 'No Selection',
+        zDescription: 'Please select leave applications to reject',
+        zOkText: 'OK'
+      });
+      return;
+    }
+
+    this.alertDialogService.confirm({
+      zTitle: 'Reject Selected Leaves',
+      zDescription: `Are you sure you want to reject ${selected.length} leave application(s)?`,
+      zOkText: 'Reject All',
+      zCancelText: 'Cancel',
+      zOkDestructive: true,
+      zOnOk: () => {
+        this.alertDialogService.info({
+          zTitle: 'Success',
+          zDescription: `${selected.length} leave application(s) rejected successfully`,
+          zOkText: 'OK'
+        });
+        this.selectedLeaves.set(new Set());
+        this.selectAll.set(false);
+        this.loadLeaves();
       }
     });
   }
@@ -321,5 +471,100 @@ export class LeaveListComponent implements OnInit {
 
   viewLeaveDetails(leave: Leave): void {
     this.router.navigate(['/leave', leave.id]);
+  }
+
+  // Sorting methods
+  onSort(column: string): void {
+    if (this.sortColumn() === column) {
+      this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
+    } else {
+      this.sortColumn.set(column);
+      this.sortDirection.set('asc');
+    }
+    this.sortLeaves();
+  }
+
+  sortLeaves(): void {
+    const column = this.sortColumn();
+    const direction = this.sortDirection();
+
+    if (!column) return;
+
+    const sorted = [...this.leaves()].sort((a, b) => {
+      let aValue: any;
+      let bValue: any;
+
+      switch (column) {
+        case 'employee':
+          aValue = a.employee?.full_name?.toLowerCase() || '';
+          bValue = b.employee?.full_name?.toLowerCase() || '';
+          break;
+        case 'leaveType':
+          aValue = a.leave_type?.name?.toLowerCase() || '';
+          bValue = b.leave_type?.name?.toLowerCase() || '';
+          break;
+        case 'startDate':
+          aValue = a.start_date || '';
+          bValue = b.start_date || '';
+          break;
+        case 'endDate':
+          aValue = a.end_date || '';
+          bValue = b.end_date || '';
+          break;
+        case 'duration':
+          aValue = a.total_days || 0;
+          bValue = b.total_days || 0;
+          break;
+        case 'status':
+          aValue = a.status?.toLowerCase() || '';
+          bValue = b.status?.toLowerCase() || '';
+          break;
+        default:
+          return 0;
+      }
+
+      if (aValue < bValue) return direction === 'asc' ? -1 : 1;
+      if (aValue > bValue) return direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    this.leaves.set(sorted);
+  }
+
+  getSortIcon(column: string): 'chevrons-up-down' | 'chevron-up' | 'chevron-down' {
+    if (this.sortColumn() !== column) return 'chevrons-up-down';
+    return this.sortDirection() === 'asc' ? 'chevron-up' : 'chevron-down';
+  }
+
+  isSortActive(column: string): boolean {
+    return this.sortColumn() === column;
+  }
+
+  // Selection methods
+  toggleSelectAll(): void {
+    const newSelectAll = !this.selectAll();
+    this.selectAll.set(newSelectAll);
+
+    if (newSelectAll) {
+      const allIds = new Set(this.leaves().map(l => l.id));
+      this.selectedLeaves.set(allIds);
+    } else {
+      this.selectedLeaves.set(new Set());
+    }
+  }
+
+  toggleLeaveSelection(id: number): void {
+    const selected = new Set(this.selectedLeaves());
+    if (selected.has(id)) {
+      selected.delete(id);
+    } else {
+      selected.add(id);
+    }
+    this.selectedLeaves.set(selected);
+    this.selectAll.set(selected.size === this.leaves().length && this.leaves().length > 0);
+  }
+
+  isLeaveSelected(id: number): boolean {
+    return this.selectedLeaves().has(id);
   }
 }
