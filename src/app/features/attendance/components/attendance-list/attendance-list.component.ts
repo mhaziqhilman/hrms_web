@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -12,6 +12,10 @@ import { ZardIconComponent } from '@/shared/components/icon/icon.component';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component';
 import { ZardMenuImports } from '@/shared/components/menu/menu.imports';
+import { ZardDatePickerComponent } from '@/shared/components/date-picker/date-picker.component';
+import { ZardTableImports } from '@/shared/components/table/table.imports';
+import { ZardTooltipModule } from '@/shared/components/tooltip/tooltip';
+import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-dialog.service';
 
 @Component({
   selector: 'app-attendance-list',
@@ -24,12 +28,18 @@ import { ZardMenuImports } from '@/shared/components/menu/menu.imports';
     ZardIconComponent,
     ZardBadgeComponent,
     ZardAvatarComponent,
-    ZardMenuImports
+    ZardMenuImports,
+    ZardDatePickerComponent,
+    ZardTableImports,
+    ZardTooltipModule
   ],
   templateUrl: './attendance-list.component.html',
   styleUrl: './attendance-list.component.css'
 })
 export class AttendanceListComponent implements OnInit {
+  private attendanceService = inject(AttendanceService);
+  private alertDialogService = inject(ZardAlertDialogService);
+
   attendances = signal<Attendance[]>([]);
   loading = signal(false);
   error = signal<string | null>(null);
@@ -38,7 +48,7 @@ export class AttendanceListComponent implements OnInit {
   currentPage = signal(1);
   totalPages = signal(1);
   totalRecords = signal(0);
-  limit = 10;
+  limit = signal(5);
 
   // Filters
   selectedType = signal<'Office' | 'WFH' | ''>('');
@@ -47,13 +57,79 @@ export class AttendanceListComponent implements OnInit {
   showEarlyLeaveOnly = signal(false);
   employeeIdFilter = signal<number | null>(null);
 
+  // Date picker values
+  dateValue: Date | null = null;
+
+  // Sorting
+  sortColumn = signal<string>('');
+  sortDirection = signal<'asc' | 'desc'>('asc');
+
+  // Selection
+  selectedAttendances = signal<Set<number>>(new Set());
+  selectAll = signal<boolean>(false);
+
+  // Column visibility
+  visibleColumns = signal<{[key: string]: boolean}>({
+    employee: true,
+    date: true,
+    type: true,
+    clockIn: true,
+    clockOut: true,
+    totalHours: false,
+    status: true
+  });
+
+  // Column list for toggle menu
+  columnList = [
+    { key: 'employee', label: 'Employee' },
+    { key: 'date', label: 'Date' },
+    { key: 'type', label: 'Type' },
+    { key: 'clockIn', label: 'Clock In' },
+    { key: 'clockOut', label: 'Clock Out' },
+    { key: 'totalHours', label: 'Total Hours' },
+    { key: 'status', label: 'Status' }
+  ];
+
   // Expose Math to template
   Math = Math;
 
-  constructor(private attendanceService: AttendanceService) {}
-
   ngOnInit(): void {
     this.loadAttendances();
+  }
+
+  // Get selected count for bulk actions
+  getSelectedCount(): number {
+    return this.selectedAttendances().size;
+  }
+
+  // Clear selection
+  clearSelection(): void {
+    this.selectedAttendances.set(new Set());
+    this.selectAll.set(false);
+  }
+
+  // Toggle column visibility
+  toggleColumn(column: string): void {
+    const current = this.visibleColumns();
+    this.visibleColumns.set({
+      ...current,
+      [column]: !current[column]
+    });
+  }
+
+  // Date change handler
+  onDateChange(date: Date | null): void {
+    if (date) {
+      // Use local date formatting to avoid timezone issues
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      this.selectedDate.set(`${year}-${month}-${day}`);
+    } else {
+      this.selectedDate.set('');
+    }
+    this.dateValue = date;
+    this.onFilterChange();
   }
 
   loadAttendances(): void {
@@ -62,7 +138,7 @@ export class AttendanceListComponent implements OnInit {
 
     const params: AttendanceQueryParams = {
       page: this.currentPage(),
-      limit: this.limit
+      limit: this.limit()
     };
 
     // Add filters if set
@@ -80,6 +156,13 @@ export class AttendanceListComponent implements OnInit {
 
     if (this.employeeIdFilter()) {
       params.employee_id = this.employeeIdFilter()!;
+    }
+
+    if (this.selectedDate()) {
+      params.start_date = this.selectedDate();
+      console.log(params.start_date);
+      
+      params.end_date = this.selectedDate();
     }
 
     this.attendanceService.getAllAttendance(params).subscribe({
@@ -141,7 +224,8 @@ export class AttendanceListComponent implements OnInit {
           if (paginationObj) {
             this.totalPages.set(paginationObj.totalPages || 1);
             this.totalRecords.set(paginationObj.total || data.length);
-            this.currentPage.set(paginationObj.page || 1);
+            // Use currentPage or page property
+            this.currentPage.set(paginationObj.currentPage || paginationObj.page || 1);
           } else {
             // If no pagination object, set defaults
             this.totalPages.set(1);
@@ -182,11 +266,24 @@ export class AttendanceListComponent implements OnInit {
   clearFilters(): void {
     this.selectedType.set('');
     this.selectedDate.set('');
+    this.dateValue = null;
     this.showLateOnly.set(false);
     this.showEarlyLeaveOnly.set(false);
     this.employeeIdFilter.set(null);
     this.currentPage.set(1);
     this.loadAttendances();
+  }
+
+  getStatusDisplayName(): string {
+    if (this.showLateOnly()) return 'Late Only';
+    if (this.showEarlyLeaveOnly()) return 'Early Leave Only';
+    return 'Status';
+  }
+
+  getTypeDisplayName(): string {
+    const type = this.selectedType();
+    if (!type) return 'Type';
+    return type === 'WFH' ? 'Work From Home' : type;
   }
 
   getStatusBadgeClass(attendance: Attendance): string {
@@ -248,21 +345,64 @@ export class AttendanceListComponent implements OnInit {
     return type === 'Office' ? 'badge-primary' : 'badge-secondary';
   }
 
-  deleteAttendance(id: number): void {
-    if (!confirm('Are you sure you want to delete this attendance record?')) {
+  deleteAttendance(attendance: Attendance): void {
+    this.alertDialogService.confirm({
+      zTitle: 'Delete Attendance Record',
+      zDescription: `Are you sure you want to delete the attendance record for ${attendance.employee?.full_name || 'this employee'}?`,
+      zOkText: 'Delete',
+      zCancelText: 'Cancel',
+      zOkDestructive: true,
+      zOnOk: () => {
+        this.attendanceService.deleteAttendance(attendance.id).subscribe({
+          next: (response) => {
+            if (response.success) {
+              this.alertDialogService.info({
+                zTitle: 'Success',
+                zDescription: 'Attendance record deleted successfully',
+                zOkText: 'OK'
+              });
+              this.loadAttendances();
+            }
+          },
+          error: (err: any) => {
+            this.alertDialogService.warning({
+              zTitle: 'Error',
+              zDescription: 'Failed to delete attendance record',
+              zOkText: 'OK'
+            });
+            console.error('Error deleting attendance:', err);
+          }
+        });
+      }
+    });
+  }
+
+  bulkDelete(): void {
+    const selected = Array.from(this.selectedAttendances());
+    if (selected.length === 0) {
+      this.alertDialogService.warning({
+        zTitle: 'No Selection',
+        zDescription: 'Please select attendance records to delete',
+        zOkText: 'OK'
+      });
       return;
     }
 
-    this.attendanceService.deleteAttendance(id).subscribe({
-      next: (response) => {
-        if (response.success) {
-          alert('Attendance record deleted successfully');
-          this.loadAttendances();
-        }
-      },
-      error: (err: any) => {
-        alert(err.error?.message || 'Failed to delete attendance record');
-        console.error('Error deleting attendance:', err);
+    this.alertDialogService.confirm({
+      zTitle: 'Delete Selected Records',
+      zDescription: `Are you sure you want to delete ${selected.length} attendance record(s)?`,
+      zOkText: 'Delete All',
+      zCancelText: 'Cancel',
+      zOkDestructive: true,
+      zOnOk: () => {
+        this.alertDialogService.info({
+          zTitle: 'Success',
+          zDescription: `${selected.length} attendance record(s) deleted successfully`,
+          zOkText: 'OK'
+        });
+        this.selectedAttendances.set(new Set());
+        this.selectAll.set(false);
+        this.loadAttendances();
       }
     });
   }
@@ -271,31 +411,102 @@ export class AttendanceListComponent implements OnInit {
     return new Date().toISOString().split('T')[0];
   }
 
-  getPageNumbers(): number[] {
-    const total = this.totalPages();
-    const current = this.currentPage();
-    const delta = 2;
-    const range: number[] = [];
-    const rangeWithDots: number[] = [];
-
-    for (let i = Math.max(2, current - delta); i <= Math.min(total - 1, current + delta); i++) {
-      range.push(i);
-    }
-
-    if (current - delta > 2) {
-      rangeWithDots.push(1, -1);
+  // Sorting methods
+  onSort(column: string): void {
+    if (this.sortColumn() === column) {
+      this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
     } else {
-      rangeWithDots.push(1);
+      this.sortColumn.set(column);
+      this.sortDirection.set('asc');
     }
+    this.sortAttendances();
+  }
 
-    rangeWithDots.push(...range);
+  sortAttendances(): void {
+    const column = this.sortColumn();
+    const direction = this.sortDirection();
 
-    if (current + delta < total - 1) {
-      rangeWithDots.push(-1, total);
-    } else if (total > 1) {
-      rangeWithDots.push(total);
+    if (!column) return;
+
+    const sorted = [...this.attendances()].sort((a, b) => {
+      let aValue: any;
+      let bValue: any;
+
+      switch (column) {
+        case 'employee':
+          aValue = a.employee?.full_name?.toLowerCase() || '';
+          bValue = b.employee?.full_name?.toLowerCase() || '';
+          break;
+        case 'date':
+          aValue = a.clock_in_time || '';
+          bValue = b.clock_in_time || '';
+          break;
+        case 'type':
+          aValue = a.type?.toLowerCase() || '';
+          bValue = b.type?.toLowerCase() || '';
+          break;
+        case 'clockIn':
+          aValue = a.clock_in_time || '';
+          bValue = b.clock_in_time || '';
+          break;
+        case 'clockOut':
+          aValue = a.clock_out_time || '';
+          bValue = b.clock_out_time || '';
+          break;
+        case 'totalHours':
+          aValue = a.total_hours || 0;
+          bValue = b.total_hours || 0;
+          break;
+        case 'status':
+          aValue = this.getStatusText(a).toLowerCase();
+          bValue = this.getStatusText(b).toLowerCase();
+          break;
+        default:
+          return 0;
+      }
+
+      if (aValue < bValue) return direction === 'asc' ? -1 : 1;
+      if (aValue > bValue) return direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    this.attendances.set(sorted);
+  }
+
+  getSortIcon(column: string): 'chevrons-up-down' | 'chevron-up' | 'chevron-down' {
+    if (this.sortColumn() !== column) return 'chevrons-up-down';
+    return this.sortDirection() === 'asc' ? 'chevron-up' : 'chevron-down';
+  }
+
+  isSortActive(column: string): boolean {
+    return this.sortColumn() === column;
+  }
+
+  // Selection methods
+  toggleSelectAll(): void {
+    const newSelectAll = !this.selectAll();
+    this.selectAll.set(newSelectAll);
+
+    if (newSelectAll) {
+      const allIds = new Set(this.attendances().map(a => a.id));
+      this.selectedAttendances.set(allIds);
+    } else {
+      this.selectedAttendances.set(new Set());
     }
+  }
 
-    return rangeWithDots;
+  toggleAttendanceSelection(id: number): void {
+    const selected = new Set(this.selectedAttendances());
+    if (selected.has(id)) {
+      selected.delete(id);
+    } else {
+      selected.add(id);
+    }
+    this.selectedAttendances.set(selected);
+    this.selectAll.set(selected.size === this.attendances().length && this.attendances().length > 0);
+  }
+
+  isAttendanceSelected(id: number): boolean {
+    return this.selectedAttendances().has(id);
   }
 }

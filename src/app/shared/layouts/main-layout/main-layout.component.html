@@ -10,7 +10,7 @@
   >
     <nav class="flex h-full flex-col">
       <!-- Logo Section -->
-      <div [class]="'flex-shrink-0 border-b ' + (sidebarCollapsed() ? 'p-3' : 'p-4')">
+      <div [class]="'flex-shrink-0 border-b ' + (sidebarCollapsed() ? 'p-3' : 'p-3')">
         <a routerLink="/dashboard" class="flex items-center justify-center">
           @if (sidebarCollapsed()) {
             <img src="assets/images/Nexura_Logo.png" alt="Nexura" class="h-8 w-auto" />
@@ -21,7 +21,7 @@
       </div>
 
       <!-- Scrollable Menu Section -->
-      <div [class]="'scrollbar-custom flex-1 flex flex-col overflow-y-auto overflow-x-hidden' + (sidebarCollapsed() ? 'gap-1 p-1 pt-4' : 'gap-4 p-4')">
+      <div [class]="'scrollbar-custom flex-1 flex flex-col overflow-y-auto overflow-x-hidden' + (sidebarCollapsed() ? 'gap-1 p-1 pt-4' : 'gap-4 py-4 pl-4 pr-3')">
         <!-- Dashboards Group -->
         <z-sidebar-group>
           @if (!sidebarCollapsed()) {
@@ -33,11 +33,12 @@
               routerLinkActive="bg-primary/10 text-primary font-semibold"
               z-button
               zType="ghost"
-              [class]="sidebarCollapsed() ? 'justify-center !w-full !flex' : 'justify-start'"
+              class="px-2 py-0"
+              [class]="sidebarCollapsed() ? 'justify-center self-center !flex' : 'justify-start'"
               [zTooltip]="sidebarCollapsed() ? item.title : ''"
               zPosition="right"
             >
-              <z-icon [zType]="item.icon" [class]="sidebarCollapsed() ? '' : 'mr-2'" />
+              <z-icon [zType]="item.icon" [class]="sidebarCollapsed() ? '' : 'mr-1'" />
               @if (!sidebarCollapsed()) {
                 <span>{{ item.title }}</span>
               }
@@ -50,21 +51,64 @@
           @if (!sidebarCollapsed()) {
             <z-sidebar-group-label>HR Management</z-sidebar-group-label>
           }
-          @for (item of menuGroups[1].items; track item.route) {
-            <a
-              [routerLink]="item.route"
-              routerLinkActive="bg-primary/10 text-primary font-semibold"
-              z-button
-              zType="ghost"
-              [class]="sidebarCollapsed() ? 'justify-center !w-full !flex' : 'justify-start'"
-              [zTooltip]="sidebarCollapsed() ? item.title : ''"
-              zPosition="right"
-            >
-              <z-icon [zType]="item.icon" [class]="sidebarCollapsed() ? '' : 'mr-2'" />
-              @if (!sidebarCollapsed()) {
-                <span>{{ item.title }}</span>
+          @for (item of menuGroups[1].items; track item.title) {
+            @if (item.children && item.children.length > 0) {
+              <!-- Parent item with children -->
+              <button
+                type="button"
+                z-button
+                zType="ghost"
+                class="px-2 py-1"
+                [class]="sidebarCollapsed() ? 'justify-center self-center !flex' : 'justify-start'"
+                [zTooltip]="sidebarCollapsed() ? item.title : ''"
+                zPosition="right"
+                (click)="toggleMenuItem(item.title)"
+              >
+                <z-icon [zType]="item.icon" [class]="sidebarCollapsed() ? '' : 'mr-1'" />
+                @if (!sidebarCollapsed()) {
+                  <span class="flex-1 text-left">{{ item.title }}</span>
+                  <z-icon
+                    [zType]="isMenuItemExpanded(item.title) ? 'chevron-up' : 'chevron-down'"
+                    class="ml-auto w-4 h-4"
+                  />
+                }
+              </button>
+
+              <!-- Children items -->
+              @if (isMenuItemExpanded(item.title) && !sidebarCollapsed()) {
+                <div class="ml-4 space-y-1 border-l-1 px-2.5">
+                  @for (child of item.children; track child.route) {
+                    <a
+                      [routerLink]="child.route"
+                      routerLinkActive="bg-primary/10 text-primary font-semibold"
+                      z-button
+                      zType="ghost"
+                      class="justify-start w-full pl-2 px-2 py-0"
+                    >
+                      <z-icon [zType]="child.icon" class="mr-1 w-4 h-4" />
+                      <span>{{ child.title }}</span>
+                    </a>
+                  }
+                </div>
               }
-            </a>
+            } @else {
+              <!-- Regular item without children -->
+              <a
+                [routerLink]="item.route"
+                routerLinkActive="bg-primary/10 text-primary font-semibold"
+                z-button
+                zType="ghost"
+                class="px-2 py-1"
+                [class]="sidebarCollapsed() ? 'justify-center self-center !flex' : 'justify-start'"
+                [zTooltip]="sidebarCollapsed() ? item.title : ''"
+                zPosition="right"
+              >
+                <z-icon [zType]="item.icon" [class]="sidebarCollapsed() ? '' : 'mr-1'" />
+                @if (!sidebarCollapsed()) {
+                  <span>{{ item.title }}</span>
+                }
+              </a>
+            }
           }
         </z-sidebar-group>
 
@@ -79,6 +123,7 @@
               routerLinkActive="bg-primary/10 text-primary font-semibold"
               z-button
               zType="ghost"
+              class="px-2 py-1"
               [class]="sidebarCollapsed() ? 'justify-center !w-full !flex' : 'justify-start'"
               [zTooltip]="sidebarCollapsed() ? item.title : ''"
               zPosition="right"

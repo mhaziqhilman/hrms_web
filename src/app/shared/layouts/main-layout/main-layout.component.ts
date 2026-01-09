@@ -39,6 +39,7 @@ import { ZardBreadcrumbModule } from '@/shared/components/breadcrumb/breadcrumb.
 export class MainLayoutComponent implements OnInit {
   sidebarCollapsed = signal(false);
   currentUser: User | null = null;
+  expandedMenuItems = new Set<string>();
 
   menuGroups: SidebarMenuGroup[] = [
     {
@@ -82,7 +83,18 @@ export class MainLayoutComponent implements OnInit {
         {
           title: 'Attendance',
           icon: 'clock',
-          route: '/attendance'
+          children: [
+            {
+              title: 'WFH',
+              icon: 'house',
+              route: '/attendance/wfh'
+            },
+            {
+              title: 'Office',
+              icon: 'monitor',
+              route: '/attendance/office'
+            }
+          ]
         },
         {
           title: 'Claims',
@@ -138,6 +150,18 @@ export class MainLayoutComponent implements OnInit {
 
   toggleTheme() {
     this.themeService.toggleTheme();
+  }
+
+  toggleMenuItem(title: string) {
+    if (this.expandedMenuItems.has(title)) {
+      this.expandedMenuItems.delete(title);
+    } else {
+      this.expandedMenuItems.add(title);
+    }
+  }
+
+  isMenuItemExpanded(title: string): boolean {
+    return this.expandedMenuItems.has(title);
   }
 
   logout() {
