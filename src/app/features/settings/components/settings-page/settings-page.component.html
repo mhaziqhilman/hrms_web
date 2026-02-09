@@ -432,7 +432,7 @@
                       <p class="text-sm font-medium">Sidebar Collapsed</p>
                       <p class="text-sm text-muted-foreground">Start with a collapsed sidebar by default</p>
                     </div>
-                    <z-checkbox [(ngModel)]="sidebarCollapsed">
+                    <z-checkbox [(ngModel)]="sidebarCollapsed" (ngModelChange)="onSidebarCollapsedChange()">
                     </z-checkbox>
                   </div>
                   <z-divider />
@@ -441,7 +441,7 @@
                       <p class="text-sm font-medium">Compact Mode</p>
                       <p class="text-sm text-muted-foreground">Reduce spacing for a more compact layout</p>
                     </div>
-                    <z-checkbox [(ngModel)]="compactMode">
+                    <z-checkbox [(ngModel)]="compactMode" (ngModelChange)="onCompactModeChange()">
                     </z-checkbox>
                   </div>
                 </div>

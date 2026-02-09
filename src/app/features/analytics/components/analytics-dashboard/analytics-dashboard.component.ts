@@ -2,6 +2,7 @@ import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
+import { Chart } from 'chart.js';
 import { AnalyticsService } from '../../services/analytics.service';
 import {
   PayrollCostAnalytics,
@@ -20,6 +21,7 @@ import { ZardIcon } from '@/shared/components/icon/icons';
 import { ZardSelectComponent } from '@/shared/components/select/select.component';
 import { ZardSelectItemComponent } from '@/shared/components/select/select-item.component';
 import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-dialog.service';
+import { ZardTabComponent, ZardTabGroupComponent } from '@/shared/components/tabs/tabs.component';
 
 // Chart Components
 import { PayrollCostChartComponent } from '../payroll-cost-chart/payroll-cost-chart.component';
@@ -40,6 +42,8 @@ type TabType = 'payroll' | 'leave' | 'attendance' | 'claims';
     ZardIconComponent,
     ZardSelectComponent,
     ZardSelectItemComponent,
+    ZardTabComponent,
+    ZardTabGroupComponent,
     PayrollCostChartComponent,
     LeaveUtilizationChartComponent,
     AttendanceAnalyticsChartComponent,
@@ -53,6 +57,10 @@ type TabType = 'payroll' | 'leave' | 'attendance' | 'claims';
 export class AnalyticsDashboardComponent implements OnInit {
   private analyticsService = inject(AnalyticsService);
   private alertDialogService = inject(ZardAlertDialogService);
+
+  constructor() {
+    Chart.defaults.font.family = "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif";
+  }
 
   // State
   loading = signal(false);
@@ -90,6 +98,11 @@ export class AnalyticsDashboardComponent implements OnInit {
   setActiveTab(tab: TabType): void {
     this.activeTab.set(tab);
     this.loadData();
+  }
+
+  onTabChange(event: { index: number; label: string }): void {
+    const tabMap: TabType[] = ['payroll', 'leave', 'attendance', 'claims'];
+    this.setActiveTab(tabMap[event.index]);
   }
 
   onYearChange(year: number): void {

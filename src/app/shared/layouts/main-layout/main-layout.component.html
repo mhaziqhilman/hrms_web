@@ -89,7 +89,7 @@
           @for (item of menuGroups[2].items; track item.route) {
           <a [routerLink]="item.route" routerLinkActive="bg-primary/10 text-primary font-semibold" z-button
             zType="ghost" class="px-2 py-1"
-            [class]="sidebarCollapsed() ? 'justify-center !w-full !flex' : 'justify-start'"
+            [class]="sidebarCollapsed() ? 'justify-center self-center !flex' : 'justify-start'"
             [zTooltip]="sidebarCollapsed() ? item.title : ''" zPosition="right">
             <z-icon [zType]="item.icon" [class]="sidebarCollapsed() ? '' : 'mr-2'" />
             @if (!sidebarCollapsed()) {
@@ -135,7 +135,7 @@
           <!-- Regular item without children -->
           <a [routerLink]="item.route" routerLinkActive="bg-primary/10 text-primary font-semibold" z-button
             zType="ghost" class="px-2 py-1"
-            [class]="sidebarCollapsed() ? 'justify-center !w-full !flex' : 'justify-start'"
+            [class]="sidebarCollapsed() ? 'justify-center self-center !flex' : 'justify-start'"
             [zTooltip]="sidebarCollapsed() ? item.title : ''" zPosition="right">
             <z-icon [zType]="item.icon" [class]="sidebarCollapsed() ? '' : 'mr-2'" />
             @if (!sidebarCollapsed()) {
@@ -190,14 +190,35 @@
   <z-content class="!p-0 flex flex-col !overflow-hidden">
     <!-- Fixed Header -->
     <header class="flex-shrink-0 border-b bg-background">
-      <div class="flex w-full h-full items-center gap-1 px-4 lg:gap-4">
-        <!-- Left: Sidebar Toggle -->
-        <a type="button" z-button zType="ghost" zSize="sm" (click)="toggleSidebar()">
-          <z-icon zType="panel-left" />
-        </a>
-        <z-divider zOrientation="vertical" class="h-6 mx-0" />
+      <div class="relative flex w-full h-full items-center px-4 lg:gap-4 justify-between">
+        <!-- Left: Sidebar Toggle & Breadcrumb -->
+        <div class="flex items-center gap-2 lg:gap-4 z-10">
+          <a type="button" z-button zType="ghost" zSize="sm" (click)="toggleSidebar()">
+            <z-icon zType="panel-left" />
+          </a>
+          <z-divider zOrientation="vertical" class="h-6 mx-0 hidden md:block" />
+
+          <!-- Breadcrumb -->
+          <div class="hidden md:block">
+            <z-breadcrumb>
+              <z-breadcrumb-item>
+                <a routerLink="/dashboard">Home</a>
+              </z-breadcrumb-item>
+              @for (crumb of breadcrumbs(); track crumb.url) {
+              <z-breadcrumb-item>
+                @if ($last) {
+                {{ crumb.label }}
+                } @else {
+                <a [routerLink]="crumb.url">{{ crumb.label }}</a>
+                }
+              </z-breadcrumb-item>
+              }
+            </z-breadcrumb>
+          </div>
+        </div>
+
         <!-- Center: Search Bar -->
-        <div class="lg:flex-1 max-w-sm">
+        <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm hidden md:block">
           <div class="relative items-center">
             <z-icon zType="search"
               class="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />

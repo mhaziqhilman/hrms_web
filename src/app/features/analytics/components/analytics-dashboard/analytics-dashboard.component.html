@@ -45,40 +45,18 @@
   </div>
 
   <!-- Tabs -->
-  <div class="border-b">
-    <nav class="flex gap-4">
-      @for (tab of tabs; track tab.id) {
-        <button
-          (click)="setActiveTab(tab.id)"
-          class="flex items-center gap-2 px-4 py-2 border-b-2 transition-colors"
-          [class.border-primary]="activeTab() === tab.id"
-          [class.text-primary]="activeTab() === tab.id"
-          [class.border-transparent]="activeTab() !== tab.id"
-          [class.text-muted-foreground]="activeTab() !== tab.id"
-          [class.hover:text-foreground]="activeTab() !== tab.id">
-          <z-icon [zType]="tab.icon" class="w-4 h-4" />
-          {{ tab.label }}
-        </button>
-      }
-    </nav>
-  </div>
-
-  <!-- Loading State -->
-  @if (loading()) {
-    <div class="flex items-center justify-center h-96">
-      <div class="flex flex-col items-center gap-4">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        <p class="text-muted-foreground">Loading analytics data...</p>
-      </div>
-    </div>
-  }
-
-  <!-- Content -->
-  @if (!loading()) {
-    <!-- Summary Cards -->
-    @switch (activeTab()) {
-      @case ('payroll') {
-        @if (payrollData()) {
+  <z-tab-group (zTabChange)="onTabChange($event)" [zShowArrow]="false">
+    <!-- Payroll Cost Tab -->
+    <z-tab label="Payroll Cost">
+      <div class="pt-6">
+        @if (loading() && activeTab() === 'payroll') {
+          <div class="flex items-center justify-center h-96">
+            <div class="flex flex-col items-center gap-4">
+              <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+              <p class="text-muted-foreground">Loading analytics data...</p>
+            </div>
+          </div>
+        } @else if (payrollData()) {
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <z-card class="p-4">
               <div class="flex items-center gap-3">
@@ -126,11 +104,27 @@
             </z-card>
           </div>
           <app-payroll-cost-chart [data]="payrollData()" />
+        } @else {
+          <div class="flex flex-col items-center justify-center h-96 text-muted-foreground">
+            <z-icon zType="bar-chart" class="w-16 h-16 mb-4" />
+            <p class="text-lg">No analytics data available</p>
+            <p class="text-sm">Select a different year or check back later</p>
+          </div>
         }
-      }
+      </div>
+    </z-tab>
 
-      @case ('leave') {
-        @if (leaveData()) {
+    <!-- Leave Utilization Tab -->
+    <z-tab label="Leave Utilization">
+      <div class="pt-6">
+        @if (loading() && activeTab() === 'leave') {
+          <div class="flex items-center justify-center h-96">
+            <div class="flex flex-col items-center gap-4">
+              <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+              <p class="text-muted-foreground">Loading analytics data...</p>
+            </div>
+          </div>
+        } @else if (leaveData()) {
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <z-card class="p-4">
               <div class="flex items-center gap-3">
@@ -178,11 +172,27 @@
             </z-card>
           </div>
           <app-leave-utilization-chart [data]="leaveData()" />
+        } @else {
+          <div class="flex flex-col items-center justify-center h-96 text-muted-foreground">
+            <z-icon zType="bar-chart" class="w-16 h-16 mb-4" />
+            <p class="text-lg">No analytics data available</p>
+            <p class="text-sm">Select a different year or check back later</p>
+          </div>
         }
-      }
+      </div>
+    </z-tab>
 
-      @case ('attendance') {
-        @if (attendanceData()) {
+    <!-- Attendance Tab -->
+    <z-tab label="Attendance">
+      <div class="pt-6">
+        @if (loading() && activeTab() === 'attendance') {
+          <div class="flex items-center justify-center h-96">
+            <div class="flex flex-col items-center gap-4">
+              <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+              <p class="text-muted-foreground">Loading analytics data...</p>
+            </div>
+          </div>
+        } @else if (attendanceData()) {
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <z-card class="p-4">
               <div class="flex items-center gap-3">
@@ -230,11 +240,27 @@
             </z-card>
           </div>
           <app-attendance-analytics-chart [data]="attendanceData()" />
+        } @else {
+          <div class="flex flex-col items-center justify-center h-96 text-muted-foreground">
+            <z-icon zType="bar-chart" class="w-16 h-16 mb-4" />
+            <p class="text-lg">No analytics data available</p>
+            <p class="text-sm">Select a different year or check back later</p>
+          </div>
         }
-      }
+      </div>
+    </z-tab>
 
-      @case ('claims') {
-        @if (claimsData()) {
+    <!-- Claims Spending Tab -->
+    <z-tab label="Claims Spending">
+      <div class="pt-6">
+        @if (loading() && activeTab() === 'claims') {
+          <div class="flex items-center justify-center h-96">
+            <div class="flex flex-col items-center gap-4">
+              <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+              <p class="text-muted-foreground">Loading analytics data...</p>
+            </div>
+          </div>
+        } @else if (claimsData()) {
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <z-card class="p-4">
               <div class="flex items-center gap-3">
@@ -282,20 +308,14 @@
             </z-card>
           </div>
           <app-claims-spending-chart [data]="claimsData()" />
+        } @else {
+          <div class="flex flex-col items-center justify-center h-96 text-muted-foreground">
+            <z-icon zType="bar-chart" class="w-16 h-16 mb-4" />
+            <p class="text-lg">No analytics data available</p>
+            <p class="text-sm">Select a different year or check back later</p>
+          </div>
         }
-      }
-    }
-
-    <!-- No Data State -->
-    @if (!payrollData() && activeTab() === 'payroll' ||
-         !leaveData() && activeTab() === 'leave' ||
-         !attendanceData() && activeTab() === 'attendance' ||
-         !claimsData() && activeTab() === 'claims') {
-      <div class="flex flex-col items-center justify-center h-96 text-muted-foreground">
-        <z-icon zType="bar-chart" class="w-16 h-16 mb-4" />
-        <p class="text-lg">No analytics data available</p>
-        <p class="text-sm">Select a different year or check back later</p>
       </div>
-    }
-  }
+    </z-tab>
+  </z-tab-group>
 </div>

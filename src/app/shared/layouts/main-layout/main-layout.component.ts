@@ -38,10 +38,14 @@ import { ZardBreadcrumbModule } from '@/shared/components/breadcrumb/breadcrumb.
   styleUrls: ['./main-layout.component.css']
 })
 export class MainLayoutComponent implements OnInit {
-  sidebarCollapsed = signal(false);
   currentUser: User | null = null;
   expandedMenuItems = new Set<string>();
   breadcrumbs = signal<{ label: string; url: string }[]>([]);
+
+  // Sidebar collapse state driven by ThemeService
+  get sidebarCollapsed() {
+    return this.themeService.sidebarCollapsed;
+  }
 
   menuGroups: SidebarMenuGroup[] = [
     {
@@ -175,6 +179,9 @@ export class MainLayoutComponent implements OnInit {
       .subscribe(() => {
         this.breadcrumbs.set(this.createBreadcrumbs(this.activatedRoute.root));
       });
+
+    // Initialize breadcrumbs immediately
+    this.breadcrumbs.set(this.createBreadcrumbs(this.activatedRoute.root));
   }
 
   ngOnInit(): void {
@@ -185,11 +192,11 @@ export class MainLayoutComponent implements OnInit {
   }
 
   toggleSidebar() {
-    this.sidebarCollapsed.update(value => !value);
+    this.themeService.setSidebarCollapsed(!this.sidebarCollapsed());
   }
 
   onSidebarCollapsedChange(collapsed: boolean) {
-    this.sidebarCollapsed.set(collapsed);
+    this.themeService.setSidebarCollapsed(collapsed);
   }
 
   getUserInitials(): string {
@@ -251,27 +258,22 @@ export class MainLayoutComponent implements OnInit {
     }
 
     for (const child of children) {
+      if (!child.snapshot || !child.snapshot.url) {
+        continue;
+      }
       const routeURL: string = child.snapshot.url
         .map((segment) => segment.path)
         .join('/');
+
       if (routeURL !== '') {
         url += `/${routeURL}`;
-      }
-
-      let label = 'Home';
-      if (routeURL) {
-        // Try to find label in menu items
-        label = this.findLabelByUrl(url) || this.formatLabel(routeURL);
-      }
-      
-      // Only push if not already there (simple check) and not root if empty
-      if (label && url) {
-          breadcrumbs.push({ label, url });
+        const label = this.findLabelByUrl(url) || this.formatLabel(routeURL);
+        breadcrumbs.push({ label, url });
       }
 
       return this.createBreadcrumbs(child, url, breadcrumbs);
     }
-    
+
     return breadcrumbs;
   }
 
@@ -282,7 +284,7 @@ export class MainLayoutComponent implements OnInit {
         if (item.route === url) return item.title;
         if (item.children) {
           for (const child of item.children) {
-             if (child.route === url) return child.title;
+            if (child.route === url) return child.title;
           }
         }
       }

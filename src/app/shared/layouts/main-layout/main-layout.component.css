@@ -12,6 +12,10 @@
   scrollbar-color: #64748b3d #f5f8fca6;
 }
 
+:host-context(.dark) .scrollbar-custom {
+  scrollbar-color: #8294ad70 #0b1723;
+}
+
 header {
   height: var(--header-height);
 }

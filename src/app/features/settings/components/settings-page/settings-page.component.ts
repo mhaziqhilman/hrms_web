@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SettingsService } from '../../services/settings.service';
 import { PersonalService } from '@/features/personal/services/personal.service';
+import { ThemeService, ThemePreference } from '@/core/services/theme';
 import { MyPayslip, YTDSummary } from '@/features/personal/models/personal.model';
 import {
   UserSettings,
@@ -53,6 +54,7 @@ interface PasswordStrength {
 export class SettingsPageComponent implements OnInit {
   private settingsService = inject(SettingsService);
   private personalService = inject(PersonalService);
+  private themeService = inject(ThemeService);
   private alertDialogService = inject(ZardAlertDialogService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -194,10 +196,13 @@ export class SettingsPageComponent implements OnInit {
         if (response.success) {
           const s = response.data;
           this.settings.set(s);
-          // Populate appearance form
+          // Populate appearance form and apply via ThemeService
           this.selectedTheme = s.theme;
           this.sidebarCollapsed = s.sidebar_collapsed;
           this.compactMode = s.compact_mode;
+          this.themeService.setTheme(s.theme);
+          this.themeService.setCompactMode(s.compact_mode);
+          this.themeService.setSidebarCollapsed(s.sidebar_collapsed);
           // Populate display form
           this.selectedLanguage = s.language;
           this.selectedTimezone = s.timezone;
@@ -232,8 +237,17 @@ export class SettingsPageComponent implements OnInit {
 
   // --- Appearance ---
 
-  setTheme(theme: 'light' | 'dark' | 'system'): void {
+  setTheme(theme: ThemePreference): void {
     this.selectedTheme = theme;
+    this.themeService.setTheme(theme);
+  }
+
+  onCompactModeChange(): void {
+    this.themeService.setCompactMode(this.compactMode);
+  }
+
+  onSidebarCollapsedChange(): void {
+    this.themeService.setSidebarCollapsed(this.sidebarCollapsed);
   }
 
   saveAppearance(): void {
@@ -243,6 +257,12 @@ export class SettingsPageComponent implements OnInit {
       sidebar_collapsed: this.sidebarCollapsed,
       compact_mode: this.compactMode
     };
+
+    // Apply all settings immediately
+    this.themeService.setTheme(this.selectedTheme);
+    this.themeService.setCompactMode(this.compactMode);
+    this.themeService.setSidebarCollapsed(this.sidebarCollapsed);
+
     this.settingsService.updateAppearance(data).subscribe({
       next: (response) => {
         if (response.success) {
