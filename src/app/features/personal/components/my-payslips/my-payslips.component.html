@@ -1,0 +1,155 @@
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-foreground">My Payslips</h1>
+      <p class="text-muted-foreground">View and download your payslips</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="text-sm text-muted-foreground">Year:</span>
+      <z-select
+        [zValue]="selectedYear()"
+        (zValueChange)="onYearChange($event)"
+        class="w-32">
+        @for (year of years; track year) {
+          <z-select-item [zValue]="year">{{ year }}</z-select-item>
+        }
+      </z-select>
+    </div>
+  </div>
+
+  <!-- YTD Summary Cards -->
+  @if (ytdSummary()) {
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <z-card class="p-4">
+        <div class="flex items-center gap-3">
+          <div class="p-2 rounded-lg bg-blue-100 dark:bg-blue-900">
+            <z-icon zType="wallet" class="h-5 w-5 text-blue-600 dark:text-blue-400" />
+          </div>
+          <div>
+            <p class="text-sm text-muted-foreground">YTD Gross</p>
+            <p class="text-lg font-semibold">{{ formatCurrency(ytdSummary()?.total_gross ?? 0) }}</p>
+          </div>
+        </div>
+      </z-card>
+
+      <z-card class="p-4">
+        <div class="flex items-center gap-3">
+          <div class="p-2 rounded-lg bg-green-100 dark:bg-green-900">
+            <z-icon zType="banknote" class="h-5 w-5 text-green-600 dark:text-green-400" />
+          </div>
+          <div>
+            <p class="text-sm text-muted-foreground">YTD Net</p>
+            <p class="text-lg font-semibold">{{ formatCurrency(ytdSummary()?.total_net ?? 0) }}</p>
+          </div>
+        </div>
+      </z-card>
+
+      <z-card class="p-4">
+        <div class="flex items-center gap-3">
+          <div class="p-2 rounded-lg bg-purple-100 dark:bg-purple-900">
+            <z-icon zType="landmark" class="h-5 w-5 text-purple-600 dark:text-purple-400" />
+          </div>
+          <div>
+            <p class="text-sm text-muted-foreground">YTD EPF</p>
+            <p class="text-lg font-semibold">{{ formatCurrency(ytdSummary()?.total_epf ?? 0) }}</p>
+          </div>
+        </div>
+      </z-card>
+
+      <z-card class="p-4">
+        <div class="flex items-center gap-3">
+          <div class="p-2 rounded-lg bg-orange-100 dark:bg-orange-900">
+            <z-icon zType="receipt-text" class="h-5 w-5 text-orange-600 dark:text-orange-400" />
+          </div>
+          <div>
+            <p class="text-sm text-muted-foreground">YTD Tax (PCB)</p>
+            <p class="text-lg font-semibold">{{ formatCurrency(ytdSummary()?.total_pcb ?? 0) }}</p>
+          </div>
+        </div>
+      </z-card>
+    </div>
+  }
+
+  <!-- Payslips Grid -->
+  @if (loading()) {
+    <div class="flex items-center justify-center py-12">
+      <z-icon zType="loader-2" class="h-8 w-8 animate-spin text-primary" />
+    </div>
+  } @else if (payslips().length > 0) {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      @for (payslip of payslips(); track payslip.id) {
+        <z-card class="hover:shadow-md transition-shadow">
+          <div zCardHeader class="pb-2">
+            <div class="flex items-center justify-between">
+              <h3 zCardTitle>{{ getMonthName(payslip.month) }} {{ payslip.year }}</h3>
+              <span
+                class="px-2 py-1 text-xs font-medium rounded-full capitalize"
+                [ngClass]="getStatusBadgeClass(payslip.status)">
+                {{ payslip.status }}
+              </span>
+            </div>
+          </div>
+          <div zCardContent class="space-y-3">
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-muted-foreground">Gross Salary</span>
+              <span class="font-medium">{{ formatCurrency(payslip.gross_salary) }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-muted-foreground">Total Deductions</span>
+              <span class="font-medium text-red-600">-{{ formatCurrency(payslip.total_deductions) }}</span>
+            </div>
+            <hr class="border-border">
+            <div class="flex justify-between items-center">
+              <span class="text-sm font-medium">Net Salary</span>
+              <span class="font-semibold text-green-600">{{ formatCurrency(payslip.net_salary) }}</span>
+            </div>
+          </div>
+          <div zCardFooter class="pt-0">
+            <button z-button zType="outline"
+              class="w-full"
+              [disabled]="downloading() === payslip.id"
+              (click)="downloadPayslip(payslip)">
+              @if (downloading() === payslip.id) {
+                <z-icon zType="loader-2" class="mr-2 h-4 w-4 animate-spin" />
+                Downloading...
+              } @else {
+                <z-icon zType="download" class="mr-2 h-4 w-4" />
+                Download PDF
+              }
+            </button>
+          </div>
+        </z-card>
+      }
+    </div>
+
+    <!-- Pagination -->
+    @if (totalPages() > 1) {
+      <div class="flex items-center justify-between border-t pt-4">
+        <p class="text-sm text-muted-foreground">
+          Showing {{ (currentPage() - 1) * pageSize + 1 }} to {{ getShowingTo() }} of {{ totalRecords() }} payslips
+        </p>
+        <div class="flex items-center gap-2">
+          <button z-button zType="outline" zSize="sm"
+            [disabled]="currentPage() === 1"
+            (click)="goToPage(currentPage() - 1)">
+            <z-icon zType="chevron-left" class="h-4 w-4" />
+          </button>
+          <span class="text-sm">Page {{ currentPage() }} of {{ totalPages() }}</span>
+          <button z-button zType="outline" zSize="sm"
+            [disabled]="currentPage() === totalPages()"
+            (click)="goToPage(currentPage() + 1)">
+            <z-icon zType="chevron-right" class="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+    }
+  } @else {
+    <z-card>
+      <div zCardContent class="py-12 text-center">
+        <z-icon zType="file-x" class="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+        <p class="text-muted-foreground">No payslips found for {{ selectedYear() }}</p>
+      </div>
+    </z-card>
+  }
+</div>

@@ -19,6 +19,7 @@ import { ZardFormLabelComponent } from '@/shared/components/form/form-label.comp
 import { ZardMenuImports } from '@/shared/components/menu/menu.imports';
 import { ZardTabGroupComponent, ZardTabComponent } from '@/shared/components/tabs/tabs.component';
 import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-dialog.service';
+import { ZardCheckboxComponent } from '@/shared/components/checkbox/checkbox.component';
 
 @Component({
   selector: 'app-payroll-list',
@@ -39,7 +40,8 @@ import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-d
     ZardFormLabelComponent,
     ZardMenuImports,
     ZardTabGroupComponent,
-    ZardTabComponent
+    ZardTabComponent,
+    ZardCheckboxComponent
   ],
   templateUrl: './payroll-list.component.html',
   styleUrl: './payroll-list.component.css'
@@ -53,7 +55,7 @@ export class PayrollListComponent implements OnInit {
 
   // Selection
   selectedPayrolls = signal<Set<number>>(new Set());
-  selectAll = signal(false);
+  selectAll = false;  // Changed from signal to regular property for ngModel compatibility
 
   // Pagination
   currentPage = signal(1);
@@ -455,16 +457,14 @@ export class PayrollListComponent implements OnInit {
 
   // Checkbox selection methods
   toggleSelectAll(): void {
-    const newSelectAll = !this.selectAll();
-    this.selectAll.set(newSelectAll);
-
-    if (newSelectAll) {
+    if (this.selectAll) {
       // Select all payrolls on current page
       const newSelected = new Set(this.payrolls().map(p => p.id));
       this.selectedPayrolls.set(newSelected);
     } else {
       // Deselect all
       this.selectedPayrolls.set(new Set());
+      this.selectAll = false;
     }
   }
 
@@ -480,7 +480,7 @@ export class PayrollListComponent implements OnInit {
     this.selectedPayrolls.set(selected);
 
     // Update select all checkbox state
-    this.selectAll.set(selected.size === this.payrolls().length && this.payrolls().length > 0);
+    this.selectAll = selected.size === this.payrolls().length && this.payrolls().length > 0;
   }
 
   isPayrollSelected(payrollId: number): boolean {
@@ -493,7 +493,7 @@ export class PayrollListComponent implements OnInit {
 
   clearSelection(): void {
     this.selectedPayrolls.set(new Set());
-    this.selectAll.set(false);
+    this.selectAll = false;
   }
 
   bulkApprove(): void {

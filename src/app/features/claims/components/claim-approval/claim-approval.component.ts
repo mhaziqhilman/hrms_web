@@ -6,13 +6,14 @@ import { ClaimService } from '../../services/claim.service';
 import { Claim, ClaimQueryParams } from '../../models/claim.model';
 
 // ZardUI Components
-import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { ZardIconComponent } from '@/shared/components/icon/icon.component';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component';
 import { ZardMenuImports } from '@/shared/components/menu/menu.imports';
 import { ZardDialogService } from '@/shared/components/dialog/dialog.service';
+import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-dialog.service';
+import { ZardCheckboxComponent } from '@/shared/components/checkbox/checkbox.component';
 
 // Dialog Components
 import { ApprovalConfirmationDialogComponent } from './dialogs/approval-confirmation-dialog.component';
@@ -26,18 +27,19 @@ import { PaymentDialogComponent } from './dialogs/payment-dialog.component';
     CommonModule,
     FormsModule,
     RouterLink,
-    ZardCardComponent,
     ZardButtonComponent,
     ZardIconComponent,
     ZardBadgeComponent,
     ZardAvatarComponent,
-    ZardMenuImports
+    ZardMenuImports,
+    ZardCheckboxComponent
   ],
   templateUrl: './claim-approval.component.html',
   styleUrl: './claim-approval.component.css'
 })
 export class ClaimApprovalComponent implements OnInit {
   private dialogService = inject(ZardDialogService);
+  private alertDialogService = inject(ZardAlertDialogService);
   private viewContainerRef = inject(ViewContainerRef);
 
   claims = signal<Claim[]>([]);
@@ -53,8 +55,28 @@ export class ClaimApprovalComponent implements OnInit {
   limit = 10;
 
   // Filters
+  activeTab = signal<string>('All');
+  statusCounts = signal<{ [key: string]: number }>({
+    'All': 0,
+    'Pending': 0,
+    'Manager_Approved': 0,
+    'Finance_Approved': 0,
+    'Paid': 0,
+    'Rejected': 0
+  });
+
+  searchQuery = signal<string>('');
   selectedStatus = signal<'Pending' | 'Manager_Approved' | 'Finance_Approved' | 'Rejected' | 'Paid' | ''>('');
   selectedClaimType = signal<number | null>(null);
+
+  // Sorting
+  sortColumn = signal<string>('');
+  sortDirection = signal<'asc' | 'desc'>('asc');
+
+  // Selection
+  selectedItems = signal<Set<number>>(new Set());
+  selectAll = signal<boolean>(false);
+
 
   // User role (mock for now - should come from auth service)
   userRole = signal<'Manager' | 'Finance' | 'Admin'>('Manager'); // TODO: Get from auth service
@@ -63,7 +85,7 @@ export class ClaimApprovalComponent implements OnInit {
   // Expose Math to template
   Math = Math;
 
-  constructor(private claimService: ClaimService) {}
+  constructor(private claimService: ClaimService) { }
 
   ngOnInit(): void {
     this.loadClaims();
@@ -107,6 +129,9 @@ export class ClaimApprovalComponent implements OnInit {
           this.totalPages.set(response.pagination.totalPages);
           this.totalRecords.set(response.pagination.total);
           this.currentPage.set(response.pagination.page);
+
+          this.calculateStatusCounts(); // Recalculate counts
+          this.sortClaims(); // Apply sorting if active
         }
         this.loading.set(false);
       },
@@ -117,6 +142,184 @@ export class ClaimApprovalComponent implements OnInit {
       }
     });
   }
+
+  // Tab & Status Logic
+  onTabChange(tab: { index: number, label: string }): void {
+    const label = tab.label;
+    this.activeTab.set(label);
+
+    // Map tab label to status
+    if (label === 'All Requests' || label === 'All') {
+      this.selectedStatus.set('');
+    } else if (label === 'Pending') {
+      this.selectedStatus.set('Pending');
+    } else if (label === 'To Approve' || label === 'Manager Approved') {
+      this.selectedStatus.set('Manager_Approved');
+    } else if (label === 'Finance Approved') {
+      this.selectedStatus.set('Finance_Approved');
+    } else if (label === 'Paid') {
+      this.selectedStatus.set('Paid');
+    } else if (label === 'Rejected') {
+      this.selectedStatus.set('Rejected');
+    }
+
+    this.currentPage.set(1);
+    this.loadClaims();
+  }
+
+  calculateStatusCounts(): void {
+    // Note: In a real app, this should probably come from a separate API call 
+    // to get counts for all statuses regardless of current filters
+    // For now, we'll just init with 0 or map if the API provided it
+    /* 
+    const counts = { ...this.statusCounts() };
+    counts['All'] = this.totalRecords();
+    this.statusCounts.set(counts);
+    */
+  }
+
+  // Sorting Logic
+  onSort(column: string): void {
+    if (this.sortColumn() === column) {
+      this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
+    } else {
+      this.sortColumn.set(column);
+      this.sortDirection.set('asc');
+    }
+    this.sortClaims();
+  }
+
+  sortClaims(): void {
+    const column = this.sortColumn();
+    const direction = this.sortDirection();
+
+    if (!column) return;
+
+    const sorted = [...this.claims()].sort((a, b) => {
+      let aValue: any;
+      let bValue: any;
+
+      switch (column) {
+        case 'employee':
+          aValue = a.employee?.full_name?.toLowerCase() || '';
+          bValue = b.employee?.full_name?.toLowerCase() || '';
+          break;
+        case 'type':
+          aValue = a.claimType?.name?.toLowerCase() || '';
+          bValue = b.claimType?.name?.toLowerCase() || '';
+          break;
+        case 'date':
+          aValue = new Date(a.date).getTime();
+          bValue = new Date(b.date).getTime();
+          break;
+        case 'amount':
+          aValue = typeof a.amount === 'string' ? parseFloat(a.amount) : a.amount;
+          bValue = typeof b.amount === 'string' ? parseFloat(b.amount) : b.amount;
+          break;
+        case 'status':
+          aValue = a.status?.toLowerCase() || '';
+          bValue = b.status?.toLowerCase() || '';
+          break;
+        default:
+          return 0;
+      }
+
+      if (aValue < bValue) return direction === 'asc' ? -1 : 1;
+      if (aValue > bValue) return direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    this.claims.set(sorted);
+  }
+
+  getSortIcon(column: string): 'chevrons-up-down' | 'chevron-up' | 'chevron-down' {
+    if (this.sortColumn() !== column) return 'chevrons-up-down';
+    return this.sortDirection() === 'asc' ? 'chevron-up' : 'chevron-down';
+  }
+
+  isSortActive(column: string): boolean {
+    return this.sortColumn() === column;
+  }
+
+  // Selection Logic
+  toggleSelectAll(): void {
+    const allSelected = this.selectAll();
+    const newSelection = new Set<number>();
+
+    if (allSelected) {
+      this.claims().forEach(claim => newSelection.add(claim.id));
+    }
+
+    this.selectedItems.set(newSelection);
+  }
+
+  toggleClaimSelection(claimId: number): void {
+    const currentSelection = new Set(this.selectedItems()); // Create a copy
+    if (currentSelection.has(claimId)) {
+      currentSelection.delete(claimId);
+    } else {
+      currentSelection.add(claimId);
+    }
+    this.selectedItems.set(currentSelection);
+
+    // Update selectAll state
+    this.selectAll.set(
+      this.claims().length > 0 &&
+      currentSelection.size === this.claims().length
+    );
+  }
+
+  isClaimSelected(claimId: number): boolean {
+    return this.selectedItems().has(claimId);
+  }
+
+  getSelectedCount(): number {
+    return this.selectedItems().size;
+  }
+
+  clearSelection(): void {
+    this.selectedItems.set(new Set());
+    this.selectAll.set(false);
+  }
+
+  bulkApprove(): void {
+    const selectedIds = Array.from(this.selectedItems());
+    if (selectedIds.length === 0) return;
+
+    this.alertDialogService.confirm({
+      zTitle: 'Bulk Approve',
+      zDescription: `Are you sure you want to approve ${selectedIds.length} claims?`,
+      zOkText: 'Approve All',
+      zCancelText: 'Cancel',
+      zOnOk: () => {
+        // Implement bulk approval API call here
+        // For now, we'll just simulate it or process one by one
+        // ideally backend should support batch operations
+        this.clearSelection();
+        this.success.set(`${selectedIds.length} claims approved successfully`);
+        setTimeout(() => this.success.set(null), 3000);
+      }
+    });
+  }
+
+  bulkReject(): void {
+    const selectedIds = Array.from(this.selectedItems());
+    if (selectedIds.length === 0) return;
+
+    this.alertDialogService.confirm({
+      zTitle: 'Bulk Reject',
+      zDescription: `Are you sure you want to reject ${selectedIds.length} claims?`,
+      zOkText: 'Reject All',
+      zCancelText: 'Cancel',
+      zOkDestructive: true,
+      zOnOk: () => {
+        this.clearSelection();
+        this.success.set(`${selectedIds.length} claims rejected`);
+        setTimeout(() => this.success.set(null), 3000);
+      }
+    });
+  }
+
 
   onFilterChange(): void {
     this.currentPage.set(1);

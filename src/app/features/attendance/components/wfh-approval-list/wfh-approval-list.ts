@@ -1,14 +1,37 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AttendanceService } from '../../services/attendance.service';
 import { WFHApplication } from '../../models/attendance.model';
 
+// ZardUI Components
+import { ZardCardComponent } from '@/shared/components/card/card.component';
+import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { ZardIconComponent } from '@/shared/components/icon/icon.component';
+import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
+import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component';
+import { ZardMenuImports } from '@/shared/components/menu/menu.imports';
+import { ZardTableImports } from '@/shared/components/table/table.imports';
+import { ZardTooltipModule } from '@/shared/components/tooltip/tooltip';
+import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-dialog.service';
+
 @Component({
   selector: 'app-wfh-approval-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    ZardCardComponent,
+    ZardButtonComponent,
+    ZardIconComponent,
+    ZardBadgeComponent,
+    ZardAvatarComponent,
+    ZardMenuImports,
+    ZardTableImports,
+    ZardTooltipModule
+  ],
   templateUrl: './wfh-approval-list.html',
   styleUrl: './wfh-approval-list.css'
 })
@@ -37,6 +60,8 @@ export class WfhApprovalListComponent implements OnInit {
   selectedApplicationId = signal<number | null>(null);
   rejectionReason = signal<string>('');
 
+  private alertDialogService = inject(ZardAlertDialogService);
+
   constructor(private attendanceService: AttendanceService) {}
 
   ngOnInit(): void {
@@ -51,7 +76,6 @@ export class WfhApprovalListComponent implements OnInit {
       status: this.selectedStatus() || undefined,
       page: this.currentPage(),
       limit: this.limit,
-      // For manager view, we want all pending applications they can approve
       manager_view: true
     };
 
@@ -98,6 +122,10 @@ export class WfhApprovalListComponent implements OnInit {
     });
   }
 
+  getStatusDisplayName(): string {
+    return this.selectedStatus() || 'All Status';
+  }
+
   onFilterChange(): void {
     this.currentPage.set(1);
     this.loadWFHApplications();
@@ -116,21 +144,25 @@ export class WfhApprovalListComponent implements OnInit {
   }
 
   approveApplication(id: number): void {
-    if (!confirm('Are you sure you want to approve this WFH application?')) {
-      return;
-    }
-
-    this.attendanceService.approveRejectWFH(id, 'approve').subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.success.set('WFH application approved successfully');
-          this.loadWFHApplications();
-          setTimeout(() => this.success.set(null), 3000);
-        }
-      },
-      error: (err) => {
-        this.error.set(err.error?.message || 'Failed to approve WFH application');
-        setTimeout(() => this.error.set(null), 5000);
+    this.alertDialogService.confirm({
+      zTitle: 'Approve WFH Application',
+      zDescription: 'Are you sure you want to approve this WFH application? This action cannot be undone.',
+      zOkText: 'Approve',
+      zCancelText: 'Cancel',
+      zOnOk: () => {
+        this.attendanceService.approveRejectWFH(id, 'approve').subscribe({
+          next: (response) => {
+            if (response.success) {
+              this.success.set('WFH application approved successfully');
+              this.loadWFHApplications();
+              setTimeout(() => this.success.set(null), 3000);
+            }
+          },
+          error: (err) => {
+            this.error.set(err.error?.message || 'Failed to approve WFH application');
+            setTimeout(() => this.error.set(null), 5000);
+          }
+        });
       }
     });
   }
@@ -174,19 +206,6 @@ export class WfhApprovalListComponent implements OnInit {
     });
   }
 
-  getStatusBadgeClass(status: string): string {
-    switch (status) {
-      case 'Pending':
-        return 'badge bg-warning text-dark';
-      case 'Approved':
-        return 'badge bg-success';
-      case 'Rejected':
-        return 'badge bg-danger';
-      default:
-        return 'badge bg-secondary';
-    }
-  }
-
   formatDate(dateString: string): string {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-MY', {
@@ -221,33 +240,9 @@ export class WfhApprovalListComponent implements OnInit {
     return application.status === 'Pending' && !this.isPastDate(application.date);
   }
 
-  getPageNumbers(): number[] {
-    const total = this.totalPages();
-    const current = this.currentPage();
-    const pages: number[] = [];
-
-    if (total <= 7) {
-      for (let i = 1; i <= total; i++) {
-        pages.push(i);
-      }
-    } else {
-      if (current <= 4) {
-        for (let i = 1; i <= 5; i++) pages.push(i);
-        pages.push(-1);
-        pages.push(total);
-      } else if (current >= total - 3) {
-        pages.push(1);
-        pages.push(-1);
-        for (let i = total - 4; i <= total; i++) pages.push(i);
-      } else {
-        pages.push(1);
-        pages.push(-1);
-        for (let i = current - 1; i <= current + 1; i++) pages.push(i);
-        pages.push(-1);
-        pages.push(total);
-      }
-    }
-
-    return pages;
+  getEmployeeInitial(application: WFHApplication): string {
+    return (application.employee?.full_name || 'U').charAt(0).toUpperCase();
   }
+
+  Math = Math;
 }

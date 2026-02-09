@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 
 // ZardUI Components
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
@@ -7,6 +8,8 @@ import { ZardIconComponent } from '@/shared/components/icon/icon.component';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { ZardDividerComponent } from '@/shared/components/divider/divider.component';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
+
+import { DashboardService, StaffDashboardData } from '../../services/dashboard.service';
 
 @Component({
   selector: 'app-staff-dashboard',
@@ -22,52 +25,30 @@ import { ZardCardComponent } from '@/shared/components/card/card.component';
   templateUrl: './staff-dashboard.component.html',
   styleUrls: ['./staff-dashboard.component.css']
 })
-export class StaffDashboardComponent implements OnInit {
+export class StaffDashboardComponent implements OnInit, OnDestroy {
+  private dashboardService = inject(DashboardService);
+  private router = inject(Router);
+  private timerInterval: any;
+
+  loading = signal(true);
+  error = signal<string | null>(null);
+
   currentTime = new Date();
   isClockedIn = false;
   clockInTime: Date | null = null;
   workingHours = '0h 00m';
 
-  // Leave Balance
-  leaveBalance = [
-    { type: 'Annual Leave', total: 14, used: 5, pending: 3, available: 6, color: 'primary' },
-    { type: 'Medical Leave', total: 14, used: 2, pending: 1, available: 11, color: 'success' },
-    { type: 'Emergency Leave', total: 5, used: 1, pending: 0, available: 4, color: 'warning' },
-    { type: 'Unpaid Leave', total: 0, used: 0, pending: 0, available: 0, color: 'danger' }
-  ];
-
-  // Attendance History
-  attendanceHistory = [
-    { date: '2025-12-01', clockIn: '08:45 AM', clockOut: '06:00 PM', hours: '9h 15m', status: 'On Time' },
-    { date: '2025-11-30', clockIn: '09:15 AM', clockOut: '06:30 PM', hours: '9h 15m', status: 'Late' },
-    { date: '2025-11-29', clockIn: '08:30 AM', clockOut: '05:45 PM', hours: '9h 15m', status: 'On Time' },
-    { date: '2025-11-28', clockIn: '08:50 AM', clockOut: '06:10 PM', hours: '9h 20m', status: 'On Time' },
-    { date: '2025-11-27', clockIn: '09:00 AM', clockOut: '06:00 PM', hours: '9h 00m', status: 'On Time' }
-  ];
-
-  // My Claims
-  myClaims = [
-    { type: 'Medical', amount: 150.00, date: '2025-11-25', description: 'Clinic visit', status: 'Approved', receipt: true },
-    { type: 'Travel', amount: 85.50, date: '2025-11-20', description: 'Client meeting - KL', status: 'Paid', receipt: true },
-    { type: 'Meal', amount: 45.00, date: '2025-11-18', description: 'Overtime dinner', status: 'Pending', receipt: true }
-  ];
-
-  // Recent Memos
-  recentMemos = [
-    { title: 'Public Holiday - Prophet Muhammad Birthday', date: '2025-11-28', urgent: true, read: false },
-    { title: 'Year-End Company Dinner 2025', date: '2025-11-25', urgent: false, read: false },
-    { title: 'Updated Leave Policy 2026', date: '2025-11-20', urgent: false, read: true }
-  ];
-
-  // Upcoming Leaves
-  upcomingLeaves = [
-    { type: 'Annual Leave', from: '2025-12-20', to: '2025-12-22', days: 3, status: 'Approved' },
-    { type: 'Medical Leave', from: '2025-12-05', to: '2025-12-05', days: 1, status: 'Pending' }
-  ];
+  leaveBalance: StaffDashboardData['leaveBalance'] = [];
+  attendanceHistory: StaffDashboardData['attendanceHistory'] = [];
+  myClaims: StaffDashboardData['myClaims'] = [];
+  recentMemos: StaffDashboardData['recentMemos'] = [];
+  upcomingLeaves: StaffDashboardData['upcomingLeaves'] = [];
 
   ngOnInit(): void {
+    this.loadDashboard();
+
     // Update time every second
-    setInterval(() => {
+    this.timerInterval = setInterval(() => {
       this.currentTime = new Date();
       if (this.isClockedIn && this.clockInTime) {
         const diff = this.currentTime.getTime() - this.clockInTime.getTime();
@@ -78,6 +59,43 @@ export class StaffDashboardComponent implements OnInit {
     }, 1000);
   }
 
+  ngOnDestroy(): void {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+    }
+  }
+
+  loadDashboard(): void {
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.dashboardService.getStaffDashboard().subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          const d = response.data;
+
+          // Set clock in/out status from today's attendance
+          if (d.todayAttendance) {
+            this.isClockedIn = d.todayAttendance.isClockedIn;
+            this.clockInTime = d.todayAttendance.clockInTime ? new Date(d.todayAttendance.clockInTime) : null;
+          }
+
+          this.leaveBalance = d.leaveBalance;
+          this.attendanceHistory = d.attendanceHistory;
+          this.myClaims = d.myClaims;
+          this.upcomingLeaves = d.upcomingLeaves;
+          this.recentMemos = d.recentMemos;
+        }
+        this.loading.set(false);
+      },
+      error: (err) => {
+        console.error('Failed to load staff dashboard:', err);
+        this.error.set('Failed to load dashboard data. Please try again.');
+        this.loading.set(false);
+      }
+    });
+  }
+
   clockIn(): void {
     this.isClockedIn = true;
     this.clockInTime = new Date();
@@ -85,7 +103,6 @@ export class StaffDashboardComponent implements OnInit {
 
   clockOut(): void {
     this.isClockedIn = false;
-    // Add to attendance history
     console.log('Clocked out at', new Date());
   }
 
@@ -94,10 +111,13 @@ export class StaffDashboardComponent implements OnInit {
       'On Time': 'badge-light-success',
       'Late': 'badge-light-warning',
       'Early Leave': 'badge-light-info',
+      'WFH': 'badge-light-info',
       'Pending': 'badge-light-warning',
       'Approved': 'badge-light-success',
       'Rejected': 'badge-light-danger',
-      'Paid': 'badge-light-primary'
+      'Paid': 'badge-light-primary',
+      'Manager_Approved': 'badge-light-info',
+      'Finance_Approved': 'badge-light-success'
     };
     return statusMap[status] || 'badge-light-secondary';
   }
@@ -109,5 +129,13 @@ export class StaffDashboardComponent implements OnInit {
 
   getUnreadMemosCount(): number {
     return this.recentMemos.filter(m => !m.read).length;
+  }
+
+  formatStatus(status: string): string {
+    return status.replace(/_/g, ' ');
+  }
+
+  navigateTo(route: string): void {
+    this.router.navigate([route]);
   }
 }

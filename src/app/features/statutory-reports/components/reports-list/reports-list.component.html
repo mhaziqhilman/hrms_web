@@ -1,0 +1,346 @@
+<div class="bg-background min-h-screen">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-foreground">Statutory Reports</h1>
+      <p class="text-muted-foreground">Generate Malaysian statutory compliance reports</p>
+    </div>
+    @if (selectedReportType()) {
+      <button z-button zType="outline" (click)="backToSelection()" class="gap-2">
+        <z-icon zType="arrow-left" class="w-4 h-4" />
+        Back to Reports
+      </button>
+    }
+  </div>
+
+  <!-- Error Message -->
+  @if (error()) {
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-2 text-red-800 mb-6">
+      <z-icon zType="triangle-alert" class="w-5 h-5" />
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  <!-- Report Type Selection -->
+  @if (!selectedReportType()) {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      @for (report of REPORT_TYPES; track report.id) {
+        <z-card
+          class="cursor-pointer hover:border-primary hover:shadow-md transition-all"
+          (click)="selectReportType(report.id)">
+          <div z-card-content class="p-6">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <z-icon [zType]="report.icon" class="w-5 h-5 text-primary" />
+              </div>
+              <z-badge [zType]="report.frequency === 'Annual' ? 'default' : 'secondary'">
+                {{ report.frequency }}
+              </z-badge>
+            </div>
+            <h3 class="font-semibold text-foreground">{{ report.name }}</h3>
+            <p class="text-sm text-muted-foreground mt-1">{{ report.description }}</p>
+          </div>
+        </z-card>
+      }
+    </div>
+  }
+
+  <!-- Report Generation Form -->
+  @if (selectedReportType()) {
+    <z-card class="mb-6">
+      <div z-card-content class="p-6">
+        <h2 class="text-lg font-semibold mb-4">
+          {{ getSelectedReportName() }}
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <!-- Year Selection -->
+          <div>
+            <label class="block text-sm font-medium text-foreground mb-2">Year</label>
+            <z-select
+              zPlaceholder="Select Year"
+              [zValue]="selectedYear()"
+              (zValueChange)="onYearSelect($event)">
+              @for (year of availableYears(); track year) {
+                <z-select-item [zValue]="year">{{ year }}</z-select-item>
+              }
+            </z-select>
+          </div>
+
+          <!-- Month Selection (for monthly reports) -->
+          @if (selectedReportType() !== 'ea') {
+            <div>
+              <label class="block text-sm font-medium text-foreground mb-2">Month</label>
+              <z-select
+                zPlaceholder="Select Month"
+                [zValue]="selectedMonth()"
+                (zValueChange)="onMonthSelect($event)"
+                [zDisabled]="!selectedYear()">
+                @for (month of getAvailableMonths(); track month) {
+                  <z-select-item [zValue]="month">{{ getMonthName(month) }}</z-select-item>
+                }
+              </z-select>
+            </div>
+          }
+
+          <!-- Employee Selection (for EA Form) -->
+          @if (selectedReportType() === 'ea') {
+            <div>
+              <label class="block text-sm font-medium text-foreground mb-2">Employee</label>
+              <z-select
+                zPlaceholder="Select Employee"
+                [zValue]="selectedEmployeeId()"
+                (zValueChange)="onEmployeeSelect($event)"
+                [zDisabled]="!selectedYear()">
+                @for (emp of eaEmployees(); track emp.id) {
+                  <z-select-item [zValue]="emp.id">
+                    {{ emp.full_name }} ({{ emp.employee_id }})
+                  </z-select-item>
+                }
+              </z-select>
+            </div>
+          }
+        </div>
+
+        <!-- Generate Button -->
+        <div class="flex gap-2">
+          <button
+            z-button
+            (click)="generateReport()"
+            [disabled]="!canGenerateReport() || loading()"
+            class="gap-2">
+            @if (loading()) {
+              <z-icon zType="loader-circle" class="w-4 h-4 animate-spin" />
+              Generating...
+            } @else {
+              <z-icon zType="file-search" class="w-4 h-4" />
+              Preview Report
+            }
+          </button>
+        </div>
+      </div>
+    </z-card>
+  }
+
+  <!-- Report Preview -->
+  @if (showPreview() && reportData()) {
+    <z-card>
+      <div z-card-content class="p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-lg font-semibold">Report Preview</h3>
+          <div class="flex gap-2">
+            <button z-button (click)="downloadPDF()" [disabled]="loading()" class="gap-2">
+              <z-icon zType="download" class="w-4 h-4" />
+              Download PDF
+            </button>
+            @if (selectedReportType() !== 'ea') {
+              <button z-button zType="outline" (click)="downloadCSV()" [disabled]="loading()" class="gap-2">
+                <z-icon zType="file-spreadsheet" class="w-4 h-4" />
+                Download CSV
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- EA Form Preview -->
+        @if (selectedReportType() === 'ea') {
+          <div class="space-y-6">
+            <!-- Employee Info -->
+            <div class="grid grid-cols-2 gap-4 p-4 bg-muted/50 rounded-lg">
+              <div>
+                <p class="text-sm text-muted-foreground">Employee Name</p>
+                <p class="font-medium text-foreground">{{ reportData().employee.full_name }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-muted-foreground">IC No</p>
+                <p class="font-medium text-foreground">{{ reportData().employee.ic_no || '-' }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-muted-foreground">Tax No</p>
+                <p class="font-medium text-foreground">{{ reportData().employee.tax_no || '-' }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-muted-foreground">Position</p>
+                <p class="font-medium text-foreground">{{ reportData().employee.position || '-' }}</p>
+              </div>
+            </div>
+
+            <!-- Income Summary -->
+            <div>
+              <h4 class="font-medium mb-3">Income Summary</h4>
+              <table z-table class="w-full">
+                <tbody>
+                  <tr class="border-b">
+                    <td class="py-2 text-foreground">Salary</td>
+                    <td class="py-2 text-right text-foreground">{{ formatCurrency(reportData().income.salary) }}</td>
+                  </tr>
+                  <tr class="border-b">
+                    <td class="py-2 text-foreground">Allowances</td>
+                    <td class="py-2 text-right text-foreground">{{ formatCurrency(reportData().income.allowances) }}</td>
+                  </tr>
+                  <tr class="border-b">
+                    <td class="py-2 text-foreground">Bonus</td>
+                    <td class="py-2 text-right text-foreground">{{ formatCurrency(reportData().income.bonus) }}</td>
+                  </tr>
+                  <tr class="border-b">
+                    <td class="py-2 text-foreground">Commission</td>
+                    <td class="py-2 text-right text-foreground">{{ formatCurrency(reportData().income.commission) }}</td>
+                  </tr>
+                  <tr class="border-b">
+                    <td class="py-2 text-foreground">Overtime</td>
+                    <td class="py-2 text-right text-foreground">{{ formatCurrency(reportData().income.overtime) }}</td>
+                  </tr>
+                  <tr class="bg-muted/50 font-semibold">
+                    <td class="py-2 text-foreground">Gross Income</td>
+                    <td class="py-2 text-right text-foreground">{{ formatCurrency(reportData().income.gross_total) }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Deductions Summary -->
+            <div>
+              <h4 class="font-medium mb-3">Deductions</h4>
+              <table z-table class="w-full">
+                <tbody>
+                  <tr class="border-b">
+                    <td class="py-2 text-foreground">EPF (Employee)</td>
+                    <td class="py-2 text-right text-foreground">{{ formatCurrency(reportData().deductions.epf_employee) }}</td>
+                  </tr>
+                  <tr class="border-b">
+                    <td class="py-2 text-foreground">SOCSO (Employee)</td>
+                    <td class="py-2 text-right text-foreground">{{ formatCurrency(reportData().deductions.socso_employee) }}</td>
+                  </tr>
+                  <tr class="border-b">
+                    <td class="py-2 text-foreground">EIS (Employee)</td>
+                    <td class="py-2 text-right text-foreground">{{ formatCurrency(reportData().deductions.eis_employee) }}</td>
+                  </tr>
+                  <tr class="border-b">
+                    <td class="py-2 text-foreground">PCB / Tax</td>
+                    <td class="py-2 text-right text-foreground">{{ formatCurrency(reportData().deductions.pcb) }}</td>
+                  </tr>
+                  <tr class="bg-muted/50 font-semibold">
+                    <td class="py-2 text-foreground">Total Deductions</td>
+                    <td class="py-2 text-right text-foreground">{{ formatCurrency(reportData().deductions.total) }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Net Income -->
+            <div class="p-4 bg-primary/10 rounded-lg">
+              <div class="flex justify-between items-center">
+                <span class="font-semibold text-lg text-foreground">Net Income ({{ reportData().year }})</span>
+                <span class="font-bold text-xl text-primary">{{ formatCurrency(reportData().net_income) }}</span>
+              </div>
+              <p class="text-sm text-muted-foreground mt-1">Months worked: {{ reportData().months_worked }}</p>
+            </div>
+          </div>
+        }
+
+        <!-- EPF/SOCSO/PCB Table Preview -->
+        @if (selectedReportType() !== 'ea' && reportData()) {
+          <div class="space-y-4">
+            <div class="p-4 bg-muted/50 rounded-lg">
+              <p class="text-sm text-muted-foreground">Period</p>
+              <p class="font-medium text-foreground">{{ getMonthName(reportData().month) }} {{ reportData().year }}</p>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table z-table class="w-full text-sm">
+                <thead class="bg-muted/50">
+                  <tr>
+                    <th class="px-4 py-3 text-left">#</th>
+                    <th class="px-4 py-3 text-left">Employee Name</th>
+                    <th class="px-4 py-3 text-left">IC No</th>
+                    @if (selectedReportType() === 'epf') {
+                      <th class="px-4 py-3 text-left">EPF No</th>
+                      <th class="px-4 py-3 text-right">Wages</th>
+                      <th class="px-4 py-3 text-right">Employee</th>
+                      <th class="px-4 py-3 text-right">Employer</th>
+                      <th class="px-4 py-3 text-right">Total</th>
+                    }
+                    @if (selectedReportType() === 'socso') {
+                      <th class="px-4 py-3 text-left">SOCSO No</th>
+                      <th class="px-4 py-3 text-right">Wages</th>
+                      <th class="px-4 py-3 text-right">Employee</th>
+                      <th class="px-4 py-3 text-right">Employer</th>
+                      <th class="px-4 py-3 text-right">Total</th>
+                    }
+                    @if (selectedReportType() === 'pcb') {
+                      <th class="px-4 py-3 text-left">Tax No</th>
+                      <th class="px-4 py-3 text-right">Gross Salary</th>
+                      <th class="px-4 py-3 text-right">EPF</th>
+                      <th class="px-4 py-3 text-right">PCB</th>
+                    }
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (emp of reportData().employees; track emp.employee_id; let i = $index) {
+                    <tr class="border-b hover:bg-muted/20 transition-colors">
+                      <td class="px-4 py-3">{{ i + 1 }}</td>
+                      <td class="px-4 py-3">{{ emp.full_name }}</td>
+                      <td class="px-4 py-3">{{ emp.ic_no || '-' }}</td>
+                      @if (selectedReportType() === 'epf') {
+                        <td class="px-4 py-3">{{ emp.epf_no || '-' }}</td>
+                        <td class="px-4 py-3 text-right">{{ formatCurrency(emp.wages) }}</td>
+                        <td class="px-4 py-3 text-right">{{ formatCurrency(emp.employee_epf) }}</td>
+                        <td class="px-4 py-3 text-right">{{ formatCurrency(emp.employer_epf) }}</td>
+                        <td class="px-4 py-3 text-right font-medium">{{ formatCurrency(emp.total_epf) }}</td>
+                      }
+                      @if (selectedReportType() === 'socso') {
+                        <td class="px-4 py-3">{{ emp.socso_no || '-' }}</td>
+                        <td class="px-4 py-3 text-right">{{ formatCurrency(emp.wages) }}</td>
+                        <td class="px-4 py-3 text-right">{{ formatCurrency(emp.employee_socso) }}</td>
+                        <td class="px-4 py-3 text-right">{{ formatCurrency(emp.employer_socso) }}</td>
+                        <td class="px-4 py-3 text-right font-medium">{{ formatCurrency(emp.total_socso) }}</td>
+                      }
+                      @if (selectedReportType() === 'pcb') {
+                        <td class="px-4 py-3">{{ emp.tax_no || '-' }}</td>
+                        <td class="px-4 py-3 text-right">{{ formatCurrency(emp.gross_salary) }}</td>
+                        <td class="px-4 py-3 text-right">{{ formatCurrency(emp.epf_employee) }}</td>
+                        <td class="px-4 py-3 text-right font-medium">{{ formatCurrency(emp.pcb) }}</td>
+                      }
+                    </tr>
+                  }
+                </tbody>
+                <tfoot class="bg-muted/50 font-semibold">
+                  <tr>
+                    <td class="px-4 py-3" colspan="3">TOTAL</td>
+                    @if (selectedReportType() === 'epf') {
+                      <td class="px-4 py-3"></td>
+                      <td class="px-4 py-3 text-right">{{ formatCurrency(reportData().totals.wages) }}</td>
+                      <td class="px-4 py-3 text-right">{{ formatCurrency(reportData().totals.employee_epf) }}</td>
+                      <td class="px-4 py-3 text-right">{{ formatCurrency(reportData().totals.employer_epf) }}</td>
+                      <td class="px-4 py-3 text-right">{{ formatCurrency(reportData().totals.total_epf) }}</td>
+                    }
+                    @if (selectedReportType() === 'socso') {
+                      <td class="px-4 py-3"></td>
+                      <td class="px-4 py-3 text-right">{{ formatCurrency(reportData().totals.wages) }}</td>
+                      <td class="px-4 py-3 text-right">{{ formatCurrency(reportData().totals.employee_socso) }}</td>
+                      <td class="px-4 py-3 text-right">{{ formatCurrency(reportData().totals.employer_socso) }}</td>
+                      <td class="px-4 py-3 text-right">{{ formatCurrency(reportData().totals.total_socso) }}</td>
+                    }
+                    @if (selectedReportType() === 'pcb') {
+                      <td class="px-4 py-3"></td>
+                      <td class="px-4 py-3 text-right">{{ formatCurrency(reportData().totals.gross_salary) }}</td>
+                      <td class="px-4 py-3 text-right">{{ formatCurrency(reportData().totals.epf_employee) }}</td>
+                      <td class="px-4 py-3 text-right">{{ formatCurrency(reportData().totals.pcb) }}</td>
+                    }
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+
+            <div class="p-4 bg-primary/10 rounded-lg">
+              <div class="flex justify-between items-center">
+                <span class="font-semibold text-foreground">Total Employees</span>
+                <span class="font-bold text-lg text-foreground">{{ reportData().employee_count }}</span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </z-card>
+  }
+</div>

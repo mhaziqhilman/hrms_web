@@ -1,0 +1,33 @@
+/* Reports List Component Styles */
+:host {
+  display: block;
+}
+
+/* Card hover effect */
+[zardCard]:hover {
+  transform: translateY(-2px);
+}
+
+/* Table styles */
+table {
+  border-collapse: collapse;
+}
+
+table th,
+table td {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Loading spinner animation */
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

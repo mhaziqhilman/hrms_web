@@ -3,331 +3,392 @@
   <p class="text-muted-foreground">Manage your team's attendance, leave requests, and claims.</p>
 </div>
 
-<!-- Stats Cards -->
-<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
-  <!-- Team Members -->
-  <z-card>
-    <div class="p-6">
-      <div class="flex items-center">
-        <div class="flex items-center justify-center w-12 h-12 rounded-md bg-primary/10 mr-3">
-          <z-icon zType="users" class="text-primary text-xl" />
-        </div>
-        <div class="flex-grow">
-          <span class="text-muted-foreground font-semibold block text-sm">Team Members</span>
-          <span class="text-foreground font-bold block text-2xl">{{teamStats.totalMembers}}</span>
+<!-- Loading State -->
+@if (loading()) {
+  <div class="flex items-center justify-center py-20">
+    <div class="text-center">
+      <z-icon zType="loader-circle" class="text-primary text-4xl animate-spin mb-3" />
+      <p class="text-muted-foreground">Loading dashboard data...</p>
+    </div>
+  </div>
+}
+
+<!-- Error State -->
+@if (error()) {
+  <div class="mb-8">
+    <z-card>
+      <div class="p-6 text-center">
+        <z-icon zType="triangle-alert" class="text-red-500 text-4xl mb-3" />
+        <p class="text-red-600 font-semibold mb-3">{{ error() }}</p>
+        <button z-button zType="outline" (click)="loadDashboard()">
+          <z-icon zType="refresh-cw" class="mr-2" /> Retry
+        </button>
+      </div>
+    </z-card>
+  </div>
+}
+
+@if (!loading() && !error()) {
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+    <!-- Team Members -->
+    <z-card>
+      <div class="p-6">
+        <div class="flex items-center">
+          <div class="flex items-center justify-center w-12 h-12 rounded-md bg-primary/10 mr-3">
+            <z-icon zType="users" class="text-primary text-xl" />
+          </div>
+          <div class="flex-grow">
+            <span class="text-muted-foreground font-semibold block text-sm">Team Members</span>
+            <span class="text-foreground font-bold block text-2xl">{{teamStats.totalMembers}}</span>
+          </div>
         </div>
       </div>
-    </div>
-  </z-card>
+    </z-card>
 
-  <!-- Present Today -->
-  <z-card>
-    <div class="p-6">
-      <div class="flex items-center">
-        <div class="flex items-center justify-center w-12 h-12 rounded-md bg-green-500/10 mr-3">
-          <z-icon zType="circle-check" class="text-green-600 text-xl" />
-        </div>
-        <div class="flex-grow">
-          <span class="text-muted-foreground font-semibold block text-sm">Present Today</span>
-          <span class="text-foreground font-bold block text-2xl">{{teamStats.presentToday}}</span>
+    <!-- Present Today -->
+    <z-card>
+      <div class="p-6">
+        <div class="flex items-center">
+          <div class="flex items-center justify-center w-12 h-12 rounded-md bg-green-500/10 mr-3">
+            <z-icon zType="circle-check" class="text-green-600 text-xl" />
+          </div>
+          <div class="flex-grow">
+            <span class="text-muted-foreground font-semibold block text-sm">Present Today</span>
+            <span class="text-foreground font-bold block text-2xl">{{teamStats.presentToday}}</span>
+          </div>
         </div>
       </div>
-    </div>
-  </z-card>
+    </z-card>
 
-  <!-- Pending Leave Approvals -->
-  <z-card>
-    <div class="p-6">
-      <div class="flex items-center">
-        <div class="flex items-center justify-center w-12 h-12 rounded-md bg-yellow-500/10 mr-3">
-          <z-icon zType="calendar" class="text-yellow-600 text-xl" />
-        </div>
-        <div class="flex-grow">
-          <span class="text-muted-foreground font-semibold block text-sm">Leave Requests</span>
-          <span class="text-foreground font-bold block text-2xl">{{pendingApprovals.leaves}}</span>
+    <!-- Pending Leave Approvals -->
+    <z-card>
+      <div class="p-6">
+        <div class="flex items-center">
+          <div class="flex items-center justify-center w-12 h-12 rounded-md bg-yellow-500/10 mr-3">
+            <z-icon zType="calendar" class="text-yellow-600 text-xl" />
+          </div>
+          <div class="flex-grow">
+            <span class="text-muted-foreground font-semibold block text-sm">Leave Requests</span>
+            <span class="text-foreground font-bold block text-2xl">{{pendingApprovals.leaves}}</span>
+          </div>
         </div>
       </div>
-    </div>
-  </z-card>
+    </z-card>
 
-  <!-- Pending Claims -->
-  <z-card>
-    <div class="p-6">
-      <div class="flex items-center">
-        <div class="flex items-center justify-center w-12 h-12 rounded-md bg-blue-500/10 mr-3">
-          <z-icon zType="file-text" class="text-blue-600 text-xl" />
+    <!-- Pending Claims -->
+    <z-card>
+      <div class="p-6">
+        <div class="flex items-center">
+          <div class="flex items-center justify-center w-12 h-12 rounded-md bg-blue-500/10 mr-3">
+            <z-icon zType="file-text" class="text-blue-600 text-xl" />
+          </div>
+          <div class="flex-grow">
+            <span class="text-muted-foreground font-semibold block text-sm">Claims Pending</span>
+            <span class="text-foreground font-bold block text-2xl">{{pendingApprovals.claims}}</span>
+          </div>
         </div>
-        <div class="flex-grow">
-          <span class="text-muted-foreground font-semibold block text-sm">Claims Pending</span>
-          <span class="text-foreground font-bold block text-2xl">{{pendingApprovals.claims}}</span>
-        </div>
-      </div>
-    </div>
-  </z-card>
-</div>
-
-<!-- Team Attendance & Team Overview -->
-<div class="grid grid-cols-1 xl:grid-cols-12 gap-6 mb-8">
-  <!-- Team Attendance -->
-  <div class="xl:col-span-7">
-    <z-card
-      [zTitle]="'Team Attendance Today'"
-      [zDescription]="'Real-time attendance tracking'"
-      [zHeaderBorder]="true"
-      [zAction]="'Export'"
-      class="h-full">
-      <div class="overflow-x-auto">
-        <table class="w-full">
-          <thead>
-            <tr class="border-b">
-              <th class="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Employee</th>
-              <th class="text-left py-3 px-2 text-sm font-semibold text-muted-foreground">Status</th>
-              <th class="text-left py-3 px-2 text-sm font-semibold text-muted-foreground">Clock In</th>
-              <th class="text-left py-3 px-2 text-sm font-semibold text-muted-foreground">Clock Out</th>
-              <th class="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Hours</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (member of teamAttendance; track member.name) {
-              <tr class="border-b last:border-0">
-                <td class="py-3 px-4">
-                  <div class="flex items-center">
-                    <z-avatar
-                      [zFallback]="member.name.charAt(0)"
-                      class="mr-3 w-9 h-9 text-xs" />
-                    <div>
-                      <span class="text-foreground font-semibold block text-sm">{{member.name}}</span>
-                      @if (member.late) {
-                        <z-badge zType="destructive" class="text-xs mt-1">Late</z-badge>
-                      }
-                    </div>
-                  </div>
-                </td>
-                <td class="py-3 px-2">
-                  <z-badge
-                    [zType]="member.status === 'Present' ? 'default' : member.status === 'WFH' ? 'secondary' : 'outline'">
-                    {{member.status}}
-                  </z-badge>
-                </td>
-                <td class="py-3 px-2">
-                  <span class="text-foreground font-semibold text-sm">{{member.clockIn}}</span>
-                </td>
-                <td class="py-3 px-2">
-                  <span class="text-muted-foreground text-sm">{{member.clockOut}}</span>
-                </td>
-                <td class="py-3 px-4">
-                  <span class="text-foreground font-semibold text-sm">{{member.hours}}</span>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
       </div>
     </z-card>
   </div>
 
-  <!-- Quick Stats -->
-  <div class="xl:col-span-5">
-    <z-card
-      [zTitle]="'Team Overview'"
-      [zDescription]="'Current status'"
-      [zHeaderBorder]="true"
-      class="h-full">
-      <div class="space-y-6">
-        <!-- Present -->
-        <div class="flex items-center">
-          <div class="flex items-center justify-center w-12 h-12 rounded-md bg-green-500/10 mr-4">
-            <z-icon zType="user" class="text-green-600" />
+  <!-- Team Attendance & Team Overview -->
+  <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 mb-8">
+    <!-- Team Attendance -->
+    <div class="xl:col-span-7">
+      <z-card
+        [zTitle]="'Team Attendance Today'"
+        [zDescription]="'Real-time attendance tracking'"
+        [zHeaderBorder]="true"
+        class="h-full">
+        @if (teamAttendance.length > 0) {
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="border-b">
+                  <th class="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Employee</th>
+                  <th class="text-left py-3 px-2 text-sm font-semibold text-muted-foreground">Status</th>
+                  <th class="text-left py-3 px-2 text-sm font-semibold text-muted-foreground">Clock In</th>
+                  <th class="text-left py-3 px-2 text-sm font-semibold text-muted-foreground">Clock Out</th>
+                  <th class="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Hours</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (member of teamAttendance; track member.name) {
+                  <tr class="border-b last:border-0">
+                    <td class="py-3 px-4">
+                      <div class="flex items-center">
+                        <z-avatar
+                          [zFallback]="member.name.charAt(0)"
+                          class="mr-3 w-9 h-9 text-xs" />
+                        <div>
+                          <span class="text-foreground font-semibold block text-sm">{{member.name}}</span>
+                          @if (member.late) {
+                            <z-badge zType="destructive" class="text-xs mt-1">Late</z-badge>
+                          }
+                        </div>
+                      </div>
+                    </td>
+                    <td class="py-3 px-2">
+                      <z-badge
+                        [zType]="member.status === 'Present' ? 'default' : member.status === 'WFH' ? 'secondary' : 'outline'">
+                        {{member.status}}
+                      </z-badge>
+                    </td>
+                    <td class="py-3 px-2">
+                      <span class="text-foreground font-semibold text-sm">{{member.clockIn}}</span>
+                    </td>
+                    <td class="py-3 px-2">
+                      <span class="text-muted-foreground text-sm">{{member.clockOut}}</span>
+                    </td>
+                    <td class="py-3 px-4">
+                      <span class="text-foreground font-semibold text-sm">{{member.hours}}</span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
           </div>
-          <div class="flex-grow">
-            <span class="text-muted-foreground font-semibold block text-base">Present (Office)</span>
-            <span class="text-muted-foreground text-xs">Working from office</span>
+        }
+        @if (teamAttendance.length === 0) {
+          <div class="text-center py-8">
+            <z-icon zType="users" class="text-muted-foreground text-4xl mb-3" />
+            <p class="text-muted-foreground text-sm">No team attendance records for today</p>
           </div>
-          <span class="text-green-600 font-bold text-3xl">{{teamStats.presentToday - teamStats.wfhToday}}</span>
-        </div>
+        }
+      </z-card>
+    </div>
 
-        <!-- WFH -->
-        <div class="flex items-center">
-          <div class="flex items-center justify-center w-12 h-12 rounded-md bg-blue-500/10 mr-4">
-            <z-icon zType="house" class="text-blue-600" />
+    <!-- Quick Stats -->
+    <div class="xl:col-span-5">
+      <z-card
+        [zTitle]="'Team Overview'"
+        [zDescription]="'Current status'"
+        [zHeaderBorder]="true"
+        class="h-full">
+        <div class="space-y-6">
+          <!-- Present -->
+          <div class="flex items-center">
+            <div class="flex items-center justify-center w-12 h-12 rounded-md bg-green-500/10 mr-4">
+              <z-icon zType="user" class="text-green-600" />
+            </div>
+            <div class="flex-grow">
+              <span class="text-muted-foreground font-semibold block text-base">Present (Office)</span>
+              <span class="text-muted-foreground text-xs">Working from office</span>
+            </div>
+            <span class="text-green-600 font-bold text-3xl">{{teamStats.presentToday - teamStats.wfhToday}}</span>
           </div>
-          <div class="flex-grow">
-            <span class="text-muted-foreground font-semibold block text-base">Work From Home</span>
-            <span class="text-muted-foreground text-xs">Remote working</span>
-          </div>
-          <span class="text-blue-600 font-bold text-3xl">{{teamStats.wfhToday}}</span>
-        </div>
 
-        <!-- On Leave -->
-        <div class="flex items-center">
-          <div class="flex items-center justify-center w-12 h-12 rounded-md bg-yellow-500/10 mr-4">
-            <z-icon zType="calendar" class="text-yellow-600" />
+          <!-- WFH -->
+          <div class="flex items-center">
+            <div class="flex items-center justify-center w-12 h-12 rounded-md bg-blue-500/10 mr-4">
+              <z-icon zType="house" class="text-blue-600" />
+            </div>
+            <div class="flex-grow">
+              <span class="text-muted-foreground font-semibold block text-base">Work From Home</span>
+              <span class="text-muted-foreground text-xs">Remote working</span>
+            </div>
+            <span class="text-blue-600 font-bold text-3xl">{{teamStats.wfhToday}}</span>
           </div>
-          <div class="flex-grow">
-            <span class="text-muted-foreground font-semibold block text-base">On Leave</span>
-            <span class="text-muted-foreground text-xs">Approved leaves</span>
-          </div>
-          <span class="text-yellow-600 font-bold text-3xl">{{teamStats.onLeave}}</span>
-        </div>
 
-        <!-- WFH Requests -->
-        <div class="flex items-center">
-          <div class="flex items-center justify-center w-12 h-12 rounded-md bg-primary/10 mr-4">
-            <z-icon zType="clock" class="text-primary" />
+          <!-- On Leave -->
+          <div class="flex items-center">
+            <div class="flex items-center justify-center w-12 h-12 rounded-md bg-yellow-500/10 mr-4">
+              <z-icon zType="calendar" class="text-yellow-600" />
+            </div>
+            <div class="flex-grow">
+              <span class="text-muted-foreground font-semibold block text-base">On Leave</span>
+              <span class="text-muted-foreground text-xs">Approved leaves</span>
+            </div>
+            <span class="text-yellow-600 font-bold text-3xl">{{teamStats.onLeave}}</span>
           </div>
-          <div class="flex-grow">
-            <span class="text-muted-foreground font-semibold block text-base">WFH Requests</span>
-            <span class="text-muted-foreground text-xs">Pending approval</span>
+
+          <!-- WFH Requests -->
+          <div class="flex items-center">
+            <div class="flex items-center justify-center w-12 h-12 rounded-md bg-primary/10 mr-4">
+              <z-icon zType="clock" class="text-primary" />
+            </div>
+            <div class="flex-grow">
+              <span class="text-muted-foreground font-semibold block text-base">WFH Requests</span>
+              <span class="text-muted-foreground text-xs">Pending approval</span>
+            </div>
+            <span class="text-primary font-bold text-3xl">{{pendingApprovals.wfh}}</span>
           </div>
-          <span class="text-primary font-bold text-3xl">{{pendingApprovals.wfh}}</span>
         </div>
-      </div>
-    </z-card>
+      </z-card>
+    </div>
   </div>
-</div>
 
-<!-- Leave Approvals & Claims -->
-<div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
-  <!-- Leave Approvals -->
-  <z-card
-    [zTitle]="'Leave Approvals Pending'"
-    [zDescription]="'Requires your approval'"
-    [zHeaderBorder]="true">
-    <div class="space-y-4">
-      @for (leave of leavePendingApproval; track leave.employee; let last = $last) {
-        <div>
-          <div class="flex gap-4">
-            <div class="flex items-start flex-grow">
-              <z-avatar
-                [zFallback]="leave.employee.charAt(0)"
-                class="mr-4 w-10 h-10" />
-              <div class="flex-grow">
-                <a href="#" class="text-foreground font-semibold hover:text-primary text-sm block">
-                  {{leave.employee}}
-                </a>
-                <z-badge zType="secondary" class="text-xs mt-1">{{leave.type}}</z-badge>
-                <div class="text-muted-foreground text-xs mt-1">
-                  {{leave.from}} to {{leave.to}} ({{leave.days}} days)
-                </div>
-                <div class="text-muted-foreground text-xs flex items-center gap-1 mt-1">
-                  <z-icon zType="mail" class="w-3 h-3" />
-                  {{leave.reason}}
-                </div>
-              </div>
-            </div>
-            <div class="flex flex-col gap-2">
-              <button z-button zSize="sm" zType="outline" (click)="approveLeave(leave)">
-                <z-icon zType="check" class="mr-1" /> Approve
-              </button>
-              <button z-button zSize="sm" zType="destructive" (click)="rejectLeave(leave)">
-                <z-icon zType="x" class="mr-1" /> Reject
-              </button>
-            </div>
-          </div>
-          @if (!last) {
-            <z-divider class="my-4" />
-          }
-        </div>
-      }
-    </div>
-  </z-card>
-
-  <!-- Claims Approvals -->
-  <z-card
-    [zTitle]="'Claims Pending Approval'"
-    [zDescription]="'Team expense claims'"
-    [zHeaderBorder]="true">
-    <div class="space-y-4">
-      @for (claim of claimsPendingApproval; track claim.employee; let last = $last) {
-        <div>
-          <div class="flex gap-4">
-            <div class="flex items-start flex-grow">
-              <z-avatar
-                [zFallback]="claim.employee.charAt(0)"
-                class="mr-4 w-10 h-10" />
-              <div class="flex-grow">
-                <a href="#" class="text-foreground font-semibold hover:text-primary text-sm block">
-                  {{claim.employee}}
-                </a>
-                <z-badge class="text-xs mt-1">{{claim.type}}</z-badge>
-                <div class="text-muted-foreground text-xs mt-1 flex items-center gap-1">
-                  <z-icon zType="calendar" class="w-3 h-3" />
-                  {{claim.date}}
-                </div>
-                <div class="text-muted-foreground text-xs mt-1">
-                  {{claim.description}}
-                </div>
-              </div>
-            </div>
-            <div class="flex flex-col items-end gap-2">
-              <div class="text-foreground font-bold text-xl">RM {{claim.amount.toFixed(2)}}</div>
-              <button z-button zSize="sm" zType="outline" (click)="approveClaim(claim)">
-                <z-icon zType="check" class="mr-1" /> Approve
-              </button>
-              <button z-button zSize="sm" zType="destructive" (click)="rejectClaim(claim)">
-                <z-icon zType="x" class="mr-1" /> Reject
-              </button>
-            </div>
-          </div>
-          @if (!last) {
-            <z-divider class="my-4" />
-          }
-        </div>
-      }
-    </div>
-  </z-card>
-</div>
-
-<!-- WFH Requests -->
-<div class="mb-8">
-  <z-card
-    [zTitle]="'Work From Home Requests'"
-    [zDescription]="'Pending approval'"
-    [zHeaderBorder]="true"
-    [zAction]="'View All WFH Approvals'">
-    <div class="overflow-x-auto">
-      <table class="w-full">
-        <thead>
-          <tr class="border-b">
-            <th class="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Employee</th>
-            <th class="text-left py-3 px-2 text-sm font-semibold text-muted-foreground">Date</th>
-            <th class="text-left py-3 px-2 text-sm font-semibold text-muted-foreground">Reason</th>
-            <th class="text-left py-3 px-2 text-sm font-semibold text-muted-foreground">Status</th>
-            <th class="text-right py-3 px-4 text-sm font-semibold text-muted-foreground">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (wfh of wfhRequests; track wfh.employee) {
-            <tr class="border-b last:border-0">
-              <td class="py-3 px-4">
-                <div class="flex items-center">
+  <!-- Leave Approvals & Claims -->
+  <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
+    <!-- Leave Approvals -->
+    <z-card
+      [zTitle]="'Leave Approvals Pending'"
+      [zDescription]="'Requires your approval'"
+      [zHeaderBorder]="true">
+      @if (leavePendingApproval.length > 0) {
+        <div class="space-y-4">
+          @for (leave of leavePendingApproval; track leave.id; let last = $last) {
+            <div>
+              <div class="flex gap-4">
+                <div class="flex items-start flex-grow">
                   <z-avatar
-                    [zFallback]="wfh.employee.charAt(0)"
-                    class="mr-3 w-9 h-9 text-xs" />
-                  <span class="text-foreground font-semibold text-sm">{{wfh.employee}}</span>
+                    [zFallback]="leave.employee.charAt(0)"
+                    class="mr-4 w-10 h-10" />
+                  <div class="flex-grow">
+                    <a class="text-foreground font-semibold hover:text-primary text-sm block cursor-pointer" (click)="navigateTo('/leave')">
+                      {{leave.employee}}
+                    </a>
+                    <z-badge zType="secondary" class="text-xs mt-1">{{leave.type}}</z-badge>
+                    <div class="text-muted-foreground text-xs mt-1">
+                      {{leave.from}} to {{leave.to}} ({{leave.days}} days)
+                    </div>
+                    @if (leave.reason) {
+                      <div class="text-muted-foreground text-xs flex items-center gap-1 mt-1">
+                        <z-icon zType="mail" class="w-3 h-3" />
+                        {{leave.reason}}
+                      </div>
+                    }
+                  </div>
                 </div>
-              </td>
-              <td class="py-3 px-2 text-sm">{{wfh.date}}</td>
-              <td class="py-3 px-2">
-                <span class="text-muted-foreground text-sm">{{wfh.reason}}</span>
-              </td>
-              <td class="py-3 px-2">
-                <z-badge zType="secondary">{{wfh.status}}</z-badge>
-              </td>
-              <td class="py-3 px-4 text-right">
-                <div class="flex gap-2 justify-end">
-                  <button z-button zSize="sm" zType="outline">
+                <div class="flex flex-col gap-2">
+                  <button z-button zSize="sm" zType="outline" (click)="approveLeave(leave)">
                     <z-icon zType="check" class="mr-1" /> Approve
                   </button>
-                  <button z-button zSize="sm" zType="destructive">
+                  <button z-button zSize="sm" zType="destructive" (click)="rejectLeave(leave)">
                     <z-icon zType="x" class="mr-1" /> Reject
                   </button>
                 </div>
-              </td>
-            </tr>
+              </div>
+              @if (!last) {
+                <z-divider class="my-4" />
+              }
+            </div>
           }
-        </tbody>
-      </table>
-    </div>
-  </z-card>
-</div>
+        </div>
+      }
+      @if (leavePendingApproval.length === 0) {
+        <div class="text-center py-8">
+          <z-icon zType="circle-check" class="text-green-500 text-4xl mb-3" />
+          <p class="text-muted-foreground text-sm">No pending leave approvals</p>
+        </div>
+      }
+    </z-card>
+
+    <!-- Claims Approvals -->
+    <z-card
+      [zTitle]="'Claims Pending Approval'"
+      [zDescription]="'Team expense claims'"
+      [zHeaderBorder]="true">
+      @if (claimsPendingApproval.length > 0) {
+        <div class="space-y-4">
+          @for (claim of claimsPendingApproval; track claim.id; let last = $last) {
+            <div>
+              <div class="flex gap-4">
+                <div class="flex items-start flex-grow">
+                  <z-avatar
+                    [zFallback]="claim.employee.charAt(0)"
+                    class="mr-4 w-10 h-10" />
+                  <div class="flex-grow">
+                    <a class="text-foreground font-semibold hover:text-primary text-sm block cursor-pointer" (click)="navigateTo('/claims')">
+                      {{claim.employee}}
+                    </a>
+                    <z-badge class="text-xs mt-1">{{claim.type}}</z-badge>
+                    <div class="text-muted-foreground text-xs mt-1 flex items-center gap-1">
+                      <z-icon zType="calendar" class="w-3 h-3" />
+                      {{claim.date}}
+                    </div>
+                    @if (claim.description) {
+                      <div class="text-muted-foreground text-xs mt-1">
+                        {{claim.description}}
+                      </div>
+                    }
+                  </div>
+                </div>
+                <div class="flex flex-col items-end gap-2">
+                  <div class="text-foreground font-bold text-xl">RM {{claim.amount.toFixed(2)}}</div>
+                  <button z-button zSize="sm" zType="outline" (click)="approveClaim(claim)">
+                    <z-icon zType="check" class="mr-1" /> Approve
+                  </button>
+                  <button z-button zSize="sm" zType="destructive" (click)="rejectClaim(claim)">
+                    <z-icon zType="x" class="mr-1" /> Reject
+                  </button>
+                </div>
+              </div>
+              @if (!last) {
+                <z-divider class="my-4" />
+              }
+            </div>
+          }
+        </div>
+      }
+      @if (claimsPendingApproval.length === 0) {
+        <div class="text-center py-8">
+          <z-icon zType="circle-check" class="text-green-500 text-4xl mb-3" />
+          <p class="text-muted-foreground text-sm">No pending claim approvals</p>
+        </div>
+      }
+    </z-card>
+  </div>
+
+  <!-- WFH Requests -->
+  <div class="mb-8">
+    <z-card
+      [zTitle]="'Work From Home Requests'"
+      [zDescription]="'Pending approval'"
+      [zHeaderBorder]="true">
+      @if (wfhRequests.length > 0) {
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="border-b">
+                <th class="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Employee</th>
+                <th class="text-left py-3 px-2 text-sm font-semibold text-muted-foreground">Date</th>
+                <th class="text-left py-3 px-2 text-sm font-semibold text-muted-foreground">Reason</th>
+                <th class="text-left py-3 px-2 text-sm font-semibold text-muted-foreground">Status</th>
+                <th class="text-right py-3 px-4 text-sm font-semibold text-muted-foreground">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (wfh of wfhRequests; track wfh.id) {
+                <tr class="border-b last:border-0">
+                  <td class="py-3 px-4">
+                    <div class="flex items-center">
+                      <z-avatar
+                        [zFallback]="wfh.employee.charAt(0)"
+                        class="mr-3 w-9 h-9 text-xs" />
+                      <span class="text-foreground font-semibold text-sm">{{wfh.employee}}</span>
+                    </div>
+                  </td>
+                  <td class="py-3 px-2 text-sm">{{wfh.date}}</td>
+                  <td class="py-3 px-2">
+                    <span class="text-muted-foreground text-sm">{{wfh.reason}}</span>
+                  </td>
+                  <td class="py-3 px-2">
+                    <z-badge zType="secondary">{{wfh.status}}</z-badge>
+                  </td>
+                  <td class="py-3 px-4 text-right">
+                    <div class="flex gap-2 justify-end">
+                      <button z-button zSize="sm" zType="outline">
+                        <z-icon zType="check" class="mr-1" /> Approve
+                      </button>
+                      <button z-button zSize="sm" zType="destructive">
+                        <z-icon zType="x" class="mr-1" /> Reject
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+      @if (wfhRequests.length === 0) {
+        <div class="text-center py-8">
+          <z-icon zType="circle-check" class="text-green-500 text-4xl mb-3" />
+          <p class="text-muted-foreground text-sm">No pending WFH requests</p>
+        </div>
+      }
+    </z-card>
+  </div>
+}

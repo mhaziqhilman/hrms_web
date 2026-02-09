@@ -1,4 +1,4 @@
-<div class="p-6 bg-background min-h-screen">
+<div class="bg-background min-h-screen">
   <!-- Header -->
   <div class="flex items-center justify-between mb-8">
     <div>
@@ -25,50 +25,260 @@
     </div>
   }
 
-  <!-- Filters Section -->
-  <div class="flex items-center gap-3 mb-6">
-    <!-- Status Filter -->
-    <div z-menu [zMenuTriggerFor]="statusMenu">
-      <button z-button zType="outline" class="gap-2">
-        <z-icon zType="circle" class="w-4 h-4" />
-        @if (selectedStatus()) {
-          {{ getStatusDisplayText(selectedStatus()) }}
-        } @else {
-          All Status
-        }
-      </button>
-    </div>
-    <ng-template #statusMenu>
-      <div z-menu-content class="w-48">
-        <button type="button" z-menu-item (click)="selectedStatus.set(''); onFilterChange()">
-          All Status
+  <!-- Status Tabs -->
+  <div class="mb-6">
+    <div class="border-b border-border">
+      <nav class="flex gap-1 overflow-auto scroll nav-tab-scroll -mb-px" aria-label="Tabs" role="tablist">
+        <!-- All Tab -->
+        <button
+          type="button"
+          role="tab"
+          (click)="onTabChange('All')"
+          [attr.aria-selected]="activeTab() === 'All'"
+          [class]="activeTab() === 'All'
+            ? 'border-b-2 border-b-primary text-primary text-sm'
+            : 'border-b-2 border-transparent text-muted-foreground hover:text-foreground text-sm'"
+          class="hover:bg-transparent rounded-none flex-shrink-0 whitespace-nowrap py-2 px-2 font-medium text-sm transition-colors flex items-center gap-2">
+          <z-icon zType="layers" class="w-4 h-4" />
+          All Claims
+          <span
+            [class]="activeTab() === 'All' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'"
+            class="ml-1 py-0.5 px-2.5 rounded-full text-xs font-semibold min-w-[28px] text-center">
+            {{ statusCounts()['All'] }}
+          </span>
         </button>
-        <button type="button" z-menu-item (click)="selectedStatus.set('Pending'); onFilterChange()">
+
+        <!-- Pending Tab -->
+        <button
+          type="button"
+          role="tab"
+          (click)="onTabChange('Pending')"
+          [attr.aria-selected]="activeTab() === 'Pending'"
+          [class]="activeTab() === 'Pending'
+            ? 'border-b-2 border-b-primary text-primary'
+            : 'border-b-2 border-transparent text-muted-foreground hover:text-foreground'"
+          class="hover:bg-transparent rounded-none flex-shrink-0 whitespace-nowrap py-2 px-2 font-medium text-sm transition-colors flex items-center gap-2">
+          <z-icon zType="clock" class="w-4 h-4" />
           Pending
+          <span
+            [class]="activeTab() === 'Pending' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'"
+            class="ml-1 py-0.5 px-2.5 rounded-full text-xs font-semibold min-w-[28px] text-center">
+            {{ statusCounts()['Pending'] }}
+          </span>
         </button>
-        <button type="button" z-menu-item (click)="selectedStatus.set('Manager_Approved'); onFilterChange()">
+
+        <!-- Manager Approved Tab -->
+        <button
+          type="button"
+          role="tab"
+          (click)="onTabChange('Manager_Approved')"
+          [attr.aria-selected]="activeTab() === 'Manager_Approved'"
+          [class]="activeTab() === 'Manager_Approved'
+            ? 'border-b-2 border-b-primary text-primary'
+            : 'border-b-2 border-transparent text-muted-foreground hover:text-foreground'"
+          class="hover:bg-transparent rounded-none flex-shrink-0 whitespace-nowrap py-2 px-2 font-medium text-sm transition-colors flex items-center gap-2">
+          <z-icon zType="circle-check" class="w-4 h-4" />
           Manager Approved
+          <span
+            [class]="activeTab() === 'Manager_Approved' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'"
+            class="ml-1 py-0.5 px-2.5 rounded-full text-xs font-semibold min-w-[28px] text-center">
+            {{ statusCounts()['Manager_Approved'] }}
+          </span>
         </button>
-        <button type="button" z-menu-item (click)="selectedStatus.set('Finance_Approved'); onFilterChange()">
+
+        <!-- Finance Approved Tab -->
+        <button
+          type="button"
+          role="tab"
+          (click)="onTabChange('Finance_Approved')"
+          [attr.aria-selected]="activeTab() === 'Finance_Approved'"
+          [class]="activeTab() === 'Finance_Approved'
+            ? 'border-b-2 border-b-primary text-primary'
+            : 'border-b-2 border-transparent text-muted-foreground hover:text-foreground'"
+          class="hover:bg-transparent rounded-none flex-shrink-0 whitespace-nowrap py-2 px-2 font-medium text-sm transition-colors flex items-center gap-2">
+          <z-icon zType="circle-check" class="w-4 h-4" />
           Finance Approved
+          <span
+            [class]="activeTab() === 'Finance_Approved' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'"
+            class="ml-1 py-0.5 px-2.5 rounded-full text-xs font-semibold min-w-[28px] text-center">
+            {{ statusCounts()['Finance_Approved'] }}
+          </span>
         </button>
-        <button type="button" z-menu-item (click)="selectedStatus.set('Paid'); onFilterChange()">
+
+        <!-- Paid Tab -->
+        <button
+          type="button"
+          role="tab"
+          (click)="onTabChange('Paid')"
+          [attr.aria-selected]="activeTab() === 'Paid'"
+          [class]="activeTab() === 'Paid'
+            ? 'border-b-2 border-b-primary text-primary'
+            : 'border-b-2 border-transparent text-muted-foreground hover:text-foreground'"
+          class="hover:bg-transparent rounded-none flex-shrink-0 whitespace-nowrap py-2 px-2 font-medium text-sm transition-colors flex items-center gap-2">
+          <z-icon zType="circle-check" class="w-4 h-4" />
           Paid
+          <span
+            [class]="activeTab() === 'Paid' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'"
+            class="ml-1 py-0.5 px-2.5 rounded-full text-xs font-semibold min-w-[28px] text-center">
+            {{ statusCounts()['Paid'] }}
+          </span>
         </button>
-        <button type="button" z-menu-item (click)="selectedStatus.set('Rejected'); onFilterChange()">
+
+        <!-- Rejected Tab -->
+        <button
+          type="button"
+          role="tab"
+          (click)="onTabChange('Rejected')"
+          [attr.aria-selected]="activeTab() === 'Rejected'"
+          [class]="activeTab() === 'Rejected'
+            ? 'border-b-2 border-b-primary text-primary'
+            : 'border-b-2 border-transparent text-muted-foreground hover:text-foreground'"
+          class="hover:bg-transparent rounded-none flex-shrink-0 whitespace-nowrap py-2 px-2 font-medium text-sm transition-colors flex items-center gap-2">
+          <z-icon zType="circle-x" class="w-4 h-4" />
           Rejected
+          <span
+            [class]="activeTab() === 'Rejected' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'"
+            class="ml-1 py-0.5 px-2.5 rounded-full text-xs font-semibold min-w-[28px] text-center">
+            {{ statusCounts()['Rejected'] }}
+          </span>
+        </button>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Bulk Actions Bar -->
+  @if (getSelectedCount() > 0) {
+    <div class="mb-4 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 backdrop-blur-sm border-l-4 border-primary shadow-sm">
+      <div class="flex items-center justify-between px-6 py-3 gap-4">
+        <!-- Left: Selection Info -->
+        <div class="flex items-center gap-3">
+          <div class="flex items-center justify-center w-8 h-8 rounded-full bg-primary/20">
+            <z-icon zType="check-circle" class="w-4 h-4 text-primary" />
+          </div>
+          <div class="flex flex-col">
+            <span class="text-sm font-semibold text-foreground">{{ getSelectedCount() }} Selected</span>
+            <span class="text-xs text-muted-foreground">Bulk actions available</span>
+          </div>
+        </div>
+
+        <!-- Right: Action Buttons -->
+        <div class="flex items-center gap-2">
+          <button type="button" (click)="bulkApprove()"
+            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary/90 rounded-md transition-all duration-200 shadow-sm hover:shadow-md">
+            <z-icon zType="circle-check" class="w-4 h-4" />
+            <span>Approve</span>
+          </button>
+          <button type="button" (click)="bulkDelete()"
+            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-destructive hover:bg-destructive/90 rounded-md transition-all duration-200 shadow-sm hover:shadow-md">
+            <z-icon zType="trash" class="w-4 h-4" />
+            <span>Delete</span>
+          </button>
+          <div class="w-px h-6 bg-border mx-1"></div>
+          <button type="button" (click)="clearSelection()"
+            class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200">
+            <z-icon zType="x" class="w-4 h-4" />
+            <span>Clear</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Filters Section -->
+  <div class="flex items-center gap-3 mb-6 flex-wrap justify-between">
+    <div class="flex items-center gap-3 flex-1 flex-wrap">
+      <!-- Search Bar -->
+      <div class="relative flex-1 min-w-[180px] max-w-md">
+        <z-icon zType="search" class="absolute left-1.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+        <input
+          type="text"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event); onFilterChange()"
+          placeholder="Search claims..."
+          class="w-full pl-8 pr-2 py-2 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+        />
+      </div>
+
+      <!-- Status Filter -->
+      <div z-menu [zMenuTriggerFor]="statusMenu">
+        <button
+          z-button
+          zType="outline"
+          [class]="selectedStatus()
+            ? 'gap-2 border border-solid px-2 bg-primary/5 text-primary border-primary'
+            : 'gap-2 border border-dashed px-2'">
+          <z-icon [zType]="selectedStatus() ? 'circle-check' : 'circle-plus'" class="w-4 h-4" />
+          {{ selectedStatus() ? getStatusDisplayText(selectedStatus()) : 'Status' }}
         </button>
       </div>
-    </ng-template>
+      <ng-template #statusMenu>
+        <div z-menu-content class="w-48">
+          <button type="button" z-menu-item (click)="selectedStatus.set(''); onFilterChange()">
+            All Status
+          </button>
+          <button type="button" z-menu-item (click)="selectedStatus.set('Pending'); onFilterChange()">
+            Pending
+          </button>
+          <button type="button" z-menu-item (click)="selectedStatus.set('Manager_Approved'); onFilterChange()">
+            Manager Approved
+          </button>
+          <button type="button" z-menu-item (click)="selectedStatus.set('Finance_Approved'); onFilterChange()">
+            Finance Approved
+          </button>
+          <button type="button" z-menu-item (click)="selectedStatus.set('Paid'); onFilterChange()">
+            Paid
+          </button>
+          <button type="button" z-menu-item (click)="selectedStatus.set('Rejected'); onFilterChange()">
+            Rejected
+          </button>
+        </div>
+      </ng-template>
 
-    <!-- Clear Filters -->
-    @if (selectedStatus() || selectedClaimType() || employeeIdFilter()) {
-      <button z-button zType="ghost" (click)="clearFilters()" class="gap-2">
-        <z-icon zType="x" class="w-4 h-4" />
-        Clear
+      <!-- Clear Filters -->
+      @if (selectedStatus() || selectedClaimType() || employeeIdFilter() || searchQuery()) {
+        <button
+          type="button"
+          z-button
+          zType="outline"
+          class="gap-2 border-none shadow-none px-2"
+          (click)="clearFilters()">
+          Reset
+          <z-icon zType="x" class="w-4 h-4" />
+        </button>
+      }
+    </div>
+
+    <!-- Column Toggle - Right Side -->
+    <div z-menu [zMenuTriggerFor]="columnMenu">
+      <button z-button zType="outline" class="gap-2 px-2">
+        <z-icon zType="eye" class="w-4 h-4" />
+        View
       </button>
-    }
+    </div>
+    <ng-template #columnMenu>
+      <div z-menu-content class="w-56">
+        <div class="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
+          Toggle Columns
+        </div>
+        @for (column of columnList; track column.key) {
+          <button type="button" z-menu-item (click)="toggleColumn(column.key)" class="justify-between">
+            {{ column.label }}
+            @if (visibleColumns()[column.key]) {
+              <z-icon zType="check" class="w-4 h-4" />
+            }
+          </button>
+        }
+      </div>
+    </ng-template>
   </div>
+
+  <!-- Error Message -->
+  @if (error()) {
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-2 text-red-800 mb-6">
+      <z-icon zType="triangle-alert" class="w-5 h-5" />
+      <span>{{ error() }}</span>
+    </div>
+  }
 
   <!-- Loading State -->
   @if (loading()) {
@@ -79,137 +289,260 @@
 
   <!-- Claims Table -->
   @if (!loading() && claims().length > 0) {
-    <div class="bg-card border rounded-lg overflow-hidden">
-      <table class="w-full">
-        <thead class="bg-muted/30 border-b">
+    <div class="claim-table-container rounded-lg border">
+      <table z-table class="claim-table">
+        <thead>
           <tr>
-            <th class="text-left px-4 py-3 text-sm font-semibold text-muted-foreground">Date</th>
-            <th class="text-left px-4 py-3 text-sm font-semibold text-muted-foreground">Employee</th>
-            <th class="text-left px-4 py-3 text-sm font-semibold text-muted-foreground">Claim Type</th>
-            <th class="text-left px-4 py-3 text-sm font-semibold text-muted-foreground">Amount</th>
-            <th class="text-left px-4 py-3 text-sm font-semibold text-muted-foreground">Description</th>
-            <th class="text-left px-4 py-3 text-sm font-semibold text-muted-foreground">Status</th>
-            <th class="text-left px-4 py-3 text-sm font-semibold text-muted-foreground">Manager</th>
-            <th class="text-left px-4 py-3 text-sm font-semibold text-muted-foreground">Finance</th>
-            <th class="text-left px-4 py-3 text-sm font-semibold text-muted-foreground">Receipt</th>
-            <th class="w-24 px-4 py-3"></th>
+            <!-- Checkbox Column -->
+            <th class="!pl-3 w-10 th-text-center">
+              <span z-checkbox class="border-primary/30" [(ngModel)]="selectAll" (ngModelChange)="toggleSelectAll()"></span>
+            </th>
+
+            <!-- Date Column -->
+            @if (visibleColumns()['date']) {
+              <th class="!pl-3">
+                <button
+                  (click)="onSort('date')"
+                  class="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer"
+                  [class.text-primary]="isSortActive('date')">
+                  <span>Date</span>
+                  <z-icon [zType]="getSortIcon('date')" class="w-4 h-4" />
+                </button>
+              </th>
+            }
+
+            <!-- Employee Column -->
+            @if (visibleColumns()['employee']) {
+              <th>
+                <button
+                  (click)="onSort('employee')"
+                  class="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer"
+                  [class.text-primary]="isSortActive('employee')">
+                  <span>Employee</span>
+                  <z-icon [zType]="getSortIcon('employee')" class="w-4 h-4" />
+                </button>
+              </th>
+            }
+
+            <!-- Claim Type Column -->
+            @if (visibleColumns()['claimType']) {
+              <th>
+                <button
+                  (click)="onSort('claimType')"
+                  class="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer"
+                  [class.text-primary]="isSortActive('claimType')">
+                  <span>Claim Type</span>
+                  <z-icon [zType]="getSortIcon('claimType')" class="w-4 h-4" />
+                </button>
+              </th>
+            }
+
+            <!-- Amount Column -->
+            @if (visibleColumns()['amount']) {
+              <th>
+                <button
+                  (click)="onSort('amount')"
+                  class="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer"
+                  [class.text-primary]="isSortActive('amount')">
+                  <span>Amount</span>
+                  <z-icon [zType]="getSortIcon('amount')" class="w-4 h-4" />
+                </button>
+              </th>
+            }
+
+            <!-- Description Column -->
+            @if (visibleColumns()['description']) {
+              <th>Description</th>
+            }
+
+            <!-- Status Column -->
+            @if (visibleColumns()['status']) {
+              <th>
+                <button
+                  (click)="onSort('status')"
+                  class="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer"
+                  [class.text-primary]="isSortActive('status')">
+                  <span>Status</span>
+                  <z-icon [zType]="getSortIcon('status')" class="w-4 h-4" />
+                </button>
+              </th>
+            }
+
+            <!-- Manager Approval Column -->
+            @if (visibleColumns()['manager']) {
+              <th>Manager</th>
+            }
+
+            <!-- Finance Approval Column -->
+            @if (visibleColumns()['finance']) {
+              <th>Finance</th>
+            }
+
+            <!-- Receipt Column -->
+            @if (visibleColumns()['receipt']) {
+              <th>Receipt</th>
+            }
+
+            <!-- Actions Column -->
+            <th class="!pr-3">Actions</th>
           </tr>
         </thead>
-        <tbody class="divide-y">
+        <tbody>
           @for (claim of claims(); track claim.id) {
             <tr class="hover:bg-muted/20 transition-colors">
-              <td class="px-4 py-4 text-sm font-medium text-foreground">
-                {{ formatDate(claim.date) }}
+
+              <!-- Checkbox -->
+              <!-- <td class="!pl-3 text-center">
+                <span z-checkbox [ngModel]="isClaimSelected(claim.id)"
+                (ngModelChange)="toggleClaimSelection(claim.id)"
+                  class="border-primary/30"></span>
+              </td> -->
+
+              <td class="!pl-3 text-center">
+                <span z-checkbox [ngModel]="isClaimSelected(claim.id)"
+                  (ngModelChange)="toggleClaimSelection(claim.id)"
+                  class="border-primary/30"></span>
               </td>
-              <td class="px-4 py-4">
-                <div class="flex items-center gap-3">
-                  <z-avatar
-                    [zFallback]="(claim.employee?.full_name || 'N/A').charAt(0)"
-                    class="w-8 h-8" />
-                  <div>
-                    <div class="text-sm font-medium text-foreground">{{ claim.employee?.full_name || 'N/A' }}</div>
-                    <div class="text-xs text-muted-foreground">{{ claim.employee?.employee_code || 'N/A' }}</div>
+
+              <!-- Date -->
+              @if (visibleColumns()['date']) {
+                <td class="!pl-3 text-sm font-medium text-foreground">
+                  {{ formatDate(claim.date) }}
+                </td>
+              }
+
+              <!-- Employee -->
+              @if (visibleColumns()['employee']) {
+                <td>
+                  <div class="flex items-center gap-3">
+                    <z-avatar
+                      [zFallback]="(claim.employee?.full_name || 'N/A').charAt(0)"
+                      class="w-8 h-8" />
+                    <div>
+                      <div class="text-sm font-medium text-foreground">{{ claim.employee?.full_name || 'N/A' }}</div>
+                      <div class="text-xs text-muted-foreground">{{ claim.employee?.employee_code || 'N/A' }}</div>
+                    </div>
                   </div>
-                </div>
-              </td>
-              <td class="px-4 py-4">
-                <z-badge zType="outline" zShape="pill" class="text-xs">
-                  {{ claim.claimType?.name || 'N/A' }}
-                </z-badge>
-              </td>
-              <td class="px-4 py-4 text-sm font-semibold text-foreground">
-                {{ formatCurrency(claim.amount) }}
-              </td>
-              <td class="px-4 py-4 text-sm text-foreground max-w-xs">
-                <div class="line-clamp-2">{{ claim.description }}</div>
-              </td>
-              <td class="px-4 py-4">
-                <z-badge
-                  [zType]="claim.status === 'Paid' ? 'default' : claim.status === 'Rejected' ? 'destructive' : claim.status === 'Finance_Approved' ? 'default' : claim.status === 'Manager_Approved' ? 'outline' : 'secondary'"
-                  zShape="pill"
-                  class="text-xs">
-                  {{ getStatusDisplayText(claim.status) }}
-                </z-badge>
-              </td>
-              <td class="px-4 py-4">
-                @if (claim.manager_approved_by) {
-                  <div class="flex flex-col gap-1">
-                    <span class="text-xs text-green-600 flex items-center gap-1">
-                      <z-icon zType="circle-check" class="w-3 h-3" />
-                      Approved
-                    </span>
-                    <span class="text-xs text-muted-foreground">
-                      {{ formatDateTime(claim.manager_approved_at) }}
-                    </span>
-                  </div>
-                } @else {
-                  <span class="text-sm text-muted-foreground">--</span>
-                }
-              </td>
-              <td class="px-4 py-4">
-                @if (claim.finance_approved_by) {
-                  <div class="flex flex-col gap-1">
-                    <span class="text-xs text-green-600 flex items-center gap-1">
-                      <z-icon zType="circle-check" class="w-3 h-3" />
-                      Approved
-                    </span>
-                    <span class="text-xs text-muted-foreground">
-                      {{ formatDateTime(claim.finance_approved_at) }}
-                    </span>
-                  </div>
-                } @else if (claim.status === 'Paid' && claim.payment_date) {
-                  <div class="flex flex-col gap-1">
-                    <span class="text-xs text-blue-600 flex items-center gap-1">
-                      <z-icon zType="circle" class="w-3 h-3" />
-                      Paid
-                    </span>
-                    <span class="text-xs text-muted-foreground">
-                      {{ formatDateTime(claim.payment_date) }}
-                    </span>
-                  </div>
-                } @else {
-                  <span class="text-sm text-muted-foreground">--</span>
-                }
-              </td>
-              <td class="px-4 py-4">
-                @if (claim.receipt_url) {
-                  <a
-                    [href]="claim.receipt_url"
-                    target="_blank"
-                    class="inline-flex items-center gap-1 text-sm text-primary hover:underline">
-                    <z-icon zType="file-text" class="w-4 h-4" />
-                    View
+                </td>
+              }
+
+              <!-- Claim Type -->
+              @if (visibleColumns()['claimType']) {
+                <td>
+                  <z-badge zType="outline" zShape="pill" class="text-xs">
+                    {{ claim.claimType?.name || 'N/A' }}
+                  </z-badge>
+                </td>
+              }
+
+              <!-- Amount -->
+              @if (visibleColumns()['amount']) {
+                <td class="text-sm font-semibold text-foreground">
+                  {{ formatCurrency(claim.amount) }}
+                </td>
+              }
+
+              <!-- Description -->
+              @if (visibleColumns()['description']) {
+                <td class="text-sm text-foreground max-w-xs">
+                  <div class="line-clamp-2">{{ claim.description }}</div>
+                </td>
+              }
+
+              <!-- Status -->
+              @if (visibleColumns()['status']) {
+                <td>
+                  <z-badge
+                    [zType]="claim.status === 'Paid' ? 'default' : claim.status === 'Rejected' ? 'destructive' : claim.status === 'Finance_Approved' ? 'default' : claim.status === 'Manager_Approved' ? 'outline' : 'secondary'"
+                    zShape="pill"
+                    class="text-xs">
+                    {{ getStatusDisplayText(claim.status) }}
+                  </z-badge>
+                </td>
+              }
+
+              <!-- Manager Approval -->
+              @if (visibleColumns()['manager']) {
+                <td>
+                  @if (claim.manager_approved_by) {
+                    <div class="flex flex-col gap-1">
+                      <span class="text-xs text-green-600 flex items-center gap-1">
+                        <z-icon zType="circle-check" class="w-3 h-3" />
+                        Approved
+                      </span>
+                      <span class="text-xs text-muted-foreground">
+                        {{ formatDateTime(claim.manager_approved_at) }}
+                      </span>
+                    </div>
+                  } @else {
+                    <span class="text-sm text-muted-foreground">--</span>
+                  }
+                </td>
+              }
+
+              <!-- Finance Approval -->
+              @if (visibleColumns()['finance']) {
+                <td>
+                  @if (claim.finance_approved_by) {
+                    <div class="flex flex-col gap-1">
+                      <span class="text-xs text-green-600 flex items-center gap-1">
+                        <z-icon zType="circle-check" class="w-3 h-3" />
+                        Approved
+                      </span>
+                      <span class="text-xs text-muted-foreground">
+                        {{ formatDateTime(claim.finance_approved_at) }}
+                      </span>
+                    </div>
+                  } @else if (claim.status === 'Paid' && claim.payment_date) {
+                    <div class="flex flex-col gap-1">
+                      <span class="text-xs text-blue-600 flex items-center gap-1">
+                        <z-icon zType="circle" class="w-3 h-3" />
+                        Paid
+                      </span>
+                      <span class="text-xs text-muted-foreground">
+                        {{ formatDateTime(claim.payment_date) }}
+                      </span>
+                    </div>
+                  } @else {
+                    <span class="text-sm text-muted-foreground">--</span>
+                  }
+                </td>
+              }
+
+              <!-- Receipt -->
+              @if (visibleColumns()['receipt']) {
+                <td>
+                  @if (claim.receipt_url) {
+                    <a
+                      [href]="claim.receipt_url"
+                      target="_blank"
+                      class="inline-flex items-center gap-1 text-sm text-primary hover:underline">
+                      <z-icon zType="file-text" class="w-4 h-4" />
+                      View
+                    </a>
+                  } @else {
+                    <span class="text-sm text-muted-foreground">--</span>
+                  }
+                </td>
+              }
+
+              <!-- Actions -->
+              <td class="!pr-3 text-right">
+                <div class="flex gap-2 flex-nowrap justify-end">
+                  <a [routerLink]="['/claims', claim.id]" z-button zType="outline" zSize="sm">
+                    <z-icon zType="eye" class="w-4 h-4" />
                   </a>
-                } @else {
-                  <span class="text-sm text-muted-foreground">--</span>
-                }
-              </td>
-              <td class="px-4 py-4">
-                <div z-menu [zMenuTriggerFor]="actionMenu">
-                  <button z-button zType="ghost" zSize="sm" class="p-1">
-                    <z-icon zType="ellipsis" />
-                  </button>
-                </div>
-                <ng-template #actionMenu>
-                  <div z-menu-content class="w-40">
-                    <button type="button" z-menu-item [routerLink]="['/claims', claim.id]">
-                      <z-icon zType="eye" class="mr-2" />
-                      View Details
+                  @if (canEdit(claim)) {
+                    <a [routerLink]="['/claims', claim.id, 'edit']" z-button zType="outline" zSize="sm">
+                      <z-icon zType="pencil" class="w-4 h-4" />
+                    </a>
+                  }
+                  @if (canDelete(claim)) {
+                    <button (click)="deleteClaim(claim.id)" z-button zType="outline" zSize="sm" class="text-destructive hover:text-destructive">
+                      <z-icon zType="trash" class="w-4 h-4" />
                     </button>
-                    @if (canEdit(claim)) {
-                      <button type="button" z-menu-item [routerLink]="['/claims', claim.id, 'edit']">
-                        <z-icon zType="circle" class="mr-2" />
-                        Edit
-                      </button>
-                    }
-                    @if (canDelete(claim)) {
-                      <button type="button" z-menu-item (click)="deleteClaim(claim.id)">
-                        <z-icon zType="trash" class="mr-2" />
-                        Delete
-                      </button>
-                    }
-                  </div>
-                </ng-template>
+                  }
+                </div>
               </td>
             </tr>
           }

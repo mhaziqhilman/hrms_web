@@ -1,6 +1,6 @@
 # HR Management System (HRMS) - Project Tasks
 
-> **Last Updated:** January 2, 2026
+> **Last Updated:** February 5, 2026
 > **Overall Project Completion:** 70-75%
 > **Status:** Functional but incomplete - Core HR modules operational, critical gaps in e-Invoice and Reporting
 
@@ -318,10 +318,12 @@ The HRMS project has achieved **substantial implementation** of core HR function
 | 5. Attendance & WFH | 95% | ✅ Complete | Geofencing validation |
 | 6. Claims Management | 100% | ✅ Complete | None |
 | 7. HR Communications | 100% | ✅ Complete | None |
-| 8. Finance & e-Invoice | 20% | ❌ Critical Gap | Entire module (80% missing) |
+| 8. Finance & e-Invoice | 20% | ⏸️ Deferred | Entire module (deferred) |
 | 9. Dashboard & Analytics | 40% | ⚠️ Incomplete | Reports, analytics, exports |
 | 10. File Management | 85% | ✅ Mostly Complete | Access control verification |
-| **OVERALL PROJECT** | **70-75%** | ⚠️ **Functional but Incomplete** | e-Invoice, Reports |
+| 11. Personal Pages | 0% | 🆕 New | Profile, payslips, documents, password |
+| 12. System Settings | 0% | 🆕 New | Company, payroll, leave, email config |
+| **OVERALL PROJECT** | **65-70%** | ⚠️ **Functional but Incomplete** | Statutory Reports, Personal Pages, Settings |
 
 ---
 
@@ -432,10 +434,143 @@ The HRMS project has achieved **substantial implementation** of core HR function
 
 ## Next Enhancement Steps (Priority Order)
 
-### Phase 1: E-Invoice Module Implementation - **HIGHEST PRIORITY** 🔥
+### Phase 1: Statutory Reports Implementation - **HIGHEST PRIORITY** 📊🔥
+**PRD Reference:** Section 3.3.4 - Payroll Statutory Reports
+**Estimated Duration:** 2-3 weeks
+**Business Impact:** Critical for compliance and regulatory submissions
+
+- [ ] **FR-PAY-004: Statutory Reports** <!-- id: 34 -->
+  - [ ] Backend: EA Form generation API (annual)
+  - [ ] Backend: EPF Borang A generation API (monthly)
+  - [ ] Backend: SOCSO Form 8A generation API (monthly)
+  - [ ] Backend: PCB CP39 generation API (monthly)
+  - [ ] Backend: E-filing format exports (TXT/CSV)
+  - [ ] Frontend: Reports module with date range selection
+  - [ ] Frontend: Report preview before download
+  - [ ] Frontend: Bulk download for all employees
+  - [ ] Feature: PDF export for all reports
+  - [ ] Feature: Email reports to authorities (optional)
+  - [ ] Testing: Validation against official formats
+
+---
+
+### Phase 2: Reports & Analytics Enhancement - **HIGH PRIORITY** 📈
+**PRD Reference:** Section 3.9 - Dashboard & Reporting
+**Business Impact:** Improve decision-making capabilities
+
+- [ ] **Enhanced Reporting Dashboard** <!-- id: 33 -->
+  - [ ] Backend: Payroll cost analysis endpoint (by dept/month)
+  - [ ] Backend: Leave utilization analytics endpoint
+  - [ ] Backend: Attendance punctuality analytics endpoint
+  - [ ] Backend: Claims spending analytics endpoint
+  - [ ] Backend: Headcount and turnover reports endpoint
+  - [ ] Frontend: Analytics module with charts (Chart.js/D3.js)
+  - [ ] Frontend: Date range selector and filters
+  - [ ] Frontend: Export to PDF functionality
+  - [ ] Frontend: Export to Excel functionality (SheetJS)
+  - [ ] Feature: Scheduled reports (email delivery)
+  - [ ] Feature: Custom report builder (drag-and-drop)
+  - [ ] Feature: Dashboard customization per role
+
+---
+
+### Phase 3: Personal Pages - **HIGH PRIORITY** 👤
+**Business Impact:** Employee self-service capabilities
+
+- [ ] **My Profile** <!-- id: 38 -->
+  - [ ] Backend: Profile view endpoint (own data only)
+  - [ ] Backend: Profile update endpoint (limited fields)
+  - [ ] Backend: Profile photo upload endpoint
+  - [ ] Frontend: Profile view page (personal info, employment, emergency contacts)
+  - [ ] Frontend: Profile edit form (editable fields only)
+  - [ ] Frontend: Profile photo upload with preview/crop
+  - [ ] Feature: Field-level edit permissions (some fields read-only)
+  - [ ] Feature: Change history audit log
+
+- [ ] **My Payslips** <!-- id: 39 -->
+  - [ ] Backend: Get own payslips endpoint (paginated)
+  - [ ] Backend: Download payslip PDF endpoint
+  - [ ] Frontend: Payslip history list with filters (month/year)
+  - [ ] Frontend: Payslip detail view
+  - [ ] Frontend: Download payslip button (PDF)
+  - [ ] Feature: YTD summary view
+  - [ ] Feature: Payslip email to self
+
+- [ ] **My Documents** <!-- id: 40 -->
+  - [ ] Backend: Get own documents endpoint
+  - [ ] Backend: Upload personal document endpoint
+  - [ ] Backend: Delete own document endpoint
+  - [ ] Frontend: Document list with categories (IC, certs, bank, etc.)
+  - [ ] Frontend: Document upload form with type selection
+  - [ ] Frontend: Document preview/download
+  - [ ] Feature: Document expiry reminders (passport, visa, etc.)
+  - [ ] Feature: Required documents checklist
+
+- [ ] **Change Password** <!-- id: 41 -->
+  - [ ] Backend: Change password endpoint (verify current password)
+  - [ ] Backend: Password strength validation
+  - [ ] Frontend: Change password form
+  - [ ] Frontend: Password strength indicator
+  - [ ] Feature: Password history check (prevent reuse)
+  - [ ] Feature: Force logout from other sessions after change
+
+---
+
+### Phase 4: System Settings - **HIGH PRIORITY** ⚙️
+**Business Impact:** Admin configuration capabilities
+
+- [ ] **Company Profile Settings** <!-- id: 42 -->
+  - [ ] Backend: Company profile CRUD endpoints
+  - [ ] Backend: Company logo upload endpoint
+  - [ ] Database: Company settings table (if not exists)
+  - [ ] Frontend: Company profile form (name, address, reg numbers)
+  - [ ] Frontend: Logo upload with preview
+  - [ ] Feature: Multiple branches support (optional)
+  - [ ] Feature: Company letterhead template
+
+- [ ] **Payroll Settings** <!-- id: 43 -->
+  - [ ] Backend: EPF rate configuration endpoint
+  - [ ] Backend: SOCSO table configuration endpoint
+  - [ ] Backend: EIS rate configuration endpoint
+  - [ ] Backend: PCB tax bracket configuration endpoint
+  - [ ] Backend: Pay period settings (monthly/bi-weekly)
+  - [ ] Database: Statutory rates tables (versioned)
+  - [ ] Frontend: EPF rates management (employee/employer %)
+  - [ ] Frontend: SOCSO contribution table editor
+  - [ ] Frontend: Tax bracket configuration
+  - [ ] Frontend: Pay period and cutoff date settings
+  - [ ] Feature: Rate effective dates (historical rates)
+  - [ ] Feature: Import statutory rates from file
+
+- [ ] **Leave Settings** <!-- id: 44 -->
+  - [ ] Backend: Leave types CRUD endpoints
+  - [ ] Backend: Leave entitlement rules endpoint
+  - [ ] Backend: Carry forward rules endpoint
+  - [ ] Frontend: Leave types management (add/edit/delete)
+  - [ ] Frontend: Entitlement configuration by tenure/grade
+  - [ ] Frontend: Carry forward rules configuration
+  - [ ] Frontend: Public holidays calendar management
+  - [ ] Feature: Pro-ration rules configuration
+  - [ ] Feature: Leave policy templates
+
+- [ ] **Email/Notification Settings** <!-- id: 45 -->
+  - [ ] Backend: SMTP configuration endpoint
+  - [ ] Backend: Email template CRUD endpoints
+  - [ ] Backend: Test email endpoint
+  - [ ] Database: Email templates table
+  - [ ] Frontend: SMTP settings form (host, port, auth)
+  - [ ] Frontend: Email template editor (leave, payslip, etc.)
+  - [ ] Frontend: Notification preferences (who gets what)
+  - [ ] Frontend: Test email button
+  - [ ] Feature: Email queue and retry logic
+  - [ ] Feature: Email delivery logs
+
+---
+
+### Phase 5: E-Invoice Module Implementation - **DEFERRED** 📄
 **PRD Reference:** Section 3.8 - Finance & e-Invoice Management
-**Estimated Duration:** 4-6 weeks
-**Business Impact:** Critical for LHDN compliance
+**Business Impact:** LHDN compliance (when required)
+**Status:** Deferred to later phase
 
 - [ ] **FR-FINV-001: e-Invoice Generation** <!-- id: 29 -->
   - [ ] Backend: Invoice data model (Sequelize)
@@ -485,48 +620,7 @@ The HRMS project has achieved **substantial implementation** of core HR function
 
 ---
 
-### Phase 2: Statutory Reports Implementation - **HIGH PRIORITY** 📊
-**PRD Reference:** Section 3.3.4 - Payroll Statutory Reports
-**Estimated Duration:** 2-3 weeks
-**Business Impact:** Critical for compliance and regulatory submissions
-
-- [ ] **FR-PAY-004: Statutory Reports** <!-- id: 34 -->
-  - [ ] Backend: EA Form generation API (annual)
-  - [ ] Backend: EPF Borang A generation API (monthly)
-  - [ ] Backend: SOCSO Form 8A generation API (monthly)
-  - [ ] Backend: PCB CP39 generation API (monthly)
-  - [ ] Backend: E-filing format exports (TXT/CSV)
-  - [ ] Frontend: Reports module with date range selection
-  - [ ] Frontend: Report preview before download
-  - [ ] Frontend: Bulk download for all employees
-  - [ ] Feature: PDF export for all reports
-  - [ ] Feature: Email reports to authorities (optional)
-  - [ ] Testing: Validation against official formats
-
----
-
-### Phase 3: Reports & Analytics Enhancement - **HIGH PRIORITY** 📈
-**PRD Reference:** Section 3.9 - Dashboard & Reporting
-**Estimated Duration:** 3-4 weeks
-**Business Impact:** Improve decision-making capabilities
-
-- [ ] **Enhanced Reporting Dashboard** <!-- id: 33 -->
-  - [ ] Backend: Payroll cost analysis endpoint (by dept/month)
-  - [ ] Backend: Leave utilization analytics endpoint
-  - [ ] Backend: Attendance punctuality analytics endpoint
-  - [ ] Backend: Claims spending analytics endpoint
-  - [ ] Backend: Headcount and turnover reports endpoint
-  - [ ] Frontend: Analytics module with charts (Chart.js/D3.js)
-  - [ ] Frontend: Date range selector and filters
-  - [ ] Frontend: Export to PDF functionality
-  - [ ] Frontend: Export to Excel functionality (SheetJS)
-  - [ ] Feature: Scheduled reports (email delivery)
-  - [ ] Feature: Custom report builder (drag-and-drop)
-  - [ ] Feature: Dashboard customization per role
-
----
-
-### Phase 4: Security Enhancement - **MEDIUM PRIORITY** 🔒
+### Phase 6: Security Enhancement - **MEDIUM PRIORITY** 🔒
 **PRD Reference:** Section 3.1.3 - Multi-Factor Authentication
 
 - [ ] **FR-AUTH-003: Multi-Factor Authentication (MFA)** <!-- id: 28 -->
@@ -544,8 +638,7 @@ The HRMS project has achieved **substantial implementation** of core HR function
 
 ---
 
-### Phase 5: Verification & Enhancement Tasks
-**Estimated Duration:** 1-2 weeks
+### Phase 7: Verification & Enhancement Tasks
 
 - [ ] **File Management Verification** <!-- id: 35 -->
   - [ ] Verify file upload storage structure
@@ -572,24 +665,33 @@ The HRMS project has achieved **substantial implementation** of core HR function
 
 ## Recommended Development Roadmap
 
-### Immediate Focus (Next 4-6 weeks)
-**Sprint 1-3: E-Invoice Module Foundation**
-1. Complete e-invoice module implementation (Phase 1 tasks)
-2. LHDN API integration and testing
-3. QR code and digital signature implementation
+### Immediate Focus (Next 2-3 weeks)
+**Sprint 1: Statutory Reports**
+1. EA Form generation (annual employee remuneration)
+2. EPF Borang A (monthly submission)
+3. SOCSO Form 8A (monthly submission)
+4. PCB CP39 (monthly tax submission)
 
-### Short-term (Next 2-3 months)
-**Sprint 4-5: Compliance & Reporting**
-1. Statutory reports implementation (Phase 2 tasks)
-2. Enhanced analytics and reporting (Phase 3 tasks)
-3. Testing and validation against official formats
+### Short-term (Next 4-6 weeks)
+**Sprint 2-3: Reports & Personal Pages**
+1. Enhanced analytics and reporting (Phase 2 tasks)
+2. Personal profile and payslip viewing (Phase 3 tasks)
+3. Document management for employees
+4. Change password functionality
 
-### Medium-term (Next 3-6 months)
-**Sprint 6-8: Quality & Enhancement**
-1. MFA implementation (Phase 4 tasks)
-2. Verification tasks (Phase 5)
-3. Performance optimization
-4. Comprehensive testing (unit, integration, e2e)
+### Medium-term (Next 6-8 weeks)
+**Sprint 4-5: System Settings & Configuration**
+1. Company profile settings
+2. Payroll configuration (EPF, SOCSO, PCB rates)
+3. Leave settings management
+4. Email/notification configuration
+
+### Future Phase
+**Sprint 6+: E-Invoice & Security**
+1. E-Invoice module (when LHDN compliance required)
+2. MFA implementation (Phase 6 tasks)
+3. Verification tasks (Phase 7)
+4. Performance optimization
 
 ---
 
@@ -808,11 +910,12 @@ The HRMS project has achieved **substantial implementation** of core HR function
 - Solid architecture with proper security and RBAC
 
 ### Critical Next Steps
-1. **Priority 1:** Implement e-Invoice module (4-6 weeks)
-2. **Priority 2:** Add statutory reports (2-3 weeks)
-3. **Priority 3:** Enhanced reporting and analytics (3-4 weeks)
-4. **Priority 4:** Security testing and MFA implementation
-5. **Priority 5:** User acceptance testing and deployment preparation
+1. **Priority 1:** Implement statutory reports (EA Form, Borang A, Form 8A, CP39)
+2. **Priority 2:** Enhanced reporting and analytics with export functionality
+3. **Priority 3:** Personal pages (profile, payslips, documents, change password)
+4. **Priority 4:** System settings (company, payroll, leave, email configuration)
+5. **Priority 5:** E-Invoice module (deferred - when LHDN compliance required)
+6. **Priority 6:** Security testing and MFA implementation
 
 ### Known Limitations
 - No mobile app (web responsive only)
@@ -833,7 +936,7 @@ The HRMS project has achieved **substantial implementation** of core HR function
 
 ---
 
-**Document Version:** 2.0
-**Last Comprehensive Update:** January 2, 2026
-**Next Review:** After e-Invoice module completion
+**Document Version:** 3.0
+**Last Comprehensive Update:** February 5, 2026
+**Next Review:** After statutory reports completion
 **Maintained By:** Development Team

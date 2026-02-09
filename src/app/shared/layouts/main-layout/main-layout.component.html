@@ -81,6 +81,7 @@
                     <a
                       [routerLink]="child.route"
                       routerLinkActive="bg-primary/10 text-primary font-semibold"
+                      [routerLinkActiveOptions]="{ exact: !child.children }"
                       z-button
                       zType="ghost"
                       class="justify-start w-full pl-2 px-2 py-0"
@@ -112,10 +113,10 @@
           }
         </z-sidebar-group>
 
-        <!-- System Group -->
+        <!-- Personal Group -->
         <z-sidebar-group>
           @if (!sidebarCollapsed()) {
-            <z-sidebar-group-label>System</z-sidebar-group-label>
+            <z-sidebar-group-label>Personal</z-sidebar-group-label>
           }
           @for (item of menuGroups[2].items; track item.route) {
             <a
@@ -135,6 +136,73 @@
             </a>
           }
         </z-sidebar-group>
+
+        <!-- Systems Group -->
+        <z-sidebar-group>
+          @if (!sidebarCollapsed()) {
+            <z-sidebar-group-label>Systems</z-sidebar-group-label>
+          }
+          @for (item of menuGroups[3].items; track item.title) {
+            @if (item.children && item.children.length > 0) {
+              <!-- Parent item with children -->
+              <button
+                type="button"
+                z-button
+                zType="ghost"
+                class="px-2 py-1"
+                [class]="sidebarCollapsed() ? 'justify-center self-center !flex' : 'justify-start'"
+                [zTooltip]="sidebarCollapsed() ? item.title : ''"
+                zPosition="right"
+                (click)="toggleMenuItem(item.title)"
+              >
+                <z-icon [zType]="item.icon" [class]="sidebarCollapsed() ? '' : 'mr-1'" />
+                @if (!sidebarCollapsed()) {
+                  <span class="flex-1 text-left">{{ item.title }}</span>
+                  <z-icon
+                    [zType]="isMenuItemExpanded(item.title) ? 'chevron-up' : 'chevron-down'"
+                    class="ml-auto w-4 h-4"
+                  />
+                }
+              </button>
+
+              <!-- Children items -->
+              @if (isMenuItemExpanded(item.title) && !sidebarCollapsed()) {
+                <div class="ml-4 space-y-1 border-l-1 px-2.5">
+                  @for (child of item.children; track child.route) {
+                    <a
+                      [routerLink]="child.route"
+                      routerLinkActive="bg-primary/10 text-primary font-semibold"
+                      [routerLinkActiveOptions]="{ exact: !child.children }"
+                      z-button
+                      zType="ghost"
+                      class="justify-start w-full pl-2 px-2 py-0"
+                    >
+                      <z-icon [zType]="child.icon" class="mr-1 w-4 h-4" />
+                      <span>{{ child.title }}</span>
+                    </a>
+                  }
+                </div>
+              }
+            } @else {
+              <!-- Regular item without children -->
+              <a
+                [routerLink]="item.route"
+                routerLinkActive="bg-primary/10 text-primary font-semibold"
+                z-button
+                zType="ghost"
+                class="px-2 py-1"
+                [class]="sidebarCollapsed() ? 'justify-center !w-full !flex' : 'justify-start'"
+                [zTooltip]="sidebarCollapsed() ? item.title : ''"
+                zPosition="right"
+              >
+                <z-icon [zType]="item.icon" [class]="sidebarCollapsed() ? '' : 'mr-2'" />
+                @if (!sidebarCollapsed()) {
+                  <span>{{ item.title }}</span>
+                }
+              </a>
+            }
+          }
+        </z-sidebar-group>
       </div>
 
       <!-- Fixed Bottom User Profile Section -->
@@ -151,14 +219,15 @@
           <z-avatar
             [zAlt]="currentUser?.employee?.full_name || 'User'"
             [zFallback]="getUserInitials()"
+            zSize="sm"
           />
 
           @if (!sidebarCollapsed()) {
-            <div class="flex-1">
-              <div class="font-medium text-sm">{{ currentUser?.employee?.full_name || 'Admin User' }}</div>
-              <div class="text-xs text-muted-foreground">{{ currentUser?.email || 'admin@hrms.com' }}</div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">{{ getDisplayName() }}</div>
+              <div class="text-xs text-muted-foreground truncate">{{ currentUser?.email || 'admin@hrms.com' }}</div>
             </div>
-            <z-icon zType="chevrons-up-down" class="ml-auto" />
+            <z-icon zType="chevrons-up-down" class="ml-auto shrink-0" />
           }
         </div>
 
@@ -201,13 +270,13 @@
         <z-divider zOrientation="vertical" class="h-6 mx-0" />
         <!-- Center: Search Bar -->
         <div class="lg:flex-1 max-w-sm">
-          <div class="relative rounded-xl border border-input items-center shadow-sm">
-            <z-icon zType="search" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <div class="relative items-center">
+            <z-icon zType="search" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
             <input
               z-input
               type="search"
               placeholder="Search..."
-              class="pl-11 pr-14 w-full h-9 text-sm"
+              class="pl-11 pr-14 w-full h-9 text-sm rounded-xl shadow-sm"
             />
             <div class="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none flex items-center gap-0.5 text-xs text-muted-foreground">
               <span>⌘</span>
@@ -251,11 +320,12 @@
             z-button
             zType="ghost"
             zSize="sm"
+            class="relative"
             [zTooltip]="themeService.darkMode() ? 'Switch to light mode' : 'Switch to dark mode'"
             (click)="toggleTheme()"
           >
             <z-icon zType="sun" class="rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-            <z-icon zType="moon" class="absolute rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            <z-icon zType="moon" class="absolute inset-0 m-auto rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
           </button>
           <z-divider zOrientation="vertical" class="h-6 mx-0" />
           <!-- User Profile Menu -->
@@ -307,7 +377,7 @@
     </header>
 
     <!-- Page Content -->
-    <div class="flex-1 overflow-y-auto overflow-x-hidden p-6">
+    <div class="flex-1 overflow-y-auto overflow-x-hidden p-8">
       <router-outlet></router-outlet>
     </div>
 

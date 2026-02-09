@@ -43,6 +43,22 @@ export const routes: Routes = [
             {
                 path: 'communication',
                 loadChildren: () => import('./features/communication/communication.routes').then(m => m.COMMUNICATION_ROUTES)
+            },
+            {
+                path: 'statutory-reports',
+                loadChildren: () => import('./features/statutory-reports/statutory-reports.routes').then(m => m.STATUTORY_REPORTS_ROUTES)
+            },
+            {
+                path: 'analytics',
+                loadChildren: () => import('./features/analytics/analytics.routes').then(m => m.analyticsRoutes)
+            },
+            {
+                path: 'personal',
+                loadChildren: () => import('./features/personal/personal.routes').then(m => m.personalRoutes)
+            },
+            {
+                path: 'settings',
+                loadChildren: () => import('./features/settings/settings.routes').then(m => m.SETTINGS_ROUTES)
             }
         ]
     },

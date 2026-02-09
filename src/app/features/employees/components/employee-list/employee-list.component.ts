@@ -20,6 +20,7 @@ import { ZardMenuImports } from '@/shared/components/menu/menu.imports';
 import { ZardTableImports } from '@/shared/components/table/table.imports';
 import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-dialog.service';
 import { ZardTooltipModule } from '@/shared/components/tooltip/tooltip';
+import { ZardCheckboxComponent } from '@/shared/components/checkbox/checkbox.component';
 
 @Component({
   selector: 'app-employee-list',
@@ -34,7 +35,8 @@ import { ZardTooltipModule } from '@/shared/components/tooltip/tooltip';
     ZardAvatarComponent,
     ZardMenuImports,
     ZardTableImports,
-    ZardTooltipModule
+    ZardTooltipModule,
+    ZardCheckboxComponent
   ],
   templateUrl: './employee-list.component.html',
   styleUrls: ['./employee-list.component.css']
@@ -69,7 +71,7 @@ export class EmployeeListComponent implements OnInit {
 
   // Selection
   selectedEmployees = signal<Set<number>>(new Set());
-  selectAll = signal<boolean>(false);
+  selectAll = false;
 
   // Column visibility
   visibleColumns = signal<{[key: string]: boolean}>({
@@ -106,7 +108,7 @@ export class EmployeeListComponent implements OnInit {
   // Clear selection
   clearSelection(): void {
     this.selectedEmployees.set(new Set());
-    this.selectAll.set(false);
+    this.selectAll = false;
   }
 
   // Toggle column visibility
@@ -279,15 +281,26 @@ export class EmployeeListComponent implements OnInit {
   }
 
   // Selection methods
-  toggleSelectAll(): void {
-    const newSelectAll = !this.selectAll();
-    this.selectAll.set(newSelectAll);
+  // toggleSelectAll(): void {
+  //   const newSelectAll = !this.selectAll();
+  //   this.selectAll.set(newSelectAll);
 
-    if (newSelectAll) {
-      const allIds = new Set(this.employees().map(e => e.id));
+  //   if (newSelectAll) {
+  //     const allIds = new Set(this.employees().map(e => e.id));
+  //     this.selectedEmployees.set(allIds);
+  //   } else {
+  //     this.selectedEmployees.set(new Set());
+  //   }
+  // }
+
+  // Selection methods
+  toggleSelectAll(): void {
+    if (this.selectAll) {
+      const allIds = new Set(this.employees().map(l => l.id));
       this.selectedEmployees.set(allIds);
     } else {
       this.selectedEmployees.set(new Set());
+      this.selectAll = false;
     }
   }
 
@@ -299,7 +312,7 @@ export class EmployeeListComponent implements OnInit {
       selected.add(id);
     }
     this.selectedEmployees.set(selected);
-    this.selectAll.set(selected.size === this.employees().length && this.employees().length > 0);
+    this.selectAll = selected.size === this.employees().length && this.employees().length > 0;
   }
 
   isEmployeeSelected(id: number): boolean {
@@ -363,7 +376,7 @@ export class EmployeeListComponent implements OnInit {
           zOkText: 'OK'
         });
         this.selectedEmployees.set(new Set());
-        this.selectAll.set(false);
+        this.selectAll = false;
         this.loadEmployees();
       }
     });

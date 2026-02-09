@@ -1,0 +1,646 @@
+<div class="space-y-6 max-w-5xl mx-auto">
+  <!-- Header -->
+  <div>
+    <h1 class="text-2xl font-bold text-foreground">Settings</h1>
+    <p class="text-muted-foreground">Manage your account settings and preferences.</p>
+  </div>
+
+  <!-- Settings container -->
+  <div class="flex flex-col space-y-4 lg:flex-row lg:space-y-0 lg:space-x-4">
+    <!-- Left sidebar nav -->
+    <aside class="lg:w-64">
+      <div class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-0">
+        <div data-slot="card-content" class="p-2">
+          <nav class="flex flex-col space-y-0.5 space-x-2 lg:space-x-0">
+            <div class="flex flex-row md:flex-col space-x-1 md:space-x-0 md:space-y-1 overflow-x-auto md:overflow-x-visible">
+              @for (item of navItems; track item.id) {
+                <button
+                  type="button"
+                  [class]="getNavItemClass(item.id)"
+                  (click)="setSection(item.id)">
+                  <z-icon [zType]="item.icon" class="h-4 w-4" />
+                  {{ item.label }}
+                </button>
+              }
+            </div>
+          </nav>
+        </div>
+        <!-- <nav class="flex flex-col space-y-0.5 space-x-2 lg:space-x-0">
+          
+        </nav> -->
+      </div>
+    </aside>
+    
+    
+
+    <!-- Right content area -->
+    <div class="flex-1 lg:max-w-2xl">
+      @if (loading()) {
+        <div class="flex items-center justify-center py-12">
+          <z-icon zType="loader-2" class="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      } @else {
+        @switch (activeSection()) {
+          <!-- ============ ACCOUNT SECTION ============ -->
+          @case ('account') {
+            <div class="space-y-6">
+              <!-- Account Info -->
+              @if (accountInfo()) {
+                <z-card>
+                  <div zCardHeader class="grid gap-2 pb-4">
+                    <h3 zCardTitle class="flex items-center gap-2 font-semibold">
+                      <z-icon zType="circle-user" class="h-5 w-5" />
+                      Account Information
+                    </h3>
+                    <p zCardDescription class="text-sm font-light">Your account details</p>
+                  </div>
+                  <div zCardContent>
+                    <div class="space-y-4">
+                      <div class="flex items-center justify-between py-2">
+                        <span class="text-sm text-muted-foreground">Name</span>
+                        <span class="text-sm font-medium">{{ accountInfo()!.employee_name }}</span>
+                      </div>
+                      <z-divider />
+                      <div class="flex items-center justify-between py-2">
+                        <span class="text-sm text-muted-foreground">Email</span>
+                        <span class="text-sm font-medium">{{ accountInfo()!.email }}</span>
+                      </div>
+                      <z-divider />
+                      <div class="flex items-center justify-between py-2">
+                        <span class="text-sm text-muted-foreground">Role</span>
+                        <span class="text-sm font-medium capitalize">{{ accountInfo()!.role }}</span>
+                      </div>
+                      <z-divider />
+                      <div class="flex items-center justify-between py-2">
+                        <span class="text-sm text-muted-foreground">Last Login</span>
+                        <span class="text-sm font-medium">{{ accountInfo()!.last_login || 'N/A' }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </z-card>
+              }
+
+              <!-- Change Password -->
+              <z-card>
+                <div zCardHeader class="grid gap-2 pb-4">
+                  <h3 zCardTitle class="flex items-center gap-2 font-semibold">
+                    <z-icon zType="lock" class="h-5 w-5" />
+                    Change Password
+                  </h3>
+                  <p zCardDescription class="text-sm font-light">Choose a strong password that you don't use for other accounts</p>
+                </div>
+                <div zCardContent class="space-y-4">
+                  <!-- Current Password -->
+                  <div class="grid gap-2">
+                    <label class="text-sm font-medium">Current Password</label>
+                    <div class="relative">
+                      <input z-input
+                        [type]="showCurrentPassword() ? 'text' : 'password'"
+                        [(ngModel)]="currentPassword"
+                        placeholder="Enter your current password"
+                        class="pr-10">
+                      <button
+                        type="button"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        (click)="toggleCurrentPassword()">
+                        <z-icon [zType]="showCurrentPassword() ? 'eye-off' : 'eye'" class="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <z-divider zSpacing="none" />
+
+                  <!-- New Password -->
+                  <div class="grid gap-2">
+                    <label class="text-sm font-medium">New Password</label>
+                    <div class="relative">
+                      <input z-input
+                        [type]="showNewPassword() ? 'text' : 'password'"
+                        [(ngModel)]="newPassword"
+                        (ngModelChange)="onNewPasswordChange()"
+                        placeholder="Enter your new password"
+                        class="pr-10">
+                      <button
+                        type="button"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        (click)="toggleNewPassword()">
+                        <z-icon [zType]="showNewPassword() ? 'eye-off' : 'eye'" class="h-4 w-4" />
+                      </button>
+                    </div>
+
+                    <!-- Password Strength -->
+                    @if (newPassword.length > 0) {
+                      <div class="grid gap-2 mt-3">
+                        <div class="flex items-center gap-2">
+                          <div class="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                            <div
+                              class="h-full transition-all duration-300 rounded-full"
+                              [ngClass]="passwordStrength().color"
+                              [style.width.%]="(passwordStrength().score / 6) * 100">
+                            </div>
+                          </div>
+                          <span class="text-sm font-medium" [ngClass]="{
+                            'text-red-500': passwordStrength().label === 'Weak',
+                            'text-yellow-500': passwordStrength().label === 'Fair',
+                            'text-blue-500': passwordStrength().label === 'Good',
+                            'text-green-500': passwordStrength().label === 'Strong'
+                          }">
+                            {{ passwordStrength().label }}
+                          </span>
+                        </div>
+                      </div>
+                    }
+                  </div>
+
+                  <!-- Password Requirements -->
+                  <div class="grid gap-2">
+                    <p class="text-sm font-medium text-muted-foreground">Password requirements:</p>
+                    <ul class="space-y-1.5">
+                      @for (req of passwordRequirements; track req.label; let i = $index) {
+                        <li class="flex items-center gap-2 text-sm">
+                          @if (isRequirementMet(i)) {
+                            <z-icon zType="check-circle" class="h-4 w-4 text-green-500" />
+                            <span class="text-green-600 dark:text-green-400">{{ req.label }}</span>
+                          } @else {
+                            <z-icon zType="circle" class="h-4 w-4 text-muted-foreground" />
+                            <span class="text-muted-foreground">{{ req.label }}</span>
+                          }
+                        </li>
+                      }
+                    </ul>
+                  </div>
+
+                  <z-divider zSpacing="none" />
+
+                  <!-- Confirm Password -->
+                  <div class="grid gap-2">
+                    <label class="text-sm font-medium">Confirm New Password</label>
+                    <div class="relative">
+                      <input z-input
+                        [type]="showConfirmPassword() ? 'text' : 'password'"
+                        [(ngModel)]="confirmPassword"
+                        placeholder="Confirm your new password"
+                        class="pr-10">
+                      <button
+                        type="button"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        (click)="toggleConfirmPassword()">
+                        <z-icon [zType]="showConfirmPassword() ? 'eye-off' : 'eye'" class="h-4 w-4" />
+                      </button>
+                    </div>
+                    @if (!passwordsMatch()) {
+                      <p class="text-sm text-red-500 flex items-center gap-1 mt-2">
+                        <z-icon zType="alert-circle" class="h-4 w-4" />
+                        Passwords do not match
+                      </p>
+                    }
+                  </div>
+                </div>
+                <div zCardFooter class="flex justify-end pt-6">
+                  <button z-button
+                    (click)="changePassword()"
+                    [disabled]="!isPasswordFormValid() || savingPassword()">
+                    @if (savingPassword()) {
+                      <z-icon zType="loader-2" class="mr-2 h-4 w-4 animate-spin" />
+                      Changing Password...
+                    } @else {
+                      <z-icon zType="key" class="mr-2 h-4 w-4" />
+                      Change Password
+                    }
+                  </button>
+                </div>
+              </z-card>
+            </div>
+          }
+
+          <!-- ============ PAYSLIPS SECTION ============ -->
+          @case ('payslips') {
+            <div class="space-y-6">
+              <!-- Year Filter -->
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="text-lg font-semibold">My Payslips</h3>
+                  <p class="text-sm text-muted-foreground">View and download your payslips</p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-sm text-muted-foreground">Year:</span>
+                  <z-select
+                    [zValue]="selectedYear()"
+                    (zValueChange)="onYearChange($event)"
+                    class="w-32">
+                    @for (year of years; track year) {
+                      <z-select-item [zValue]="year">{{ year }}</z-select-item>
+                    }
+                  </z-select>
+                </div>
+              </div>
+
+              <!-- YTD Summary Cards -->
+              @if (ytdSummary()) {
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <z-card class="p-4">
+                    <div class="flex items-center gap-3">
+                      <div class="p-2 rounded-lg bg-blue-100 dark:bg-blue-900">
+                        <z-icon zType="wallet" class="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                      </div>
+                      <div>
+                        <p class="text-sm text-muted-foreground">YTD Gross</p>
+                        <p class="text-lg font-semibold">{{ formatCurrency(ytdSummary()?.total_gross ?? 0) }}</p>
+                      </div>
+                    </div>
+                  </z-card>
+
+                  <z-card class="p-4">
+                    <div class="flex items-center gap-3">
+                      <div class="p-2 rounded-lg bg-green-100 dark:bg-green-900">
+                        <z-icon zType="banknote" class="h-5 w-5 text-green-600 dark:text-green-400" />
+                      </div>
+                      <div>
+                        <p class="text-sm text-muted-foreground">YTD Net</p>
+                        <p class="text-lg font-semibold">{{ formatCurrency(ytdSummary()?.total_net ?? 0) }}</p>
+                      </div>
+                    </div>
+                  </z-card>
+
+                  <z-card class="p-4">
+                    <div class="flex items-center gap-3">
+                      <div class="p-2 rounded-lg bg-purple-100 dark:bg-purple-900">
+                        <z-icon zType="landmark" class="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                      </div>
+                      <div>
+                        <p class="text-sm text-muted-foreground">YTD EPF</p>
+                        <p class="text-lg font-semibold">{{ formatCurrency(ytdSummary()?.total_epf ?? 0) }}</p>
+                      </div>
+                    </div>
+                  </z-card>
+
+                  <z-card class="p-4">
+                    <div class="flex items-center gap-3">
+                      <div class="p-2 rounded-lg bg-orange-100 dark:bg-orange-900">
+                        <z-icon zType="receipt-text" class="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                      </div>
+                      <div>
+                        <p class="text-sm text-muted-foreground">YTD Tax (PCB)</p>
+                        <p class="text-lg font-semibold">{{ formatCurrency(ytdSummary()?.total_pcb ?? 0) }}</p>
+                      </div>
+                    </div>
+                  </z-card>
+                </div>
+              }
+
+              <!-- Payslips Grid -->
+              @if (loadingPayslips()) {
+                <div class="flex items-center justify-center py-12">
+                  <z-icon zType="loader-2" class="h-8 w-8 animate-spin text-primary" />
+                </div>
+              } @else if (payslips().length > 0) {
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  @for (payslip of payslips(); track payslip.id) {
+                    <z-card class="hover:shadow-md transition-shadow">
+                      <div zCardHeader class="grid gap-2 pb-4">
+                        <div class="flex items-center justify-between">
+                          <h3 zCardTitle class="font-semibold">{{ getMonthName(payslip.month) }} {{ payslip.year }}</h3>
+                          <span
+                            class="px-2 py-1 text-xs font-medium rounded-full capitalize"
+                            [ngClass]="getStatusBadgeClass(payslip.status)">
+                            {{ payslip.status }}
+                          </span>
+                        </div>
+                      </div>
+                      <div zCardContent class="space-y-4">
+                        <div class="flex justify-between items-center">
+                          <span class="text-sm text-muted-foreground">Gross Salary</span>
+                          <span class="font-medium">{{ formatCurrency(payslip.gross_salary) }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                          <span class="text-sm text-muted-foreground">Total Deductions</span>
+                          <span class="font-medium text-red-600">-{{ formatCurrency(payslip.total_deductions) }}</span>
+                        </div>
+                        <hr class="border-border">
+                        <div class="flex justify-between items-center">
+                          <span class="text-sm font-medium">Net Salary</span>
+                          <span class="font-semibold text-green-600">{{ formatCurrency(payslip.net_salary) }}</span>
+                        </div>
+                      </div>
+                      <div zCardFooter class="pt-6">
+                        <button z-button zType="outline"
+                          class="w-full"
+                          [disabled]="downloading() === payslip.id"
+                          (click)="downloadPayslip(payslip)">
+                          @if (downloading() === payslip.id) {
+                            <z-icon zType="loader-2" class="mr-2 h-4 w-4 animate-spin" />
+                            Downloading...
+                          } @else {
+                            <z-icon zType="download" class="mr-2 h-4 w-4" />
+                            Download PDF
+                          }
+                        </button>
+                      </div>
+                    </z-card>
+                  }
+                </div>
+
+                <!-- Pagination -->
+                @if (totalPages() > 1) {
+                  <div class="flex items-center justify-between border-t pt-4">
+                    <p class="text-sm text-muted-foreground">
+                      Showing {{ (currentPage() - 1) * pageSize + 1 }} to {{ getShowingTo() }} of {{ totalRecords() }} payslips
+                    </p>
+                    <div class="flex items-center gap-2">
+                      <button z-button zType="outline" zSize="sm"
+                        [disabled]="currentPage() === 1"
+                        (click)="goToPage(currentPage() - 1)">
+                        <z-icon zType="chevron-left" class="h-4 w-4" />
+                      </button>
+                      <span class="text-sm">Page {{ currentPage() }} of {{ totalPages() }}</span>
+                      <button z-button zType="outline" zSize="sm"
+                        [disabled]="currentPage() === totalPages()"
+                        (click)="goToPage(currentPage() + 1)">
+                        <z-icon zType="chevron-right" class="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                }
+              } @else {
+                <z-card>
+                  <div zCardContent class="py-12 text-center">
+                    <z-icon zType="file-x" class="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <p class="text-muted-foreground">No payslips found for {{ selectedYear() }}</p>
+                  </div>
+                </z-card>
+              }
+            </div>
+          }
+
+          <!-- ============ APPEARANCE SECTION ============ -->
+          @case ('appearance') {
+            <div class="space-y-6">
+              <!-- Theme -->
+              <z-card>
+                <div zCardHeader class="grid gap-2 pb-4">
+                  <h3 zCardTitle class="flex items-center gap-2 font-semibold">
+                    <z-icon zType="sun-moon" class="h-5 w-5" />
+                    Theme
+                  </h3>
+                  <p zCardDescription class="text-sm font-light">Select your preferred theme for the application</p>
+                </div>
+                <div zCardContent>
+                  <div class="grid grid-cols-3 gap-3">
+                    <!-- Light -->
+                    <button
+                      type="button"
+                      class="flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-colors cursor-pointer"
+                      [ngClass]="selectedTheme === 'light' ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground/30'"
+                      (click)="setTheme('light')">
+                      <z-icon zType="sun" class="h-6 w-6" />
+                      <span class="text-sm font-medium">Light</span>
+                    </button>
+                    <!-- Dark -->
+                    <button
+                      type="button"
+                      class="flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-colors cursor-pointer"
+                      [ngClass]="selectedTheme === 'dark' ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground/30'"
+                      (click)="setTheme('dark')">
+                      <z-icon zType="moon" class="h-6 w-6" />
+                      <span class="text-sm font-medium">Dark</span>
+                    </button>
+                    <!-- System -->
+                    <button
+                      type="button"
+                      class="flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-colors cursor-pointer"
+                      [ngClass]="selectedTheme === 'system' ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground/30'"
+                      (click)="setTheme('system')">
+                      <z-icon zType="sun-moon" class="h-6 w-6" />
+                      <span class="text-sm font-medium">System</span>
+                    </button>
+                  </div>
+                </div>
+              </z-card>
+
+              <!-- Layout Preferences -->
+              <z-card>
+                <div zCardHeader class="grid gap-2 pb-4">
+                  <h3 zCardTitle class="flex items-center gap-2 font-semibold">
+                    <z-icon zType="panel-left" class="h-5 w-5" />
+                    Layout
+                  </h3>
+                  <p zCardDescription class="text-sm font-light">Customize the application layout</p>
+                </div>
+                <div zCardContent class="space-y-4">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="text-sm font-medium">Sidebar Collapsed</p>
+                      <p class="text-sm text-muted-foreground">Start with a collapsed sidebar by default</p>
+                    </div>
+                    <z-checkbox [(ngModel)]="sidebarCollapsed">
+                    </z-checkbox>
+                  </div>
+                  <z-divider />
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="text-sm font-medium">Compact Mode</p>
+                      <p class="text-sm text-muted-foreground">Reduce spacing for a more compact layout</p>
+                    </div>
+                    <z-checkbox [(ngModel)]="compactMode">
+                    </z-checkbox>
+                  </div>
+                </div>
+                <div zCardFooter class="flex justify-end pt-6">
+                  <button z-button (click)="saveAppearance()" [disabled]="saving()">
+                    @if (saving()) {
+                      <z-icon zType="loader-2" class="mr-2 h-4 w-4 animate-spin" />
+                      Saving...
+                    } @else {
+                      <z-icon zType="save" class="mr-2 h-4 w-4" />
+                      Save Changes
+                    }
+                  </button>
+                </div>
+              </z-card>
+            </div>
+          }
+
+          <!-- ============ NOTIFICATIONS SECTION ============ -->
+          @case ('notifications') {
+            <div class="space-y-6">
+              <!-- General Notifications -->
+              <z-card>
+                <div zCardHeader class="grid gap-2 pb-4">
+                  <h3 zCardTitle class="flex items-center gap-2 font-semibold">
+                    <z-icon zType="bell" class="h-5 w-5" />
+                    General
+                  </h3>
+                  <p zCardDescription class="text-sm font-light">Configure how you receive notifications</p>
+                </div>
+                <div zCardContent class="space-y-4">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="text-sm font-medium">Email Notifications</p>
+                      <p class="text-sm text-muted-foreground">Receive notifications via email</p>
+                    </div>
+                    <z-checkbox [(ngModel)]="emailNotifications">
+                    </z-checkbox>
+                  </div>
+                  <z-divider />
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="text-sm font-medium">Push Notifications</p>
+                      <p class="text-sm text-muted-foreground">Receive push notifications in browser</p>
+                    </div>
+                    <z-checkbox [(ngModel)]="pushNotifications">
+                    </z-checkbox>
+                  </div>
+                </div>
+              </z-card>
+
+              <!-- Specific Notifications -->
+              <z-card>
+                <div zCardHeader class="grid gap-2 pb-4">
+                  <h3 zCardTitle class="flex items-center gap-2 font-semibold">
+                    <z-icon zType="mail" class="h-5 w-5" />
+                    Notification Preferences
+                  </h3>
+                  <p zCardDescription class="text-sm font-light">Choose which notifications you want to receive</p>
+                </div>
+                <div zCardContent class="space-y-4">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="text-sm font-medium">Leave Approval</p>
+                      <p class="text-sm text-muted-foreground">When your leave is approved or rejected</p>
+                    </div>
+                    <z-checkbox [(ngModel)]="notifyLeaveApproval">
+                    </z-checkbox>
+                  </div>
+                  <z-divider />
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="text-sm font-medium">Claim Approval</p>
+                      <p class="text-sm text-muted-foreground">When your claim is approved or rejected</p>
+                    </div>
+                    <z-checkbox [(ngModel)]="notifyClaimApproval">
+                    </z-checkbox>
+                  </div>
+                  <z-divider />
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="text-sm font-medium">Payslip Ready</p>
+                      <p class="text-sm text-muted-foreground">When your monthly payslip is available</p>
+                    </div>
+                    <z-checkbox [(ngModel)]="notifyPayslipReady">
+                    </z-checkbox>
+                  </div>
+                  <z-divider />
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="text-sm font-medium">Memo Received</p>
+                      <p class="text-sm text-muted-foreground">When a new memo is sent to you</p>
+                    </div>
+                    <z-checkbox [(ngModel)]="notifyMemoReceived">
+                    </z-checkbox>
+                  </div>
+                  <z-divider />
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="text-sm font-medium">Policy Updates</p>
+                      <p class="text-sm text-muted-foreground">When company policies are updated</p>
+                    </div>
+                    <z-checkbox [(ngModel)]="notifyPolicyUpdate">
+                    </z-checkbox>
+                  </div>
+                </div>
+                <div zCardFooter class="flex justify-end pt-6">
+                  <button z-button (click)="saveNotifications()" [disabled]="saving()">
+                    @if (saving()) {
+                      <z-icon zType="loader-2" class="mr-2 h-4 w-4 animate-spin" />
+                      Saving...
+                    } @else {
+                      <z-icon zType="save" class="mr-2 h-4 w-4" />
+                      Save Changes
+                    }
+                  </button>
+                </div>
+              </z-card>
+            </div>
+          }
+
+          <!-- ============ DISPLAY SECTION ============ -->
+          @case ('display') {
+            <div class="space-y-6">
+              <z-card>
+                <div zCardHeader class="grid gap-2 pb-4">
+                  <h3 zCardTitle class="flex items-center gap-2 font-semibold">
+                    <z-icon zType="monitor" class="h-5 w-5" />
+                    Display Preferences
+                  </h3>
+                  <p zCardDescription class="text-sm font-light">Customize language, timezone, and formatting</p>
+                </div>
+                <div zCardContent class="space-y-4">
+                  <!-- Language -->
+                  <div class="grid gap-2">
+                    <label class="text-sm font-medium">Language</label>
+                    <p class="text-sm text-muted-foreground">Select your preferred language</p>
+                    <z-select [zValue]="selectedLanguage" (zValueChange)="onLanguageChange($event)">
+                      @for (lang of languages; track lang.value) {
+                        <z-select-item [zValue]="lang.value">{{ lang.label }}</z-select-item>
+                      }
+                    </z-select>
+                  </div>
+
+                  <z-divider />
+
+                  <!-- Timezone -->
+                  <div class="grid gap-2">
+                    <label class="text-sm font-medium">Timezone</label>
+                    <p class="text-sm text-muted-foreground">Set your local timezone for accurate dates and times</p>
+                    <z-select [zValue]="selectedTimezone" (zValueChange)="onTimezoneChange($event)">
+                      @for (tz of timezones; track tz.value) {
+                        <z-select-item [zValue]="tz.value">{{ tz.label }}</z-select-item>
+                      }
+                    </z-select>
+                  </div>
+
+                  <z-divider />
+
+                  <!-- Date Format -->
+                  <div class="grid gap-2">
+                    <label class="text-sm font-medium">Date Format</label>
+                    <p class="text-sm text-muted-foreground">Choose how dates are displayed</p>
+                    <z-select [zValue]="selectedDateFormat" (zValueChange)="onDateFormatChange($event)">
+                      @for (df of dateFormats; track df.value) {
+                        <z-select-item [zValue]="df.value">{{ df.label }}</z-select-item>
+                      }
+                    </z-select>
+                  </div>
+
+                  <z-divider />
+
+                  <!-- Time Format -->
+                  <div class="grid gap-2">
+                    <label class="text-sm font-medium">Time Format</label>
+                    <p class="text-sm text-muted-foreground">Choose 12-hour or 24-hour time format</p>
+                    <z-select [zValue]="selectedTimeFormat" (zValueChange)="onTimeFormatChange($event)">
+                      @for (tf of timeFormats; track tf.value) {
+                        <z-select-item [zValue]="tf.value">{{ tf.label }}</z-select-item>
+                      }
+                    </z-select>
+                  </div>
+                </div>
+                <div zCardFooter class="flex justify-end pt-6">
+                  <button z-button (click)="saveDisplay()" [disabled]="saving()">
+                    @if (saving()) {
+                      <z-icon zType="loader-2" class="mr-2 h-4 w-4 animate-spin" />
+                      Saving...
+                    } @else {
+                      <z-icon zType="save" class="mr-2 h-4 w-4" />
+                      Save Changes
+                    }
+                  </button>
+                </div>
+              </z-card>
+            </div>
+          }
+        }
+      }
+    </div>
+  </div>
+</div>

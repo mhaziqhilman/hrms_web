@@ -13,6 +13,11 @@ import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { ZardIconComponent } from '@/shared/components/icon/icon.component';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
+import { ZardSelectComponent } from '@/shared/components/select/select.component';
+import { ZardSelectItemComponent } from '@/shared/components/select/select-item.component';
+import { ZardInputDirective } from '@/shared/components/input/input.directive';
+import { ZardDatePickerComponent } from '@/shared/components/date-picker/date-picker.component';
+import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-dialog.service';
 
 @Component({
   selector: 'app-claim-form',
@@ -26,8 +31,11 @@ import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
     ZardCardComponent,
     ZardIconComponent,
     ZardButtonComponent,
-    ZardIconComponent,
-    ZardBadgeComponent
+    ZardBadgeComponent,
+    ZardSelectComponent,
+    ZardSelectItemComponent,
+    ZardInputDirective,
+    ZardDatePickerComponent
   ],
   templateUrl: './claim-form.component.html',
   styleUrl: './claim-form.component.css'
@@ -64,7 +72,8 @@ export class ClaimFormComponent implements OnInit {
     private claimService: ClaimService,
     private fileService: FileService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private alertDialogService: ZardAlertDialogService
   ) {}
 
   ngOnInit(): void {
@@ -174,11 +183,20 @@ export class ClaimFormComponent implements OnInit {
   onSubmit(): void {
     if (this.claimForm.invalid) {
       this.markFormGroupTouched(this.claimForm);
+      this.alertDialogService.warning({
+        zTitle: 'Invalid Form',
+        zDescription: 'Please fill in all required fields correctly before submitting.',
+        zOkText: 'OK'
+      });
       return;
     }
 
     if (!this.employeeId() && !this.isEditMode()) {
-      this.error.set('Employee ID not found. Please log in again.');
+      this.alertDialogService.warning({
+        zTitle: 'Authentication Error',
+        zDescription: 'Employee ID not found. Please log in again.',
+        zOkText: 'OK'
+      });
       return;
     }
 
@@ -201,16 +219,26 @@ export class ClaimFormComponent implements OnInit {
       this.claimService.updateClaim(this.claimId()!, updateData).subscribe({
         next: (response) => {
           if (response.success) {
-            this.success.set('Claim updated successfully!');
-            setTimeout(() => {
-              this.router.navigate(['/claims']);
-            }, 1500);
+            this.submitting.set(false);
+            this.alertDialogService.info({
+              zTitle: 'Success',
+              zDescription: 'Claim updated successfully! You will be redirected to the claims list.',
+              zOkText: 'OK',
+              zOnOk: () => {
+                this.router.navigate(['/claims']);
+              }
+            });
+          } else {
+            this.submitting.set(false);
           }
-          this.submitting.set(false);
         },
         error: (err) => {
-          this.error.set(err.error?.message || 'Failed to update claim');
           this.submitting.set(false);
+          this.alertDialogService.warning({
+            zTitle: 'Update Failed',
+            zDescription: err.error?.message || 'Failed to update claim. Please try again.',
+            zOkText: 'OK'
+          });
           console.error('Update claim error:', err);
         }
       });
@@ -234,20 +262,28 @@ export class ClaimFormComponent implements OnInit {
             if (newClaimId && this.receiptFiles().length > 0) {
               this.uploadFilesForClaim(newClaimId);
             } else {
-              this.success.set('Claim submitted successfully!');
-              this.claimForm.reset();
-              setTimeout(() => {
-                this.router.navigate(['/claims']);
-              }, 1500);
               this.submitting.set(false);
+              this.alertDialogService.info({
+                zTitle: 'Success',
+                zDescription: 'Claim submitted successfully! You will be redirected to the claims list.',
+                zOkText: 'OK',
+                zOnOk: () => {
+                  this.claimForm.reset();
+                  this.router.navigate(['/claims']);
+                }
+              });
             }
           } else {
             this.submitting.set(false);
           }
         },
         error: (err) => {
-          this.error.set(err.error?.message || 'Failed to submit claim');
           this.submitting.set(false);
+          this.alertDialogService.warning({
+            zTitle: 'Submission Failed',
+            zDescription: err.error?.message || 'Failed to submit claim. Please try again.',
+            zOkText: 'OK'
+          });
           console.error('Submit claim error:', err);
         }
       });
@@ -362,17 +398,25 @@ export class ClaimFormComponent implements OnInit {
     this.fileService.uploadFiles(this.receiptFiles(), metadata).subscribe({
       next: (response) => {
         console.log('Files uploaded successfully:', response);
-        this.success.set('Claim and receipts submitted successfully!');
-        this.claimForm.reset();
-        this.receiptFiles.set([]);
-        setTimeout(() => {
-          this.router.navigate(['/claims']);
-        }, 1500);
         this.submitting.set(false);
+        this.alertDialogService.info({
+          zTitle: 'Success',
+          zDescription: 'Claim and receipts submitted successfully! You will be redirected to the claims list.',
+          zOkText: 'OK',
+          zOnOk: () => {
+            this.claimForm.reset();
+            this.receiptFiles.set([]);
+            this.router.navigate(['/claims']);
+          }
+        });
       },
       error: (error) => {
-        this.error.set(error.error?.message || 'Failed to upload receipt files');
         this.submitting.set(false);
+        this.alertDialogService.warning({
+          zTitle: 'Upload Failed',
+          zDescription: error.error?.message || 'Failed to upload receipt files. Please try again.',
+          zOkText: 'OK'
+        });
       }
     });
   }

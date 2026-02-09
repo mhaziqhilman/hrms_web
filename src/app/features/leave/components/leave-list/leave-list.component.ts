@@ -15,6 +15,7 @@ import { ZardDatePickerComponent } from '@/shared/components/date-picker/date-pi
 import { ZardTableImports } from '@/shared/components/table/table.imports';
 import { ZardTooltipModule } from '@/shared/components/tooltip/tooltip';
 import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-dialog.service';
+import { ZardCheckboxComponent } from '@/shared/components/checkbox/checkbox.component';
 
 @Component({
   selector: 'app-leave-list',
@@ -30,7 +31,8 @@ import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-d
     ZardMenuImports,
     ZardDatePickerComponent,
     ZardTableImports,
-    ZardTooltipModule
+    ZardTooltipModule,
+    ZardCheckboxComponent
   ],
   templateUrl: './leave-list.component.html',
   styleUrl: './leave-list.component.css'
@@ -66,7 +68,7 @@ export class LeaveListComponent implements OnInit {
 
   // Selection
   selectedLeaves = signal<Set<number>>(new Set());
-  selectAll = signal<boolean>(false);
+  selectAll = false;  // Changed from signal to regular property for ngModel compatibility
 
   // Column visibility
   visibleColumns = signal<{[key: string]: boolean}>({
@@ -167,7 +169,7 @@ export class LeaveListComponent implements OnInit {
   // Clear selection
   clearSelection(): void {
     this.selectedLeaves.set(new Set());
-    this.selectAll.set(false);
+    this.selectAll = false;
   }
 
   // Toggle column visibility
@@ -306,7 +308,7 @@ export class LeaveListComponent implements OnInit {
           zOkText: 'OK'
         });
         this.selectedLeaves.set(new Set());
-        this.selectAll.set(false);
+        this.selectAll = false;
         this.loadLeaves();
       }
     });
@@ -336,7 +338,7 @@ export class LeaveListComponent implements OnInit {
           zOkText: 'OK'
         });
         this.selectedLeaves.set(new Set());
-        this.selectAll.set(false);
+        this.selectAll = false;
         this.loadLeaves();
       }
     });
@@ -542,14 +544,12 @@ export class LeaveListComponent implements OnInit {
 
   // Selection methods
   toggleSelectAll(): void {
-    const newSelectAll = !this.selectAll();
-    this.selectAll.set(newSelectAll);
-
-    if (newSelectAll) {
+    if (this.selectAll) {
       const allIds = new Set(this.leaves().map(l => l.id));
       this.selectedLeaves.set(allIds);
     } else {
       this.selectedLeaves.set(new Set());
+      this.selectAll = false;
     }
   }
 
@@ -561,7 +561,7 @@ export class LeaveListComponent implements OnInit {
       selected.add(id);
     }
     this.selectedLeaves.set(selected);
-    this.selectAll.set(selected.size === this.leaves().length && this.leaves().length > 0);
+    this.selectAll = selected.size === this.leaves().length && this.leaves().length > 0;
   }
 
   isLeaveSelected(id: number): boolean {

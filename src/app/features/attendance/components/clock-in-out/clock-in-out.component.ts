@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AttendanceService } from '../../services/attendance.service';
+import { AuthService } from '@/core/services/auth.service';
 import { Attendance } from '../../models/attendance.model';
 
 // ZardUI Components
@@ -49,12 +50,18 @@ export class ClockInOutComponent implements OnInit, OnDestroy {
   error = signal<string | null>(null);
   success = signal<string | null>(null);
 
-  // Employee (mock for now - should come from auth service)
-  employeeId = signal<number | null>(1); // TODO: Get from auth service
+  // Employee - from auth service
+  employeeId = signal<number | null>(null);
 
-  constructor(private attendanceService: AttendanceService) {}
+  constructor(
+    private attendanceService: AttendanceService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
+    const user = this.authService.getCurrentUserValue();
+    this.employeeId.set(user?.employee?.id ?? null);
+
     // Start real-time clock
     this.updateClock();
     this.clockInterval = setInterval(() => {

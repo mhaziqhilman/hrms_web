@@ -85,14 +85,14 @@ export class MainLayoutComponent implements OnInit {
           icon: 'clock',
           children: [
             {
+              title: 'Attendance List',
+              icon: 'list',
+              route: '/attendance'
+            },
+            {
               title: 'WFH',
               icon: 'house',
               route: '/attendance/wfh'
-            },
-            {
-              title: 'Office',
-              icon: 'monitor',
-              route: '/attendance/office'
             }
           ]
         },
@@ -100,16 +100,57 @@ export class MainLayoutComponent implements OnInit {
           title: 'Claims',
           icon: 'file-text',
           route: '/claims'
+        },
+        {
+          title: 'Statutory Reports',
+          icon: 'file-chart-column',
+          route: '/statutory-reports'
+        },
+        {
+          title: 'Analytics',
+          icon: 'bar-chart-3',
+          route: '/analytics'
         }
       ]
     },
     {
-      label: 'System',
+      label: 'Personal',
+      items: [
+        {
+          title: 'My Profile',
+          icon: 'user-circle',
+          route: '/personal/profile'
+        }
+      ]
+    },
+    {
+      label: 'Systems',
       items: [
         {
           title: 'Settings',
           icon: 'settings',
-          route: '/settings'
+          children: [
+            {
+              title: 'Account',
+              icon: 'circle-user',
+              route: '/settings/account'
+            },
+            {
+              title: 'Appearance',
+              icon: 'sun-moon',
+              route: '/settings/appearance'
+            },
+            {
+              title: 'Notifications',
+              icon: 'bell',
+              route: '/settings/notifications'
+            },
+            {
+              title: 'Display',
+              icon: 'monitor',
+              route: '/settings/display'
+            }
+          ]
         }
       ]
     }
@@ -140,12 +181,25 @@ export class MainLayoutComponent implements OnInit {
       return 'U';
     }
 
-    const names = this.currentUser.employee.full_name.split(' ');
+    const names = this.currentUser.employee.full_name.split(' ').filter(Boolean);
     if (names.length >= 2) {
-      return (names[0][0] + names[names.length - 1][0]).toUpperCase();
+      return (names[0][0] + names[1][0]).toUpperCase();
     }
 
-    return this.currentUser.employee.full_name.substring(0, 2).toUpperCase();
+    return names[0].substring(0, 2).toUpperCase();
+  }
+
+  getDisplayName(): string {
+    if (!this.currentUser?.employee?.full_name) {
+      return 'User';
+    }
+
+    return this.currentUser.employee.full_name
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+      .join(' ');
   }
 
   toggleTheme() {

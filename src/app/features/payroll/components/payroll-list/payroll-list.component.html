@@ -328,8 +328,7 @@
         <thead>
           <tr>
             <th class="!pl-3 w-10 th-text-center">
-              <input type="checkbox" [checked]="selectAll()" (change)="toggleSelectAll()"
-                class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer" />
+              <span z-checkbox class="border-primary/30" [(ngModel)]="selectAll" (ngModelChange)="toggleSelectAll()"></span>
             </th>
             @if (visibleColumns()['employee']) {
             <th class="!pl-3">
@@ -394,9 +393,9 @@
           <tr *ngFor="let payroll of payrolls()">
             <!-- Checkbox -->
             <td class="!pl-3 text-center">
-              <input type="checkbox" [checked]="isPayrollSelected(payroll.id)"
-                (change)="togglePayrollSelection(payroll.id)"
-                class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer" />
+              <span z-checkbox [ngModel]="isPayrollSelected(payroll.id)"
+                (ngModelChange)="togglePayrollSelection(payroll.id)"
+                class="border-primary/30"></span>
             </td>
 
             @if (visibleColumns()['employee']) {

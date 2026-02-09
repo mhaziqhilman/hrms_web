@@ -1,217 +1,319 @@
-<div class="wfh-approval-container">
+<div class="bg-background min-h-screen">
   <!-- Header -->
-  <div class="page-header">
+  <div class="flex items-center justify-between mb-8">
     <div>
-      <h2 class="page-title">WFH Approval Requests</h2>
-      <p class="page-subtitle">Review and approve/reject Work From Home applications from your team</p>
+      <h1 class="text-3xl font-bold text-foreground">WFH Approvals</h1>
+      <p class="text-muted-foreground">Review and manage Work From Home requests</p>
     </div>
-    <a routerLink="/attendance" class="btn btn-outline-secondary">
-      <i class="bi bi-arrow-left me-2"></i>
-      Back to Attendance
-    </a>
+    <button z-button zType="outline" routerLink="/attendance/wfh" class="gap-2">
+      <z-icon zType="arrow-left" class="w-4 h-4" />
+      Back to WFH
+    </button>
   </div>
 
-  <!-- Success Message -->
-  <div *ngIf="success()" class="alert alert-success alert-dismissible fade show" role="alert">
-    <i class="bi bi-check-circle-fill me-2"></i>
-    {{ success() }}
-  </div>
-
-  <!-- Error Message -->
-  <div *ngIf="error()" class="alert alert-danger alert-dismissible fade show" role="alert">
-    <i class="bi bi-exclamation-triangle-fill me-2"></i>
-    {{ error() }}
-  </div>
+  <!-- Alerts -->
+  @if (success()) {
+    <div class="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg p-3 flex items-center gap-2 text-green-800 dark:text-green-300 mb-4 text-sm">
+      <z-icon zType="circle-check" class="w-4 h-4 shrink-0" />
+      <span>{{ success() }}</span>
+    </div>
+  }
+  @if (error()) {
+    <div class="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg p-3 flex items-center gap-2 text-red-800 dark:text-red-300 mb-4 text-sm">
+      <z-icon zType="triangle-alert" class="w-4 h-4 shrink-0" />
+      <span>{{ error() }}</span>
+    </div>
+  }
 
   <!-- Filters -->
-  <div class="card mb-4">
-    <div class="card-body">
-      <div class="row g-3">
-        <!-- Status Filter -->
-        <div class="col-md-3">
-          <label for="statusFilter" class="form-label">Status</label>
-          <select
-            id="statusFilter"
-            class="form-select"
-            [(ngModel)]="selectedStatus"
-            (change)="onFilterChange()">
-            <option value="">All Status</option>
-            <option value="Pending">Pending</option>
-            <option value="Approved">Approved</option>
-            <option value="Rejected">Rejected</option>
-          </select>
-        </div>
-
-        <!-- Search -->
-        <div class="col-md-6">
-          <label for="search" class="form-label">Search Employee</label>
-          <input
-            type="text"
-            id="search"
-            class="form-control"
-            placeholder="Search by employee name..."
-            [(ngModel)]="searchQuery"
-            (input)="onSearchChange()">
-        </div>
-
-        <!-- Results Count -->
-        <div class="col-md-3 d-flex align-items-end">
-          <div class="w-100">
-            <label class="form-label">Total Records</label>
-            <div class="badge bg-primary w-100 py-2 fs-6">{{ totalRecords() }} applications</div>
-          </div>
-        </div>
+  <div class="flex items-center gap-3 mb-6 flex-wrap justify-between">
+    <div class="flex items-center gap-3 flex-1 flex-wrap">
+      <!-- Search -->
+      <div class="relative max-w-xs">
+        <z-icon zType="search" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <input
+          type="text"
+          placeholder="Search employee..."
+          class="pl-9 pr-3 h-9 w-full text-sm border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)"
+          (input)="onSearchChange()" />
       </div>
+
+      <!-- Status Filter -->
+      <div z-menu [zMenuTriggerFor]="statusMenu">
+        <button
+          z-button
+          zType="outline"
+          [class]="selectedStatus()
+            ? 'gap-2 border border-solid px-2 bg-primary/5 text-primary border-primary'
+            : 'gap-2 border border-dashed px-2'">
+          <z-icon [zType]="selectedStatus() ? 'circle-check' : 'circle-plus'" class="w-4 h-4" />
+          {{ getStatusDisplayName() }}
+        </button>
+      </div>
+      <ng-template #statusMenu>
+        <div z-menu-content class="w-48">
+          <button type="button" z-menu-item (click)="selectedStatus.set(''); onFilterChange()">
+            All Status
+          </button>
+          <button type="button" z-menu-item (click)="selectedStatus.set('Pending'); onFilterChange()">
+            Pending
+          </button>
+          <button type="button" z-menu-item (click)="selectedStatus.set('Approved'); onFilterChange()">
+            Approved
+          </button>
+          <button type="button" z-menu-item (click)="selectedStatus.set('Rejected'); onFilterChange()">
+            Rejected
+          </button>
+        </div>
+      </ng-template>
+
+      <!-- Clear Filters -->
+      @if (selectedStatus() || searchQuery()) {
+        <button
+          type="button"
+          z-button
+          zType="outline"
+          class="gap-2 border-none shadow-none px-2"
+          (click)="selectedStatus.set('Pending'); searchQuery.set(''); onFilterChange()">
+          Reset
+          <z-icon zType="x" class="w-4 h-4" />
+        </button>
+      }
+    </div>
+
+    <!-- Records count -->
+    <div class="text-sm text-muted-foreground">
+      {{ totalRecords() }} application{{ totalRecords() !== 1 ? 's' : '' }}
     </div>
   </div>
 
   <!-- Loading State -->
-  <div *ngIf="loading()" class="loading-container">
-    <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Loading...</span>
+  @if (loading()) {
+    <div class="flex items-center justify-center py-20">
+      <z-icon zType="loader-circle" class="w-8 h-8 animate-spin text-primary" />
     </div>
-    <p class="loading-text">Loading WFH applications...</p>
-  </div>
+  }
 
-  <!-- Applications List -->
-  <div *ngIf="!loading() && wfhApplications().length > 0" class="applications-list">
-    <div class="card mb-3" *ngFor="let application of wfhApplications()">
-      <div class="card-body">
-        <div class="row align-items-center">
-          <!-- Employee Info -->
-          <div class="col-md-3">
-            <h6 class="mb-1">{{ application.employee?.full_name || 'Unknown Employee' }}</h6>
-            <small class="text-muted">{{ application.employee?.employee_code || 'N/A' }}</small>
+  <!-- Error State -->
+  @if (!loading() && error()) {
+    <div class="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg p-4 flex items-center gap-2 text-red-800 dark:text-red-300 mb-6">
+      <z-icon zType="triangle-alert" class="w-5 h-5" />
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  <!-- Table -->
+  @if (!loading()) {
+    @if (wfhApplications().length > 0) {
+      <div class="rounded-lg border">
+        <table z-table>
+          <thead>
+            <tr>
+              <th class="!pl-3">Employee</th>
+              <th>WFH Date</th>
+              <th>Reason</th>
+              <th>Status</th>
+              <th>Responded</th>
+              <th class="!pr-3 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (app of wfhApplications(); track app.id) {
+              <tr>
+                <!-- Employee -->
+                <td class="!pl-3">
+                  <div class="flex items-center gap-3">
+                    <z-avatar
+                      [zFallback]="getEmployeeInitial(app)"
+                      class="w-9 h-9" />
+                    <div class="flex flex-col">
+                      <span class="font-medium text-foreground text-sm">{{ app.employee?.full_name || 'Unknown' }}</span>
+                      <span class="text-xs text-muted-foreground">{{ app.employee?.employee_code || 'N/A' }}</span>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Date -->
+                <td class="whitespace-nowrap text-sm">
+                  {{ formatDate(app.date) }}
+                </td>
+
+                <!-- Reason -->
+                <td>
+                  <div class="max-w-[250px] text-sm line-clamp-2" [title]="app.reason">
+                    {{ app.reason }}
+                  </div>
+                </td>
+
+                <!-- Status -->
+                <td>
+                  <z-badge
+                    [zType]="app.status === 'Approved' ? 'default' : app.status === 'Rejected' ? 'destructive' : 'secondary'"
+                    zShape="pill"
+                    class="text-xs">
+                    {{ app.status }}
+                  </z-badge>
+                  @if (app.approved_at) {
+                    <div class="text-xs text-muted-foreground mt-1">{{ formatDateTime(app.approved_at) }}</div>
+                  }
+                </td>
+
+                <!-- Responded At / Rejection Reason -->
+                <td class="text-sm">
+                  @if (app.status === 'Rejected' && app.rejection_reason) {
+                    <div class="max-w-[200px]">
+                      <span class="text-xs text-red-500 line-clamp-2" [title]="app.rejection_reason">{{ app.rejection_reason }}</span>
+                    </div>
+                  } @else if (app.approver_name) {
+                    <span class="text-muted-foreground">{{ app.approver_name }}</span>
+                  } @else {
+                    <span class="text-muted-foreground">--</span>
+                  }
+                </td>
+
+                <!-- Actions -->
+                <td class="!pr-3 text-right">
+                  @if (canApproveReject(app)) {
+                    <div class="flex gap-1.5 justify-end">
+                      <button
+                        z-button
+                        zType="outline"
+                        zSize="sm"
+                        [zTooltip]="'Approve'"
+                        (click)="approveApplication(app.id)"
+                        class="text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-950/30 border-green-200 dark:border-green-800">
+                        <z-icon zType="check" class="w-4 h-4" />
+                      </button>
+                      <button
+                        z-button
+                        zType="outline"
+                        zSize="sm"
+                        [zTooltip]="'Reject'"
+                        (click)="openRejectionModal(app.id)"
+                        class="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 border-red-200 dark:border-red-800">
+                        <z-icon zType="x" class="w-4 h-4" />
+                      </button>
+                    </div>
+                  } @else {
+                    <z-badge zType="outline" class="text-xs">
+                      {{ isPastDate(app.date) ? 'Past Date' : 'Processed' }}
+                    </z-badge>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      @if (totalPages() > 1) {
+        <div class="flex items-center justify-between mt-4">
+          <div class="text-sm text-muted-foreground">
+            Showing {{ (currentPage() - 1) * limit + 1 }} to
+            {{ Math.min(currentPage() * limit, totalRecords()) }} of
+            {{ totalRecords() }} records
           </div>
-
-          <!-- WFH Date -->
-          <div class="col-md-2">
-            <label class="text-muted small">WFH Date</label>
-            <div class="fw-bold">{{ formatDate(application.date) }}</div>
-          </div>
-
-          <!-- Reason -->
-          <div class="col-md-3">
-            <label class="text-muted small">Reason</label>
-            <div class="text-truncate" [title]="application.reason">{{ application.reason }}</div>
-          </div>
-
-          <!-- Status -->
-          <div class="col-md-2">
-            <label class="text-muted small">Status</label>
-            <div>
-              <span [class]="getStatusBadgeClass(application.status)">
-                {{ application.status }}
-              </span>
-            </div>
-            <small class="text-muted d-block mt-1" *ngIf="application.approved_at">
-              {{ formatDateTime(application.approved_at) }}
-            </small>
-          </div>
-
-          <!-- Actions -->
-          <div class="col-md-2 text-end">
-            <div class="btn-group" *ngIf="canApproveReject(application)">
+          <div class="flex items-center gap-1">
+            <button
+              z-button
+              zType="outline"
+              zSize="sm"
+              (click)="onPageChange(currentPage() - 1)"
+              [disabled]="currentPage() === 1">
+              Previous
+            </button>
+            @for (page of [].constructor(Math.min(totalPages(), 5)); track $index) {
               <button
-                type="button"
-                class="btn btn-sm btn-success"
-                (click)="approveApplication(application.id)"
-                title="Approve">
-                <i class="bi bi-check-lg"></i>
+                z-button
+                [zType]="currentPage() === $index + 1 ? 'default' : 'outline'"
+                zSize="sm"
+                (click)="onPageChange($index + 1)"
+                class="min-w-[36px]">
+                {{ $index + 1 }}
               </button>
-              <button
-                type="button"
-                class="btn btn-sm btn-danger"
-                (click)="openRejectionModal(application.id)"
-                title="Reject">
-                <i class="bi bi-x-lg"></i>
-              </button>
-            </div>
-            <span *ngIf="!canApproveReject(application)" class="badge bg-secondary">
-              {{ isPastDate(application.date) ? 'Past Date' : 'Processed' }}
-            </span>
+            }
+            <button
+              z-button
+              zType="outline"
+              zSize="sm"
+              (click)="onPageChange(currentPage() + 1)"
+              [disabled]="currentPage() === totalPages()">
+              Next
+            </button>
           </div>
         </div>
-
-        <!-- Rejection Reason (if rejected) -->
-        <div *ngIf="application.status === 'Rejected' && application.rejection_reason" class="mt-3 pt-3 border-top">
-          <label class="text-muted small">Rejection Reason:</label>
-          <div class="text-danger">{{ application.rejection_reason }}</div>
+      }
+    } @else {
+      <!-- Empty State -->
+      <div class="bg-card border rounded-lg">
+        <div class="flex flex-col items-center justify-center py-20 text-center">
+          <z-icon zType="inbox" class="w-16 h-16 text-muted-foreground mb-4" />
+          <h3 class="text-lg font-semibold mb-2">No WFH Applications Found</h3>
+          <p class="text-muted-foreground">There are no applications matching your filters</p>
         </div>
       </div>
-    </div>
-  </div>
-
-  <!-- Empty State -->
-  <div *ngIf="!loading() && wfhApplications().length === 0" class="empty-state">
-    <i class="bi bi-inbox"></i>
-    <h4>No WFH Applications Found</h4>
-    <p>There are no WFH applications matching your filters</p>
-  </div>
-
-  <!-- Pagination -->
-  <nav *ngIf="totalPages() > 1" class="mt-4" aria-label="WFH applications pagination">
-    <ul class="pagination justify-content-center">
-      <li class="page-item" [class.disabled]="currentPage() === 1">
-        <a class="page-link" (click)="onPageChange(currentPage() - 1)" tabindex="-1">
-          <i class="bi bi-chevron-left"></i>
-        </a>
-      </li>
-
-      <li
-        class="page-item"
-        *ngFor="let page of getPageNumbers()"
-        [class.active]="page === currentPage()"
-        [class.disabled]="page === -1">
-        <a
-          class="page-link"
-          *ngIf="page !== -1"
-          (click)="onPageChange(page)">
-          {{ page }}
-        </a>
-        <span class="page-link" *ngIf="page === -1">...</span>
-      </li>
-
-      <li class="page-item" [class.disabled]="currentPage() === totalPages()">
-        <a class="page-link" (click)="onPageChange(currentPage() + 1)">
-          <i class="bi bi-chevron-right"></i>
-        </a>
-      </li>
-    </ul>
-  </nav>
+    }
+  }
 </div>
 
 <!-- Rejection Modal -->
-<div class="modal fade show d-block" *ngIf="showRejectionModal()" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Reject WFH Application</h5>
-        <button type="button" class="btn-close" (click)="closeRejectionModal()"></button>
-      </div>
-      <div class="modal-body">
-        <div class="mb-3">
-          <label for="rejectionReason" class="form-label">Rejection Reason <span class="text-danger">*</span></label>
-          <textarea
-            id="rejectionReason"
-            class="form-control"
-            rows="4"
-            [(ngModel)]="rejectionReason"
-            placeholder="Please provide a reason for rejecting this WFH application..."
-            required></textarea>
-          <small class="form-text text-muted">This reason will be shared with the employee.</small>
+@if (showRejectionModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" (click)="closeRejectionModal()"></div>
+
+    <!-- Modal Content -->
+    <div class="relative z-10 w-full max-w-md mx-4 bg-background border rounded-xl shadow-2xl">
+      <!-- Header -->
+      <div class="flex items-center justify-between p-5 border-b">
+        <div>
+          <h3 class="text-lg font-semibold text-foreground">Reject Application</h3>
+          <p class="text-sm text-muted-foreground mt-0.5">Provide a reason for the rejection</p>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="closeRejectionModal()">Cancel</button>
         <button
-          type="button"
-          class="btn btn-danger"
+          z-button
+          zType="ghost"
+          zSize="sm"
+          (click)="closeRejectionModal()">
+          <z-icon zType="x" class="w-4 h-4" />
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="p-5">
+        <label class="block text-sm font-medium text-foreground mb-1.5">
+          Rejection Reason <span class="text-red-500">*</span>
+        </label>
+        <textarea
+          class="w-full px-3 py-2 text-sm border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+          rows="4"
+          [ngModel]="rejectionReason()"
+          (ngModelChange)="rejectionReason.set($event)"
+          placeholder="Please provide a reason for rejecting this application..."></textarea>
+        <p class="text-xs text-muted-foreground mt-1.5">This reason will be shared with the employee.</p>
+      </div>
+
+      <!-- Footer -->
+      <div class="flex items-center justify-end gap-2 p-5 border-t">
+        <button
+          z-button
+          zType="outline"
+          (click)="closeRejectionModal()">
+          Cancel
+        </button>
+        <button
+          z-button
+          zType="destructive"
+          class="gap-2"
           (click)="submitRejection()"
           [disabled]="!rejectionReason().trim()">
+          <z-icon zType="x" class="w-4 h-4" />
           Reject Application
         </button>
       </div>
     </div>
   </div>
-</div>
+}

@@ -1,0 +1,636 @@
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <h1 class="text-2xl font-bold text-foreground">Profile Page</h1>
+    <a z-button zType="outline" zSize="sm" routerLink="/settings/account">
+      <z-icon zType="settings" class="mr-2 h-4 w-4" />
+      Settings
+    </a>
+  </div>
+
+  <!-- Tabs -->
+  <z-tab-group zTabsPosition="top" zActivePosition="bottom" zAlignTabs="start">
+    <!-- Overview Tab -->
+    <z-tab label="Overview">
+      @if (loading()) {
+        <div class="flex items-center justify-center py-12">
+          <z-icon zType="loader-2" class="h-8 w-8 animate-spin text-primary" />
+        </div>
+      } @else if (profile()) {
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+          <!-- Left Column -->
+          <div class="space-y-6">
+            <!-- Profile Card -->
+            <z-card>
+              <div zCardContent class="pt-6">
+                <div class="flex flex-col items-center text-center">
+                  <!-- Avatar -->
+                  @if (profile()?.photo_url) {
+                    <z-avatar [zSrc]="profile()!.photo_url!" zAlt="Profile Photo" zSize="xl" />
+                  } @else {
+                    <z-avatar [zFallback]="initials()" zSize="xl" />
+                  }
+
+                  <!-- Name & Badge -->
+                  <div class="mt-4 flex items-center gap-2">
+                    <h2 class="text-lg font-semibold">{{ profile()?.full_name }}</h2>
+                    <z-badge zType="default" zShape="pill" class="text-xs">
+                      {{ profile()?.employment_status || 'Active' }}
+                    </z-badge>
+                  </div>
+                  <p class="text-sm text-muted-foreground mt-1">{{ profile()?.position }}</p>
+
+                  <!-- Stats Grid -->
+                  <div class="grid grid-cols-3 gap-4 w-full mt-6 pt-4 border-t">
+                    <div class="text-center">
+                      <p class="text-lg font-bold">{{ profile()?.department ? '1' : '0' }}</p>
+                      <p class="text-xs text-muted-foreground">Department</p>
+                    </div>
+                    <div class="text-center">
+                      <p class="text-lg font-bold">{{ yearsOfService() }}</p>
+                      <p class="text-xs text-muted-foreground">Years</p>
+                    </div>
+                    <div class="text-center">
+                      <p class="text-lg font-bold capitalize">{{ profile()?.employment_type || '-' }}</p>
+                      <p class="text-xs text-muted-foreground">Type</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Contact Info -->
+                <z-divider zSpacing="default" />
+                <div class="space-y-3">
+                  <div class="flex items-center gap-3 text-sm">
+                    <z-icon zType="mail" class="h-4 w-4 text-muted-foreground shrink-0" />
+                    <span class="truncate">{{ profile()?.email || '-' }}</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-sm">
+                    <z-icon zType="phone" class="h-4 w-4 text-muted-foreground shrink-0" />
+                    <span>{{ profile()?.mobile || '-' }}</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-sm">
+                    <z-icon zType="building-2" class="h-4 w-4 text-muted-foreground shrink-0" />
+                    <span class="truncate">{{ profile()?.current_address || '-' }}</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-sm">
+                    <z-icon zType="calendar" class="h-4 w-4 text-muted-foreground shrink-0" />
+                    <span>Joined {{ formatDate(profile()?.join_date ?? null) }}</span>
+                  </div>
+                </div>
+              </div>
+            </z-card>
+
+            <!-- Profile Completion Card -->
+            <z-card>
+              <div zCardContent class="pt-6">
+                <div class="flex items-center justify-between mb-3">
+                  <h3 class="text-sm font-semibold">Profile Completion</h3>
+                  <span class="text-sm font-bold text-primary">{{ profileCompletion() }}%</span>
+                </div>
+                <z-progress-bar [progress]="profileCompletion()" zSize="sm" />
+                <p class="text-xs text-muted-foreground mt-2">
+                  Complete your profile to help HR manage your records better.
+                </p>
+              </div>
+            </z-card>
+
+            <!-- Info Tags Card -->
+            <z-card>
+              <div zCardContent class="pt-6">
+                <h3 class="text-sm font-semibold mb-3">Details</h3>
+                <div class="flex flex-wrap gap-2">
+                  @if (profile()?.department) {
+                    <z-badge zType="secondary" zShape="pill">{{ profile()?.department }}</z-badge>
+                  }
+                  @if (profile()?.nationality) {
+                    <z-badge zType="secondary" zShape="pill">{{ profile()?.nationality }}</z-badge>
+                  }
+                  @if (profile()?.gender) {
+                    <z-badge zType="secondary" zShape="pill">{{ profile()?.gender }}</z-badge>
+                  }
+                  @if (profile()?.marital_status) {
+                    <z-badge zType="secondary" zShape="pill">{{ profile()?.marital_status }}</z-badge>
+                  }
+                  @if (profile()?.race) {
+                    <z-badge zType="secondary" zShape="pill">{{ profile()?.race }}</z-badge>
+                  }
+                  @if (profile()?.religion) {
+                    <z-badge zType="secondary" zShape="pill">{{ profile()?.religion }}</z-badge>
+                  }
+                  @if (profile()?.work_location) {
+                    <z-badge zType="secondary" zShape="pill">{{ profile()?.work_location }}</z-badge>
+                  }
+                </div>
+              </div>
+            </z-card>
+          </div>
+
+          <!-- Right Column -->
+          <div class="lg:col-span-2 space-y-6">
+            <!-- Edit Mode Actions -->
+            @if (editMode()) {
+              <div class="flex justify-end gap-2">
+                <button z-button zType="outline" zSize="sm" (click)="toggleEditMode()">
+                  <z-icon zType="x" class="mr-2 h-4 w-4" />
+                  Cancel
+                </button>
+                <button z-button zSize="sm" (click)="saveProfile()" [disabled]="saving()">
+                  @if (saving()) {
+                    <z-icon zType="loader-2" class="mr-2 h-4 w-4 animate-spin" />
+                    Saving...
+                  } @else {
+                    <z-icon zType="save" class="mr-2 h-4 w-4" />
+                    Save Changes
+                  }
+                </button>
+              </div>
+            }
+
+            <!-- Personal Information -->
+            <z-card>
+              <div zCardHeader class="grid gap-2 pb-4">
+                <h3 zCardTitle class="flex items-center gap-2 font-semibold">
+                  <z-icon zType="user" class="h-5 w-5" />
+                  Personal Information
+                </h3>
+                <p zCardDescription class="text-sm font-light">Basic personal details</p>
+              </div>
+              <div zCardContent>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                  <div>
+                    <p class="text-xs font-medium text-muted-foreground mb-1">Full Name</p>
+                    <p class="text-sm font-medium">{{ profile()?.full_name || '-' }}</p>
+                  </div>
+                  <div>
+                    <p class="text-xs font-medium text-muted-foreground mb-1">IC Number</p>
+                    <p class="text-sm font-medium">{{ profile()?.ic_no || '-' }}</p>
+                  </div>
+                  <div>
+                    <p class="text-xs font-medium text-muted-foreground mb-1">Date of Birth</p>
+                    <p class="text-sm font-medium">{{ formatDate(profile()?.date_of_birth ?? null) }}</p>
+                  </div>
+                  <div>
+                    <p class="text-xs font-medium text-muted-foreground mb-1">Gender</p>
+                    <p class="text-sm font-medium capitalize">{{ profile()?.gender || '-' }}</p>
+                  </div>
+                  <div>
+                    <p class="text-xs font-medium text-muted-foreground mb-1">Marital Status</p>
+                    <p class="text-sm font-medium capitalize">{{ profile()?.marital_status || '-' }}</p>
+                  </div>
+                  <div>
+                    <p class="text-xs font-medium text-muted-foreground mb-1">Nationality</p>
+                    <p class="text-sm font-medium">{{ profile()?.nationality || '-' }}</p>
+                  </div>
+                </div>
+              </div>
+            </z-card>
+
+            <!-- Contact Information -->
+            <z-card>
+              <div zCardHeader class="pb-4">
+                <div class="flex items-center justify-between w-full">
+                  <div class="grid gap-2">
+                    <h3 zCardTitle class="flex items-center gap-2 font-semibold">
+                      <z-icon zType="phone" class="h-5 w-5" />
+                      Contact Information
+                    </h3>
+                    <p zCardDescription class="text-sm font-light">Your contact details</p>
+                  </div>
+                  @if (!editMode()) {
+                    <button z-button zType="ghost" zSize="sm" (click)="toggleEditMode()">
+                      <z-icon zType="pencil" class="mr-2 h-4 w-4" />
+                      Edit
+                    </button>
+                  }
+                </div>
+              </div>
+              <div zCardContent>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                  <div>
+                    <p class="text-xs font-medium text-muted-foreground mb-1">Mobile Number</p>
+                    @if (editMode()) {
+                      <input z-input [(ngModel)]="formData.mobile" placeholder="Enter mobile number">
+                    } @else {
+                      <p class="text-sm font-medium">{{ profile()?.mobile || '-' }}</p>
+                    }
+                  </div>
+                  <div>
+                    <p class="text-xs font-medium text-muted-foreground mb-1">Email Address</p>
+                    @if (editMode()) {
+                      <input z-input [(ngModel)]="formData.email" type="email" placeholder="Enter email address">
+                    } @else {
+                      <p class="text-sm font-medium">{{ profile()?.email || '-' }}</p>
+                    }
+                  </div>
+                  <div class="md:col-span-2">
+                    <p class="text-xs font-medium text-muted-foreground mb-1">Current Address</p>
+                    @if (editMode()) {
+                      <input z-input [(ngModel)]="formData.current_address" placeholder="Enter current address">
+                    } @else {
+                      <p class="text-sm font-medium">{{ profile()?.current_address || '-' }}</p>
+                    }
+                  </div>
+                  <div class="md:col-span-2">
+                    <p class="text-xs font-medium text-muted-foreground mb-1">Permanent Address</p>
+                    @if (editMode()) {
+                      <input z-input [(ngModel)]="formData.permanent_address" placeholder="Enter permanent address">
+                    } @else {
+                      <p class="text-sm font-medium">{{ profile()?.permanent_address || '-' }}</p>
+                    }
+                  </div>
+                </div>
+              </div>
+            </z-card>
+
+            <!-- Emergency Contact -->
+            <z-card>
+              <div zCardHeader class="pb-4">
+                <div class="flex items-center justify-between w-full">
+                  <div class="grid gap-2">
+                    <h3 zCardTitle class="flex items-center gap-2 font-semibold">
+                      <z-icon zType="circle-alert" class="h-5 w-5" />
+                      Emergency Contact
+                    </h3>
+                    <p zCardDescription class="text-sm font-light">Person to contact in case of emergency</p>
+                  </div>
+                  @if (!editMode()) {
+                    <button z-button zType="ghost" zSize="sm" (click)="toggleEditMode()">
+                      <z-icon zType="pencil" class="mr-2 h-4 w-4" />
+                      Edit
+                    </button>
+                  }
+                </div>
+              </div>
+              <div zCardContent>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                  <div>
+                    <p class="text-xs font-medium text-muted-foreground mb-1">Contact Name</p>
+                    @if (editMode()) {
+                      <input z-input [(ngModel)]="formData.emergency_contact_name" placeholder="Enter contact name">
+                    } @else {
+                      <p class="text-sm font-medium">{{ profile()?.emergency_contact_name || '-' }}</p>
+                    }
+                  </div>
+                  <div>
+                    <p class="text-xs font-medium text-muted-foreground mb-1">Contact Phone</p>
+                    @if (editMode()) {
+                      <input z-input [(ngModel)]="formData.emergency_contact_phone" placeholder="Enter contact phone">
+                    } @else {
+                      <p class="text-sm font-medium">{{ profile()?.emergency_contact_phone || '-' }}</p>
+                    }
+                  </div>
+                </div>
+              </div>
+            </z-card>
+
+            <!-- Employment Information -->
+            <z-card>
+              <div zCardHeader class="grid gap-2 pb-4">
+                <h3 zCardTitle class="flex items-center gap-2 font-semibold">
+                  <z-icon zType="briefcase" class="h-5 w-5" />
+                  Employment Information
+                </h3>
+                <p zCardDescription class="text-sm font-light">Your employment details</p>
+              </div>
+              <div zCardContent>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                  <div>
+                    <p class="text-xs font-medium text-muted-foreground mb-1">Department</p>
+                    <p class="text-sm font-medium">{{ profile()?.department || '-' }}</p>
+                  </div>
+                  <div>
+                    <p class="text-xs font-medium text-muted-foreground mb-1">Position</p>
+                    <p class="text-sm font-medium">{{ profile()?.position || '-' }}</p>
+                  </div>
+                  <div>
+                    <p class="text-xs font-medium text-muted-foreground mb-1">Employment Type</p>
+                    <p class="text-sm font-medium capitalize">{{ profile()?.employment_type || '-' }}</p>
+                  </div>
+                  <div>
+                    <p class="text-xs font-medium text-muted-foreground mb-1">Join Date</p>
+                    <p class="text-sm font-medium">{{ formatDate(profile()?.join_date ?? null) }}</p>
+                  </div>
+                  <div>
+                    <p class="text-xs font-medium text-muted-foreground mb-1">Basic Salary</p>
+                    <p class="text-sm font-medium">{{ formatCurrency(profile()?.basic_salary ?? 0) }}</p>
+                  </div>
+                  <div>
+                    <p class="text-xs font-medium text-muted-foreground mb-1">Bank Account</p>
+                    <p class="text-sm font-medium">{{ profile()?.bank_name }} - {{ profile()?.bank_account_no || '-' }}</p>
+                  </div>
+                </div>
+              </div>
+            </z-card>
+
+            <!-- Statutory Information -->
+            <z-card>
+              <div zCardHeader class="grid gap-2 pb-4">
+                <h3 zCardTitle class="flex items-center gap-2 font-semibold">
+                  <z-icon zType="file-text" class="h-5 w-5" />
+                  Statutory Information
+                </h3>
+                <p zCardDescription class="text-sm font-light">Your statutory contribution details</p>
+              </div>
+              <div zCardContent>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                  <div>
+                    <p class="text-xs font-medium text-muted-foreground mb-1">EPF Number</p>
+                    <p class="text-sm font-medium">{{ profile()?.epf_no || '-' }}</p>
+                  </div>
+                  <div>
+                    <p class="text-xs font-medium text-muted-foreground mb-1">SOCSO Number</p>
+                    <p class="text-sm font-medium">{{ profile()?.socso_no || '-' }}</p>
+                  </div>
+                  <div>
+                    <p class="text-xs font-medium text-muted-foreground mb-1">Tax Number</p>
+                    <p class="text-sm font-medium">{{ profile()?.tax_no || '-' }}</p>
+                  </div>
+                  <div>
+                    <p class="text-xs font-medium text-muted-foreground mb-1">Tax Category</p>
+                    <p class="text-sm font-medium">{{ profile()?.tax_category || '-' }}</p>
+                  </div>
+                </div>
+              </div>
+            </z-card>
+          </div>
+        </div>
+      } @else {
+        <z-card class="mt-6">
+          <div zCardContent class="py-12 text-center">
+            <z-icon zType="user-x" class="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <p class="text-muted-foreground">Unable to load profile information</p>
+            <button z-button zType="outline" class="mt-4" (click)="loadProfile()">
+              <z-icon zType="refresh-cw" class="mr-2 h-4 w-4" />
+              Retry
+            </button>
+          </div>
+        </z-card>
+      }
+    </z-tab>
+
+    <!-- Employment Tab -->
+    <z-tab label="Employment">
+      @if (loading()) {
+        <div class="flex items-center justify-center py-12">
+          <z-icon zType="loader-2" class="h-8 w-8 animate-spin text-primary" />
+        </div>
+      } @else if (profile()) {
+        <div class="space-y-6 mt-6">
+          <!-- Employment Details -->
+          <z-card>
+            <div zCardHeader class="grid gap-2 pb-4">
+              <h3 zCardTitle class="flex items-center gap-2 font-semibold">
+                <z-icon zType="briefcase" class="h-5 w-5" />
+                Employment Details
+              </h3>
+              <p zCardDescription class="text-sm font-light">Your employment information</p>
+            </div>
+            <div zCardContent>
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
+                <div>
+                  <p class="text-xs font-medium text-muted-foreground mb-1">Employee ID</p>
+                  <p class="text-sm font-medium">{{ profile()?.employee_id || '-' }}</p>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-muted-foreground mb-1">Department</p>
+                  <p class="text-sm font-medium">{{ profile()?.department || '-' }}</p>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-muted-foreground mb-1">Position</p>
+                  <p class="text-sm font-medium">{{ profile()?.position || '-' }}</p>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-muted-foreground mb-1">Employment Type</p>
+                  <p class="text-sm font-medium capitalize">{{ profile()?.employment_type || '-' }}</p>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-muted-foreground mb-1">Employment Status</p>
+                  <z-badge zType="default" zShape="pill">{{ profile()?.employment_status || '-' }}</z-badge>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-muted-foreground mb-1">Work Location</p>
+                  <p class="text-sm font-medium">{{ profile()?.work_location || '-' }}</p>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-muted-foreground mb-1">Join Date</p>
+                  <p class="text-sm font-medium">{{ formatDate(profile()?.join_date ?? null) }}</p>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-muted-foreground mb-1">Confirmation Date</p>
+                  <p class="text-sm font-medium">{{ formatDate(profile()?.confirmation_date ?? null) }}</p>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-muted-foreground mb-1">Years of Service</p>
+                  <p class="text-sm font-medium">{{ yearsOfService() }} year(s)</p>
+                </div>
+              </div>
+            </div>
+          </z-card>
+
+          <!-- Compensation & Banking -->
+          <z-card>
+            <div zCardHeader class="grid gap-2 pb-4">
+              <h3 zCardTitle class="flex items-center gap-2 font-semibold">
+                <z-icon zType="wallet" class="h-5 w-5" />
+                Compensation & Banking
+              </h3>
+              <p zCardDescription class="text-sm font-light">Your salary and banking details</p>
+            </div>
+            <div zCardContent>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                <div>
+                  <p class="text-xs font-medium text-muted-foreground mb-1">Basic Salary</p>
+                  <p class="text-sm font-medium">{{ formatCurrency(profile()?.basic_salary ?? 0) }}</p>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-muted-foreground mb-1">Bank Name</p>
+                  <p class="text-sm font-medium">{{ profile()?.bank_name || '-' }}</p>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-muted-foreground mb-1">Bank Account No</p>
+                  <p class="text-sm font-medium">{{ profile()?.bank_account_no || '-' }}</p>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-muted-foreground mb-1">Account Holder</p>
+                  <p class="text-sm font-medium">{{ profile()?.bank_account_holder || '-' }}</p>
+                </div>
+              </div>
+            </div>
+          </z-card>
+
+          <!-- Statutory Information -->
+          <z-card>
+            <div zCardHeader class="grid gap-2 pb-4">
+              <h3 zCardTitle class="flex items-center gap-2 font-semibold">
+                <z-icon zType="file-text" class="h-5 w-5" />
+                Statutory Contributions
+              </h3>
+              <p zCardDescription class="text-sm font-light">Your statutory contribution details</p>
+            </div>
+            <div zCardContent>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                <div>
+                  <p class="text-xs font-medium text-muted-foreground mb-1">EPF Number</p>
+                  <p class="text-sm font-medium">{{ profile()?.epf_no || '-' }}</p>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-muted-foreground mb-1">SOCSO Number</p>
+                  <p class="text-sm font-medium">{{ profile()?.socso_no || '-' }}</p>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-muted-foreground mb-1">Tax Number</p>
+                  <p class="text-sm font-medium">{{ profile()?.tax_no || '-' }}</p>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-muted-foreground mb-1">Tax Category</p>
+                  <p class="text-sm font-medium">{{ profile()?.tax_category || '-' }}</p>
+                </div>
+              </div>
+            </div>
+          </z-card>
+        </div>
+      }
+    </z-tab>
+
+    <!-- Contact Tab -->
+    <z-tab label="Contact">
+      @if (loading()) {
+        <div class="flex items-center justify-center py-12">
+          <z-icon zType="loader-2" class="h-8 w-8 animate-spin text-primary" />
+        </div>
+      } @else if (profile()) {
+        <div class="space-y-6 mt-6">
+          <!-- Edit Mode Actions -->
+          @if (editMode()) {
+            <div class="flex justify-end gap-2">
+              <button z-button zType="outline" zSize="sm" (click)="toggleEditMode()">
+                <z-icon zType="x" class="mr-2 h-4 w-4" />
+                Cancel
+              </button>
+              <button z-button zSize="sm" (click)="saveProfile()" [disabled]="saving()">
+                @if (saving()) {
+                  <z-icon zType="loader-2" class="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                } @else {
+                  <z-icon zType="save" class="mr-2 h-4 w-4" />
+                  Save Changes
+                }
+              </button>
+            </div>
+          }
+
+          <!-- Contact Details -->
+          <z-card>
+            <div zCardHeader class="pb-4">
+              <div class="flex items-center justify-between w-full">
+                <div class="grid gap-2">
+                  <h3 zCardTitle class="flex items-center gap-2 font-semibold">
+                    <z-icon zType="phone" class="h-5 w-5" />
+                    Contact Details
+                  </h3>
+                  <p zCardDescription class="text-sm font-light">Your contact information</p>
+                </div>
+                @if (!editMode()) {
+                  <button z-button zType="ghost" zSize="sm" (click)="toggleEditMode()">
+                    <z-icon zType="pencil" class="mr-2 h-4 w-4" />
+                    Edit
+                  </button>
+                }
+              </div>
+            </div>
+            <div zCardContent>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                <div>
+                  <p class="text-xs font-medium text-muted-foreground mb-1">Mobile Number</p>
+                  @if (editMode()) {
+                    <input z-input [(ngModel)]="formData.mobile" placeholder="Enter mobile number">
+                  } @else {
+                    <p class="text-sm font-medium">{{ profile()?.mobile || '-' }}</p>
+                  }
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-muted-foreground mb-1">Email Address</p>
+                  @if (editMode()) {
+                    <input z-input [(ngModel)]="formData.email" type="email" placeholder="Enter email address">
+                  } @else {
+                    <p class="text-sm font-medium">{{ profile()?.email || '-' }}</p>
+                  }
+                </div>
+                <div class="md:col-span-2">
+                  <p class="text-xs font-medium text-muted-foreground mb-1">Current Address</p>
+                  @if (editMode()) {
+                    <input z-input [(ngModel)]="formData.current_address" placeholder="Enter current address">
+                  } @else {
+                    <p class="text-sm font-medium">{{ profile()?.current_address || '-' }}</p>
+                  }
+                </div>
+                <div class="md:col-span-2">
+                  <p class="text-xs font-medium text-muted-foreground mb-1">Permanent Address</p>
+                  @if (editMode()) {
+                    <input z-input [(ngModel)]="formData.permanent_address" placeholder="Enter permanent address">
+                  } @else {
+                    <p class="text-sm font-medium">{{ profile()?.permanent_address || '-' }}</p>
+                  }
+                </div>
+              </div>
+            </div>
+          </z-card>
+
+          <!-- Emergency Contact -->
+          <z-card>
+            <div zCardHeader class="pb-4">
+              <div class="flex items-center justify-between w-full">
+                <div class="grid gap-2">
+                  <h3 zCardTitle class="flex items-center gap-2 font-semibold">
+                    <z-icon zType="circle-alert" class="h-5 w-5" />
+                    Emergency Contact
+                  </h3>
+                  <p zCardDescription class="text-sm font-light">Person to contact in case of emergency</p>
+                </div>
+                @if (!editMode()) {
+                  <button z-button zType="ghost" zSize="sm" (click)="toggleEditMode()">
+                    <z-icon zType="pencil" class="mr-2 h-4 w-4" />
+                    Edit
+                  </button>
+                }
+              </div>
+            </div>
+            <div zCardContent>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                <div>
+                  <p class="text-xs font-medium text-muted-foreground mb-1">Contact Name</p>
+                  @if (editMode()) {
+                    <input z-input [(ngModel)]="formData.emergency_contact_name" placeholder="Enter contact name">
+                  } @else {
+                    <p class="text-sm font-medium">{{ profile()?.emergency_contact_name || '-' }}</p>
+                  }
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-muted-foreground mb-1">Contact Phone</p>
+                  @if (editMode()) {
+                    <input z-input [(ngModel)]="formData.emergency_contact_phone" placeholder="Enter contact phone">
+                  } @else {
+                    <p class="text-sm font-medium">{{ profile()?.emergency_contact_phone || '-' }}</p>
+                  }
+                </div>
+              </div>
+            </div>
+          </z-card>
+        </div>
+      }
+    </z-tab>
+
+    <!-- Activity Tab -->
+    <z-tab label="Activity">
+      <div class="mt-6">
+        <z-card>
+          <div zCardContent class="py-12 text-center">
+            <z-icon zType="clock" class="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <h3 class="text-lg font-semibold mb-1">Activity Log</h3>
+            <p class="text-sm text-muted-foreground">Your recent activity history will appear here.</p>
+          </div>
+        </z-card>
+      </div>
+    </z-tab>
+  </z-tab-group>
+</div>

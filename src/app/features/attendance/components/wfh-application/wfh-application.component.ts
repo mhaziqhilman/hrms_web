@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AttendanceService } from '../../services/attendance.service';
+import { AuthService } from '@/core/services/auth.service';
 import { WFHApplication } from '../../models/attendance.model';
 
 // ZardUI Components
@@ -11,6 +12,7 @@ import { ZardButtonComponent } from '@/shared/components/button/button.component
 import { ZardIconComponent } from '@/shared/components/icon/icon.component';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { ZardMenuImports } from '@/shared/components/menu/menu.imports';
+import { ZardDatePickerComponent } from '@/shared/components/date-picker/date-picker.component';
 
 @Component({
   selector: 'app-wfh-application',
@@ -24,7 +26,8 @@ import { ZardMenuImports } from '@/shared/components/menu/menu.imports';
     ZardButtonComponent,
     ZardIconComponent,
     ZardBadgeComponent,
-    ZardMenuImports
+    ZardMenuImports,
+    ZardDatePickerComponent
   ],
   templateUrl: './wfh-application.component.html',
   styleUrl: './wfh-application.component.css'
@@ -48,29 +51,31 @@ export class WfhApplicationComponent implements OnInit {
   // Filter
   selectedStatus = signal<'Pending' | 'Approved' | 'Rejected' | ''>('');
 
-  // Employee (mock for now - should come from auth service)
-  employeeId = signal<number | null>(1); // TODO: Get from auth service
-  employeeName = signal<string>('Current Employee'); // TODO: Get from auth service
+  // Employee - from auth service
+  employeeId = signal<number | null>(null);
 
   constructor(
     private fb: FormBuilder,
     private attendanceService: AttendanceService,
+    private authService: AuthService,
     private router: Router
   ) {}
 
+  isHRManager(): boolean {
+    return this.authService.hasAnyRole(['admin', 'super_admin', 'manager']);
+  }
+
   ngOnInit(): void {
+    const user = this.authService.getCurrentUserValue();
+    this.employeeId.set(user?.employee?.id ?? null);
+
     this.initializeForm();
     this.loadWFHApplications();
   }
 
   initializeForm(): void {
-    // Get tomorrow's date as minimum
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const minDate = tomorrow.toISOString().split('T')[0];
-
     this.wfhForm = this.fb.group({
-      date: ['', [Validators.required]],
+      date: [null, [Validators.required]],
       reason: ['', [Validators.required, Validators.minLength(10)]]
     });
   }
@@ -194,9 +199,11 @@ export class WfhApplicationComponent implements OnInit {
     this.success.set(null);
 
     const formData = this.wfhForm.value;
+    const dateVal: Date = formData.date;
+    const dateStr = `${dateVal.getFullYear()}-${String(dateVal.getMonth() + 1).padStart(2, '0')}-${String(dateVal.getDate()).padStart(2, '0')}`;
     const request = {
       employee_id: this.employeeId()!,
-      date: formData.date,
+      date: dateStr,
       reason: formData.reason
     };
 
@@ -321,16 +328,18 @@ export class WfhApplicationComponent implements OnInit {
     return '';
   }
 
-  getMinDate(): string {
+  getMinDate(): Date {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    return tomorrow.toISOString().split('T')[0];
+    tomorrow.setHours(0, 0, 0, 0);
+    return tomorrow;
   }
 
-  getMaxDate(): string {
+  getMaxDate(): Date {
     // Allow WFH applications up to 30 days in advance
     const maxDate = new Date();
     maxDate.setDate(maxDate.getDate() + 30);
-    return maxDate.toISOString().split('T')[0];
+    maxDate.setHours(0, 0, 0, 0);
+    return maxDate;
   }
 }

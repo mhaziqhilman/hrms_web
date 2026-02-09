@@ -1,0 +1,301 @@
+<div class="container mx-auto space-y-6">
+  <!-- Header -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold">Analytics Dashboard</h1>
+      <p class="text-muted-foreground">View and analyze HR metrics across different categories</p>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <!-- Year Selector -->
+      <z-select
+        zPlaceholder="Select Year"
+        [zValue]="selectedYear()"
+        (zValueChange)="onYearChange($event)"
+        class="w-32">
+        @for (year of years; track year) {
+          <z-select-item [zValue]="year">{{ year }}</z-select-item>
+        }
+      </z-select>
+
+      <!-- Month Selector (for attendance) -->
+      @if (activeTab() === 'attendance') {
+        <z-select
+          zPlaceholder="All Months"
+          [zValue]="selectedMonth()"
+          (zValueChange)="onMonthChange($event)"
+          class="w-40">
+          <z-select-item [zValue]="null">All Months</z-select-item>
+          @for (month of months; track month.value) {
+            <z-select-item [zValue]="month.value">{{ month.label }}</z-select-item>
+          }
+        </z-select>
+      }
+
+      <!-- Export Buttons -->
+      <button z-button zType="outline" (click)="exportExcel()" [disabled]="loading()" class="gap-2">
+        <z-icon zType="file-spreadsheet" class="w-4 h-4" />
+        Excel
+      </button>
+      <button z-button zType="outline" (click)="exportPdf()" [disabled]="loading()" class="gap-2">
+        <z-icon zType="file-text" class="w-4 h-4" />
+        PDF
+      </button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="border-b">
+    <nav class="flex gap-4">
+      @for (tab of tabs; track tab.id) {
+        <button
+          (click)="setActiveTab(tab.id)"
+          class="flex items-center gap-2 px-4 py-2 border-b-2 transition-colors"
+          [class.border-primary]="activeTab() === tab.id"
+          [class.text-primary]="activeTab() === tab.id"
+          [class.border-transparent]="activeTab() !== tab.id"
+          [class.text-muted-foreground]="activeTab() !== tab.id"
+          [class.hover:text-foreground]="activeTab() !== tab.id">
+          <z-icon [zType]="tab.icon" class="w-4 h-4" />
+          {{ tab.label }}
+        </button>
+      }
+    </nav>
+  </div>
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="flex items-center justify-center h-96">
+      <div class="flex flex-col items-center gap-4">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <p class="text-muted-foreground">Loading analytics data...</p>
+      </div>
+    </div>
+  }
+
+  <!-- Content -->
+  @if (!loading()) {
+    <!-- Summary Cards -->
+    @switch (activeTab()) {
+      @case ('payroll') {
+        @if (payrollData()) {
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <z-card class="p-4">
+              <div class="flex items-center gap-3">
+                <div class="p-2 rounded-lg bg-blue-100 dark:bg-blue-900">
+                  <z-icon zType="dollar-sign" class="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                  <p class="text-sm text-muted-foreground">Total Gross</p>
+                  <p class="text-xl font-bold">{{ formatCurrency(payrollData()!.summary.total_gross) }}</p>
+                </div>
+              </div>
+            </z-card>
+            <z-card class="p-4">
+              <div class="flex items-center gap-3">
+                <div class="p-2 rounded-lg bg-green-100 dark:bg-green-900">
+                  <z-icon zType="wallet" class="w-5 h-5 text-green-600" />
+                </div>
+                <div>
+                  <p class="text-sm text-muted-foreground">Total Net</p>
+                  <p class="text-xl font-bold">{{ formatCurrency(payrollData()!.summary.total_net) }}</p>
+                </div>
+              </div>
+            </z-card>
+            <z-card class="p-4">
+              <div class="flex items-center gap-3">
+                <div class="p-2 rounded-lg bg-purple-100 dark:bg-purple-900">
+                  <z-icon zType="building" class="w-5 h-5 text-purple-600" />
+                </div>
+                <div>
+                  <p class="text-sm text-muted-foreground">Total EPF</p>
+                  <p class="text-xl font-bold">{{ formatCurrency(payrollData()!.summary.total_epf) }}</p>
+                </div>
+              </div>
+            </z-card>
+            <z-card class="p-4">
+              <div class="flex items-center gap-3">
+                <div class="p-2 rounded-lg bg-orange-100 dark:bg-orange-900">
+                  <z-icon zType="users" class="w-5 h-5 text-orange-600" />
+                </div>
+                <div>
+                  <p class="text-sm text-muted-foreground">Employees</p>
+                  <p class="text-xl font-bold">{{ payrollData()!.summary.employee_count }}</p>
+                </div>
+              </div>
+            </z-card>
+          </div>
+          <app-payroll-cost-chart [data]="payrollData()" />
+        }
+      }
+
+      @case ('leave') {
+        @if (leaveData()) {
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <z-card class="p-4">
+              <div class="flex items-center gap-3">
+                <div class="p-2 rounded-lg bg-blue-100 dark:bg-blue-900">
+                  <z-icon zType="calendar" class="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                  <p class="text-sm text-muted-foreground">Total Days Taken</p>
+                  <p class="text-xl font-bold">{{ leaveData()!.summary.total_days_taken }}</p>
+                </div>
+              </div>
+            </z-card>
+            <z-card class="p-4">
+              <div class="flex items-center gap-3">
+                <div class="p-2 rounded-lg bg-green-100 dark:bg-green-900">
+                  <z-icon zType="file-text" class="w-5 h-5 text-green-600" />
+                </div>
+                <div>
+                  <p class="text-sm text-muted-foreground">Total Requests</p>
+                  <p class="text-xl font-bold">{{ leaveData()!.summary.total_requests }}</p>
+                </div>
+              </div>
+            </z-card>
+            <z-card class="p-4">
+              <div class="flex items-center gap-3">
+                <div class="p-2 rounded-lg bg-purple-100 dark:bg-purple-900">
+                  <z-icon zType="list" class="w-5 h-5 text-purple-600" />
+                </div>
+                <div>
+                  <p class="text-sm text-muted-foreground">Leave Types</p>
+                  <p class="text-xl font-bold">{{ leaveData()!.by_type.length }}</p>
+                </div>
+              </div>
+            </z-card>
+            <z-card class="p-4">
+              <div class="flex items-center gap-3">
+                <div class="p-2 rounded-lg bg-orange-100 dark:bg-orange-900">
+                  <z-icon zType="building" class="w-5 h-5 text-orange-600" />
+                </div>
+                <div>
+                  <p class="text-sm text-muted-foreground">Departments</p>
+                  <p class="text-xl font-bold">{{ leaveData()!.by_department.length }}</p>
+                </div>
+              </div>
+            </z-card>
+          </div>
+          <app-leave-utilization-chart [data]="leaveData()" />
+        }
+      }
+
+      @case ('attendance') {
+        @if (attendanceData()) {
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <z-card class="p-4">
+              <div class="flex items-center gap-3">
+                <div class="p-2 rounded-lg bg-green-100 dark:bg-green-900">
+                  <z-icon zType="check-circle" class="w-5 h-5 text-green-600" />
+                </div>
+                <div>
+                  <p class="text-sm text-muted-foreground">Punctuality Rate</p>
+                  <p class="text-xl font-bold">{{ attendanceData()!.summary.punctuality_rate }}%</p>
+                </div>
+              </div>
+            </z-card>
+            <z-card class="p-4">
+              <div class="flex items-center gap-3">
+                <div class="p-2 rounded-lg bg-red-100 dark:bg-red-900">
+                  <z-icon zType="alert-circle" class="w-5 h-5 text-red-600" />
+                </div>
+                <div>
+                  <p class="text-sm text-muted-foreground">Late Arrivals</p>
+                  <p class="text-xl font-bold">{{ attendanceData()!.summary.late_count }}</p>
+                </div>
+              </div>
+            </z-card>
+            <z-card class="p-4">
+              <div class="flex items-center gap-3">
+                <div class="p-2 rounded-lg bg-blue-100 dark:bg-blue-900">
+                  <z-icon zType="clock" class="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                  <p class="text-sm text-muted-foreground">Avg Working Hours</p>
+                  <p class="text-xl font-bold">{{ attendanceData()!.summary.avg_working_hours }}</p>
+                </div>
+              </div>
+            </z-card>
+            <z-card class="p-4">
+              <div class="flex items-center gap-3">
+                <div class="p-2 rounded-lg bg-purple-100 dark:bg-purple-900">
+                  <z-icon zType="file-text" class="w-5 h-5 text-purple-600" />
+                </div>
+                <div>
+                  <p class="text-sm text-muted-foreground">Total Records</p>
+                  <p class="text-xl font-bold">{{ attendanceData()!.summary.total_records }}</p>
+                </div>
+              </div>
+            </z-card>
+          </div>
+          <app-attendance-analytics-chart [data]="attendanceData()" />
+        }
+      }
+
+      @case ('claims') {
+        @if (claimsData()) {
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <z-card class="p-4">
+              <div class="flex items-center gap-3">
+                <div class="p-2 rounded-lg bg-orange-100 dark:bg-orange-900">
+                  <z-icon zType="dollar-sign" class="w-5 h-5 text-orange-600" />
+                </div>
+                <div>
+                  <p class="text-sm text-muted-foreground">Total Amount</p>
+                  <p class="text-xl font-bold">{{ formatCurrency(claimsData()!.summary.total_amount) }}</p>
+                </div>
+              </div>
+            </z-card>
+            <z-card class="p-4">
+              <div class="flex items-center gap-3">
+                <div class="p-2 rounded-lg bg-blue-100 dark:bg-blue-900">
+                  <z-icon zType="file-text" class="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                  <p class="text-sm text-muted-foreground">Total Claims</p>
+                  <p class="text-xl font-bold">{{ claimsData()!.summary.total_claims }}</p>
+                </div>
+              </div>
+            </z-card>
+            <z-card class="p-4">
+              <div class="flex items-center gap-3">
+                <div class="p-2 rounded-lg bg-green-100 dark:bg-green-900">
+                  <z-icon zType="trending-up" class="w-5 h-5 text-green-600" />
+                </div>
+                <div>
+                  <p class="text-sm text-muted-foreground">Average Claim</p>
+                  <p class="text-xl font-bold">{{ formatCurrency(claimsData()!.summary.avg_claim_amount) }}</p>
+                </div>
+              </div>
+            </z-card>
+            <z-card class="p-4">
+              <div class="flex items-center gap-3">
+                <div class="p-2 rounded-lg bg-purple-100 dark:bg-purple-900">
+                  <z-icon zType="list" class="w-5 h-5 text-purple-600" />
+                </div>
+                <div>
+                  <p class="text-sm text-muted-foreground">Claim Types</p>
+                  <p class="text-xl font-bold">{{ claimsData()!.by_type.length }}</p>
+                </div>
+              </div>
+            </z-card>
+          </div>
+          <app-claims-spending-chart [data]="claimsData()" />
+        }
+      }
+    }
+
+    <!-- No Data State -->
+    @if (!payrollData() && activeTab() === 'payroll' ||
+         !leaveData() && activeTab() === 'leave' ||
+         !attendanceData() && activeTab() === 'attendance' ||
+         !claimsData() && activeTab() === 'claims') {
+      <div class="flex flex-col items-center justify-center h-96 text-muted-foreground">
+        <z-icon zType="bar-chart" class="w-16 h-16 mb-4" />
+        <p class="text-lg">No analytics data available</p>
+        <p class="text-sm">Select a different year or check back later</p>
+      </div>
+    }
+  }
+</div>
