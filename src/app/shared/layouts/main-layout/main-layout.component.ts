@@ -1,6 +1,7 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { RouterLink, RouterLinkActive, RouterOutlet, Router, NavigationEnd, ActivatedRoute } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { AuthService } from '@/core/services/auth.service';
 import { ThemeService } from '@/core/services/theme';
 import { User } from '@/core/models/auth.models';
@@ -40,6 +41,7 @@ export class MainLayoutComponent implements OnInit {
   sidebarCollapsed = signal(false);
   currentUser: User | null = null;
   expandedMenuItems = new Set<string>();
+  breadcrumbs = signal<{ label: string; url: string }[]>([]);
 
   menuGroups: SidebarMenuGroup[] = [
     {
@@ -127,6 +129,12 @@ export class MainLayoutComponent implements OnInit {
       label: 'Systems',
       items: [
         {
+          title: 'User Management',
+          icon: 'shield',
+          route: '/user-management',
+          roles: ['super_admin']
+        },
+        {
           title: 'Settings',
           icon: 'settings',
           children: [
@@ -158,8 +166,16 @@ export class MainLayoutComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
-    public themeService: ThemeService
-  ) {}
+    public themeService: ThemeService,
+    private router: Router,
+    private activatedRoute: ActivatedRoute
+  ) {
+    this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe(() => {
+        this.breadcrumbs.set(this.createBreadcrumbs(this.activatedRoute.root));
+      });
+  }
 
   ngOnInit(): void {
     // Subscribe to current user
@@ -216,6 +232,66 @@ export class MainLayoutComponent implements OnInit {
 
   isMenuItemExpanded(title: string): boolean {
     return this.expandedMenuItems.has(title);
+  }
+
+  isItemVisible(item: { roles?: string[] }): boolean {
+    if (!item.roles || item.roles.length === 0) return true;
+    return !!this.currentUser && item.roles.includes(this.currentUser.role);
+  }
+
+  private createBreadcrumbs(
+    route: ActivatedRoute,
+    url: string = '',
+    breadcrumbs: { label: string; url: string }[] = []
+  ): { label: string; url: string }[] {
+    const children: ActivatedRoute[] = route.children;
+
+    if (children.length === 0) {
+      return breadcrumbs;
+    }
+
+    for (const child of children) {
+      const routeURL: string = child.snapshot.url
+        .map((segment) => segment.path)
+        .join('/');
+      if (routeURL !== '') {
+        url += `/${routeURL}`;
+      }
+
+      let label = 'Home';
+      if (routeURL) {
+        // Try to find label in menu items
+        label = this.findLabelByUrl(url) || this.formatLabel(routeURL);
+      }
+      
+      // Only push if not already there (simple check) and not root if empty
+      if (label && url) {
+          breadcrumbs.push({ label, url });
+      }
+
+      return this.createBreadcrumbs(child, url, breadcrumbs);
+    }
+    
+    return breadcrumbs;
+  }
+
+  private findLabelByUrl(url: string): string | null {
+    // Helper to find label in menuGroups
+    for (const group of this.menuGroups) {
+      for (const item of group.items) {
+        if (item.route === url) return item.title;
+        if (item.children) {
+          for (const child of item.children) {
+             if (child.route === url) return child.title;
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  private formatLabel(text: string): string {
+    return text.charAt(0).toUpperCase() + text.slice(1);
   }
 
   logout() {

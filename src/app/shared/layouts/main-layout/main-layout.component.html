@@ -1,233 +1,167 @@
 <z-layout class="h-screen">
   <!-- Sidebar -->
-  <z-sidebar
-    [zWidth]="250"
-    [zCollapsedWidth]="70"
-    [zCollapsible]="true"
-    [zCollapsed]="sidebarCollapsed()"
-    (zCollapsedChange)="onSidebarCollapsedChange($event)"
-    class="p-0! h-screen"
-  >
+  <z-sidebar [zWidth]="250" [zCollapsedWidth]="70" [zCollapsible]="true" [zCollapsed]="sidebarCollapsed()"
+    (zCollapsedChange)="onSidebarCollapsedChange($event)" class="p-0! h-screen">
     <nav class="flex h-full flex-col">
       <!-- Logo Section -->
       <div [class]="'flex-shrink-0 border-b ' + (sidebarCollapsed() ? 'p-3' : 'p-3')">
         <a routerLink="/dashboard" class="flex items-center justify-center">
           @if (sidebarCollapsed()) {
-            <img src="assets/images/Nexura_Logo.png" alt="Nexura" class="h-8 w-auto" />
+          <img src="assets/images/Nexura_Logo.png" alt="Nexura" class="h-8 w-auto" />
           } @else {
-            <img src="assets/images/Nexura_Logo.png" alt="Nexura Logo" class="h-10 w-auto" />
+          <img src="assets/images/Nexura_Logo.png" alt="Nexura Logo" class="h-10 w-auto" />
           }
         </a>
       </div>
 
       <!-- Scrollable Menu Section -->
-      <div [class]="'scrollbar-custom flex-1 flex flex-col overflow-y-auto overflow-x-hidden' + (sidebarCollapsed() ? 'gap-1 p-1 pt-4' : 'gap-4 py-4 pl-4 pr-3')">
+      <div
+        [class]="'scrollbar-custom flex-1 flex flex-col overflow-y-auto overflow-x-hidden' + (sidebarCollapsed() ? 'gap-1 p-1 pt-4' : 'gap-4 py-4 pl-4 pr-3')">
         <!-- Dashboards Group -->
         <z-sidebar-group>
           @if (!sidebarCollapsed()) {
-            <z-sidebar-group-label>Dashboards</z-sidebar-group-label>
+          <z-sidebar-group-label>Dashboards</z-sidebar-group-label>
           }
           @for (item of menuGroups[0].items; track item.route) {
-            <a
-              [routerLink]="item.route"
-              routerLinkActive="bg-primary/10 text-primary font-semibold"
-              z-button
-              zType="ghost"
-              class="px-2 py-0"
-              [class]="sidebarCollapsed() ? 'justify-center self-center !flex' : 'justify-start'"
-              [zTooltip]="sidebarCollapsed() ? item.title : ''"
-              zPosition="right"
-            >
-              <z-icon [zType]="item.icon" [class]="sidebarCollapsed() ? '' : 'mr-1'" />
-              @if (!sidebarCollapsed()) {
-                <span>{{ item.title }}</span>
-              }
-            </a>
+          <a [routerLink]="item.route" routerLinkActive="bg-primary/10 text-primary font-semibold" z-button
+            zType="ghost" class="px-2 py-0"
+            [class]="sidebarCollapsed() ? 'justify-center self-center !flex' : 'justify-start'"
+            [zTooltip]="sidebarCollapsed() ? item.title : ''" zPosition="right">
+            <z-icon [zType]="item.icon" [class]="sidebarCollapsed() ? '' : 'mr-1'" />
+            @if (!sidebarCollapsed()) {
+            <span>{{ item.title }}</span>
+            }
+          </a>
           }
         </z-sidebar-group>
 
         <!-- HR Management Group -->
         <z-sidebar-group>
           @if (!sidebarCollapsed()) {
-            <z-sidebar-group-label>HR Management</z-sidebar-group-label>
+          <z-sidebar-group-label>HR Management</z-sidebar-group-label>
           }
           @for (item of menuGroups[1].items; track item.title) {
-            @if (item.children && item.children.length > 0) {
-              <!-- Parent item with children -->
-              <button
-                type="button"
-                z-button
-                zType="ghost"
-                class="px-2 py-1"
-                [class]="sidebarCollapsed() ? 'justify-center self-center !flex' : 'justify-start'"
-                [zTooltip]="sidebarCollapsed() ? item.title : ''"
-                zPosition="right"
-                (click)="toggleMenuItem(item.title)"
-              >
-                <z-icon [zType]="item.icon" [class]="sidebarCollapsed() ? '' : 'mr-1'" />
-                @if (!sidebarCollapsed()) {
-                  <span class="flex-1 text-left">{{ item.title }}</span>
-                  <z-icon
-                    [zType]="isMenuItemExpanded(item.title) ? 'chevron-up' : 'chevron-down'"
-                    class="ml-auto w-4 h-4"
-                  />
-                }
-              </button>
-
-              <!-- Children items -->
-              @if (isMenuItemExpanded(item.title) && !sidebarCollapsed()) {
-                <div class="ml-4 space-y-1 border-l-1 px-2.5">
-                  @for (child of item.children; track child.route) {
-                    <a
-                      [routerLink]="child.route"
-                      routerLinkActive="bg-primary/10 text-primary font-semibold"
-                      [routerLinkActiveOptions]="{ exact: !child.children }"
-                      z-button
-                      zType="ghost"
-                      class="justify-start w-full pl-2 px-2 py-0"
-                    >
-                      <z-icon [zType]="child.icon" class="mr-1 w-4 h-4" />
-                      <span>{{ child.title }}</span>
-                    </a>
-                  }
-                </div>
-              }
-            } @else {
-              <!-- Regular item without children -->
-              <a
-                [routerLink]="item.route"
-                routerLinkActive="bg-primary/10 text-primary font-semibold"
-                z-button
-                zType="ghost"
-                class="px-2 py-1"
-                [class]="sidebarCollapsed() ? 'justify-center self-center !flex' : 'justify-start'"
-                [zTooltip]="sidebarCollapsed() ? item.title : ''"
-                zPosition="right"
-              >
-                <z-icon [zType]="item.icon" [class]="sidebarCollapsed() ? '' : 'mr-1'" />
-                @if (!sidebarCollapsed()) {
-                  <span>{{ item.title }}</span>
-                }
-              </a>
+          @if (item.children && item.children.length > 0) {
+          <!-- Parent item with children -->
+          <button type="button" z-button zType="ghost" class="px-2 py-1"
+            [class]="sidebarCollapsed() ? 'justify-center self-center !flex' : 'justify-start'"
+            [zTooltip]="sidebarCollapsed() ? item.title : ''" zPosition="right" (click)="toggleMenuItem(item.title)">
+            <z-icon [zType]="item.icon" [class]="sidebarCollapsed() ? '' : 'mr-1'" />
+            @if (!sidebarCollapsed()) {
+            <span class="flex-1 text-left">{{ item.title }}</span>
+            <z-icon [zType]="isMenuItemExpanded(item.title) ? 'chevron-up' : 'chevron-down'" class="ml-auto w-4 h-4" />
             }
+          </button>
+
+          <!-- Children items -->
+          @if (isMenuItemExpanded(item.title) && !sidebarCollapsed()) {
+          <div class="ml-4 space-y-1 border-l-1 px-2.5">
+            @for (child of item.children; track child.route) {
+            <a [routerLink]="child.route" routerLinkActive="bg-primary/10 text-primary font-semibold"
+              [routerLinkActiveOptions]="{ exact: !child.children }" z-button zType="ghost"
+              class="justify-start w-full pl-2 px-2 py-0">
+              <z-icon [zType]="child.icon" class="mr-1 w-4 h-4" />
+              <span>{{ child.title }}</span>
+            </a>
+            }
+          </div>
+          }
+          } @else {
+          <!-- Regular item without children -->
+          <a [routerLink]="item.route" routerLinkActive="bg-primary/10 text-primary font-semibold" z-button
+            zType="ghost" class="px-2 py-1"
+            [class]="sidebarCollapsed() ? 'justify-center self-center !flex' : 'justify-start'"
+            [zTooltip]="sidebarCollapsed() ? item.title : ''" zPosition="right">
+            <z-icon [zType]="item.icon" [class]="sidebarCollapsed() ? '' : 'mr-1'" />
+            @if (!sidebarCollapsed()) {
+            <span>{{ item.title }}</span>
+            }
+          </a>
+          }
           }
         </z-sidebar-group>
 
         <!-- Personal Group -->
         <z-sidebar-group>
           @if (!sidebarCollapsed()) {
-            <z-sidebar-group-label>Personal</z-sidebar-group-label>
+          <z-sidebar-group-label>Personal</z-sidebar-group-label>
           }
           @for (item of menuGroups[2].items; track item.route) {
-            <a
-              [routerLink]="item.route"
-              routerLinkActive="bg-primary/10 text-primary font-semibold"
-              z-button
-              zType="ghost"
-              class="px-2 py-1"
-              [class]="sidebarCollapsed() ? 'justify-center !w-full !flex' : 'justify-start'"
-              [zTooltip]="sidebarCollapsed() ? item.title : ''"
-              zPosition="right"
-            >
-              <z-icon [zType]="item.icon" [class]="sidebarCollapsed() ? '' : 'mr-2'" />
-              @if (!sidebarCollapsed()) {
-                <span>{{ item.title }}</span>
-              }
-            </a>
+          <a [routerLink]="item.route" routerLinkActive="bg-primary/10 text-primary font-semibold" z-button
+            zType="ghost" class="px-2 py-1"
+            [class]="sidebarCollapsed() ? 'justify-center !w-full !flex' : 'justify-start'"
+            [zTooltip]="sidebarCollapsed() ? item.title : ''" zPosition="right">
+            <z-icon [zType]="item.icon" [class]="sidebarCollapsed() ? '' : 'mr-2'" />
+            @if (!sidebarCollapsed()) {
+            <span>{{ item.title }}</span>
+            }
+          </a>
           }
         </z-sidebar-group>
 
         <!-- Systems Group -->
         <z-sidebar-group>
           @if (!sidebarCollapsed()) {
-            <z-sidebar-group-label>Systems</z-sidebar-group-label>
+          <z-sidebar-group-label>Systems</z-sidebar-group-label>
           }
           @for (item of menuGroups[3].items; track item.title) {
-            @if (item.children && item.children.length > 0) {
-              <!-- Parent item with children -->
-              <button
-                type="button"
-                z-button
-                zType="ghost"
-                class="px-2 py-1"
-                [class]="sidebarCollapsed() ? 'justify-center self-center !flex' : 'justify-start'"
-                [zTooltip]="sidebarCollapsed() ? item.title : ''"
-                zPosition="right"
-                (click)="toggleMenuItem(item.title)"
-              >
-                <z-icon [zType]="item.icon" [class]="sidebarCollapsed() ? '' : 'mr-1'" />
-                @if (!sidebarCollapsed()) {
-                  <span class="flex-1 text-left">{{ item.title }}</span>
-                  <z-icon
-                    [zType]="isMenuItemExpanded(item.title) ? 'chevron-up' : 'chevron-down'"
-                    class="ml-auto w-4 h-4"
-                  />
-                }
-              </button>
-
-              <!-- Children items -->
-              @if (isMenuItemExpanded(item.title) && !sidebarCollapsed()) {
-                <div class="ml-4 space-y-1 border-l-1 px-2.5">
-                  @for (child of item.children; track child.route) {
-                    <a
-                      [routerLink]="child.route"
-                      routerLinkActive="bg-primary/10 text-primary font-semibold"
-                      [routerLinkActiveOptions]="{ exact: !child.children }"
-                      z-button
-                      zType="ghost"
-                      class="justify-start w-full pl-2 px-2 py-0"
-                    >
-                      <z-icon [zType]="child.icon" class="mr-1 w-4 h-4" />
-                      <span>{{ child.title }}</span>
-                    </a>
-                  }
-                </div>
-              }
-            } @else {
-              <!-- Regular item without children -->
-              <a
-                [routerLink]="item.route"
-                routerLinkActive="bg-primary/10 text-primary font-semibold"
-                z-button
-                zType="ghost"
-                class="px-2 py-1"
-                [class]="sidebarCollapsed() ? 'justify-center !w-full !flex' : 'justify-start'"
-                [zTooltip]="sidebarCollapsed() ? item.title : ''"
-                zPosition="right"
-              >
-                <z-icon [zType]="item.icon" [class]="sidebarCollapsed() ? '' : 'mr-2'" />
-                @if (!sidebarCollapsed()) {
-                  <span>{{ item.title }}</span>
-                }
-              </a>
+          @if (isItemVisible(item)) {
+          @if (item.children && item.children.length > 0) {
+          <!-- Parent item with children -->
+          <button type="button" z-button zType="ghost" class="px-2 py-1"
+            [class]="sidebarCollapsed() ? 'justify-center self-center !flex' : 'justify-start'"
+            [zTooltip]="sidebarCollapsed() ? item.title : ''" zPosition="right" (click)="toggleMenuItem(item.title)">
+            <z-icon [zType]="item.icon" [class]="sidebarCollapsed() ? '' : 'mr-1'" />
+            @if (!sidebarCollapsed()) {
+            <span class="flex-1 text-left">{{ item.title }}</span>
+            <z-icon [zType]="isMenuItemExpanded(item.title) ? 'chevron-up' : 'chevron-down'" class="ml-auto w-4 h-4" />
             }
+          </button>
+
+          <!-- Children items -->
+          @if (isMenuItemExpanded(item.title) && !sidebarCollapsed()) {
+          <div class="ml-4 space-y-1 border-l-1 px-2.5">
+            @for (child of item.children; track child.route) {
+            <a [routerLink]="child.route" routerLinkActive="bg-primary/10 text-primary font-semibold"
+              [routerLinkActiveOptions]="{ exact: !child.children }" z-button zType="ghost"
+              class="justify-start w-full pl-2 px-2 py-0">
+              <z-icon [zType]="child.icon" class="mr-1 w-4 h-4" />
+              <span>{{ child.title }}</span>
+            </a>
+            }
+          </div>
+          }
+          } @else {
+          <!-- Regular item without children -->
+          <a [routerLink]="item.route" routerLinkActive="bg-primary/10 text-primary font-semibold" z-button
+            zType="ghost" class="px-2 py-1"
+            [class]="sidebarCollapsed() ? 'justify-center !w-full !flex' : 'justify-start'"
+            [zTooltip]="sidebarCollapsed() ? item.title : ''" zPosition="right">
+            <z-icon [zType]="item.icon" [class]="sidebarCollapsed() ? '' : 'mr-2'" />
+            @if (!sidebarCollapsed()) {
+            <span>{{ item.title }}</span>
+            }
+          </a>
+          }
+          }
           }
         </z-sidebar-group>
       </div>
 
       <!-- Fixed Bottom User Profile Section -->
       <div [class]="'flex-shrink-0 border-t ' + (sidebarCollapsed() ? 'p-1' : 'p-4')">
-        <div
-          z-menu
-          [zMenuTriggerFor]="userMenu"
-          zPlacement="rightBottom"
-          [class]="
+        <div z-menu [zMenuTriggerFor]="userMenu" zPlacement="rightBottom" [class]="
             'hover:bg-accent flex cursor-pointer items-center rounded-md ' +
             (sidebarCollapsed() ? 'justify-center p-0' : 'gap-2 p-2')
-          "
-        >
-          <z-avatar
-            [zAlt]="currentUser?.employee?.full_name || 'User'"
-            [zFallback]="getUserInitials()"
-            zSize="sm"
-          />
+          ">
+          <z-avatar [zAlt]="currentUser?.employee?.full_name || 'User'" [zFallback]="getUserInitials()" zSize="sm" />
 
           @if (!sidebarCollapsed()) {
-            <div class="flex-1 min-w-0">
-              <div class="font-medium text-sm truncate">{{ getDisplayName() }}</div>
-              <div class="text-xs text-muted-foreground truncate">{{ currentUser?.email || 'admin@hrms.com' }}</div>
-            </div>
-            <z-icon zType="chevrons-up-down" class="ml-auto shrink-0" />
+          <div class="flex-1 min-w-0">
+            <div class="font-medium text-sm truncate">{{ getDisplayName() }}</div>
+            <div class="text-xs text-muted-foreground truncate">{{ currentUser?.email || 'admin@hrms.com' }}</div>
+          </div>
+          <z-icon zType="chevrons-up-down" class="ml-auto shrink-0" />
           }
         </div>
 
@@ -258,27 +192,19 @@
     <header class="flex-shrink-0 border-b bg-background">
       <div class="flex w-full h-full items-center gap-1 px-4 lg:gap-4">
         <!-- Left: Sidebar Toggle -->
-        <a
-          type="button"
-          z-button
-          zType="ghost"
-          zSize="sm"
-          (click)="toggleSidebar()"
-        >
-          <z-icon zType="panel-left"/>
+        <a type="button" z-button zType="ghost" zSize="sm" (click)="toggleSidebar()">
+          <z-icon zType="panel-left" />
         </a>
         <z-divider zOrientation="vertical" class="h-6 mx-0" />
         <!-- Center: Search Bar -->
         <div class="lg:flex-1 max-w-sm">
           <div class="relative items-center">
-            <z-icon zType="search" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
-            <input
-              z-input
-              type="search"
-              placeholder="Search..."
-              class="pl-11 pr-14 w-full h-9 text-sm rounded-xl shadow-sm"
-            />
-            <div class="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none flex items-center gap-0.5 text-xs text-muted-foreground">
+            <z-icon zType="search"
+              class="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
+            <input z-input type="search" placeholder="Search..."
+              class="pl-11 pr-14 w-full h-9 text-sm rounded-xl shadow-sm" />
+            <div
+              class="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none flex items-center gap-0.5 text-xs text-muted-foreground">
               <span>⌘</span>
               <span>+</span>
               <span>K</span>
@@ -287,64 +213,35 @@
         </div>
 
         <!-- Right: Action Icons -->
-        <div class="flex items-center gap-2 ml-auto">
+        <div class="flex items-center gap-2 ml-auto z-10">
           <!-- Messages -->
-          <a
-            type="button"
-            z-button
-            zType="ghost"
-            zSize="sm"
-            class="relative"
-            [zTooltip]="'Messages'"
-          >
-            <z-icon zType="mail"/>
-            <span class="absolute top-0 right-0 inline-flex items-center justify-center w-2 h-2 bg-destructive rounded-full"></span>
+          <a type="button" z-button zType="ghost" zSize="sm" class="relative" [zTooltip]="'Messages'">
+            <z-icon zType="mail" />
+            <span
+              class="absolute top-0 right-0 inline-flex items-center justify-center w-2 h-2 bg-destructive rounded-full"></span>
           </a>
 
           <!-- Notifications -->
-          <a
-            type="button"
-            z-button
-            zType="ghost"
-            zSize="sm"
-            class="relative"
-            [zTooltip]="'Notifications'"
-          >
-            <z-icon zType="bell"/>
-            <span class="absolute top-0 right-0 inline-flex items-center justify-center w-2 h-2 bg-destructive rounded-full"></span>
+          <a type="button" z-button zType="ghost" zSize="sm" class="relative" [zTooltip]="'Notifications'">
+            <z-icon zType="bell" />
+            <span
+              class="absolute top-0 right-0 inline-flex items-center justify-center w-2 h-2 bg-destructive rounded-full"></span>
           </a>
 
           <!-- Dark Mode Toggle -->
-          <button
-            type="button"
-            z-button
-            zType="ghost"
-            zSize="sm"
-            class="relative"
+          <button type="button" z-button zType="ghost" zSize="sm" class="relative"
             [zTooltip]="themeService.darkMode() ? 'Switch to light mode' : 'Switch to dark mode'"
-            (click)="toggleTheme()"
-          >
+            (click)="toggleTheme()">
             <z-icon zType="sun" class="rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-            <z-icon zType="moon" class="absolute inset-0 m-auto rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            <z-icon zType="moon"
+              class="absolute inset-0 m-auto rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
           </button>
           <z-divider zOrientation="vertical" class="h-6 mx-0" />
           <!-- User Profile Menu -->
-          <div
-            z-menu
-            [zMenuTriggerFor]="userMenuHeader"
-            zPlacement="bottomRight"
-          >
-            <button
-              type="button"
-              z-button
-              zType="ghost"
-              class="relative h-9 w-9 rounded-full p-0"
-            >
-              <z-avatar
-                class="h-8 w-8"
-                [zAlt]="currentUser?.employee?.full_name || 'User'"
-                [zFallback]="getUserInitials()"
-              />
+          <div z-menu [zMenuTriggerFor]="userMenuHeader" zPlacement="bottomRight">
+            <button type="button" z-button zType="ghost" class="relative h-9 w-9 rounded-full p-0">
+              <z-avatar class="h-8 w-8" [zAlt]="currentUser?.employee?.full_name || 'User'"
+                [zFallback]="getUserInitials()" />
             </button>
           </div>
 

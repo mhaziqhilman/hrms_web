@@ -66,6 +66,7 @@ import {
   LayoutDashboard,
   Lightbulb,
   LightbulbOff,
+  Link,
   List,
   ListFilter,
   ListFilterPlus,
@@ -113,6 +114,7 @@ import {
   TrendingUp,
   TriangleAlert,
   Underline,
+  Unlink,
   Briefcase,
   User,
   UserCircle,
@@ -128,6 +130,7 @@ import {
   FileChartColumn,
   FileChartLine,
   FileChartColumnIncreasing,
+  KeyRound,
 } from 'lucide-angular';
 
 const DarkMode: LucideIconData = [
@@ -268,7 +271,10 @@ export const ZARD_ICONS = {
   banknote: Banknote,
   landmark: Landmark,
   'file-x': FileX,
-  'user-x': UserX
+  'user-x': UserX,
+  'link': Link,
+  'unlink': Unlink,
+  'key-round': KeyRound,
 } as const satisfies Record<string, LucideIconData>;
 
 export declare type ZardIcon = keyof typeof ZARD_ICONS | LucideIconData;

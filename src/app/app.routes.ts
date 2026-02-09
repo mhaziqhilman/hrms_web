@@ -57,6 +57,10 @@ export const routes: Routes = [
                 loadChildren: () => import('./features/personal/personal.routes').then(m => m.personalRoutes)
             },
             {
+                path: 'user-management',
+                loadChildren: () => import('./features/user-management/user-management.routes').then(m => m.USER_MANAGEMENT_ROUTES)
+            },
+            {
                 path: 'settings',
                 loadChildren: () => import('./features/settings/settings.routes').then(m => m.SETTINGS_ROUTES)
             }

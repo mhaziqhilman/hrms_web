@@ -61,6 +61,16 @@ export const API_CONFIG = {
       pcbPdf: (year: number, month: number) => `/statutory-reports/pcb/${year}/${month}/pdf`,
       csv: (type: string, year: number, month: number) => `/statutory-reports/csv/${type}/${year}/${month}`
     },
+    users: {
+      base: '/users',
+      detail: (id: number) => `/users/${id}`,
+      updateRole: (id: number) => `/users/${id}/role`,
+      toggleActive: (id: number) => `/users/${id}/toggle-active`,
+      linkEmployee: (id: number) => `/users/${id}/link-employee`,
+      unlinkEmployee: (id: number) => `/users/${id}/unlink-employee`,
+      resetPassword: (id: number) => `/users/${id}/reset-password`,
+      unlinkedEmployees: '/users/unlinked-employees'
+    },
     dashboard: {
       admin: '/dashboard/admin',
       manager: '/dashboard/manager',
