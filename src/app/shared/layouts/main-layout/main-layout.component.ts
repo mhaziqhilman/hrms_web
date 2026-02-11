@@ -5,7 +5,7 @@ import { filter } from 'rxjs/operators';
 import { AuthService } from '@/core/services/auth.service';
 import { CompanyService } from '@/core/services/company.service';
 import { ThemeService } from '@/core/services/theme';
-import { User, Company } from '@/core/models/auth.models';
+import { User, Company, UserCompany } from '@/core/models/auth.models';
 import { SidebarMenuGroup } from '@/core/models/sidebar.models';
 
 // ZardUI Component Imports
@@ -41,6 +41,10 @@ import { ZardBreadcrumbModule } from '@/shared/components/breadcrumb/breadcrumb.
 export class MainLayoutComponent implements OnInit {
   currentUser: User | null = null;
   currentCompany: Company | null = null;
+  companyMemberships: UserCompany[] = [];
+  allCompanies: Company[] = [];
+  switchingCompany = false;
+  isSuperAdmin = false;
   expandedMenuItems = new Set<string>();
   breadcrumbs = signal<{ label: string; url: string }[]>([]);
 
@@ -56,12 +60,14 @@ export class MainLayoutComponent implements OnInit {
         {
           title: 'Admin Dashboard',
           icon: 'layout-dashboard',
-          route: '/dashboard/admin'
+          route: '/dashboard/admin',
+          roles: ['super_admin', 'admin']
         },
         {
           title: 'Manager Dashboard',
           icon: 'users',
-          route: '/dashboard/manager'
+          route: '/dashboard/manager',
+          roles: ['super_admin', 'admin', 'manager']
         },
         {
           title: 'Staff Dashboard',
@@ -72,6 +78,7 @@ export class MainLayoutComponent implements OnInit {
     },
     {
       label: 'HR Management',
+      roles: ['super_admin', 'admin', 'manager'],
       items: [
         {
           title: 'Employees',
@@ -128,6 +135,67 @@ export class MainLayoutComponent implements OnInit {
           title: 'My Profile',
           icon: 'user-circle',
           route: '/personal/profile'
+        },
+        {
+          title: 'My Leave',
+          icon: 'calendar',
+          route: '/leave',
+          roles: ['staff']
+        },
+        {
+          title: 'My Attendance',
+          icon: 'clock',
+          route: '/attendance',
+          roles: ['staff']
+        },
+        {
+          title: 'My Claims',
+          icon: 'file-text',
+          route: '/claims',
+          roles: ['staff']
+        }
+      ]
+    },
+    {
+      label: 'Administration',
+      roles: ['super_admin', 'admin'],
+      items: [
+        {
+          title: 'Admin Settings',
+          icon: 'settings',
+          roles: ['super_admin', 'admin'],
+          children: [
+            {
+              title: 'Company Profile',
+              icon: 'building',
+              route: '/admin-settings/company'
+            },
+            {
+              title: 'Leave Types',
+              icon: 'calendar',
+              route: '/admin-settings/leave-types'
+            },
+            {
+              title: 'Claim Types',
+              icon: 'file-text',
+              route: '/admin-settings/claim-types'
+            },
+            {
+              title: 'Public Holidays',
+              icon: 'calendar',
+              route: '/admin-settings/holidays'
+            },
+            {
+              title: 'Payroll Config',
+              icon: 'circle-dollar-sign',
+              route: '/admin-settings/payroll-config'
+            },
+            {
+              title: 'Email Templates',
+              icon: 'mail',
+              route: '/admin-settings/email-templates'
+            }
+          ]
         }
       ]
     },
@@ -138,7 +206,7 @@ export class MainLayoutComponent implements OnInit {
           title: 'User Management',
           icon: 'shield',
           route: '/user-management',
-          roles: ['super_admin']
+          roles: ['super_admin', 'admin']
         },
         {
           title: 'Settings',
@@ -191,22 +259,54 @@ export class MainLayoutComponent implements OnInit {
     // Subscribe to current user
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
-      // Always fetch fresh company data when user has a company_id
-      if (user?.company_id) {
+      this.isSuperAdmin = user?.role === 'super_admin';
+
+      // Set currentCompany from user's company association
+      this.currentCompany = user?.company ?? null;
+
+      // Fetch company details with resolved logo signed URL
+      if (this.currentCompany) {
         this.companyService.getMyCompany().subscribe({
           next: (res) => {
             if (res.success && res.data) {
-              this.currentCompany = res.data;
+              this.currentCompany = { ...this.currentCompany!, ...res.data };
             }
           }
         });
+      }
+
+      // Load company list for the switcher
+      if (this.isSuperAdmin || user?.company_id) {
+        this.loadCompanyMemberships();
       } else {
-        this.currentCompany = null;
+        this.companyMemberships = [];
+        this.allCompanies = [];
       }
     });
 
     // Refresh user data from API to ensure localStorage is up-to-date
     this.authService.getCurrentUser().subscribe();
+  }
+
+  private loadCompanyMemberships(): void {
+    // For super_admin: fetch ALL companies; for others: fetch memberships
+    if (this.isSuperAdmin) {
+      this.companyService.getAllCompanies().subscribe({
+        next: (res) => {
+          if (res.success && res.data) {
+            this.allCompanies = res.data;
+          }
+        }
+      });
+    } else {
+      this.companyService.getMyCompanies().subscribe({
+        next: (res) => {
+          if (res.success && res.data) {
+            this.companyMemberships = res.data;
+          }
+        }
+      });
+    }
   }
 
   toggleSidebar() {
@@ -243,13 +343,58 @@ export class MainLayoutComponent implements OnInit {
       .join(' ');
   }
 
-  getCompanyInitials(): string {
-    if (!this.currentCompany?.name) return 'CO';
-    const words = this.currentCompany.name.split(' ').filter(Boolean);
+  getDisplayRole(): string {
+    const role = this.currentUser?.role;
+    if (!role) return 'User';
+    return role.replace(/_/g, ' ');
+  }
+
+  getCompanyInitials(name?: string): string {
+    const companyName = name || this.currentCompany?.name;
+    if (!companyName) return 'CO';
+    const words = companyName.split(' ').filter(Boolean);
     if (words.length >= 2) {
       return (words[0][0] + words[1][0]).toUpperCase();
     }
     return words[0].substring(0, 2).toUpperCase();
+  }
+
+  switchCompany(companyId: number): void {
+    if (companyId === this.currentCompany?.id || this.switchingCompany) return;
+    this.switchingCompany = true;
+
+    this.companyService.switchCompany(companyId).subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.authService.updateSession(res.data.token, res.data.user);
+          // Reload the page to refresh all data for the new company context
+          window.location.href = '/dashboard';
+        }
+        this.switchingCompany = false;
+      },
+      error: () => {
+        this.switchingCompany = false;
+      }
+    });
+  }
+
+  clearCompanyContext(): void {
+    if (!this.currentCompany || this.switchingCompany) return;
+    this.switchingCompany = true;
+
+    this.companyService.clearCompanyContext().subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.authService.updateSession(res.data.token, res.data.user);
+          this.currentCompany = null;
+          window.location.href = '/dashboard';
+        }
+        this.switchingCompany = false;
+      },
+      error: () => {
+        this.switchingCompany = false;
+      }
+    });
   }
 
   toggleTheme() {
@@ -266,6 +411,18 @@ export class MainLayoutComponent implements OnInit {
 
   isMenuItemExpanded(title: string): boolean {
     return this.expandedMenuItems.has(title);
+  }
+
+  getDisplayTitle(title: string): string {
+    if (this.currentUser?.role === 'staff' && title.startsWith('My ')) {
+      return title.substring(3);
+    }
+    return title;
+  }
+
+  isGroupVisible(group: SidebarMenuGroup): boolean {
+    if (!group.roles || group.roles.length === 0) return true;
+    return !!this.currentUser && group.roles.includes(this.currentUser.role);
   }
 
   isItemVisible(item: { roles?: string[] }): boolean {

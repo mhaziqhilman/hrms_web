@@ -12,4 +12,5 @@ export interface SidebarMenuItem {
 export interface SidebarMenuGroup {
   label: string;
   items: SidebarMenuItem[];
+  roles?: string[]; // For role-based group visibility
 }

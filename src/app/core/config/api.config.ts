@@ -21,11 +21,18 @@ export const API_CONFIG = {
     },
     company: {
       setup: '/company/setup',
-      me: '/company/me'
+      me: '/company/me',
+      all: '/company/all',
+      myCompanies: '/company/my-companies',
+      switch: '/company/switch',
+      clearContext: '/company/clear-context',
+      logo: '/company/logo'
     },
     invitations: {
       base: '/invitations',
+      info: '/invitations/info',
       accept: '/invitations/accept',
+      autoAccept: '/invitations/auto-accept',
       cancel: (id: number) => `/invitations/${id}/cancel`,
       resend: (id: number) => `/invitations/${id}/resend`
     },
@@ -97,6 +104,29 @@ export const API_CONFIG = {
       dashboard: '/analytics/dashboard',
       exportExcel: '/analytics/export/excel',
       exportPdf: '/analytics/export/pdf'
+    },
+    leaveTypes: {
+      base: '/leave-types',
+      detail: (id: number) => `/leave-types/${id}`,
+      toggle: (id: number) => `/leave-types/${id}/toggle`
+    },
+    claimTypes: {
+      base: '/claim-types',
+      detail: (id: number) => `/claim-types/${id}`,
+      toggle: (id: number) => `/claim-types/${id}/toggle`
+    },
+    publicHolidays: {
+      base: '/public-holidays',
+      detail: (id: number) => `/public-holidays/${id}`
+    },
+    statutoryConfig: {
+      base: '/statutory-config'
+    },
+    emailTemplates: {
+      base: '/email-templates',
+      detail: (key: string) => `/email-templates/${key}`,
+      preview: (key: string) => `/email-templates/${key}/preview`,
+      reset: (key: string) => `/email-templates/${key}/reset`
     },
     settings: {
       base: '/settings',

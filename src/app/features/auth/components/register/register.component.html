@@ -54,8 +54,13 @@
               type="email"
               placeholder="m@example.com"
               formControlName="email"
+              [readonly]="!!invitedEmail"
               [class.border-destructive]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched"
+              [class.bg-muted]="!!invitedEmail"
             />
+            @if (invitedEmail) {
+              <p class="text-xs text-muted-foreground">This email is linked to your invitation</p>
+            }
             @if (registerForm.get('email')?.hasError('required') && registerForm.get('email')?.touched) {
               <p class="text-sm text-destructive">Email is required</p>
             }

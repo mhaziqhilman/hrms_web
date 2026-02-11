@@ -21,6 +21,15 @@ export class InvitationService {
     );
   }
 
+  getInvitationInfo(token: string): Observable<ApiResponse<{ email: string; role: string; status: string; expired: boolean; company: { name: string; logo_url: string } | null }>> {
+    return this.http.get<ApiResponse<any>>(
+      `${this.apiUrl}${API_CONFIG.endpoints.invitations.info}`,
+      { params: { token } }
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
   acceptInvitation(token: string): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(
       `${this.apiUrl}${API_CONFIG.endpoints.invitations.accept}`,
@@ -56,6 +65,15 @@ export class InvitationService {
   resendInvitation(id: number): Observable<ApiResponse> {
     return this.http.post<ApiResponse>(
       `${this.apiUrl}${API_CONFIG.endpoints.invitations.resend(id)}`,
+      {}
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  autoAccept(): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(
+      `${this.apiUrl}${API_CONFIG.endpoints.invitations.autoAccept}`,
       {}
     ).pipe(
       catchError(this.handleError)

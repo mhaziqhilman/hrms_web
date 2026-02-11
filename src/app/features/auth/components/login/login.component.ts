@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
+import { InvitationService } from '../../../../core/services/invitation.service';
 
 // ZardUI Components
 import { ZardCardComponent } from '@/shared/components/card/card.component';
@@ -39,7 +40,8 @@ export class LoginComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private router: Router,
     private route: ActivatedRoute,
-    private authService: AuthService
+    private authService: AuthService,
+    private invitationService: InvitationService
   ) {}
 
   ngOnInit(): void {
@@ -66,6 +68,30 @@ export class LoginComponent implements OnInit, OnDestroy {
     });
   }
 
+  private acceptPendingInvitation(token: string): void {
+    this.invitationService.acceptInvitation(token).subscribe({
+      next: (response) => {
+        localStorage.removeItem('pending_invitation_token');
+        // Update session with new token/user that includes the company
+        if (response.data) {
+          localStorage.setItem('hrms_token', response.data.token);
+          localStorage.setItem('hrms_user', JSON.stringify(response.data.user));
+          this.authService.getCurrentUser().subscribe({
+            next: () => this.router.navigate(['/dashboard']),
+            error: () => this.router.navigate(['/dashboard'])
+          });
+        } else {
+          this.router.navigate(['/dashboard']);
+        }
+      },
+      error: () => {
+        // Invitation may be invalid/expired - clear it and continue normally
+        localStorage.removeItem('pending_invitation_token');
+        this.router.navigate([this.returnUrl]);
+      }
+    });
+  }
+
   onSubmit(): void {
     if (this.loginForm.invalid) {
       Object.keys(this.loginForm.controls).forEach(key => {
@@ -82,7 +108,13 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.authService.login({ email, password }).subscribe({
       next: (response) => {
         this.loading = false;
-        console.log('Login successful:', response);
+
+        // Check for pending invitation token from accept-invitation page
+        const pendingToken = localStorage.getItem('pending_invitation_token');
+        if (pendingToken) {
+          this.acceptPendingInvitation(pendingToken);
+          return;
+        }
 
         // Navigate to return URL or dashboard
         this.router.navigate([this.returnUrl]);
@@ -90,7 +122,6 @@ export class LoginComponent implements OnInit, OnDestroy {
       error: (error) => {
         this.loading = false;
         this.errorMessage = error.message || 'Login failed. Please check your credentials.';
-        console.error('Login error:', error);
       }
     });
   }

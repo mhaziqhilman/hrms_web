@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, ViewContainerRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -9,6 +9,8 @@ import {
   EmploymentStatus,
   EmploymentType
 } from '../../models/employee.model';
+import { InvitationService } from '../../../../core/services/invitation.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 // ZardUI Components
 import { ZardCardComponent } from '@/shared/components/card/card.component';
@@ -19,8 +21,12 @@ import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component
 import { ZardMenuImports } from '@/shared/components/menu/menu.imports';
 import { ZardTableImports } from '@/shared/components/table/table.imports';
 import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-dialog.service';
+import { ZardDialogService } from '@/shared/components/dialog/dialog.service';
 import { ZardTooltipModule } from '@/shared/components/tooltip/tooltip';
 import { ZardCheckboxComponent } from '@/shared/components/checkbox/checkbox.component';
+
+// Dialog Components
+import { InviteUserDialogComponent } from './dialogs/invite-user-dialog.component';
 
 @Component({
   selector: 'app-employee-list',
@@ -44,6 +50,10 @@ import { ZardCheckboxComponent } from '@/shared/components/checkbox/checkbox.com
 export class EmployeeListComponent implements OnInit {
   private employeeService = inject(EmployeeService);
   private alertDialogService = inject(ZardAlertDialogService);
+  private dialogService = inject(ZardDialogService);
+  private invitationService = inject(InvitationService);
+  private authService = inject(AuthService);
+  private viewContainerRef = inject(ViewContainerRef);
 
   employees = signal<Employee[]>([]);
   loading = signal<boolean>(false);
@@ -378,6 +388,50 @@ export class EmployeeListComponent implements OnInit {
         this.selectedEmployees.set(new Set());
         this.selectAll = false;
         this.loadEmployees();
+      }
+    });
+  }
+
+  isAdmin(): boolean {
+    return this.authService.hasAnyRole(['super_admin', 'admin']);
+  }
+
+  openInviteDialog(): void {
+    this.dialogService.create({
+      zTitle: 'Invite User',
+      zContent: InviteUserDialogComponent,
+      zViewContainerRef: this.viewContainerRef,
+      zOkText: 'Send Invitation',
+      zCancelText: 'Cancel',
+      zOkIcon: 'send',
+      zOnOk: (instance: InviteUserDialogComponent): false | void => {
+        instance.markTouched();
+        if (!instance.isValid()) {
+          return false;
+        }
+        const { email, role } = instance.getInviteData();
+        this.sendInvitation(email, role);
+      }
+    });
+  }
+
+  private sendInvitation(email: string, role: string): void {
+    this.invitationService.inviteUser(email, role).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.alertDialogService.info({
+            zTitle: 'Invitation Sent',
+            zDescription: `An invitation has been sent to ${email}.`,
+            zOkText: 'OK'
+          });
+        }
+      },
+      error: (err) => {
+        this.alertDialogService.warning({
+          zTitle: 'Error',
+          zDescription: err.message || 'Failed to send invitation',
+          zOkText: 'OK'
+        });
       }
     });
   }

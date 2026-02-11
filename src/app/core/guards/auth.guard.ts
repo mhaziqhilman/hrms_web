@@ -38,7 +38,8 @@ export const authGuard: CanActivateFn = (
 
 /**
  * Onboarding Guard
- * Allows authenticated + verified users without a company to access onboarding pages
+ * Allows authenticated + verified users to access onboarding pages
+ * (both new users without a company AND existing users creating additional companies)
  */
 export const onboardingGuard: CanActivateFn = (
   route: ActivatedRouteSnapshot,
@@ -57,12 +58,6 @@ export const onboardingGuard: CanActivateFn = (
   // If not verified, redirect to verification pending page
   if (user && !user.email_verified && user.role !== 'super_admin') {
     router.navigate(['/auth/verify-email-pending']);
-    return false;
-  }
-
-  // If already has a company, redirect to dashboard
-  if (user && user.company_id) {
-    router.navigate(['/dashboard']);
     return false;
   }
 

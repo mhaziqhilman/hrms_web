@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 
 // ZardUI Components
@@ -36,14 +36,17 @@ export class RegisterComponent implements OnInit, OnDestroy {
   passwordFieldType: 'password' | 'text' = 'password';
   confirmPasswordFieldType: 'password' | 'text' = 'password';
   passwordStrength: number = 0;
+  invitedEmail = '';
 
   constructor(
     private fb: FormBuilder,
     private router: Router,
+    private route: ActivatedRoute,
     private authService: AuthService
   ) {}
 
   ngOnInit(): void {
+    this.invitedEmail = this.route.snapshot.queryParamMap.get('email') || '';
     this.initForm();
     this.setupPasswordStrengthCheck();
   }
@@ -55,7 +58,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
   initForm(): void {
     this.registerForm = this.fb.group({
       fullName: ['', [Validators.required, Validators.minLength(3)]],
-      email: ['', [Validators.required, Validators.email]],
+      email: [this.invitedEmail, [Validators.required, Validators.email]],
       password: ['', [
         Validators.required,
         Validators.minLength(8),

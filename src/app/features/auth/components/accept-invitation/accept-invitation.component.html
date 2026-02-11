@@ -10,8 +10,17 @@
     <z-card class="border shadow-lg">
       <div z-card-content class="p-6">
         <div class="text-center">
+          <!-- Loading Info State -->
+          @if (loadingInfo) {
+            <div class="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+              <z-icon zType="loader-circle" class="w-8 h-8 text-primary animate-spin" />
+            </div>
+            <h1 class="text-2xl font-semibold text-foreground mb-2">Loading Invitation</h1>
+            <p class="text-sm text-muted-foreground">Please wait...</p>
+          }
+
           <!-- Processing State -->
-          @if (processing) {
+          @if (!loadingInfo && processing) {
             <div class="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6">
               <z-icon zType="loader-circle" class="w-8 h-8 text-primary animate-spin" />
             </div>
@@ -20,13 +29,13 @@
           }
 
           <!-- Success State -->
-          @if (!processing && success) {
+          @if (!loadingInfo && !processing && success) {
             <div class="mx-auto w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center mb-6">
               <z-icon [zType]="$any('check-circle')" class="w-8 h-8 text-green-500" />
             </div>
             <h1 class="text-2xl font-semibold text-foreground mb-2">Welcome Aboard!</h1>
             <p class="text-sm text-muted-foreground mb-8">
-              You've successfully joined the company. You can now access the HRMS dashboard.
+              You've successfully joined @if (companyName) { <strong>{{ companyName }}</strong> } @else { the company }. You can now access the HRMS dashboard.
             </p>
             <button
               z-button
@@ -40,14 +49,23 @@
           }
 
           <!-- Not Authenticated State -->
-          @if (!processing && !success && !errorMessage && !isAuthenticated) {
+          @if (!loadingInfo && !processing && !success && !errorMessage && !isAuthenticated) {
             <div class="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6">
               <z-icon [zType]="$any('mail-open')" class="w-8 h-8 text-primary" />
             </div>
             <h1 class="text-2xl font-semibold text-foreground mb-2">You've Been Invited!</h1>
-            <p class="text-sm text-muted-foreground mb-8">
-              Please log in or create an account to accept this invitation.
-            </p>
+            @if (companyName) {
+              <p class="text-sm text-muted-foreground mb-2">
+                You've been invited to join <strong>{{ companyName }}</strong> as <strong class="capitalize">{{ invitedRole }}</strong>.
+              </p>
+              <p class="text-sm text-muted-foreground mb-8">
+                Log in or create an account to accept this invitation.
+              </p>
+            } @else {
+              <p class="text-sm text-muted-foreground mb-8">
+                Please log in or create an account to accept this invitation.
+              </p>
+            }
             <button
               z-button
               type="button"
@@ -68,7 +86,7 @@
           }
 
           <!-- Error State -->
-          @if (!processing && errorMessage) {
+          @if (!loadingInfo && !processing && errorMessage) {
             <div class="mx-auto w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mb-6">
               <z-icon [zType]="$any('x-circle')" class="w-8 h-8 text-destructive" />
             </div>

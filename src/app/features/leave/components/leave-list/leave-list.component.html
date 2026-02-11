@@ -21,6 +21,17 @@
     </div>
   </div>
 
+  <!-- No Profile State -->
+  @if (!loading() && !hasProfile()) {
+    <z-card>
+      <z-empty
+        [zIcon]="$any('user-x')"
+        zTitle="Profile Not Set Up"
+        zDescription="Your employee profile has not been created yet. Please contact your administrator or HR department to set up your profile before you can access leave management." />
+    </z-card>
+  }
+
+  @if (hasProfile()) {
   <!-- Filters -->
   <div class="flex items-center gap-3 mb-6 flex-wrap justify-between">
     <div class="flex items-center gap-3 flex-1 flex-wrap">
@@ -433,5 +444,6 @@
         </div>
       </div>
     }
+  }
   }
 </div>

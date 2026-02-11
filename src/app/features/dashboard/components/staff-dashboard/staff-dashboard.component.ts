@@ -8,7 +8,9 @@ import { ZardIconComponent } from '@/shared/components/icon/icon.component';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { ZardDividerComponent } from '@/shared/components/divider/divider.component';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
+import { ZardEmptyComponent } from '@/shared/components/empty/empty.component';
 
+import { AuthService } from '@/core/services/auth.service';
 import { DashboardService, StaffDashboardData } from '../../services/dashboard.service';
 
 @Component({
@@ -20,18 +22,21 @@ import { DashboardService, StaffDashboardData } from '../../services/dashboard.s
     ZardButtonComponent,
     ZardIconComponent,
     ZardBadgeComponent,
-    ZardDividerComponent
+    ZardDividerComponent,
+    ZardEmptyComponent
   ],
   templateUrl: './staff-dashboard.component.html',
   styleUrls: ['./staff-dashboard.component.css']
 })
 export class StaffDashboardComponent implements OnInit, OnDestroy {
   private dashboardService = inject(DashboardService);
+  private authService = inject(AuthService);
   private router = inject(Router);
   private timerInterval: any;
 
   loading = signal(true);
   error = signal<string | null>(null);
+  hasProfile = signal(false);
 
   currentTime = new Date();
   isClockedIn = false;
@@ -45,7 +50,29 @@ export class StaffDashboardComponent implements OnInit, OnDestroy {
   upcomingLeaves: StaffDashboardData['upcomingLeaves'] = [];
 
   ngOnInit(): void {
-    this.loadDashboard();
+    // Check if user has an employee profile
+    const user = this.authService.getCurrentUserValue();
+    if (user?.employee) {
+      this.hasProfile.set(true);
+      this.loadDashboard();
+    } else {
+      // Refresh from API to get latest user data (employee may have been created)
+      this.authService.getCurrentUser().subscribe({
+        next: (res) => {
+          if (res.success && res.data?.employee) {
+            this.hasProfile.set(true);
+            this.loadDashboard();
+          } else {
+            this.hasProfile.set(false);
+            this.loading.set(false);
+          }
+        },
+        error: () => {
+          this.hasProfile.set(false);
+          this.loading.set(false);
+        }
+      });
+    }
 
     // Update time every second
     this.timerInterval = setInterval(() => {

@@ -66,6 +66,10 @@ export const routes: Routes = [
                 loadChildren: () => import('./features/user-management/user-management.routes').then(m => m.USER_MANAGEMENT_ROUTES)
             },
             {
+                path: 'admin-settings',
+                loadChildren: () => import('./features/admin-settings/admin-settings.routes').then(m => m.ADMIN_SETTINGS_ROUTES)
+            },
+            {
                 path: 'settings',
                 loadChildren: () => import('./features/settings/settings.routes').then(m => m.SETTINGS_ROUTES)
             }

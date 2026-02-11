@@ -16,6 +16,7 @@ import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { ZardProgressBarComponent } from '@/shared/components/progress-bar/progress-bar.component';
 import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component';
 import { ZardDividerComponent } from '@/shared/components/divider/divider.component';
+import { ZardEmptyComponent } from '@/shared/components/empty/empty.component';
 
 @Component({
   selector: 'app-my-profile',
@@ -33,7 +34,8 @@ import { ZardDividerComponent } from '@/shared/components/divider/divider.compon
     ZardBadgeComponent,
     ZardProgressBarComponent,
     ZardAvatarComponent,
-    ZardDividerComponent
+    ZardDividerComponent,
+    ZardEmptyComponent
   ],
   templateUrl: './my-profile.component.html'
 })
@@ -43,6 +45,7 @@ export class MyProfileComponent implements OnInit {
 
   // State
   loading = signal(false);
+  hasProfile = signal(true);
   saving = signal(false);
   editMode = signal(false);
   profile = signal<EmployeeProfile | null>(null);
@@ -114,19 +117,18 @@ export class MyProfileComponent implements OnInit {
 
     this.personalService.getMyProfile().subscribe({
       next: (response) => {
-        if (response.success) {
+        if (response.success && response.data) {
           this.profile.set(response.data);
+          this.hasProfile.set(true);
           this.resetFormData();
+        } else {
+          this.hasProfile.set(false);
         }
         this.loading.set(false);
       },
       error: () => {
         this.loading.set(false);
-        this.alertDialogService.warning({
-          zTitle: 'Error',
-          zDescription: 'Failed to load profile',
-          zOkText: 'OK'
-        });
+        this.hasProfile.set(false);
       }
     });
   }

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ClaimService } from '../../services/claim.service';
+import { AuthService } from '@/core/services/auth.service';
 import { Claim, ClaimQueryParams } from '../../models/claim.model';
 
 // ZardUI Components
@@ -15,6 +16,7 @@ import { ZardMenuImports } from '@/shared/components/menu/menu.imports';
 import { ZardCheckboxComponent } from '@/shared/components/checkbox/checkbox.component';
 import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-dialog.service';
 import { ZardTableComponent } from '@/shared/components/table/table.component';
+import { ZardEmptyComponent } from '@/shared/components/empty/empty.component';
 
 @Component({
   selector: 'app-claim-list',
@@ -30,7 +32,8 @@ import { ZardTableComponent } from '@/shared/components/table/table.component';
     ZardAvatarComponent,
     ZardMenuImports,
     ZardCheckboxComponent,
-    ZardTableComponent
+    ZardTableComponent,
+    ZardEmptyComponent
   ],
   templateUrl: './claim-list.component.html',
   styleUrl: './claim-list.component.css'
@@ -38,10 +41,12 @@ import { ZardTableComponent } from '@/shared/components/table/table.component';
 export class ClaimListComponent implements OnInit {
   private claimService = inject(ClaimService);
   private alertDialogService = inject(ZardAlertDialogService);
+  private authService = inject(AuthService);
 
   claims = signal<Claim[]>([]);
   allData: Claim[] = [];
   loading = signal(false);
+  hasProfile = signal(true);
   error = signal<string | null>(null);
 
   // Pagination
@@ -104,7 +109,28 @@ export class ClaimListComponent implements OnInit {
   Math = Math;
 
   ngOnInit(): void {
-    this.loadClaims();
+    const user = this.authService.getCurrentUserValue();
+    if (user?.employee) {
+      this.hasProfile.set(true);
+      this.loadClaims();
+    } else {
+      this.loading.set(true);
+      this.authService.getCurrentUser().subscribe({
+        next: (res) => {
+          if (res.success && res.data?.employee) {
+            this.hasProfile.set(true);
+            this.loadClaims();
+          } else {
+            this.hasProfile.set(false);
+            this.loading.set(false);
+          }
+        },
+        error: () => {
+          this.hasProfile.set(false);
+          this.loading.set(false);
+        }
+      });
+    }
   }
 
   loadClaims(): void {

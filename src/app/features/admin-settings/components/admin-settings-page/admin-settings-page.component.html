@@ -1,0 +1,699 @@
+<div class="space-y-6 max-w-5xl mx-auto">
+  <!-- Header -->
+  <div>
+    <h1 class="text-2xl font-bold text-foreground">Administration</h1>
+    <p class="text-muted-foreground">Manage company settings, leave types, holidays, payroll configuration and email templates.</p>
+  </div>
+
+  <!-- Settings container -->
+  <div class="flex flex-col space-y-4 lg:flex-row lg:space-y-0 lg:space-x-4">
+    <!-- Left sidebar nav -->
+    <aside class="lg:w-64">
+      <div class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-0">
+        <div data-slot="card-content" class="p-2">
+          <nav class="flex flex-col space-y-0.5 space-x-2 lg:space-x-0">
+            <div class="flex flex-row md:flex-col space-x-1 md:space-x-0 md:space-y-1 overflow-x-auto md:overflow-x-visible">
+              @for (item of navItems; track item.id) {
+                <button
+                  type="button"
+                  [class]="getNavItemClass(item.id)"
+                  (click)="setSection(item.id)">
+                  <z-icon [zType]="$any(item.icon)" class="h-4 w-4" />
+                  {{ item.label }}
+                </button>
+              }
+            </div>
+          </nav>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Right content area -->
+    <div class="flex-1 lg:max-w-3xl">
+      @if (loading()) {
+        <div class="flex items-center justify-center py-12">
+          <z-icon zType="loader-2" class="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      } @else {
+
+        <!-- ═══════════════════ COMPANY PROFILE ═══════════════════ -->
+        @if (activeSection() === 'company') {
+          <div class="space-y-6">
+            <z-card>
+              <div zCardHeader class="grid gap-2 pb-4">
+                <h3 zCardTitle class="font-semibold">Company Profile</h3>
+                <p zCardDescription class="text-sm font-light">Update your company information.</p>
+              </div>
+              <div zCardContent class="space-y-4">
+                <!-- Logo -->
+                <z-form-field>
+                  <label z-form-label>Company Logo</label>
+                  <z-form-control>
+                    <div class="flex items-center gap-4">
+                      @if (logoPreview() || companyForm.logo_url) {
+                        <img [src]="logoPreview() || companyForm.logo_url" alt="Logo" class="h-16 w-16 rounded-lg object-cover border" />
+                      } @else {
+                        <div class="h-16 w-16 rounded-lg bg-muted flex items-center justify-center">
+                          <z-icon zType="building" class="h-8 w-8 text-muted-foreground" />
+                        </div>
+                      }
+                      <div>
+                        <input type="file" accept="image/*" (change)="onLogoSelected($event)" class="hidden" #logoInput />
+                        <button z-button zType="outline" zSize="sm" (click)="logoInput.click()">Choose File</button>
+                        @if (logoFile) {
+                          <button z-button zSize="sm" class="ml-2" (click)="uploadLogo()" [disabled]="saving()">Upload</button>
+                        }
+                      </div>
+                    </div>
+                  </z-form-control>
+                  <z-form-message>Upload your company logo (recommended 512x512px).</z-form-message>
+                </z-form-field>
+
+                <z-divider />
+
+                <!-- Name & Registration -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <z-form-field>
+                    <label z-form-label [zRequired]="true">Company Name</label>
+                    <z-form-control>
+                      <input z-input [(ngModel)]="companyForm.name" placeholder="Company name" />
+                    </z-form-control>
+                    <z-form-message>Official registered company name.</z-form-message>
+                  </z-form-field>
+                  <z-form-field>
+                    <label z-form-label>Registration No.</label>
+                    <z-form-control>
+                      <input z-input [(ngModel)]="companyForm.registration_no" placeholder="e.g. 12345-K" />
+                    </z-form-control>
+                    <z-form-message>Company registration number (SSM).</z-form-message>
+                  </z-form-field>
+                </div>
+
+                <!-- Industry & Size -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <z-form-field>
+                    <label z-form-label>Industry</label>
+                    <z-form-control>
+                      <z-select [(ngModel)]="companyForm.industry" zPlaceholder="Select industry">
+                        @for (ind of industries; track ind) {
+                          <z-select-item [zValue]="ind">{{ ind }}</z-select-item>
+                        }
+                      </z-select>
+                    </z-form-control>
+                    <z-form-message>Industry sector of the company.</z-form-message>
+                  </z-form-field>
+                  <z-form-field>
+                    <label z-form-label>Company Size</label>
+                    <z-form-control>
+                      <z-select [(ngModel)]="companyForm.size" zPlaceholder="Select size">
+                        @for (s of sizes; track s) {
+                          <z-select-item [zValue]="s">{{ s }} employees</z-select-item>
+                        }
+                      </z-select>
+                    </z-form-control>
+                    <z-form-message>Number of employees in the company.</z-form-message>
+                  </z-form-field>
+                </div>
+
+                <!-- Description -->
+                <z-form-field>
+                  <label z-form-label>Description</label>
+                  <z-form-control>
+                    <textarea z-input [(ngModel)]="companyForm.description" placeholder="Brief company description" rows="3"></textarea>
+                  </z-form-control>
+                  <z-form-message>Brief description of your company.</z-form-message>
+                </z-form-field>
+
+                <!-- Country & Phone -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <z-form-field>
+                    <label z-form-label>Country</label>
+                    <z-form-control>
+                      <input z-input [(ngModel)]="companyForm.country" placeholder="e.g. Malaysia" />
+                    </z-form-control>
+                    <z-form-message>Country where the company is registered.</z-form-message>
+                  </z-form-field>
+                  <z-form-field>
+                    <label z-form-label>Phone</label>
+                    <z-form-control>
+                      <input z-input [(ngModel)]="companyForm.phone" placeholder="+60..." />
+                    </z-form-control>
+                    <z-form-message>Company contact number.</z-form-message>
+                  </z-form-field>
+                </div>
+
+                <!-- Address -->
+                <z-form-field>
+                  <label z-form-label>Address</label>
+                  <z-form-control>
+                    <textarea z-input [(ngModel)]="companyForm.address" placeholder="Company address" rows="2"></textarea>
+                  </z-form-control>
+                  <z-form-message>Registered business address.</z-form-message>
+                </z-form-field>
+
+                <!-- Website -->
+                <z-form-field>
+                  <label z-form-label>Website</label>
+                  <z-form-control>
+                    <input z-input [(ngModel)]="companyForm.website" placeholder="https://..." />
+                  </z-form-control>
+                  <z-form-message>Company website URL.</z-form-message>
+                </z-form-field>
+              </div>
+              <div zCardFooter class="flex justify-end pt-6">
+                <button z-button (click)="saveCompany()" [disabled]="saving()">
+                  @if (saving()) {
+                    <z-icon zType="loader-2" class="h-4 w-4 animate-spin mr-2" />
+                  }
+                  Save Changes
+                </button>
+              </div>
+            </z-card>
+          </div>
+        }
+
+        <!-- ═══════════════════ LEAVE TYPES ═══════════════════ -->
+        @if (activeSection() === 'leave-types') {
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-lg font-semibold">Leave Types</h3>
+                <p class="text-sm text-muted-foreground">Configure leave types and entitlements.</p>
+              </div>
+              <button z-button (click)="openLeaveTypeDialog()">
+                <z-icon zType="plus" class="h-4 w-4 mr-1" /> Add Leave Type
+              </button>
+            </div>
+
+            <z-card>
+              <div data-slot="card-content" class="p-0">
+                <div class="overflow-x-auto">
+                  <table class="w-full">
+                    <thead>
+                      <tr class="border-b bg-muted/50">
+                        <th class="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Name</th>
+                        <th class="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Days/Year</th>
+                        <th class="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Paid</th>
+                        <th class="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Carry Forward</th>
+                        <th class="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Status</th>
+                        <th class="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (lt of leaveTypes(); track lt.id) {
+                        <tr class="border-b last:border-0 hover:bg-muted/30">
+                          <td class="px-4 py-3 text-sm font-medium">{{ lt.name }}</td>
+                          <td class="px-4 py-3 text-sm">{{ lt.days_per_year }}</td>
+                          <td class="px-4 py-3 text-sm">
+                            <span [class]="lt.is_paid ? 'text-green-600' : 'text-red-600'">{{ lt.is_paid ? 'Yes' : 'No' }}</span>
+                          </td>
+                          <td class="px-4 py-3 text-sm">
+                            @if (lt.carry_forward_allowed) {
+                              <span>Up to {{ lt.carry_forward_max_days }} days</span>
+                            } @else {
+                              <span class="text-muted-foreground">No</span>
+                            }
+                          </td>
+                          <td class="px-4 py-3 text-sm">
+                            <span [class]="lt.is_active ? 'inline-flex items-center rounded-full bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20' : 'inline-flex items-center rounded-full bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20'">
+                              {{ lt.is_active ? 'Active' : 'Inactive' }}
+                            </span>
+                          </td>
+                          <td class="px-4 py-3 text-sm text-right">
+                            <button z-button zType="ghost" zSize="sm" (click)="openLeaveTypeDialog(lt)">
+                              <z-icon zType="pencil" class="h-4 w-4" />
+                            </button>
+                            <button z-button zType="ghost" zSize="sm" (click)="toggleLeaveType(lt.id)">
+                              <z-icon [zType]="lt.is_active ? 'eye-off' : 'eye'" class="h-4 w-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      } @empty {
+                        <tr>
+                          <td colspan="6" class="px-4 py-8 text-center text-sm text-muted-foreground">No leave types configured.</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </z-card>
+          </div>
+
+          <!-- Leave Type Dialog -->
+          @if (showLeaveTypeDialog()) {
+            <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" (click)="closeLeaveTypeDialog()">
+              <div class="bg-background rounded-lg border shadow-lg w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto" (click)="$event.stopPropagation()">
+                <div class="px-6 py-4 border-b">
+                  <h3 class="text-lg font-semibold">{{ editingLeaveType?.id ? 'Edit' : 'Add' }} Leave Type</h3>
+                </div>
+                <div class="px-6 py-4 space-y-4">
+                  <z-form-field>
+                    <label z-form-label [zRequired]="true">Name</label>
+                    <z-form-control>
+                      <input z-input [(ngModel)]="leaveTypeForm.name" placeholder="e.g. Annual Leave" />
+                    </z-form-control>
+                    <z-form-message>Name of the leave type.</z-form-message>
+                  </z-form-field>
+                  <div class="grid grid-cols-2 gap-4">
+                    <z-form-field>
+                      <label z-form-label>Days Per Year</label>
+                      <z-form-control>
+                        <input z-input type="number" [(ngModel)]="leaveTypeForm.days_per_year" min="0" />
+                      </z-form-control>
+                      <z-form-message>Annual leave entitlement in days.</z-form-message>
+                    </z-form-field>
+                    <div class="flex items-end pb-1">
+                      <z-checkbox [(ngModel)]="leaveTypeForm.is_paid">Paid Leave</z-checkbox>
+                    </div>
+                  </div>
+                  <div class="grid grid-cols-2 gap-4">
+                    <div class="flex items-center">
+                      <z-checkbox [(ngModel)]="leaveTypeForm.carry_forward_allowed">Carry Forward</z-checkbox>
+                    </div>
+                    @if (leaveTypeForm.carry_forward_allowed) {
+                      <z-form-field>
+                        <label z-form-label>Max Carry Days</label>
+                        <z-form-control>
+                          <input z-input type="number" [(ngModel)]="leaveTypeForm.carry_forward_max_days" min="0" />
+                        </z-form-control>
+                        <z-form-message>Maximum days that can be carried forward.</z-form-message>
+                      </z-form-field>
+                    }
+                  </div>
+                  <div class="flex gap-4">
+                    <z-checkbox [(ngModel)]="leaveTypeForm.prorate_for_new_joiners">Prorate for New Joiners</z-checkbox>
+                    <z-checkbox [(ngModel)]="leaveTypeForm.requires_document">Requires Document</z-checkbox>
+                  </div>
+                  <z-form-field>
+                    <label z-form-label>Description</label>
+                    <z-form-control>
+                      <textarea z-input [(ngModel)]="leaveTypeForm.description" placeholder="Optional description" rows="2"></textarea>
+                    </z-form-control>
+                    <z-form-message>Brief description of this leave type.</z-form-message>
+                  </z-form-field>
+                </div>
+                <div class="px-6 py-4 border-t flex justify-end gap-2">
+                  <button z-button zType="outline" (click)="closeLeaveTypeDialog()">Cancel</button>
+                  <button z-button (click)="saveLeaveType()" [disabled]="saving() || !leaveTypeForm.name">
+                    @if (saving()) { <z-icon zType="loader-2" class="h-4 w-4 animate-spin mr-1" /> }
+                    {{ editingLeaveType?.id ? 'Update' : 'Create' }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+        }
+
+        <!-- ═══════════════════ CLAIM TYPES ═══════════════════ -->
+        @if (activeSection() === 'claim-types') {
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-lg font-semibold">Claim Types</h3>
+                <p class="text-sm text-muted-foreground">Configure claim types and limits.</p>
+              </div>
+              <button z-button (click)="openClaimTypeDialog()">
+                <z-icon zType="plus" class="h-4 w-4 mr-1" /> Add Claim Type
+              </button>
+            </div>
+
+            <z-card>
+              <div data-slot="card-content" class="p-0">
+                <div class="overflow-x-auto">
+                  <table class="w-full">
+                    <thead>
+                      <tr class="border-b bg-muted/50">
+                        <th class="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Name</th>
+                        <th class="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Description</th>
+                        <th class="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Max Amount</th>
+                        <th class="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Receipt</th>
+                        <th class="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Status</th>
+                        <th class="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (ct of claimTypes(); track ct.id) {
+                        <tr class="border-b last:border-0 hover:bg-muted/30">
+                          <td class="px-4 py-3 text-sm font-medium">{{ ct.name }}</td>
+                          <td class="px-4 py-3 text-sm text-muted-foreground">{{ ct.description || '-' }}</td>
+                          <td class="px-4 py-3 text-sm">{{ ct.max_amount ? 'RM ' + ct.max_amount : 'No limit' }}</td>
+                          <td class="px-4 py-3 text-sm">
+                            <span [class]="ct.requires_receipt ? 'text-green-600' : 'text-muted-foreground'">{{ ct.requires_receipt ? 'Required' : 'Optional' }}</span>
+                          </td>
+                          <td class="px-4 py-3 text-sm">
+                            <span [class]="ct.is_active ? 'inline-flex items-center rounded-full bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20' : 'inline-flex items-center rounded-full bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20'">
+                              {{ ct.is_active ? 'Active' : 'Inactive' }}
+                            </span>
+                          </td>
+                          <td class="px-4 py-3 text-sm text-right">
+                            <button z-button zType="ghost" zSize="sm" (click)="openClaimTypeDialog(ct)">
+                              <z-icon zType="pencil" class="h-4 w-4" />
+                            </button>
+                            <button z-button zType="ghost" zSize="sm" (click)="toggleClaimType(ct.id)">
+                              <z-icon [zType]="ct.is_active ? 'eye-off' : 'eye'" class="h-4 w-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      } @empty {
+                        <tr>
+                          <td colspan="6" class="px-4 py-8 text-center text-sm text-muted-foreground">No claim types configured.</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </z-card>
+          </div>
+
+          <!-- Claim Type Dialog -->
+          @if (showClaimTypeDialog()) {
+            <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" (click)="closeClaimTypeDialog()">
+              <div class="bg-background rounded-lg border shadow-lg w-full max-w-lg mx-4" (click)="$event.stopPropagation()">
+                <div class="px-6 py-4 border-b">
+                  <h3 class="text-lg font-semibold">{{ editingClaimType?.id ? 'Edit' : 'Add' }} Claim Type</h3>
+                </div>
+                <div class="px-6 py-4 space-y-4">
+                  <z-form-field>
+                    <label z-form-label [zRequired]="true">Name</label>
+                    <z-form-control>
+                      <input z-input [(ngModel)]="claimTypeForm.name" placeholder="e.g. Medical" />
+                    </z-form-control>
+                    <z-form-message>Name of the claim type.</z-form-message>
+                  </z-form-field>
+                  <z-form-field>
+                    <label z-form-label>Description</label>
+                    <z-form-control>
+                      <textarea z-input [(ngModel)]="claimTypeForm.description" placeholder="Optional description" rows="2"></textarea>
+                    </z-form-control>
+                    <z-form-message>Brief description of this claim type.</z-form-message>
+                  </z-form-field>
+                  <div class="grid grid-cols-2 gap-4">
+                    <z-form-field>
+                      <label z-form-label>Max Amount (RM)</label>
+                      <z-form-control>
+                        <input z-input type="number" [(ngModel)]="claimTypeForm.max_amount" min="0" step="0.01" placeholder="No limit" />
+                      </z-form-control>
+                      <z-form-message>Leave empty for no limit.</z-form-message>
+                    </z-form-field>
+                    <div class="flex items-end pb-1">
+                      <z-checkbox [(ngModel)]="claimTypeForm.requires_receipt">Requires Receipt</z-checkbox>
+                    </div>
+                  </div>
+                </div>
+                <div class="px-6 py-4 border-t flex justify-end gap-2">
+                  <button z-button zType="outline" (click)="closeClaimTypeDialog()">Cancel</button>
+                  <button z-button (click)="saveClaimType()" [disabled]="saving() || !claimTypeForm.name">
+                    @if (saving()) { <z-icon zType="loader-2" class="h-4 w-4 animate-spin mr-1" /> }
+                    {{ editingClaimType?.id ? 'Update' : 'Create' }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+        }
+
+        <!-- ═══════════════════ PUBLIC HOLIDAYS ═══════════════════ -->
+        @if (activeSection() === 'holidays') {
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-lg font-semibold">Public Holidays</h3>
+                <p class="text-sm text-muted-foreground">Manage public holidays for your company.</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <z-select [(ngModel)]="selectedYear" (ngModelChange)="onYearChange($event)">
+                  @for (y of years; track y) {
+                    <z-select-item [zValue]="y">{{ y }}</z-select-item>
+                  }
+                </z-select>
+                <button z-button (click)="openHolidayDialog()">
+                  <z-icon zType="plus" class="h-4 w-4 mr-1" /> Add Holiday
+                </button>
+              </div>
+            </div>
+
+            <z-card>
+              <div data-slot="card-content" class="p-0">
+                <div class="overflow-x-auto">
+                  <table class="w-full">
+                    <thead>
+                      <tr class="border-b bg-muted/50">
+                        <th class="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Name</th>
+                        <th class="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Date</th>
+                        <th class="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Description</th>
+                        <th class="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Recurring</th>
+                        <th class="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (h of holidays(); track h.id) {
+                        <tr class="border-b last:border-0 hover:bg-muted/30">
+                          <td class="px-4 py-3 text-sm font-medium">{{ h.name }}</td>
+                          <td class="px-4 py-3 text-sm">{{ formatDateDisplay(h.date) }}</td>
+                          <td class="px-4 py-3 text-sm text-muted-foreground">{{ h.description || '-' }}</td>
+                          <td class="px-4 py-3 text-sm">
+                            <span [class]="h.is_recurring ? 'text-green-600' : 'text-muted-foreground'">{{ h.is_recurring ? 'Yes' : 'No' }}</span>
+                          </td>
+                          <td class="px-4 py-3 text-sm text-right">
+                            <button z-button zType="ghost" zSize="sm" (click)="openHolidayDialog(h)">
+                              <z-icon zType="pencil" class="h-4 w-4" />
+                            </button>
+                            <button z-button zType="ghost" zSize="sm" (click)="deleteHoliday(h)">
+                              <z-icon zType="trash" class="h-4 w-4 text-red-500" />
+                            </button>
+                          </td>
+                        </tr>
+                      } @empty {
+                        <tr>
+                          <td colspan="5" class="px-4 py-8 text-center text-sm text-muted-foreground">No public holidays for {{ selectedYear() }}.</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </z-card>
+          </div>
+
+          <!-- Holiday Dialog -->
+          @if (showHolidayDialog()) {
+            <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" (click)="closeHolidayDialog()">
+              <div class="bg-background rounded-lg border shadow-lg w-full max-w-lg mx-4" (click)="$event.stopPropagation()">
+                <div class="px-6 py-4 border-b">
+                  <h3 class="text-lg font-semibold">{{ editingHoliday?.id ? 'Edit' : 'Add' }} Public Holiday</h3>
+                </div>
+                <div class="px-6 py-4 space-y-4">
+                  <z-form-field>
+                    <label z-form-label [zRequired]="true">Name</label>
+                    <z-form-control>
+                      <input z-input [(ngModel)]="holidayForm.name" placeholder="e.g. Hari Raya Aidilfitri" />
+                    </z-form-control>
+                    <z-form-message>Name of the public holiday.</z-form-message>
+                  </z-form-field>
+                  <z-form-field>
+                    <label z-form-label [zRequired]="true">Date</label>
+                    <z-form-control>
+                      <z-date-picker
+                        [(ngModel)]="holidayForm.date"
+                        placeholder="Pick holiday date"
+                        zFormat="dd-MM-yyyy">
+                      </z-date-picker>
+                    </z-form-control>
+                    <z-form-message>Date of the public holiday.</z-form-message>
+                  </z-form-field>
+                  <z-form-field>
+                    <label z-form-label>Description</label>
+                    <z-form-control>
+                      <textarea z-input [(ngModel)]="holidayForm.description" placeholder="Optional description" rows="2"></textarea>
+                    </z-form-control>
+                    <z-form-message>Additional details about the holiday.</z-form-message>
+                  </z-form-field>
+                  <div>
+                    <z-checkbox [(ngModel)]="holidayForm.is_recurring">Recurring Annually</z-checkbox>
+                  </div>
+                </div>
+                <div class="px-6 py-4 border-t flex justify-end gap-2">
+                  <button z-button zType="outline" (click)="closeHolidayDialog()">Cancel</button>
+                  <button z-button (click)="saveHoliday()" [disabled]="saving() || !holidayForm.name || !holidayForm.date">
+                    @if (saving()) { <z-icon zType="loader-2" class="h-4 w-4 animate-spin mr-1" /> }
+                    {{ editingHoliday?.id ? 'Update' : 'Create' }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+        }
+
+        <!-- ═══════════════════ PAYROLL CONFIG ═══════════════════ -->
+        @if (activeSection() === 'payroll-config') {
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-lg font-semibold">Payroll Configuration</h3>
+                <p class="text-sm text-muted-foreground">Configure statutory deduction rates. These rates are used in payroll calculations.</p>
+              </div>
+              @if (!statutoryEditing()) {
+                <button z-button zType="outline" (click)="startStatutoryEdit()">
+                  <z-icon zType="pencil" class="h-4 w-4 mr-1" /> Edit Rates
+                </button>
+              }
+            </div>
+
+            <!-- Group by EPF, EIS, SOCSO -->
+            @for (group of ['EPF', 'EIS', 'SOCSO']; track group) {
+              <z-card>
+                <div zCardHeader class="grid gap-2 pb-4">
+                  <h4 zCardTitle class="text-sm font-semibold">{{ group }}</h4>
+                </div>
+                <div zCardContent>
+                  <div class="space-y-3">
+                    @for (config of statutoryConfigs(); track config.id) {
+                      @if (getConfigGroup(config.config_key) === group) {
+                        <div class="flex items-center justify-between py-2">
+                          <div>
+                            <p class="text-sm font-medium">{{ getConfigLabel(config.config_key) }}</p>
+                            @if (config.description) {
+                              <p class="text-xs text-muted-foreground">{{ config.description }}</p>
+                            }
+                          </div>
+                          @if (statutoryEditing()) {
+                            <input z-input type="text" class="w-32 text-right" [(ngModel)]="statutoryForm[config.config_key]" />
+                          } @else {
+                            <span class="text-sm font-semibold">{{ formatRate(config.config_value, config.config_key) }}</span>
+                          }
+                        </div>
+                        <z-divider />
+                      }
+                    }
+                  </div>
+                </div>
+              </z-card>
+            }
+
+            <!-- PCB Info Card -->
+            <z-card>
+              <div zCardHeader class="grid gap-2 pb-4">
+                <h4 zCardTitle class="text-sm font-semibold">PCB (Monthly Tax Deduction)</h4>
+              </div>
+              <div zCardContent>
+                <p class="text-sm text-muted-foreground">
+                  PCB rates follow the Malaysian government's tax brackets and are automatically calculated based on annual income.
+                  These brackets are updated when the government announces changes.
+                </p>
+              </div>
+            </z-card>
+
+            @if (statutoryEditing()) {
+              <div class="flex justify-end gap-2">
+                <button z-button zType="outline" (click)="cancelStatutoryEdit()">Cancel</button>
+                <button z-button (click)="saveStatutoryConfig()" [disabled]="saving()">
+                  @if (saving()) { <z-icon zType="loader-2" class="h-4 w-4 animate-spin mr-1" /> }
+                  Save Configuration
+                </button>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- ═══════════════════ EMAIL TEMPLATES ═══════════════════ -->
+        @if (activeSection() === 'email-templates') {
+          <div class="space-y-4">
+            <div>
+              <h3 class="text-lg font-semibold">Email Templates</h3>
+              <p class="text-sm text-muted-foreground">Customize email notifications sent by the system. Use <code class="text-xs bg-muted px-1 rounded">{{'{{variable}}'}}</code> placeholders for dynamic content.</p>
+            </div>
+
+            @for (tmpl of emailTemplates(); track tmpl.template_key) {
+              <z-card>
+                <div data-slot="card-content" class="p-0">
+                  <!-- Template Header (clickable) -->
+                  <button class="w-full flex items-center justify-between px-6 py-4 hover:bg-muted/30 transition-colors" (click)="toggleTemplateExpand(tmpl.template_key)">
+                    <div class="flex items-center gap-3">
+                      <z-icon zType="mail" class="h-5 w-5 text-muted-foreground" />
+                      <div class="text-left">
+                        <p class="text-sm font-medium">{{ templateLabels[tmpl.template_key] || tmpl.template_key }}</p>
+                        <p class="text-xs text-muted-foreground">{{ tmpl.subject }}</p>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <span [class]="tmpl.is_active ? 'inline-flex items-center rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20' : 'inline-flex items-center rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20'">
+                        {{ tmpl.is_active ? 'Active' : 'Inactive' }}
+                      </span>
+                      <z-icon [zType]="expandedTemplate() === tmpl.template_key ? 'chevron-up' : 'chevron-down'" class="h-4 w-4 text-muted-foreground" />
+                    </div>
+                  </button>
+
+                  <!-- Expanded Template Editor -->
+                  @if (expandedTemplate() === tmpl.template_key && editingTemplate) {
+                    <div class="px-6 pb-6 space-y-4 border-t">
+                      <z-form-field class="pt-4">
+                        <label z-form-label>Subject</label>
+                        <z-form-control>
+                          <input z-input [(ngModel)]="editingTemplate.subject" />
+                        </z-form-control>
+                        <z-form-message>Email subject line.</z-form-message>
+                      </z-form-field>
+                      <z-form-field>
+                        <label z-form-label>Body</label>
+                        <z-form-control>
+                          <textarea z-input class="font-mono" [(ngModel)]="editingTemplate.body" rows="8"></textarea>
+                        </z-form-control>
+                        <z-form-message>Email body content with variable placeholders.</z-form-message>
+                      </z-form-field>
+
+                      <!-- Available variables -->
+                      @if (tmpl.variables && tmpl.variables.length > 0) {
+                        <div>
+                          <label class="block text-xs font-medium text-muted-foreground mb-1.5">Available Variables</label>
+                          <div class="flex flex-wrap gap-1.5">
+                            @for (v of tmpl.variables; track v) {
+                              <span class="inline-flex items-center rounded-md bg-muted px-2 py-1 text-xs font-mono">{{'{{' + v + '}}'}}</span>
+                            }
+                          </div>
+                        </div>
+                      }
+
+                      <!-- Preview -->
+                      @if (templatePreview()) {
+                        <div class="border rounded-lg p-4 bg-muted/30">
+                          <label class="block text-xs font-medium text-muted-foreground mb-2">Preview</label>
+                          <p class="text-sm font-medium mb-2">{{ templatePreview()!.subject }}</p>
+                          <div class="text-sm whitespace-pre-wrap text-muted-foreground">{{ templatePreview()!.body }}</div>
+                        </div>
+                      }
+
+                      <!-- Actions -->
+                      <div class="flex justify-between">
+                        <button z-button zType="outline" zSize="sm" (click)="resetTemplate(tmpl.template_key)">
+                          <z-icon zType="refresh-cw" class="h-4 w-4 mr-1" /> Reset to Default
+                        </button>
+                        <div class="flex gap-2">
+                          <button z-button zType="outline" zSize="sm" (click)="previewTemplate(tmpl.template_key)">
+                            <z-icon zType="eye" class="h-4 w-4 mr-1" /> Preview
+                          </button>
+                          <button z-button zSize="sm" (click)="saveTemplate()" [disabled]="saving()">
+                            @if (saving()) { <z-icon zType="loader-2" class="h-4 w-4 animate-spin mr-1" /> }
+                            Save
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </z-card>
+            } @empty {
+              <z-card>
+                <div data-slot="card-content" class="p-8 text-center">
+                  <p class="text-sm text-muted-foreground">No email templates found.</p>
+                </div>
+              </z-card>
+            }
+          </div>
+        }
+
+      }
+    </div>
+  </div>
+</div>

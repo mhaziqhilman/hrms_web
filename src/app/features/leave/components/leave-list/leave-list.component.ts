@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LeaveService } from '../../services/leave.service';
+import { AuthService } from '@/core/services/auth.service';
 import { Leave, LeaveStatus, LEAVE_STATUS_COLORS, LEAVE_STATUS_ICONS } from '../../models/leave.model';
 
 // ZardUI Components
@@ -16,6 +17,7 @@ import { ZardTableImports } from '@/shared/components/table/table.imports';
 import { ZardTooltipModule } from '@/shared/components/tooltip/tooltip';
 import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-dialog.service';
 import { ZardCheckboxComponent } from '@/shared/components/checkbox/checkbox.component';
+import { ZardEmptyComponent } from '@/shared/components/empty/empty.component';
 
 @Component({
   selector: 'app-leave-list',
@@ -32,7 +34,8 @@ import { ZardCheckboxComponent } from '@/shared/components/checkbox/checkbox.com
     ZardDatePickerComponent,
     ZardTableImports,
     ZardTooltipModule,
-    ZardCheckboxComponent
+    ZardCheckboxComponent,
+    ZardEmptyComponent
   ],
   templateUrl: './leave-list.component.html',
   styleUrl: './leave-list.component.css'
@@ -41,9 +44,11 @@ export class LeaveListComponent implements OnInit {
   private leaveService = inject(LeaveService);
   private router = inject(Router);
   private alertDialogService = inject(ZardAlertDialogService);
+  private authService = inject(AuthService);
 
   leaves = signal<Leave[]>([]);
   loading = signal(false);
+  hasProfile = signal(true);
   error = signal<string | null>(null);
 
   // Pagination
@@ -97,7 +102,28 @@ export class LeaveListComponent implements OnInit {
   Math = Math;
 
   ngOnInit(): void {
-    this.loadLeaves();
+    const user = this.authService.getCurrentUserValue();
+    if (user?.employee) {
+      this.hasProfile.set(true);
+      this.loadLeaves();
+    } else {
+      this.loading.set(true);
+      this.authService.getCurrentUser().subscribe({
+        next: (res) => {
+          if (res.success && res.data?.employee) {
+            this.hasProfile.set(true);
+            this.loadLeaves();
+          } else {
+            this.hasProfile.set(false);
+            this.loading.set(false);
+          }
+        },
+        error: () => {
+          this.hasProfile.set(false);
+          this.loading.set(false);
+        }
+      });
+    }
   }
 
   loadLeaves(): void {

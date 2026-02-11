@@ -17,6 +17,17 @@ export interface User {
   updated_at: string;
   employee?: Employee | null;
   company?: Company | null;
+  company_memberships?: UserCompany[];
+}
+
+export interface UserCompany {
+  id: number;
+  user_id: number;
+  company_id: number;
+  role: 'admin' | 'manager' | 'staff';
+  employee_id: number | null;
+  joined_at: string;
+  company?: Company;
 }
 
 export interface Employee {

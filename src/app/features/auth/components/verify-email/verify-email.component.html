@@ -11,7 +11,7 @@
       <div z-card-content class="p-6">
         <div class="text-center">
           <!-- Loading State -->
-          @if (verifying) {
+          @if (verifying()) {
             <div class="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6 transition-all duration-300">
               <z-icon zType="loader-circle" class="w-8 h-8 text-primary animate-spin" />
             </div>
@@ -20,7 +20,7 @@
           }
 
           <!-- Success State -->
-          @if (!verifying && success) {
+          @if (!verifying() && success()) {
             <div class="mx-auto w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center mb-6 animate-[scaleIn_0.3s_ease-out]">
               <svg class="w-8 h-8 text-green-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <path class="animate-[checkDraw_0.4s_ease-out_0.2s_both]" d="M20 6L9 17l-5-5" style="stroke-dasharray: 24; stroke-dashoffset: 24; animation: checkDraw 0.4s ease-out 0.2s forwards;" />
@@ -42,12 +42,12 @@
           }
 
           <!-- Error State -->
-          @if (!verifying && !success) {
+          @if (!verifying() && !success()) {
             <div class="mx-auto w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mb-6">
               <z-icon [zType]="$any('x-circle')" class="w-8 h-8 text-destructive" />
             </div>
             <h1 class="text-2xl font-semibold text-foreground mb-2">Verification Failed</h1>
-            <p class="text-sm text-muted-foreground mb-8">{{ errorMessage }}</p>
+            <p class="text-sm text-muted-foreground mb-8">{{ errorMessage() }}</p>
             <button
               z-button
               type="button"

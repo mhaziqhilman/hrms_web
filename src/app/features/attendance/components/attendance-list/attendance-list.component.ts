@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AttendanceService } from '../../services/attendance.service';
+import { AuthService } from '@/core/services/auth.service';
 import { Attendance, AttendanceQueryParams } from '../../models/attendance.model';
 
 // ZardUI Components
@@ -16,6 +17,7 @@ import { ZardDatePickerComponent } from '@/shared/components/date-picker/date-pi
 import { ZardTableImports } from '@/shared/components/table/table.imports';
 import { ZardTooltipModule } from '@/shared/components/tooltip/tooltip';
 import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-dialog.service';
+import { ZardEmptyComponent } from '@/shared/components/empty/empty.component';
 
 @Component({
   selector: 'app-attendance-list',
@@ -31,7 +33,9 @@ import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-d
     ZardMenuImports,
     ZardDatePickerComponent,
     ZardTableImports,
-    ZardTooltipModule
+    ZardTooltipModule,
+    ZardCardComponent,
+    ZardEmptyComponent
   ],
   templateUrl: './attendance-list.component.html',
   styleUrl: './attendance-list.component.css'
@@ -39,9 +43,11 @@ import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-d
 export class AttendanceListComponent implements OnInit {
   private attendanceService = inject(AttendanceService);
   private alertDialogService = inject(ZardAlertDialogService);
+  private authService = inject(AuthService);
 
   attendances = signal<Attendance[]>([]);
   loading = signal(false);
+  hasProfile = signal(true);
   error = signal<string | null>(null);
 
   // Pagination
@@ -94,7 +100,28 @@ export class AttendanceListComponent implements OnInit {
   Math = Math;
 
   ngOnInit(): void {
-    this.loadAttendances();
+    const user = this.authService.getCurrentUserValue();
+    if (user?.employee) {
+      this.hasProfile.set(true);
+      this.loadAttendances();
+    } else {
+      this.loading.set(true);
+      this.authService.getCurrentUser().subscribe({
+        next: (res) => {
+          if (res.success && res.data?.employee) {
+            this.hasProfile.set(true);
+            this.loadAttendances();
+          } else {
+            this.hasProfile.set(false);
+            this.loading.set(false);
+          }
+        },
+        error: () => {
+          this.hasProfile.set(false);
+          this.loading.set(false);
+        }
+      });
+    }
   }
 
   // Get selected count for bulk actions

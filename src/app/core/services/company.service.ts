@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { catchError, throwError } from 'rxjs';
 import { API_CONFIG } from '../config/api.config';
-import { ApiResponse, Company, CompanySetupRequest } from '../models/auth.models';
+import { ApiResponse, AuthResponse, Company, CompanySetupRequest, UserCompany } from '../models/auth.models';
 
 @Injectable({
   providedIn: 'root'
@@ -33,6 +33,40 @@ export class CompanyService {
     return this.http.put<ApiResponse<Company>>(
       `${this.apiUrl}${API_CONFIG.endpoints.company.me}`,
       data
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  getAllCompanies(): Observable<ApiResponse<Company[]>> {
+    return this.http.get<ApiResponse<Company[]>>(
+      `${this.apiUrl}${API_CONFIG.endpoints.company.all}`
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  getMyCompanies(): Observable<ApiResponse<UserCompany[]>> {
+    return this.http.get<ApiResponse<UserCompany[]>>(
+      `${this.apiUrl}${API_CONFIG.endpoints.company.myCompanies}`
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  switchCompany(companyId: number): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(
+      `${this.apiUrl}${API_CONFIG.endpoints.company.switch}`,
+      { company_id: companyId }
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  clearCompanyContext(): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(
+      `${this.apiUrl}${API_CONFIG.endpoints.company.clearContext}`,
+      {}
     ).pipe(
       catchError(this.handleError)
     );

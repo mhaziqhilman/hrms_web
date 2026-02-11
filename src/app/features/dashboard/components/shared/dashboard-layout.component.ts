@@ -1,9 +1,10 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
-import { User } from '../../../../core/models/auth.models';
-import { SidebarMenuGroup } from '../../../../core/models/sidebar.models';
+import { CompanyService } from '../../../../core/services/company.service';
+import { User, Company } from '../../../../core/models/auth.models';
+import { SidebarMenuGroup, SidebarMenuItem } from '../../../../core/models/sidebar.models';
 
 // ZardUI Component Imports
 import { LayoutModule } from '@/shared/components/layout/layout.module';
@@ -38,6 +39,11 @@ import { ZardBreadcrumbModule } from '@/shared/components/breadcrumb/breadcrumb.
 export class DashboardLayoutComponent implements OnInit {
   sidebarCollapsed = signal(false);
   currentUser: User | null = null;
+
+  // Company context for super_admin
+  allCompanies = signal<Company[]>([]);
+  viewingCompany = signal<Company | null>(null);
+  isSuperAdmin = signal(false);
 
   menuGroups: SidebarMenuGroup[] = [
     {
@@ -87,17 +93,18 @@ export class DashboardLayoutComponent implements OnInit {
           title: 'Claims',
           icon: 'file-text',
           route: '/claims'
-        },
-        // {
-        //   title: 'Communication',
-        //   icon: 'mail',
-        //   route: '/communication'
-        // }
+        }
       ]
     },
     {
       label: 'System',
       items: [
+        {
+          title: 'User Management',
+          icon: 'users-round' as any,
+          route: '/user-management',
+          roles: ['super_admin', 'admin']
+        },
         {
           title: 'Settings',
           icon: 'settings',
@@ -108,13 +115,68 @@ export class DashboardLayoutComponent implements OnInit {
   ];
 
   constructor(
-    private authService: AuthService
+    private authService: AuthService,
+    private companyService: CompanyService
   ) {}
 
   ngOnInit(): void {
-    // Subscribe to current user
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
+      const superAdmin = user?.role === 'super_admin';
+      this.isSuperAdmin.set(superAdmin);
+
+      if (superAdmin) {
+        this.loadCompanies();
+        // Set viewing company from current user's company context
+        if (user?.company) {
+          this.viewingCompany.set(user.company);
+        } else {
+          this.viewingCompany.set(null);
+        }
+      }
+    });
+  }
+
+  /**
+   * Filter menu items by current user role
+   */
+  getFilteredItems(items: SidebarMenuItem[]): SidebarMenuItem[] {
+    if (!this.currentUser) return items;
+    return items.filter(item => {
+      if (!item.roles || item.roles.length === 0) return true;
+      return item.roles.includes(this.currentUser!.role);
+    });
+  }
+
+  loadCompanies(): void {
+    this.companyService.getAllCompanies().subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.allCompanies.set(res.data);
+        }
+      }
+    });
+  }
+
+  switchToCompany(company: Company): void {
+    this.companyService.switchCompany(company.id).subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.authService.updateSession(res.data.token, res.data.user);
+          this.viewingCompany.set(company);
+        }
+      }
+    });
+  }
+
+  clearCompanyContext(): void {
+    this.companyService.clearCompanyContext().subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.authService.updateSession(res.data.token, res.data.user);
+          this.viewingCompany.set(null);
+        }
+      }
     });
   }
 

@@ -2,10 +2,18 @@
   <!-- Header -->
   <div class="flex items-center justify-between mb-8">
     <h1 class="text-3xl font-bold text-foreground">Users</h1>
-    <button z-button [routerLink]="['/employees/new']" class="gap-2">
-      <z-icon zType="plus" class="w-4 h-4" />
-      Add New User
-    </button>
+    <div class="flex items-center gap-2">
+      @if (isAdmin()) {
+        <button z-button zType="outline" (click)="openInviteDialog()" class="gap-2">
+          <z-icon zType="mail" class="w-4 h-4" />
+          Invite User
+        </button>
+      }
+      <button z-button [routerLink]="['/employees/new']" class="gap-2">
+        <z-icon zType="plus" class="w-4 h-4" />
+        Add New User
+      </button>
+    </div>
   </div>
 
   <!-- Filters -->

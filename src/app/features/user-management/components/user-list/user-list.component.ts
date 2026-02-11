@@ -1,12 +1,16 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
   UserManagementService,
   UserRecord,
   UnlinkedEmployee,
-  UserListParams
+  UserListParams,
+  UserCompanyInfo
 } from '../../services/user-management.service';
+import { CompanyService } from '@/core/services/company.service';
+import { AuthService } from '@/core/services/auth.service';
+import { Company } from '@/core/models/auth.models';
 
 // ZardUI Components
 import { ZardCardComponent } from '@/shared/components/card/card.component';
@@ -41,7 +45,12 @@ import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-d
 })
 export class UserListComponent implements OnInit {
   private userService = inject(UserManagementService);
+  private companyService = inject(CompanyService);
+  private authService = inject(AuthService);
   private alertDialogService = inject(ZardAlertDialogService);
+
+  // Role-based UI
+  isSuperAdmin = computed(() => this.authService.currentUserSignal()?.role === 'super_admin');
 
   users = signal<UserRecord[]>([]);
   loading = signal(false);
@@ -57,9 +66,13 @@ export class UserListComponent implements OnInit {
   searchTerm = signal('');
   roleFilter = signal('');
   activeFilter = signal('');
+  companyFilter = signal('');
 
   // Available roles
   roles = ['super_admin', 'admin', 'manager', 'staff'];
+
+  // Companies for filter dropdown
+  companies = signal<Company[]>([]);
 
   // Link employee modal state
   showLinkModal = signal(false);
@@ -82,7 +95,21 @@ export class UserListComponent implements OnInit {
   Math = Math;
 
   ngOnInit(): void {
+    // Only super_admin can see company filter (needs all companies list)
+    if (this.isSuperAdmin()) {
+      this.loadCompanies();
+    }
     this.loadUsers();
+  }
+
+  loadCompanies(): void {
+    this.companyService.getAllCompanies().subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.companies.set(res.data);
+        }
+      }
+    });
   }
 
   loadUsers(): void {
@@ -94,7 +121,8 @@ export class UserListComponent implements OnInit {
       limit: this.limit(),
       search: this.searchTerm() || undefined,
       role: this.roleFilter() || undefined,
-      is_active: this.activeFilter() || undefined
+      is_active: this.activeFilter() || undefined,
+      company_id: this.companyFilter() || undefined
     };
 
     this.userService.getUsers(params).subscribe({
@@ -136,6 +164,7 @@ export class UserListComponent implements OnInit {
     this.searchTerm.set('');
     this.roleFilter.set('');
     this.activeFilter.set('');
+    this.companyFilter.set('');
     this.currentPage.set(1);
     this.loadUsers();
   }
@@ -352,7 +381,14 @@ export class UserListComponent implements OnInit {
   }
 
   hasActiveFilters(): boolean {
-    return !!(this.searchTerm() || this.roleFilter() || this.activeFilter());
+    return !!(this.searchTerm() || this.roleFilter() || this.activeFilter() || this.companyFilter());
+  }
+
+  getCompanyFilterName(): string {
+    const id = this.companyFilter();
+    if (!id) return 'Company';
+    const company = this.companies().find(c => c.id === parseInt(id));
+    return company?.name || 'Company';
   }
 
   // Sorting
@@ -376,6 +412,7 @@ export class UserListComponent implements OnInit {
       switch (column) {
         case 'email': aVal = a.email; bVal = b.email; break;
         case 'role': aVal = a.role; bVal = b.role; break;
+        case 'company': aVal = a.company?.name || ''; bVal = b.company?.name || ''; break;
         case 'status': aVal = a.is_active ? 1 : 0; bVal = b.is_active ? 1 : 0; break;
         case 'lastLogin': aVal = a.last_login_at || ''; bVal = b.last_login_at || ''; break;
         default: return 0;

@@ -9,12 +9,17 @@
 
     <!-- Header -->
     <div class="text-center mb-8">
-      <h1 class="text-3xl font-bold text-foreground mb-2">Welcome to Nextura HRMS</h1>
-      <p class="text-muted-foreground">How would you like to get started?</p>
+      @if (hasExistingCompany) {
+        <h1 class="text-3xl font-bold text-foreground mb-2">Add a New Company</h1>
+        <p class="text-muted-foreground">Set up an additional company on Nextura HRMS</p>
+      } @else {
+        <h1 class="text-3xl font-bold text-foreground mb-2">Welcome to Nextura HRMS</h1>
+        <p class="text-muted-foreground">How would you like to get started?</p>
+      }
     </div>
 
     <!-- Choice Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div [class]="'grid grid-cols-1 gap-6 ' + (hasExistingCompany ? 'max-w-md mx-auto' : 'md:grid-cols-2')">
       <!-- Create Company Card -->
       <z-card
         class="border shadow-lg cursor-pointer transition-all hover:border-primary hover:shadow-xl group"
@@ -24,7 +29,9 @@
           <div class="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-colors">
             <z-icon [zType]="$any('building-2')" class="w-8 h-8 text-primary" />
           </div>
-          <h2 class="text-xl font-semibold text-foreground mb-3">Create a Company</h2>
+          <h2 class="text-xl font-semibold text-foreground mb-3">
+            {{ hasExistingCompany ? 'Create New Company' : 'Create a Company' }}
+          </h2>
           <p class="text-sm text-muted-foreground mb-6">
             Set up your company profile and start managing your team with our HRMS platform.
           </p>
@@ -35,29 +42,40 @@
         </div>
       </z-card>
 
-      <!-- Wait for Invitation Card -->
-      <z-card
-        class="border shadow-lg cursor-pointer transition-all hover:border-primary hover:shadow-xl group"
-        (click)="waitForInvitation()"
-      >
-        <div z-card-content class="p-8 text-center">
-          <div class="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-colors">
-            <z-icon [zType]="$any('mail')" class="w-8 h-8 text-primary" />
+      <!-- Wait for Invitation Card (only for new users) -->
+      @if (!hasExistingCompany) {
+        <z-card
+          class="border shadow-lg cursor-pointer transition-all hover:border-primary hover:shadow-xl group"
+          (click)="waitForInvitation()"
+        >
+          <div z-card-content class="p-8 text-center">
+            <div class="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-colors">
+              <z-icon [zType]="$any('mail')" class="w-8 h-8 text-primary" />
+            </div>
+            <h2 class="text-xl font-semibold text-foreground mb-3">Wait for Invitation</h2>
+            <p class="text-sm text-muted-foreground mb-6">
+              Your company admin will send you an invitation to join. We'll notify you when it arrives.
+            </p>
+            <button z-button [zType]="'outline'" type="button" class="w-full">
+              <span>I'm Waiting</span>
+              <z-icon [zType]="$any('clock')" class="w-4 h-4 ml-2" />
+            </button>
           </div>
-          <h2 class="text-xl font-semibold text-foreground mb-3">Wait for Invitation</h2>
-          <p class="text-sm text-muted-foreground mb-6">
-            Your company admin will send you an invitation to join. We'll notify you when it arrives.
-          </p>
-          <button z-button [zType]="'outline'" type="button" class="w-full">
-            <span>I'm Waiting</span>
-            <z-icon [zType]="$any('clock')" class="w-4 h-4 ml-2" />
-          </button>
-        </div>
-      </z-card>
+        </z-card>
+      }
     </div>
 
-    <!-- Sign Out -->
-    <div class="text-center mt-8">
+    <!-- Footer Actions -->
+    <div class="text-center mt-8 flex items-center justify-center gap-4">
+      @if (hasExistingCompany) {
+        <button
+          type="button"
+          class="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+          (click)="goBack()"
+        >
+          Back to Dashboard
+        </button>
+      }
       <button
         type="button"
         class="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"

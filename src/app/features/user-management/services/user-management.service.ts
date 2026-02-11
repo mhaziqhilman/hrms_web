@@ -14,6 +14,11 @@ export interface UserEmployee {
   mobile?: string;
 }
 
+export interface UserCompanyInfo {
+  id: number;
+  name: string;
+}
+
 export interface UserRecord {
   id: number;
   email: string;
@@ -24,7 +29,9 @@ export interface UserRecord {
   last_login_at: string | null;
   created_at: string;
   updated_at: string;
+  company_id: number | null;
   employee: UserEmployee | null;
+  company: UserCompanyInfo | null;
 }
 
 export interface UserListParams {
@@ -33,6 +40,7 @@ export interface UserListParams {
   search?: string;
   role?: string;
   is_active?: string;
+  company_id?: string;
 }
 
 export interface PaginationData {
@@ -74,6 +82,7 @@ export class UserManagementService {
     if (params.search) httpParams = httpParams.set('search', params.search);
     if (params.role) httpParams = httpParams.set('role', params.role);
     if (params.is_active) httpParams = httpParams.set('is_active', params.is_active);
+    if (params.company_id) httpParams = httpParams.set('company_id', params.company_id);
 
     return this.http.get<ApiResponse<UserListResponse>>(
       `${this.apiUrl}${API_CONFIG.endpoints.users.base}`,

@@ -174,15 +174,12 @@ export class CompanySetupWizardComponent {
       next: (response) => {
         this.loading = false;
 
-        // Update auth session with new token
-        if (response.data?.token) {
-          localStorage.setItem('hrms_token', response.data.token);
-        }
-        if (response.data?.user) {
-          localStorage.setItem('hrms_user', JSON.stringify(response.data.user));
+        // Update auth session with new token and user data
+        if (response.data?.token && response.data?.user) {
+          this.authService.updateSession(response.data.token, response.data.user);
         }
 
-        // Refresh auth service state
+        // Refresh auth service state and navigate
         this.authService.getCurrentUser().subscribe({
           next: () => {
             this.router.navigate(['/dashboard']);

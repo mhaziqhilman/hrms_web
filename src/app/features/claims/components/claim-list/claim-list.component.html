@@ -17,6 +17,17 @@
     </div>
   </div>
 
+  <!-- No Profile State -->
+  @if (!loading() && !hasProfile()) {
+    <z-card>
+      <z-empty
+        [zIcon]="$any('user-x')"
+        zTitle="Profile Not Set Up"
+        zDescription="Your employee profile has not been created yet. Please contact your administrator or HR department to set up your profile before you can access claims." />
+    </z-card>
+  }
+
+  @if (hasProfile()) {
   <!-- Error Message -->
   @if (error()) {
     <div class="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-2 text-red-800 mb-6">
@@ -603,5 +614,6 @@
         </button>
       </div>
     </div>
+  }
   }
 </div>

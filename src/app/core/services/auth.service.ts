@@ -223,6 +223,13 @@ export class AuthService {
   }
 
   /**
+   * Update session after company switch (public for CompanyService usage)
+   */
+  updateSession(token: string, user: User): void {
+    this.setSession(token, user);
+  }
+
+  /**
    * Set authentication session
    */
   private setSession(token: string, user: User): void {

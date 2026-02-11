@@ -8,15 +8,27 @@
     </a>
   </div>
 
-  <!-- Tabs -->
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="flex items-center justify-center py-20">
+      <z-icon zType="loader-circle" class="w-8 h-8 animate-spin text-primary" />
+    </div>
+  }
+
+  <!-- No Profile State -->
+  @if (!loading() && !hasProfile()) {
+    <z-empty
+      [zIcon]="$any('user-x')"
+      zTitle="Profile Not Set Up"
+      zDescription="Your employee profile has not been created yet. Please contact your administrator or HR department to set up your profile." />
+  }
+
+  <!-- Profile Content -->
+  @if (!loading() && hasProfile()) {
   <z-tab-group zTabsPosition="top" zActivePosition="bottom" zAlignTabs="start">
     <!-- Overview Tab -->
     <z-tab label="Overview">
-      @if (loading()) {
-        <div class="flex items-center justify-center py-12">
-          <z-icon zType="loader-2" class="h-8 w-8 animate-spin text-primary" />
-        </div>
-      } @else if (profile()) {
+      @if (profile()) {
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
           <!-- Left Column -->
           <div class="space-y-6">
@@ -354,17 +366,6 @@
             </z-card>
           </div>
         </div>
-      } @else {
-        <z-card class="mt-6">
-          <div zCardContent class="py-12 text-center">
-            <z-icon zType="user-x" class="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <p class="text-muted-foreground">Unable to load profile information</p>
-            <button z-button zType="outline" class="mt-4" (click)="loadProfile()">
-              <z-icon zType="refresh-cw" class="mr-2 h-4 w-4" />
-              Retry
-            </button>
-          </div>
-        </z-card>
       }
     </z-tab>
 
@@ -633,4 +634,5 @@
       </div>
     </z-tab>
   </z-tab-group>
+  }
 </div>

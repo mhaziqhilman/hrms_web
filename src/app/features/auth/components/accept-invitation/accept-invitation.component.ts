@@ -23,9 +23,16 @@ import { ZardIconComponent } from '@/shared/components/icon/icon.component';
 export class AcceptInvitationComponent implements OnInit {
   token = '';
   processing = false;
+  loadingInfo = true;
   success = false;
   errorMessage = '';
   isAuthenticated = false;
+
+  // Invitation details
+  invitedEmail = '';
+  invitedRole = '';
+  companyName = '';
+  invitationExpired = false;
 
   constructor(
     private authService: AuthService,
@@ -39,14 +46,37 @@ export class AcceptInvitationComponent implements OnInit {
     this.isAuthenticated = this.authService.isAuthenticated();
 
     if (!this.token) {
+      this.loadingInfo = false;
       this.errorMessage = 'No invitation token provided';
       return;
     }
 
-    // If user is logged in, auto-accept
-    if (this.isAuthenticated) {
-      this.acceptInvitation();
-    }
+    // Fetch invitation details first
+    this.invitationService.getInvitationInfo(this.token).subscribe({
+      next: (response) => {
+        this.loadingInfo = false;
+        if (response.success && response.data) {
+          this.invitedEmail = response.data.email;
+          this.invitedRole = response.data.role;
+          this.companyName = response.data.company?.name || '';
+          this.invitationExpired = response.data.expired;
+
+          if (this.invitationExpired) {
+            this.errorMessage = 'This invitation has expired or is no longer valid.';
+            return;
+          }
+
+          // If user is logged in, auto-accept
+          if (this.isAuthenticated) {
+            this.acceptInvitation();
+          }
+        }
+      },
+      error: (error) => {
+        this.loadingInfo = false;
+        this.errorMessage = error.message || 'Invalid invitation link';
+      }
+    });
   }
 
   acceptInvitation(): void {
@@ -62,10 +92,7 @@ export class AcceptInvitationComponent implements OnInit {
 
         // Update auth session with new token and user data
         if (response.data) {
-          localStorage.setItem('hrms_token', response.data.token);
-          localStorage.setItem('hrms_user', JSON.stringify(response.data.user));
-          // Refresh the auth service state
-          this.authService.getCurrentUser().subscribe();
+          this.authService.updateSession(response.data.token, response.data.user);
         }
       },
       error: (error) => {
@@ -80,13 +107,14 @@ export class AcceptInvitationComponent implements OnInit {
   }
 
   goToLogin(): void {
-    // Store the invitation token so it can be used after login
-    sessionStorage.setItem('pending_invitation_token', this.token);
+    localStorage.setItem('pending_invitation_token', this.token);
     this.router.navigate(['/auth/login']);
   }
 
   goToRegister(): void {
-    sessionStorage.setItem('pending_invitation_token', this.token);
-    this.router.navigate(['/auth/register']);
+    localStorage.setItem('pending_invitation_token', this.token);
+    this.router.navigate(['/auth/register'], {
+      queryParams: { email: this.invitedEmail }
+    });
   }
 }

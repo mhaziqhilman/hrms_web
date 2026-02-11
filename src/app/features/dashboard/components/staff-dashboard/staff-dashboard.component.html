@@ -13,8 +13,19 @@
   </div>
 }
 
+<!-- No Profile State -->
+@if (!loading() && !hasProfile()) {
+  <z-card>
+    <z-empty
+      [zIcon]="$any('user-x')"
+      zTitle="Profile Not Set Up"
+      zDescription="Your employee profile has not been created yet. Please contact your administrator or HR department to set up your profile before you can access all features."
+    />
+  </z-card>
+}
+
 <!-- Error State -->
-@if (error()) {
+@if (error() && hasProfile()) {
   <div class="mb-8">
     <z-card>
       <div class="p-6 text-center">
@@ -28,7 +39,7 @@
   </div>
 }
 
-@if (!loading() && !error()) {
+@if (!loading() && !error() && hasProfile()) {
   <!-- Clock In/Out Card -->
   <div class="mb-8">
     <z-card class="bg-gradient-to-r from-primary to-primary/80 border-0">

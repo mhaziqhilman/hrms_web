@@ -339,6 +339,97 @@ To build a comprehensive, user-friendly HR Management System specifically design
 - Export to Excel/PDF
 - Reset on January 1st (new tax year)
 
+#### FR-EMP-004: Employee Invitation & Account Linking
+**Priority:** High
+**Description:** End-to-end flow for adding employees, inviting them to the system, and automatically linking their user account to their employee profile upon registration.
+
+**Flow Overview:**
+The system uses a two-step process where (1) admin creates the employee record with HR details, and (2) admin invites the employee by email. When the invited user registers and accepts the invitation, the system automatically links their user account to the existing employee record by matching email addresses.
+
+**Step-by-Step Flow:**
+
+**Phase 1 — Admin Creates Employee Record:**
+1. Admin navigates to Employee Management → Add Employee
+2. Admin fills in all HR details: personal info, employment info, compensation, statutory info
+3. The employee's **work email** is captured in the `employees.email` field
+4. System creates Employee record with `user_id = NULL` (no linked user account yet)
+5. Employee appears in the employee list as an active employee without system access
+
+**Phase 2 — Admin Sends Invitation:**
+6. Admin opens the Invite User dialog from the Employee List
+7. Admin enters the **same email address** used in the employee record and selects a role (staff/manager/admin)
+8. System validates:
+   - No duplicate pending invitation for this email in this company
+   - User with this email is not already a member of this company
+9. System generates a 64-character hex invitation token (expires in 7 days)
+10. System sends invitation email with link: `{FRONTEND_URL}/auth/accept-invitation?token={TOKEN}`
+
+**Phase 3 — New User Registers:**
+11. User clicks invitation link → lands on Accept Invitation page
+12. System displays invitation details (company name, role) via public `GET /api/invitations/info?token={TOKEN}`
+13. User clicks "Create Account" → redirected to registration with email pre-filled
+14. User registers with: full name, email, password
+15. System creates User record: `email_verified=false`, `company_id=null`, `role='staff'`
+16. System sends email verification link
+
+**Phase 4 — Email Verification & Auto-Linking:**
+17. User clicks verification link in email
+18. System verifies the token and sets `email_verified=true`
+19. **Auto-accept invitation:** System searches `invitations` table for a pending invitation matching the user's email
+20. If found:
+    a. Updates `users.company_id` and `users.role` from the invitation
+    b. Creates `user_companies` record (user_id, company_id, role)
+    c. **Auto-links employee profile:** Searches `employees` table for a record where `employees.email = user.email` AND `employees.company_id = invitation.company_id` AND `employees.user_id IS NULL`
+    d. If matching employee found:
+       - Sets `employees.user_id = user.id` (links the employee profile to the user account)
+       - Updates `user_companies.employee_id = employee.employee_id`
+       - Includes `employee_id` in the new JWT token
+    e. Marks invitation as `status='accepted'`
+21. System issues new JWT with `company_id`, `role`, and `employee_id`
+22. User is redirected to Dashboard with full system access and their employee profile linked
+
+**Alternative Path — Existing User Accepts Invitation:**
+- If the user already has an account (from another company), they click "Log In to Accept"
+- Upon login, the system auto-accepts the pending invitation for their email
+- The same employee-user linking logic (Step 20c-d) applies
+- A new `user_companies` record is created for the additional company
+
+**Alternative Path — Already Authenticated User:**
+- If the user is already logged in when clicking the invitation link
+- System auto-calls `POST /api/invitations/accept` with the token
+- The same employee-user linking logic (Step 20c-d) applies
+
+**What Gets Linked:**
+
+| Table | Field | Before Linking | After Linking |
+|-------|-------|----------------|---------------|
+| `employees` | `user_id` | `NULL` | User's ID |
+| `user_companies` | `employee_id` | `NULL` | Employee's `employee_id` |
+| JWT Token | `employee_id` | `NULL` | Employee's ID |
+
+**Edge Cases:**
+- **No matching employee record:** User is linked to company but without an employee profile. Admin must manually link later or create a new employee record.
+- **Employee email differs from invitation email:** Auto-linking will not match. Admin must manually link the employee record to the user.
+- **Multiple employee records with same email:** System links to the first active employee record found (should not occur due to unique email per company).
+- **Employee already has a user_id:** System skips linking (already linked to another user).
+
+**Acceptance Criteria:**
+- Admin can create employee records independently of user accounts
+- Admin can invite employees using their work email
+- When invited user registers and verifies email, their account is automatically linked to the matching employee record
+- Linked users can access self-service features (view own profile, payslips, apply leave, clock in/out)
+- Unlinked users (no matching employee) can still access the system but see "No employee profile linked" on self-service pages
+- The employee-user link persists across sessions and company switching
+- Audit log records all linking events
+
+**API Endpoints:**
+- `POST /api/invitations` — Create and send invitation (admin)
+- `GET /api/invitations/info?token={TOKEN}` — Get invitation details (public)
+- `POST /api/invitations/accept` — Accept invitation and auto-link (authenticated)
+- `POST /api/auth/register` — Register new user
+- `POST /api/auth/verify-email` — Verify email, auto-accept invitation, auto-link employee
+- `POST /api/auth/login` — Login, auto-accept pending invitation, auto-link employee
+
 ### 3.3 Payroll System
 
 #### FR-PAY-001: Malaysian Statutory Calculations
@@ -859,6 +950,22 @@ To build a comprehensive, user-friendly HR Management System specifically design
 **US-ADM-003:** As an HR Admin, I want to view an employee's YTD statutory summary, so that I can verify contributions before year-end submission.
 - **Acceptance Criteria:** Display monthly breakdown, total YTD, export to PDF
 
+#### Employee Invitation & Account Linking
+**US-ADM-015:** As an HR Admin, I want to create an employee record first with all HR details, and then invite them to the system separately, so that employee data is complete before they gain system access.
+- **Acceptance Criteria:** Employee record created with `user_id=NULL`, invitation sent to employee's work email, employee appears in list as active without system access
+
+**US-ADM-016:** As an HR Admin, I want the system to automatically link a new user's account to their existing employee record when they accept an invitation, so that I don't have to manually associate profiles.
+- **Acceptance Criteria:** System matches by email + company_id, sets `employees.user_id`, updates `user_companies.employee_id`, new JWT includes `employee_id`, audit log records the linking event
+
+**US-ADM-017:** As an HR Admin, I want to see which employees have linked user accounts and which don't, so that I can follow up with employees who haven't registered yet.
+- **Acceptance Criteria:** Employee list shows linked/unlinked status indicator, filter by link status, resend invitation option for unlinked employees
+
+**US-ADM-018:** As an HR Admin, I want to manually link an employee record to a user account if the auto-linking didn't work (e.g., different emails), so that I can resolve mismatches.
+- **Acceptance Criteria:** Admin can search users by email, select user to link, system validates no duplicate links, audit log records manual linking
+
+**US-STF-012:** As a Staff member who received an invitation, I want my employee profile (with salary, department, position, etc.) to be automatically available after I register and verify my email, so that I can immediately use self-service features.
+- **Acceptance Criteria:** After registration + email verification, user can view own profile, see payslips, apply for leave, clock in/out — all linked to the correct employee record
+
 #### Payroll Management
 **US-ADM-004:** As a Payroll Admin, I want to process monthly payroll for all employees with automatic EPF/SOCSO/EIS/PCB calculations, so that I ensure compliance and save time.
 - **Acceptance Criteria:** Bulk calculation, review before lock, error highlighting, YTD auto-update
@@ -1008,6 +1115,144 @@ To build a comprehensive, user-friendly HR Management System specifically design
 - Download EA form
 - View payslips history
 - Reset password (if linked user)
+
+#### 5.1.4 Employee Invitation & Account Linking Workflow
+
+**Overview:**
+This workflow covers the complete lifecycle from creating an employee record to linking it with a user account via the invitation system. The key innovation is **automatic email-based matching** — when a user accepts an invitation, the system matches their email against existing employee records to create the link.
+
+**Workflow Diagram:**
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│                    ADMIN SIDE                                        │
+│                                                                      │
+│  ┌─────────────────┐     ┌──────────────────┐                       │
+│  │ 1. Add Employee  │────▶│ Employee Record  │                       │
+│  │    (HR details)  │     │ user_id = NULL   │                       │
+│  └─────────────────┘     │ email = xyz@co   │                       │
+│                           └──────────────────┘                       │
+│                                   │                                  │
+│  ┌─────────────────┐              │                                  │
+│  │ 2. Send Invite   │──────────── │ ─── same email ──┐              │
+│  │    (xyz@co)      │             │                    │              │
+│  └─────────────────┘              │                    ▼              │
+│                                   │          ┌─────────────────┐     │
+│                                   │          │ Invitation       │     │
+│                                   │          │ email = xyz@co   │     │
+│                                   │          │ status = pending │     │
+│                                   │          └────────┬────────┘     │
+└───────────────────────────────────│───────────────────│──────────────┘
+                                    │                    │
+                                    │                    ▼
+┌───────────────────────────────────│───────────────────────────────────┐
+│                    EMPLOYEE SIDE  │                                    │
+│                                   │                                    │
+│  ┌─────────────────┐              │                                    │
+│  │ 3. Click Invite  │──────────── │ ─────────────────────────┐        │
+│  │    Link in Email │             │                           │        │
+│  └─────────────────┘              │                           │        │
+│          │                        │                           │        │
+│          ▼                        │                           │        │
+│  ┌─────────────────┐              │                           │        │
+│  │ 4. Register      │             │                           │        │
+│  │    Account       │             │                           │        │
+│  └────────┬────────┘              │                           │        │
+│           │                       │                           │        │
+│           ▼                       │                           │        │
+│  ┌─────────────────┐              │                           │        │
+│  │ 5. Verify Email  │             │                           │        │
+│  └────────┬────────┘              │                           │        │
+│           │                       │                           │        │
+│           ▼                       ▼                           ▼        │
+│  ┌──────────────────────────────────────────────────────────────┐     │
+│  │                   AUTO-LINKING ENGINE                         │     │
+│  │                                                               │     │
+│  │  a) Accept invitation → set user.company_id, user.role       │     │
+│  │  b) Create user_companies record                              │     │
+│  │  c) MATCH: employees.email == user.email                     │     │
+│  │           AND employees.company_id == invitation.company_id   │     │
+│  │           AND employees.user_id IS NULL                       │     │
+│  │  d) LINK:  employees.user_id = user.id                       │     │
+│  │            user_companies.employee_id = employee.employee_id  │     │
+│  │  e) Issue JWT with employee_id                                │     │
+│  └──────────────────────────────────────────────────────────────┘     │
+│           │                                                           │
+│           ▼                                                           │
+│  ┌─────────────────┐                                                  │
+│  │ 6. Dashboard     │  ← Full access with linked employee profile    │
+│  │    (Self-Service)│                                                  │
+│  └─────────────────┘                                                  │
+└───────────────────────────────────────────────────────────────────────┘
+```
+
+**Auto-Linking Logic (Backend):**
+
+The auto-linking logic executes in three backend entry points to cover all scenarios:
+
+| Entry Point | When It Runs | Scenario |
+|-------------|-------------|----------|
+| `POST /api/auth/verify-email` | After email verification | New user registered via invitation link |
+| `POST /api/auth/login` | After successful login | Existing user with pending invitation |
+| `POST /api/invitations/accept` | Explicit invitation acceptance | Already-authenticated user clicks invitation link |
+
+**Linking Algorithm (pseudocode):**
+```
+function linkEmployeeToUser(userId, userEmail, companyId):
+    // Find matching employee record
+    employee = Employee.findOne({
+        where: {
+            email: userEmail,           // Match by email
+            company_id: companyId,      // Same company
+            user_id: NULL               // Not yet linked
+        }
+    })
+
+    if employee found:
+        // Link employee to user
+        employee.user_id = userId
+
+        // Update user_companies with employee reference
+        UserCompany.update(
+            { employee_id: employee.employee_id },
+            { where: { user_id: userId, company_id: companyId } }
+        )
+
+        // Log the linking event
+        auditLog('employee_linked', userId, employee.id)
+
+        return employee
+    else:
+        // No matching employee — user joins company without profile
+        return null
+```
+
+**Employee List — Link Status Indicators:**
+
+| Status | Icon | Description |
+|--------|------|-------------|
+| Linked | Green check | Employee has an active user account |
+| Invited (Pending) | Orange clock | Invitation sent, awaiting registration |
+| Not Invited | Grey dash | No invitation sent yet |
+
+**Manual Linking UI (Admin):**
+For cases where auto-linking fails (different emails):
+1. Admin opens employee detail page
+2. Clicks "Link User Account"
+3. Search dialog shows registered users without employee links in this company
+4. Admin selects the correct user
+5. System sets `employee.user_id` and `user_companies.employee_id`
+6. Audit log records the manual link
+
+**Post-Linking Access:**
+
+Once an employee record is linked to a user account, the user gains access to:
+- **View Own Profile:** See all HR details (personal info, employment, compensation)
+- **Update Own Profile:** Edit allowed fields (mobile, email, address, emergency contact, photo)
+- **Leave Management:** Apply for leave, view balance, view history
+- **Attendance:** Clock in/out, view attendance logs
+- **Claims:** Submit claims, track claim status
+- **Payslips:** View and download monthly payslips
+- **Memos & Policies:** View announcements, acknowledge policies
 
 ### 5.2 Payroll System Module
 
@@ -2469,20 +2714,37 @@ HRMS_Backend/
 #### 6.2.3 API Endpoints Specification
 
 **Authentication:**
-- POST `/api/auth/login` - User login
+- POST `/api/auth/login` - User login (auto-accepts pending invitation, auto-links employee)
 - POST `/api/auth/register` - User registration
+- POST `/api/auth/verify-email` - Verify email (auto-accepts invitation, auto-links employee)
+- POST `/api/auth/resend-verification` - Resend email verification
 - POST `/api/auth/forgot-password` - Request password reset
 - POST `/api/auth/reset-password` - Reset password
 - POST `/api/auth/logout` - Logout user
-- GET `/api/auth/me` - Get current user
+- GET `/api/auth/me` - Get current user (with employee & company data)
+
+**Company & Multi-Tenancy:**
+- POST `/api/company` - Create new company (onboarding)
+- GET `/api/company/my-companies` - List user's company memberships
+- POST `/api/company/switch` - Switch active company (issues new JWT)
+
+**Invitations:**
+- POST `/api/invitations` - Create and send invitation (admin)
+- GET `/api/invitations` - List company invitations (admin)
+- GET `/api/invitations/info?token={TOKEN}` - Get invitation details (public, no auth)
+- POST `/api/invitations/accept` - Accept invitation, auto-link employee (authenticated)
+- POST `/api/invitations/:id/cancel` - Cancel pending invitation (admin)
+- POST `/api/invitations/:id/resend` - Resend invitation email (admin)
 
 **Employee Management:**
-- GET `/api/employees` - List all employees (admin)
+- GET `/api/employees` - List all employees (admin, scoped to active company)
 - GET `/api/employees/:id` - Get employee details
-- POST `/api/employees` - Create employee (admin)
+- POST `/api/employees` - Create employee (admin, `user_id` initially NULL)
 - PUT `/api/employees/:id` - Update employee (admin)
 - DELETE `/api/employees/:id` - Soft delete employee (admin)
 - GET `/api/employees/:id/ytd` - Get YTD statutory summary
+- GET `/api/employees/me` - Get own employee profile (authenticated, linked via `user_id`)
+- PUT `/api/employees/me` - Update own profile (limited fields)
 
 **Payroll:**
 - POST `/api/payroll/process/:month/:year` - Process monthly payroll
@@ -2625,28 +2887,78 @@ module.exports = rbacMiddleware;
 
 ## 7. Database Schema
 
-### 7.1 Complete Schema Design (MySQL)
+### 7.1 Complete Schema Design (PostgreSQL — Supabase)
+
+> **Note:** The production database has been migrated from MySQL to PostgreSQL (Supabase).
+> Syntax below uses PostgreSQL conventions. Sequelize ORM handles dialect differences.
 
 ```sql
+-- Companies Table (Multi-Tenancy)
+CREATE TABLE companies (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(200) NOT NULL,
+  registration_no VARCHAR(50),
+  industry VARCHAR(100),
+  size VARCHAR(50),
+  country VARCHAR(100) DEFAULT 'Malaysia',
+  logo_url VARCHAR(255),
+  owner_id INT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Users Table
 CREATE TABLE users (
-  id INT PRIMARY KEY AUTO_INCREMENT,
+  id SERIAL PRIMARY KEY,
   email VARCHAR(100) UNIQUE NOT NULL,
   password VARCHAR(255) NOT NULL,
-  role ENUM('super_admin', 'admin', 'manager', 'staff') NOT NULL DEFAULT 'staff',
+  role VARCHAR(20) NOT NULL DEFAULT 'staff',  -- super_admin, admin, manager, staff
+  company_id INT REFERENCES companies(id),     -- Active company (NULL for new users)
+  email_verified BOOLEAN DEFAULT FALSE,
+  email_verification_token VARCHAR(255),
+  email_verification_expires TIMESTAMP,
   is_active BOOLEAN DEFAULT TRUE,
-  last_login_at DATETIME,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  INDEX idx_email (email),
-  INDEX idx_role (role)
+  last_login_at TIMESTAMP,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_role ON users(role);
+
+-- User-Company Memberships (Many-to-Many for Multi-Company Support)
+CREATE TABLE user_companies (
+  id SERIAL PRIMARY KEY,
+  user_id INT NOT NULL REFERENCES users(id),
+  company_id INT NOT NULL REFERENCES companies(id),
+  role VARCHAR(20) NOT NULL DEFAULT 'staff',   -- Role within this specific company
+  employee_id VARCHAR(20),                      -- Linked employee_id (set during auto-linking)
+  joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(user_id, company_id)
+);
+
+-- Invitations Table
+CREATE TABLE invitations (
+  id SERIAL PRIMARY KEY,
+  company_id INT NOT NULL REFERENCES companies(id),
+  invited_by INT NOT NULL REFERENCES users(id),
+  email VARCHAR(100) NOT NULL,
+  role VARCHAR(20) NOT NULL DEFAULT 'staff',
+  token VARCHAR(255) NOT NULL,
+  status VARCHAR(20) DEFAULT 'pending',         -- pending, accepted, expired, cancelled
+  expires_at TIMESTAMP NOT NULL,
+  accepted_at TIMESTAMP,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX idx_invitations_token ON invitations(token);
+CREATE INDEX idx_invitations_email ON invitations(email);
 
 -- Employees Table
 CREATE TABLE employees (
-  id INT PRIMARY KEY AUTO_INCREMENT,
-  user_id INT UNIQUE,
-  employee_id VARCHAR(20) UNIQUE NOT NULL,
+  id SERIAL PRIMARY KEY,
+  user_id INT,                                  -- NULL until user account is linked
+  company_id INT REFERENCES companies(id),      -- Scoped to a company
+  employee_id VARCHAR(20) NOT NULL,
   full_name VARCHAR(150) NOT NULL,
   ic_no VARCHAR(20) UNIQUE,
   passport_no VARCHAR(20),
@@ -2679,14 +2991,16 @@ CREATE TABLE employees (
   tax_no VARCHAR(20),
   tax_category VARCHAR(50) DEFAULT 'Individual',
   photo_url VARCHAR(255),
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+  FOREIGN KEY (company_id) REFERENCES companies(id),
   FOREIGN KEY (reporting_manager_id) REFERENCES employees(id) ON DELETE SET NULL,
-  INDEX idx_employee_id (employee_id),
-  INDEX idx_department (department),
-  INDEX idx_status (employment_status)
+  UNIQUE(user_id, company_id),              -- One employee record per user per company
+  UNIQUE(employee_id, company_id)           -- Employee ID unique within company
 );
+CREATE INDEX idx_employees_department ON employees(department);
+CREATE INDEX idx_employees_status ON employees(employment_status);
 
 -- YTD Statutory Table
 CREATE TABLE ytd_statutory (
@@ -3019,7 +3333,17 @@ CREATE TABLE audit_logs (
 ### 7.2 Entity Relationship Diagram (ERD)
 
 ```
-users (1) ----< (N) employees
+companies (1) ----< (N) employees
+companies (1) ----< (N) invitations
+companies (1) ----< (N) user_companies
+
+users (1) ----< (N) user_companies >---- (N) companies    [Many-to-Many via user_companies]
+users (1) ----< (N) employees                               [user_id FK, set during auto-linking]
+users (1) ----  (1) companies                               [active company_id FK]
+
+invitations (N) >---- (1) companies                         [invitation scoped to company]
+invitations (N) >---- (1) users                             [invited_by FK]
+
 employees (1) ----< (N) ytd_statutory
 employees (1) ----< (N) payroll
 employees (1) ----< (N) leaves
@@ -3036,6 +3360,14 @@ memos (1) ----< (N) memo_read_receipts
 employees (1) ----< (N) memo_read_receipts
 invoices (1) ----< (N) invoice_items
 users (1) ----< (N) audit_logs
+```
+
+**Key Linking Relationships:**
+```
+User ──── user_id ────▶ Employee         (set when user accepts invitation)
+User ──── company_id ──▶ Company          (active company, updated on switch)
+UserCompany ── employee_id ──▶ Employee   (per-company employee reference)
+Invitation ── email ── ▶ Employee.email   (matched during auto-linking)
 ```
 
 ### 7.3 Database Indexes Strategy
@@ -3573,6 +3905,7 @@ Jane Smith,9876543210,CIMB,4200.00,Salary-Jan-2025
 |---------|------|--------|---------|
 | 1.0 | 2025-01-01 | Initial Team | Initial PRD draft |
 | 2.0 | 2025-11-29 | Comprehensive Update | Complete PRD with all sections |
+| 2.1 | 2026-02-11 | Update | Added FR-EMP-004 (Employee Invitation & Account Linking), multi-tenancy schema (companies, invitations, user_companies tables), updated ERD, invitation/company API endpoints, user stories US-ADM-015 through US-ADM-018 and US-STF-012, feature spec 5.1.4 with workflow diagram and auto-linking algorithm |
 
 ---
 
