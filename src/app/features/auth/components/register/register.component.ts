@@ -151,8 +151,8 @@ export class RegisterComponent implements OnInit, OnDestroy {
         this.loading = false;
         console.log('Registration successful:', response);
 
-        // Navigate to dashboard after successful registration
-        this.router.navigate(['/dashboard']);
+        // Navigate to email verification pending page
+        this.router.navigate(['/auth/verify-email-pending']);
       },
       error: (error) => {
         this.loading = false;

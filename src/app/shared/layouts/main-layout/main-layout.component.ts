@@ -3,8 +3,9 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, RouterOutlet, Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { AuthService } from '@/core/services/auth.service';
+import { CompanyService } from '@/core/services/company.service';
 import { ThemeService } from '@/core/services/theme';
-import { User } from '@/core/models/auth.models';
+import { User, Company } from '@/core/models/auth.models';
 import { SidebarMenuGroup } from '@/core/models/sidebar.models';
 
 // ZardUI Component Imports
@@ -39,6 +40,7 @@ import { ZardBreadcrumbModule } from '@/shared/components/breadcrumb/breadcrumb.
 })
 export class MainLayoutComponent implements OnInit {
   currentUser: User | null = null;
+  currentCompany: Company | null = null;
   expandedMenuItems = new Set<string>();
   breadcrumbs = signal<{ label: string; url: string }[]>([]);
 
@@ -170,6 +172,7 @@ export class MainLayoutComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
+    private companyService: CompanyService,
     public themeService: ThemeService,
     private router: Router,
     private activatedRoute: ActivatedRoute
@@ -188,7 +191,22 @@ export class MainLayoutComponent implements OnInit {
     // Subscribe to current user
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
+      // Always fetch fresh company data when user has a company_id
+      if (user?.company_id) {
+        this.companyService.getMyCompany().subscribe({
+          next: (res) => {
+            if (res.success && res.data) {
+              this.currentCompany = res.data;
+            }
+          }
+        });
+      } else {
+        this.currentCompany = null;
+      }
     });
+
+    // Refresh user data from API to ensure localStorage is up-to-date
+    this.authService.getCurrentUser().subscribe();
   }
 
   toggleSidebar() {
@@ -223,6 +241,15 @@ export class MainLayoutComponent implements OnInit {
       .slice(0, 2)
       .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
       .join(' ');
+  }
+
+  getCompanyInitials(): string {
+    if (!this.currentCompany?.name) return 'CO';
+    const words = this.currentCompany.name.split(' ').filter(Boolean);
+    if (words.length >= 2) {
+      return (words[0][0] + words[1][0]).toUpperCase();
+    }
+    return words[0].substring(0, 2).toUpperCase();
   }
 
   toggleTheme() {

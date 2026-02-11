@@ -1,25 +1,31 @@
 # HR Management System (HRMS) - Project Tasks
 
-> **Last Updated:** February 5, 2026
-> **Overall Project Completion:** 70-75%
-> **Status:** Functional but incomplete - Core HR modules operational, critical gaps in e-Invoice and Reporting
+> **Last Updated:** February 10, 2026
+> **Overall Project Completion:** 85-90%
+> **Status:** Production-ready core - All HR modules operational, statutory reports complete, analytics implemented
+> **Database:** Supabase PostgreSQL (migrated from MySQL)
+> **Deployment:** Frontend → Netlify | Backend → Azure App Service | Storage → Supabase Storage
 
 ---
 
 ## Executive Summary
 
-The HRMS project has achieved **substantial implementation** of core HR functionality with approximately **70-75% completion** of Phase 1 requirements. The project demonstrates solid architecture with Angular frontend and Node.js/Express backend, comprehensive database schema, and working implementations of most critical modules.
+The HRMS project has achieved **comprehensive implementation** of core HR functionality with approximately **85-90% completion** of Phase 1 requirements. The project demonstrates solid architecture with Angular 21 frontend and Node.js/Express backend on Supabase PostgreSQL, with working implementations of all critical modules including statutory reporting and analytics.
 
 **Key Highlights:**
-- 7 out of 10 major modules are 90-100% complete
-- All core HR operations (Employee, Payroll, Leave, Attendance, Claims) are functional
-- Sophisticated Malaysian statutory calculations implemented
+- 10 out of 12 major modules are 85-100% complete
+- All core HR operations (Employee, Payroll, Leave, Attendance, Claims) are fully functional
+- Sophisticated Malaysian statutory calculations AND reports implemented (EA, EPF, SOCSO, PCB)
 - Comprehensive RBAC and authentication system operational
+- Full analytics module with chart visualizations and Excel/PDF export
+- Personal pages (profile, payslips, change password) implemented
+- System settings module implemented
+- Production infrastructure ready (Supabase PostgreSQL, Supabase Storage, Netlify + Azure)
 
-**Critical Gaps:**
-- E-Invoice module (80% incomplete) - Only config exists
-- Statutory Reports (100% incomplete) - EA Form, Borang A, etc.
-- Reports & Analytics (60% incomplete) - Limited reporting capabilities
+**Remaining Gaps:**
+- E-Invoice module (80% incomplete) - Only config exists, deferred
+- System Settings (admin-level config e.g. company profile, payroll rates) - needs verification
+- Fine-tuning and polish of recently implemented modules
 
 ---
 
@@ -34,14 +40,21 @@ The HRMS project has achieved **substantial implementation** of core HR function
 ### Backend Development (Node.js/Express)
 - [x] Initialize `HRMS-API_v1` project <!-- id: 7 -->
 - [x] Install dependencies & Setup Server <!-- id: 8 -->
-- [x] Setup Database Connection (Sequelize/MySQL) <!-- id: 9 -->
+- [x] Setup Database Connection (Sequelize/PostgreSQL via Supabase) <!-- id: 9 -->
 - [x] Implement Auth API (Login/Register, JWT) <!-- id: 10 -->
 - [x] Implement Employee API (CRUD, YTD Statutory) <!-- id: 11 -->
 - [x] Implement Payroll API (Calc, Payslip) <!-- id: 13 -->
 - [x] Implement Leave & Attendance API (WFH support) <!-- id: 14 -->
 - [x] Implement Claims API <!-- id: 15 -->
 - [x] Implement Memo & Policy API (Communications) <!-- id: 20 -->
-- [x] Implement File Management API <!-- id: 21 -->
+- [x] Implement File Management API (Supabase Storage) <!-- id: 21 -->
+- [x] Implement Statutory Reports API (EA, EPF, SOCSO, PCB) <!-- id: 34 -->
+- [x] Implement Analytics API (payroll, leave, attendance, claims analytics) <!-- id: 33 -->
+- [x] Implement Dashboard API (admin, manager, staff) <!-- id: 36 -->
+- [x] Implement Settings API <!-- id: 45 -->
+- [x] Implement User Management API <!-- id: 46 -->
+- [x] Migrate MySQL → PostgreSQL (Supabase) <!-- id: 47 -->
+- [x] Migrate file storage → Supabase Storage <!-- id: 48 -->
 
 ### Frontend Development (Angular 21)
 - [x] Setup Tailwind CSS & SCSS <!-- id: 4 -->
@@ -55,6 +68,11 @@ The HRMS project has achieved **substantial implementation** of core HR function
 - [x] WFH Approval Management (Manager approval interface) <!-- id: 24 -->
 - [x] Dynamic Leave Document Upload (Type-specific document requirements) <!-- id: 25 -->
 - [x] Implement Memo & Policy Components <!-- id: 26 -->
+- [x] Implement Statutory Reports Module (reports-list component) <!-- id: 49 -->
+- [x] Implement Analytics Module (5 chart components, dashboard, Excel/PDF export) <!-- id: 50 -->
+- [x] Implement Personal Pages (my-profile, my-payslips, change-password) <!-- id: 51 -->
+- [x] Implement Settings Page (account, appearance, notifications, 2FA) <!-- id: 52 -->
+- [x] Implement User Management Module <!-- id: 53 -->
 
 ---
 
@@ -103,7 +121,7 @@ The HRMS project has achieved **substantial implementation** of core HR function
 
 ---
 
-### ✅ Module 3: Payroll System - **90% COMPLETE**
+### ✅ Module 3: Payroll System - **98% COMPLETE**
 
 **PRD Reference:** Section 3.3
 
@@ -111,16 +129,21 @@ The HRMS project has achieved **substantial implementation** of core HR function
 - ✅ FR-PAY-001: Malaysian Statutory Calculations (EPF, SOCSO, EIS, PCB)
 - ✅ FR-PAY-002: Payroll Processing Workflow (Draft → Approved → Paid)
 - ✅ FR-PAY-003: Payslip Management (generation, viewing, download)
-- ✅ EPF calculations with age/salary caps
-- ✅ SOCSO contribution table support
-- ✅ PCB tax deduction logic
+- ✅ FR-PAY-004: Statutory Reports (EA Form, EPF Borang A, SOCSO Form 8A, PCB CP39)
+- ✅ EPF calculations with age/salary caps (cap: RM30,000)
+- ✅ SOCSO 34-tier contribution table support (cap: RM10,800)
+- ✅ EIS calculation (0.5%)
+- ✅ PCB tax deduction logic (progressive rates)
 - ✅ YTD automatic updates
+- ✅ CSV export for e-filing format
+- ✅ PDF report generation (via reportGeneratorService)
 - ⚠️ Bulk payroll processing (implementation unclear)
-- ❌ FR-PAY-004: Statutory Reports (EA Form, CP39, Borang A) - **NOT IMPLEMENTED**
 
 **Files:**
 - Frontend: `payroll-form`, `payroll-list`, `payslip-view` components
-- Backend: `payrollController.js`, `statutoryCalculations.js`, `statutoryService.js`
+- Frontend: `statutory-reports/reports-list` component
+- Backend: `payrollController.js`, `statsController.js`, `statutoryCalculations.js`, `statutoryService.js`
+- Backend: `reportGeneratorService.js`, `excelExportService.js`
 - Database: `payroll` table with comprehensive fields
 
 **Key Endpoints:**
@@ -128,8 +151,14 @@ The HRMS project has achieved **substantial implementation** of core HR function
 - `PUT /api/payroll/:id/approve` - Approve payroll
 - `PUT /api/payroll/:id/mark-paid` - Mark as paid
 - `GET /api/payroll/:id/payslip` - Generate payslip
+- `GET /api/statutory-reports/ea/:employee_id/:year` - EA Form (annual)
+- `GET /api/statutory-reports/epf/:year/:month` - EPF Borang A (monthly)
+- `GET /api/statutory-reports/socso/:year/:month` - SOCSO Form 8A (monthly)
+- `GET /api/statutory-reports/pcb/:year/:month` - PCB CP39 (monthly)
+- `GET /api/statutory-reports/csv/:type/:year/:month` - CSV e-filing export
+- `GET /api/statutory-reports/periods` - Available payroll periods
 
-**Status:** Core payroll engine excellent. Statutory reports critical gap.
+**Status:** Fully operational including statutory reports with PDF/CSV generation.
 
 ---
 
@@ -255,55 +284,134 @@ The HRMS project has achieved **substantial implementation** of core HR function
 
 ---
 
-### ⚠️ Module 9: Dashboard & Analytics - **40% COMPLETE**
+### ✅ Module 9: Dashboard & Analytics - **90% COMPLETE**
 
 **PRD Reference:** Section 3.9
 
 **Implementation:**
-- ✅ Dashboard components exist (`admin-dashboard`, `manager-dashboard`, `staff-dashboard`)
-- ✅ Dashboard layout component
+- ✅ Dashboard components (`admin-dashboard`, `manager-dashboard`, `staff-dashboard`)
+- ✅ Dashboard layout component with role-based views
 - ✅ Employee statistics endpoint (`/api/employees/statistics`)
-- ❌ No dedicated reports module
-- ❌ No analytics components
-- ❌ Statutory reports (EA Form, Borang A, Form 8A, CP39) - **NOT IMPLEMENTED**
-- ⚠️ Dashboard content implementation needs verification
+- ✅ Dedicated analytics module with 5 components
+- ✅ Payroll cost analytics (chart + data)
+- ✅ Leave utilization analytics (chart + data)
+- ✅ Attendance punctuality analytics (chart + data)
+- ✅ Claims spending analytics (chart + data)
+- ✅ Excel export functionality (via excelExportService)
+- ✅ PDF export functionality (via reportGeneratorService)
+- ✅ Backend analytics service with Sequelize aggregations
+- ✅ Backend dashboard service
+- ⚠️ Custom report builder (not implemented)
+- ⚠️ Scheduled reports / email delivery (not implemented)
 
 **Files:**
-- Frontend: Dashboard components (content unclear)
-- Backend: Limited analytics endpoints
+- Frontend: `analytics-dashboard`, `payroll-cost-chart`, `leave-utilization-chart`, `attendance-analytics-chart`, `claims-spending-chart`
+- Frontend Service: `analytics.service.ts` (getPayrollCostAnalytics, getLeaveUtilizationAnalytics, etc.)
+- Backend: `analyticsController.js`, `dashboardController.js`
+- Backend Services: `analyticsService.js`, `dashboardService.js`, `reportGeneratorService.js`, `excelExportService.js`
+- Charts: Chart.js + ng2-charts integration
 
-**Status:** Basic dashboards exist but reporting capabilities severely limited.
+**Key Endpoints:**
+- `GET /api/analytics/payroll-cost` - Payroll cost analysis
+- `GET /api/analytics/leave-utilization` - Leave usage trends
+- `GET /api/analytics/attendance-punctuality` - Attendance analytics
+- `GET /api/analytics/claims-spending` - Claims spending
+- `GET /api/dashboard/*` - Dashboard summary data
+- `GET /api/analytics/export/excel` - Excel export
+- `GET /api/analytics/export/pdf` - PDF export
 
-**Required Implementation:**
-- Comprehensive reports module
-- Payroll cost analysis
-- Leave utilization trends
-- Attendance analytics
-- Claims spending reports
-- Statutory compliance reports
-- Export functionality (PDF, Excel)
+**Status:** Comprehensive analytics implemented with chart visualizations and export. Advanced features (custom report builder, scheduled reports) remain as future enhancements.
 
 ---
 
-### ✅ Module 10: File Management - **85% COMPLETE**
+### ✅ Module 10: File Management - **95% COMPLETE**
 
 **PRD Reference:** Cross-cutting feature
 
 **Implementation:**
 - ✅ File service (frontend & backend)
-- ✅ File upload configuration (Multer)
+- ✅ Supabase Storage integration (private bucket: `hrms-files`)
+- ✅ Multer memory storage → Supabase Storage pipeline
 - ✅ File model with metadata tracking
-- ✅ File categorization (employee docs, claims, payslips, etc.)
-- ✅ File viewer and list components
-- ⚠️ Storage structure implementation unclear
-- ⚠️ File access control implementation unclear
+- ✅ File categorization with organized path structure:
+  - `employees/{id}/{sub_category}/` - Employee documents
+  - `claims/{year}/{month}/{claim_id}/` - Claim receipts
+  - `payslips/{year}/{month}/` - Payslips
+  - `leaves/{leave_id}/` - Leave documents
+  - `company/{sub_category}/` - Company documents
+- ✅ Signed URLs for secure temporary access (1hr expiry)
+- ✅ File viewer, list, and upload components
+- ✅ File size limit: 10MB, max 10 files per upload
+- ✅ Supported types: PDF, DOC, DOCX, TXT, JPG, PNG, GIF, WEBP, XLS, XLSX, CSV, ZIP, RAR
+- ⚠️ File access control by role (needs verification)
 
 **Files:**
-- Frontend: `file.service.ts`, `file-viewer`, `file-list`, `file-upload` components
-- Backend: `fileController.js`, `fileService.js`, `File.js` model, `upload.config.js`
+- Frontend: `file.service.ts`, `file-viewer`, `file-list`, `file-upload` shared components
+- Backend: `fileController.js`, `fileService.js`, `supabaseStorageService.js`, `File.js` model, `upload.config.js`
+- Config: `supabase.js` (Supabase client init)
 - Database: `files` table
 
-**Status:** Core functionality present. Access control needs verification.
+**Status:** Fully operational with Supabase Storage. Role-based access control needs verification.
+
+---
+
+### ✅ Module 11: Personal Pages - **85% COMPLETE**
+
+**PRD Reference:** Employee self-service
+
+**Implementation:**
+- ✅ My Profile page (view personal/employment info)
+- ✅ My Payslips page (view personal payslip history)
+- ✅ Change Password page
+- ✅ Personal service (`personal.service.ts`)
+- ✅ Backend endpoints for personal data access
+- ✅ Routes configured (`/personal/profile`, `/personal/payslips`, `/personal/change-password`)
+- ⚠️ My Documents (dedicated personal document management) - needs verification
+- ⚠️ Profile photo upload with preview/crop - needs verification
+
+**Files:**
+- Frontend: `my-profile`, `my-payslips`, `change-password` components
+- Frontend Service: `personal.service.ts`
+- Routes: `/personal/*` (lazy-loaded, auth-guarded)
+
+**Status:** Core personal pages implemented. Document management and profile photo features need verification.
+
+---
+
+### ⚠️ Module 12: System Settings - **70% COMPLETE**
+
+**PRD Reference:** Admin configuration
+
+**Implementation:**
+- ✅ Settings page component with multiple sections
+- ✅ Settings service (`settings.service.ts`)
+- ✅ Backend settings controller, service, and routes
+- ✅ Account settings section
+- ✅ Appearance settings section
+- ✅ Display settings section
+- ✅ Notification preferences section
+- ✅ Change password (within settings)
+- ✅ Two-factor authentication enable/disable endpoints
+- ⚠️ Company profile settings (name, address, reg numbers) - needs verification
+- ⚠️ Payroll rate configuration (EPF, SOCSO, PCB rates) - needs verification
+- ⚠️ Leave type/entitlement admin configuration - needs verification
+- ⚠️ Email template management - needs verification
+
+**Files:**
+- Frontend: `settings-page` component (sections: account, appearance, display, notifications, change-password, two-factor, reset)
+- Frontend Service: `settings.service.ts`
+- Backend: `settingsController.js`, `settings.routes.js`
+- Routes: `/settings/:section`
+
+**Key Endpoints:**
+- `GET/PUT /api/settings/account` - Account settings
+- `GET/PUT /api/settings/appearance` - Appearance preferences
+- `GET/PUT /api/settings/notifications` - Notification preferences
+- `POST /api/settings/two-factor/enable` - Enable 2FA
+- `POST /api/settings/two-factor/disable` - Disable 2FA
+- `POST /api/settings/change-password` - Change password
+
+**Status:** Personal settings functional. Admin-level system configuration (company profile, statutory rates, leave policies) needs verification.
 
 ---
 
@@ -313,52 +421,62 @@ The HRMS project has achieved **substantial implementation** of core HR function
 |--------|--------------|--------|---------------|
 | 1. Authentication & Authorization | 100% | ✅ Complete | MFA (future enhancement) |
 | 2. Employee Management | 95% | ✅ Complete | Document integration verification |
-| 3. Payroll System | 90% | ✅ Complete | Statutory reports (EA, CP39, etc.) |
+| 3. Payroll System | 98% | ✅ Complete | Bulk payroll processing verification |
 | 4. Leave Management | 100% | ✅ Complete | None |
 | 5. Attendance & WFH | 95% | ✅ Complete | Geofencing validation |
 | 6. Claims Management | 100% | ✅ Complete | None |
 | 7. HR Communications | 100% | ✅ Complete | None |
 | 8. Finance & e-Invoice | 20% | ⏸️ Deferred | Entire module (deferred) |
-| 9. Dashboard & Analytics | 40% | ⚠️ Incomplete | Reports, analytics, exports |
-| 10. File Management | 85% | ✅ Mostly Complete | Access control verification |
-| 11. Personal Pages | 0% | 🆕 New | Profile, payslips, documents, password |
-| 12. System Settings | 0% | 🆕 New | Company, payroll, leave, email config |
-| **OVERALL PROJECT** | **65-70%** | ⚠️ **Functional but Incomplete** | Statutory Reports, Personal Pages, Settings |
+| 9. Dashboard & Analytics | 90% | ✅ Complete | Custom report builder, scheduled reports |
+| 10. File Management | 95% | ✅ Complete | Access control verification |
+| 11. Personal Pages | 85% | ✅ Mostly Complete | Documents, profile photo verification |
+| 12. System Settings | 70% | ⚠️ Mostly Complete | Admin-level config verification |
+| **OVERALL PROJECT** | **85-90%** | ✅ **Production-Ready Core** | e-Invoice (deferred), admin settings polish |
 
 ---
 
 ## Technology Stack Implementation Status
 
 ### Frontend Stack ✅
-- ✅ Angular 21.0.1 with standalone components
-- ✅ TailwindCSS for styling
-- ✅ Lazy loading routes
+- ✅ Angular 21 (`@angular/core` ^21.0.0) with standalone components
+- ✅ TailwindCSS 4 for styling
+- ✅ ZardUI (`@ngzard/ui` ^1.0.0-beta.31) component library
+- ✅ Chart.js + ng2-charts for analytics visualizations
+- ✅ Quill rich text editor (ngx-quill) for memos/policies
+- ✅ Lucide icons
+- ✅ Lazy loading routes (15 feature modules)
 - ✅ HTTP interceptors & auth guards
-- ✅ Shared components library (22+ reusable components)
+- ✅ Shared components library (25+ reusable components)
 - ✅ Feature-based modular architecture
 
 ### Backend Stack ✅
 - ✅ Node.js/Express REST API
-- ✅ MySQL with Sequelize ORM
-- ✅ JWT authentication with bcrypt
+- ✅ PostgreSQL with Sequelize ORM (migrated from MySQL)
+- ✅ Supabase Storage for file management (private bucket)
+- ✅ JWT authentication with bcryptjs
 - ✅ express-validator for validation
 - ✅ Winston logging
 - ✅ Nodemailer for emails
-- ✅ Multer for file uploads
-- ⚠️ PDFKit (mentioned but implementation unclear)
+- ✅ Multer (memory storage) → Supabase Storage pipeline
+- ✅ PDFKit for report/payslip PDF generation
+- ✅ SheetJS (xlsx) for Excel export
+- ✅ Helmet, CORS, rate limiting, compression
 
 ### Database ✅
-- ✅ Complete schema with 15 tables
+- ✅ Supabase PostgreSQL (Singapore region)
+- ✅ Complete schema with 17 tables
 - ✅ Proper foreign keys and indexes
-- ✅ Migration system in place
-- ❌ Invoice-related tables missing
+- ✅ SSL connection support
+- ✅ Connection pooling (max: 10)
+- ❌ Invoice-related tables missing (deferred)
 
 ---
 
-## Critical Missing Features (Priority 1)
+## Remaining Gaps (Priority Order)
 
-### 1. E-Invoice Module - **80% MISSING** ⚠️ HIGHEST PRIORITY
-**Impact:** Critical for LHDN compliance and business operations
+### 1. E-Invoice Module - **80% MISSING** ⏸️ DEFERRED
+**Impact:** Required for LHDN compliance (when mandated)
+**Status:** Deferred to future phase - only LHDN config file exists
 
 **Missing Components:**
 - Invoice data model & database schema
@@ -375,34 +493,25 @@ The HRMS project has achieved **substantial implementation** of core HR function
 
 ---
 
-### 2. Statutory Reports - **100% MISSING** ⚠️ HIGH PRIORITY
-**Impact:** Required for Malaysian compliance and regulatory submissions
+### 2. Admin System Configuration - **NEEDS VERIFICATION**
+**Impact:** Admin ability to configure statutory rates, leave policies, company info
 
-**Missing Reports:**
-- EA Form (Annual employee remuneration)
-- EPF Borang A (Monthly EPF submission)
-- SOCSO Form 8A (Monthly SOCSO submission)
-- PCB CP39 (Monthly tax submission)
-- E-filing export formats
+**Potentially Missing:**
+- Company profile management (name, reg numbers, logo)
+- Payroll rate configuration (EPF/SOCSO/PCB rate updates)
+- Leave type/entitlement admin configuration
+- Email template management
+- Public holidays calendar management
 
-**Estimated Effort:** 2-3 weeks
-**Dependencies:** Payroll data (already available)
+**Note:** Backend settings controller exists but scope of admin-level config needs verification.
 
 ---
 
-### 3. Reports & Analytics Module - **60% MISSING** ⚠️ HIGH PRIORITY
-**Impact:** Limited decision-making capabilities for management
+### ~~3. Statutory Reports~~ - ✅ **COMPLETED**
+~~EA Form, EPF Borang A, SOCSO Form 8A, PCB CP39~~ → All implemented with PDF/CSV export
 
-**Missing Components:**
-- Dedicated reports module
-- Payroll cost analysis
-- Leave utilization trends
-- Attendance analytics
-- Claims spending reports
-- Export functionality (PDF, Excel)
-
-**Estimated Effort:** 3-4 weeks
-**Dependencies:** Dashboard data endpoints (partial)
+### ~~4. Reports & Analytics~~ - ✅ **COMPLETED**
+~~Payroll, leave, attendance, claims analytics~~ → All implemented with Chart.js visualizations and Excel/PDF export
 
 ---
 
@@ -432,138 +541,101 @@ The HRMS project has achieved **substantial implementation** of core HR function
 
 ---
 
-## Next Enhancement Steps (Priority Order)
+## Enhancement Steps & Roadmap
 
-### Phase 1: Statutory Reports Implementation - **HIGHEST PRIORITY** 📊🔥
+### Phase 1: Statutory Reports Implementation - ✅ **COMPLETED** 📊
 **PRD Reference:** Section 3.3.4 - Payroll Statutory Reports
-**Estimated Duration:** 2-3 weeks
-**Business Impact:** Critical for compliance and regulatory submissions
 
-- [ ] **FR-PAY-004: Statutory Reports** <!-- id: 34 -->
-  - [ ] Backend: EA Form generation API (annual)
-  - [ ] Backend: EPF Borang A generation API (monthly)
-  - [ ] Backend: SOCSO Form 8A generation API (monthly)
-  - [ ] Backend: PCB CP39 generation API (monthly)
-  - [ ] Backend: E-filing format exports (TXT/CSV)
-  - [ ] Frontend: Reports module with date range selection
-  - [ ] Frontend: Report preview before download
-  - [ ] Frontend: Bulk download for all employees
-  - [ ] Feature: PDF export for all reports
-  - [ ] Feature: Email reports to authorities (optional)
-  - [ ] Testing: Validation against official formats
+- [x] **FR-PAY-004: Statutory Reports** <!-- id: 34 -->
+  - [x] Backend: EA Form generation API (annual) - `GET /api/statutory-reports/ea/:employee_id/:year`
+  - [x] Backend: EPF Borang A generation API (monthly) - `GET /api/statutory-reports/epf/:year/:month`
+  - [x] Backend: SOCSO Form 8A generation API (monthly) - `GET /api/statutory-reports/socso/:year/:month`
+  - [x] Backend: PCB CP39 generation API (monthly) - `GET /api/statutory-reports/pcb/:year/:month`
+  - [x] Backend: E-filing format exports (CSV) - `GET /api/statutory-reports/csv/:type/:year/:month`
+  - [x] Frontend: Reports module (`statutory-reports/reports-list` component)
+  - [x] Feature: PDF export for all reports (reportGeneratorService)
+  - [ ] Feature: Email reports to authorities (optional - future)
+  - [ ] Testing: Validation against official formats (recommended before production)
 
 ---
 
-### Phase 2: Reports & Analytics Enhancement - **HIGH PRIORITY** 📈
+### Phase 2: Reports & Analytics Enhancement - ✅ **COMPLETED** 📈
 **PRD Reference:** Section 3.9 - Dashboard & Reporting
-**Business Impact:** Improve decision-making capabilities
 
-- [ ] **Enhanced Reporting Dashboard** <!-- id: 33 -->
-  - [ ] Backend: Payroll cost analysis endpoint (by dept/month)
-  - [ ] Backend: Leave utilization analytics endpoint
-  - [ ] Backend: Attendance punctuality analytics endpoint
-  - [ ] Backend: Claims spending analytics endpoint
-  - [ ] Backend: Headcount and turnover reports endpoint
-  - [ ] Frontend: Analytics module with charts (Chart.js/D3.js)
-  - [ ] Frontend: Date range selector and filters
-  - [ ] Frontend: Export to PDF functionality
-  - [ ] Frontend: Export to Excel functionality (SheetJS)
-  - [ ] Feature: Scheduled reports (email delivery)
-  - [ ] Feature: Custom report builder (drag-and-drop)
-  - [ ] Feature: Dashboard customization per role
+- [x] **Enhanced Reporting Dashboard** <!-- id: 33 -->
+  - [x] Backend: Payroll cost analysis endpoint
+  - [x] Backend: Leave utilization analytics endpoint
+  - [x] Backend: Attendance punctuality analytics endpoint
+  - [x] Backend: Claims spending analytics endpoint
+  - [x] Frontend: Analytics module with Chart.js charts (5 components)
+  - [x] Frontend: Export to PDF functionality
+  - [x] Frontend: Export to Excel functionality (SheetJS)
+  - [ ] Backend: Headcount and turnover reports endpoint (future)
+  - [ ] Feature: Scheduled reports / email delivery (future)
+  - [ ] Feature: Custom report builder (future)
+  - [ ] Feature: Dashboard customization per role (future)
 
 ---
 
-### Phase 3: Personal Pages - **HIGH PRIORITY** 👤
+### Phase 3: Personal Pages - ✅ **MOSTLY COMPLETED** 👤
 **Business Impact:** Employee self-service capabilities
 
-- [ ] **My Profile** <!-- id: 38 -->
-  - [ ] Backend: Profile view endpoint (own data only)
-  - [ ] Backend: Profile update endpoint (limited fields)
-  - [ ] Backend: Profile photo upload endpoint
-  - [ ] Frontend: Profile view page (personal info, employment, emergency contacts)
-  - [ ] Frontend: Profile edit form (editable fields only)
-  - [ ] Frontend: Profile photo upload with preview/crop
-  - [ ] Feature: Field-level edit permissions (some fields read-only)
-  - [ ] Feature: Change history audit log
+- [x] **My Profile** <!-- id: 38 -->
+  - [x] Frontend: Profile view page (my-profile component)
+  - [x] Backend: Personal service endpoints
+  - [ ] Profile photo upload with preview/crop (needs verification)
+  - [ ] Change history audit log (future)
 
-- [ ] **My Payslips** <!-- id: 39 -->
-  - [ ] Backend: Get own payslips endpoint (paginated)
-  - [ ] Backend: Download payslip PDF endpoint
-  - [ ] Frontend: Payslip history list with filters (month/year)
-  - [ ] Frontend: Payslip detail view
-  - [ ] Frontend: Download payslip button (PDF)
-  - [ ] Feature: YTD summary view
-  - [ ] Feature: Payslip email to self
+- [x] **My Payslips** <!-- id: 39 -->
+  - [x] Frontend: Payslip history view (my-payslips component)
+  - [x] Backend: Personal payslip endpoints
+  - [ ] YTD summary view (needs verification)
 
 - [ ] **My Documents** <!-- id: 40 -->
-  - [ ] Backend: Get own documents endpoint
-  - [ ] Backend: Upload personal document endpoint
-  - [ ] Backend: Delete own document endpoint
-  - [ ] Frontend: Document list with categories (IC, certs, bank, etc.)
-  - [ ] Frontend: Document upload form with type selection
-  - [ ] Frontend: Document preview/download
-  - [ ] Feature: Document expiry reminders (passport, visa, etc.)
-  - [ ] Feature: Required documents checklist
+  - ⚠️ Needs verification - dedicated personal document management may need enhancement
+  - [ ] Document list with categories (IC, certs, bank, etc.)
+  - [ ] Document expiry reminders (passport, visa, etc.)
 
-- [ ] **Change Password** <!-- id: 41 -->
-  - [ ] Backend: Change password endpoint (verify current password)
-  - [ ] Backend: Password strength validation
-  - [ ] Frontend: Change password form
-  - [ ] Frontend: Password strength indicator
-  - [ ] Feature: Password history check (prevent reuse)
-  - [ ] Feature: Force logout from other sessions after change
+- [x] **Change Password** <!-- id: 41 -->
+  - [x] Frontend: Change password form (change-password component)
+  - [x] Backend: Change password endpoint
+  - [ ] Password strength indicator (needs verification)
+  - [ ] Force logout from other sessions after change (future)
 
 ---
 
-### Phase 4: System Settings - **HIGH PRIORITY** ⚙️
+### Phase 4: System Settings - ⚠️ **PARTIALLY COMPLETED** ⚙️
 **Business Impact:** Admin configuration capabilities
+**Status:** Personal settings done, admin-level configuration needs verification/enhancement
+
+- [x] **User Settings (Personal)** <!-- id: 52 -->
+  - [x] Account settings
+  - [x] Appearance/display settings
+  - [x] Notification preferences
+  - [x] Two-factor authentication toggle
+  - [x] Change password (within settings)
 
 - [ ] **Company Profile Settings** <!-- id: 42 -->
-  - [ ] Backend: Company profile CRUD endpoints
-  - [ ] Backend: Company logo upload endpoint
-  - [ ] Database: Company settings table (if not exists)
-  - [ ] Frontend: Company profile form (name, address, reg numbers)
-  - [ ] Frontend: Logo upload with preview
-  - [ ] Feature: Multiple branches support (optional)
-  - [ ] Feature: Company letterhead template
+  - [ ] Company profile form (name, address, reg numbers)
+  - [ ] Company logo upload
+  - ⚠️ Needs verification if included in settings controller
 
 - [ ] **Payroll Settings** <!-- id: 43 -->
-  - [ ] Backend: EPF rate configuration endpoint
-  - [ ] Backend: SOCSO table configuration endpoint
-  - [ ] Backend: EIS rate configuration endpoint
-  - [ ] Backend: PCB tax bracket configuration endpoint
-  - [ ] Backend: Pay period settings (monthly/bi-weekly)
-  - [ ] Database: Statutory rates tables (versioned)
-  - [ ] Frontend: EPF rates management (employee/employer %)
-  - [ ] Frontend: SOCSO contribution table editor
-  - [ ] Frontend: Tax bracket configuration
-  - [ ] Frontend: Pay period and cutoff date settings
-  - [ ] Feature: Rate effective dates (historical rates)
-  - [ ] Feature: Import statutory rates from file
+  - [ ] EPF rate configuration
+  - [ ] SOCSO table configuration
+  - [ ] PCB tax bracket configuration
+  - [ ] Pay period and cutoff date settings
+  - ⚠️ Statutory rates may be hardcoded in `statutoryCalculations.js` - needs configurable admin UI
 
 - [ ] **Leave Settings** <!-- id: 44 -->
-  - [ ] Backend: Leave types CRUD endpoints
-  - [ ] Backend: Leave entitlement rules endpoint
-  - [ ] Backend: Carry forward rules endpoint
-  - [ ] Frontend: Leave types management (add/edit/delete)
-  - [ ] Frontend: Entitlement configuration by tenure/grade
-  - [ ] Frontend: Carry forward rules configuration
-  - [ ] Frontend: Public holidays calendar management
-  - [ ] Feature: Pro-ration rules configuration
-  - [ ] Feature: Leave policy templates
+  - [ ] Leave types management (add/edit/delete) - backend may exist via leave routes
+  - [ ] Entitlement configuration by tenure/grade
+  - [ ] Public holidays calendar management
 
 - [ ] **Email/Notification Settings** <!-- id: 45 -->
-  - [ ] Backend: SMTP configuration endpoint
-  - [ ] Backend: Email template CRUD endpoints
-  - [ ] Backend: Test email endpoint
-  - [ ] Database: Email templates table
-  - [ ] Frontend: SMTP settings form (host, port, auth)
-  - [ ] Frontend: Email template editor (leave, payslip, etc.)
-  - [ ] Frontend: Notification preferences (who gets what)
-  - [ ] Frontend: Test email button
-  - [ ] Feature: Email queue and retry logic
-  - [ ] Feature: Email delivery logs
+  - [ ] SMTP configuration UI
+  - [ ] Email template editor
+  - [ ] Test email functionality
 
 ---
 
@@ -665,33 +737,40 @@ The HRMS project has achieved **substantial implementation** of core HR function
 
 ## Recommended Development Roadmap
 
-### Immediate Focus (Next 2-3 weeks)
-**Sprint 1: Statutory Reports**
-1. EA Form generation (annual employee remuneration)
-2. EPF Borang A (monthly submission)
-3. SOCSO Form 8A (monthly submission)
-4. PCB CP39 (monthly tax submission)
+### ~~Sprint 1: Statutory Reports~~ - ✅ DONE
+### ~~Sprint 2-3: Reports, Analytics, Personal Pages~~ - ✅ DONE
 
-### Short-term (Next 4-6 weeks)
-**Sprint 2-3: Reports & Personal Pages**
-1. Enhanced analytics and reporting (Phase 2 tasks)
-2. Personal profile and payslip viewing (Phase 3 tasks)
-3. Document management for employees
-4. Change password functionality
+### Immediate Focus (Next 1-2 weeks)
+**Sprint: Polish & Verification**
+1. Verify all recently implemented modules work end-to-end
+2. Test statutory reports against official Malaysian formats
+3. Verify personal pages completeness (profile edit, payslip download)
+4. Verify admin settings scope and completeness
+5. Deploy to production (Netlify + Azure + Supabase)
 
-### Medium-term (Next 6-8 weeks)
-**Sprint 4-5: System Settings & Configuration**
-1. Company profile settings
-2. Payroll configuration (EPF, SOCSO, PCB rates)
-3. Leave settings management
-4. Email/notification configuration
+### Short-term (Next 2-4 weeks)
+**Sprint: Admin Configuration & Polish**
+1. Admin-level system settings (company profile, statutory rates, leave policies)
+2. Configurable statutory rates (currently may be hardcoded)
+3. Email template management
+4. Public holidays calendar
+5. End-to-end testing of all workflows
+
+### Medium-term (Next 4-6 weeks)
+**Sprint: E-Invoice & Security**
+1. E-Invoice module (when LHDN compliance required)
+2. MFA implementation
+3. File access control verification
+4. Geofencing for attendance
+5. Performance optimization
 
 ### Future Phase
-**Sprint 6+: E-Invoice & Security**
-1. E-Invoice module (when LHDN compliance required)
-2. MFA implementation (Phase 6 tasks)
-3. Verification tasks (Phase 7)
-4. Performance optimization
+**Sprint: Advanced Features**
+1. Custom report builder
+2. Scheduled reports / email delivery
+3. Performance management module
+4. Recruitment module
+5. Mobile app
 
 ---
 
@@ -831,49 +910,57 @@ The HRMS project has achieved **substantial implementation** of core HR function
 ## Project Statistics
 
 ### Codebase Metrics
-- **Total Files:** 150+ TypeScript files (frontend)
-- **Components:** 50+ Angular components
-- **Shared Components:** 22+ reusable components
-- **API Endpoints:** 60+ REST endpoints
-- **Database Tables:** 15 tables
-- **Models:** 15+ Sequelize models
-- **Lines of Code:** ~15,000+ LOC (estimated)
+- **Frontend Components:** 69 Angular components (standalone)
+- **Feature Modules:** 15 lazy-loaded modules
+- **Shared Components:** 25+ reusable ZardUI components
+- **Frontend Services:** 16 services (3 core + 13 feature-specific)
+- **Backend Controllers:** 14 controllers
+- **Backend Services:** 9 services
+- **Backend Routes:** 15 API route groups (60+ endpoints)
+- **Database Tables:** 17 Sequelize models (PostgreSQL)
+- **Key Libraries:** Chart.js, PDFKit, SheetJS, Quill, Supabase
 
 ### Team & Effort
-- **Development Time:** ~3-4 months (estimated)
-- **Modules Completed:** 7 out of 10 (70-75%)
-- **Backend Completion:** ~85%
-- **Frontend Completion:** ~70%
-- **Remaining Effort:** ~6-8 weeks to reach 90%+ completion
+- **Modules Completed:** 10 out of 12 at 85%+ completion
+- **Backend Completion:** ~95%
+- **Frontend Completion:** ~85%
+- **Remaining Effort:** ~2-4 weeks for polish and admin config to reach 95%+
 
 ---
 
 ## Production Readiness Assessment
 
 ### Ready for Production ✅
-- Employee Management
-- Leave Management
-- Claims Management
-- Attendance & WFH
-- HR Communications
 - Authentication & Authorization
+- Employee Management
+- Payroll System (including statutory reports)
+- Leave Management
+- Attendance & WFH
+- Claims Management
+- HR Communications
+- Dashboard & Analytics
+- File Management (Supabase Storage)
+- Personal Pages (profile, payslips, change password)
 
-### Needs Work Before Production ⚠️
-- Payroll System (add statutory reports)
-- Dashboard & Analytics (enhance reporting)
-- File Management (verify access control)
+### Needs Verification Before Production ⚠️
+- System Settings (admin-level configuration scope)
+- File access control (role-based permissions)
+- Statutory report format accuracy (against official Malaysian formats)
 
-### NOT Ready for Production ❌
-- Finance & e-Invoice Module (80% incomplete)
+### NOT Ready for Production / Deferred ❌
+- Finance & e-Invoice Module (deferred - 80% incomplete)
 
 ### Critical Pre-Production Requirements
-1. Complete e-Invoice module OR remove from initial release
-2. Implement statutory reports (compliance requirement)
-3. Comprehensive security testing
-4. Performance testing with production-like data
-5. User acceptance testing (UAT)
-6. Database backup and recovery procedures
-7. Deployment runbook and rollback plan
+1. ~~Implement statutory reports~~ ✅ DONE
+2. ~~Implement analytics & reporting~~ ✅ DONE
+3. Deploy to production infrastructure (Netlify + Azure + Supabase)
+4. Set `SUPABASE_SERVICE_ROLE_KEY` in production .env
+5. Create `hrms-files` bucket in Supabase Storage
+6. Comprehensive security testing
+7. Performance testing with production-like data
+8. User acceptance testing (UAT)
+9. Database backup and recovery procedures (Supabase automatic backups)
+10. Validate statutory report formats against LHDN/EPF/SOCSO requirements
 
 ---
 
@@ -882,20 +969,23 @@ The HRMS project has achieved **substantial implementation** of core HR function
 ### Technology Choices
 - **Why Angular 21?** Modern framework with enterprise-grade features, strong typing
 - **Why Node.js/Express?** JavaScript full-stack, fast development, large ecosystem
-- **Why MySQL?** Relational data model fits HR domain, mature and reliable
-- **Why Sequelize?** ORM simplifies database operations, migration support
+- **Why Supabase PostgreSQL?** Managed database with built-in auth, storage, real-time (migrated from MySQL for production)
+- **Why Sequelize?** ORM simplifies database operations, migration support, dialect-agnostic
+- **Why Supabase Storage?** Integrated with database, signed URLs, no separate S3 config needed
 
 ### Architectural Patterns
 - **Feature-based structure:** Better organization and scalability
 - **Standalone components:** Angular best practice, lazy loading benefits
 - **RESTful API:** Industry standard, easy to consume
 - **JWT authentication:** Stateless, scalable, mobile-friendly
+- **ZardUI components:** Consistent design system across all modules
 
 ### Malaysian Compliance Focus
-- EPF, SOCSO, EIS, PCB calculations implemented
-- YTD statutory tracking for audit purposes
-- LHDN MyInvois integration planned
-- Statutory report formats (future implementation)
+- ✅ EPF, SOCSO, EIS, PCB calculations implemented
+- ✅ YTD statutory tracking for audit purposes
+- ✅ Statutory reports: EA Form, EPF Borang A, SOCSO Form 8A, PCB CP39
+- ✅ CSV e-filing export format
+- ⏸️ LHDN MyInvois integration (deferred)
 
 ---
 
@@ -910,12 +1000,14 @@ The HRMS project has achieved **substantial implementation** of core HR function
 - Solid architecture with proper security and RBAC
 
 ### Critical Next Steps
-1. **Priority 1:** Implement statutory reports (EA Form, Borang A, Form 8A, CP39)
-2. **Priority 2:** Enhanced reporting and analytics with export functionality
-3. **Priority 3:** Personal pages (profile, payslips, documents, change password)
-4. **Priority 4:** System settings (company, payroll, leave, email configuration)
-5. **Priority 5:** E-Invoice module (deferred - when LHDN compliance required)
-6. **Priority 6:** Security testing and MFA implementation
+1. ~~**Priority 1:** Implement statutory reports~~ ✅ DONE
+2. ~~**Priority 2:** Enhanced reporting and analytics~~ ✅ DONE
+3. ~~**Priority 3:** Personal pages~~ ✅ MOSTLY DONE
+4. **Priority 1 (NOW):** Verify and polish all implemented modules
+5. **Priority 2:** Deploy to production (Netlify + Azure + Supabase)
+6. **Priority 3:** Admin system settings (company, payroll rates, leave policies)
+7. **Priority 4:** E-Invoice module (when LHDN compliance required)
+8. **Priority 5:** Security testing and MFA implementation
 
 ### Known Limitations
 - No mobile app (web responsive only)
@@ -936,7 +1028,17 @@ The HRMS project has achieved **substantial implementation** of core HR function
 
 ---
 
-**Document Version:** 3.0
-**Last Comprehensive Update:** February 5, 2026
-**Next Review:** After statutory reports completion
+**Document Version:** 4.0
+**Last Comprehensive Update:** February 10, 2026
+**Previous Major Update:** February 5, 2026 (v3.0)
+**Key Changes in v4.0:**
+- Updated database from MySQL → PostgreSQL (Supabase) throughout
+- Marked Statutory Reports (Phase 1) as COMPLETED
+- Marked Analytics & Reporting (Phase 2) as COMPLETED
+- Marked Personal Pages (Phase 3) as MOSTLY COMPLETED
+- Updated System Settings (Phase 4) to reflect partial completion
+- Updated codebase metrics (69 components, 17 tables, 15 route groups)
+- Updated file storage to reflect Supabase Storage migration
+- Revised overall completion from 65-70% → 85-90%
+**Next Review:** After production deployment
 **Maintained By:** Development Team

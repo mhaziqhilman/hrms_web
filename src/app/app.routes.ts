@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard } from './core/guards/auth.guard';
+import { authGuard, onboardingGuard } from './core/guards/auth.guard';
 import { MainLayoutComponent } from './shared/layouts/main-layout/main-layout.component';
 
 export const routes: Routes = [
@@ -10,6 +10,11 @@ export const routes: Routes = [
     {
         path: 'auth',
         loadChildren: () => import('./features/auth/auth-module').then(m => m.AuthModule)
+    },
+    {
+        path: 'onboarding',
+        canActivate: [onboardingGuard],
+        loadChildren: () => import('./features/onboarding/onboarding.routes').then(m => m.ONBOARDING_ROUTES)
     },
     {
         path: '',

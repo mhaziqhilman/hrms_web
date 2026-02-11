@@ -3,15 +3,67 @@
   <z-sidebar [zWidth]="250" [zCollapsedWidth]="70" [zCollapsible]="true" [zCollapsed]="sidebarCollapsed()"
     (zCollapsedChange)="onSidebarCollapsedChange($event)" class="p-0! h-screen">
     <nav class="flex h-full flex-col">
-      <!-- Logo Section -->
-      <div [class]="'flex-shrink-0 border-b ' + (sidebarCollapsed() ? 'p-3' : 'p-3')">
-        <a routerLink="/dashboard" class="flex items-center justify-center">
-          @if (sidebarCollapsed()) {
-          <img src="assets/images/Nexura_Logo.png" alt="Nexura" class="h-8 w-auto" />
-          } @else {
-          <img src="assets/images/Nexura_Logo.png" alt="Nexura Logo" class="h-10 w-auto" />
-          }
-        </a>
+      <!-- Company Switcher -->
+      <div [class]="'flex-shrink-0 border-b ' + (sidebarCollapsed() ? 'p-2' : 'p-3')">
+        @if (currentCompany) {
+          <div z-menu [zMenuTriggerFor]="companyMenu" zPlacement="bottomLeft" [class]="
+              'hover:bg-accent flex cursor-pointer items-center rounded-md transition-colors ' +
+              (sidebarCollapsed() ? 'justify-center p-1.5' : 'gap-2.5 p-2')
+            ">
+            <!-- Company Icon -->
+            <div [class]="'flex-shrink-0 rounded-md bg-primary/10 flex items-center justify-center font-semibold text-primary ' +
+              (sidebarCollapsed() ? 'w-8 h-8 text-xs' : 'w-9 h-9 text-sm')">
+              {{ getCompanyInitials() }}
+            </div>
+
+            @if (!sidebarCollapsed()) {
+              <div class="flex-1 min-w-0">
+                <div class="font-semibold text-sm truncate leading-tight">{{ currentCompany.name }}</div>
+                @if (currentCompany.registration_no) {
+                  <div class="text-xs text-muted-foreground truncate">{{ currentCompany.registration_no }}</div>
+                }
+              </div>
+              <z-icon zType="chevrons-up-down" class="ml-auto shrink-0 w-4 h-4 text-muted-foreground" />
+            }
+          </div>
+
+          <ng-template #companyMenu>
+            <div z-menu-content class="w-56">
+              <div class="px-2 py-1.5">
+                <p class="text-xs font-medium text-muted-foreground">Your Companies</p>
+              </div>
+              <!-- Active Company -->
+              <button type="button" z-menu-item class="justify-between">
+                <div class="flex items-center gap-2 min-w-0">
+                  <div class="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-[10px] font-semibold text-primary flex-shrink-0">
+                    {{ getCompanyInitials() }}
+                  </div>
+                  <div class="min-w-0">
+                    <div class="text-sm truncate">{{ currentCompany.name }}</div>
+                    @if (currentCompany.registration_no) {
+                      <div class="text-[11px] text-muted-foreground truncate">{{ currentCompany.registration_no }}</div>
+                    }
+                  </div>
+                </div>
+                <z-icon [zType]="$any('check')" class="w-4 h-4 text-primary ml-2 flex-shrink-0" />
+              </button>
+              <z-divider zSpacing="sm" />
+              <button type="button" z-menu-item routerLink="/onboarding/setup">
+                <z-icon [zType]="$any('plus')" class="mr-2 w-4 h-4" />
+                Add Company
+              </button>
+            </div>
+          </ng-template>
+        } @else {
+          <!-- Fallback: Logo when no company -->
+          <a routerLink="/dashboard" class="flex items-center justify-center">
+            @if (sidebarCollapsed()) {
+              <img src="assets/images/Nexura_Logo.png" alt="Nexura" class="h-8 w-auto" />
+            } @else {
+              <img src="assets/images/Nexura_Logo.png" alt="Nexura Logo" class="h-10 w-auto" />
+            }
+          </a>
+        }
       </div>
 
       <!-- Scrollable Menu Section -->

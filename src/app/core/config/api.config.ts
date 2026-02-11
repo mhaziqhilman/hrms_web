@@ -2,10 +2,11 @@
  * API Configuration
  * Centralized API endpoint configuration
  */
+import { environment } from '../../../environments/environment';
 
 export const API_CONFIG = {
-  baseUrl: 'http://localhost:3000',
-  apiUrl: 'http://localhost:3000/api',
+  baseUrl: environment.baseUrl,
+  apiUrl: environment.apiUrl,
   endpoints: {
     auth: {
       register: '/auth/register',
@@ -14,7 +15,19 @@ export const API_CONFIG = {
       me: '/auth/me',
       forgotPassword: '/auth/forgot-password',
       resetPassword: '/auth/reset-password',
-      changePassword: '/auth/change-password'
+      changePassword: '/auth/change-password',
+      verifyEmail: '/auth/verify-email',
+      resendVerification: '/auth/resend-verification'
+    },
+    company: {
+      setup: '/company/setup',
+      me: '/company/me'
+    },
+    invitations: {
+      base: '/invitations',
+      accept: '/invitations/accept',
+      cancel: (id: number) => `/invitations/${id}/cancel`,
+      resend: (id: number) => `/invitations/${id}/resend`
     },
     employees: {
       base: '/employees',

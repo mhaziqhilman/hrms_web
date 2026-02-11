@@ -134,10 +134,62 @@ export class AuthService {
   }
 
   /**
+   * Verify email with token
+   */
+  verifyEmail(token: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(
+      `${this.apiUrl}${API_CONFIG.endpoints.auth.verifyEmail}`,
+      { token }
+    ).pipe(
+      tap(response => {
+        if (response.success && response.data) {
+          this.setSession(response.data.token, response.data.user);
+        }
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Resend verification email
+   */
+  resendVerification(): Observable<ApiResponse> {
+    return this.http.post<ApiResponse>(
+      `${this.apiUrl}${API_CONFIG.endpoints.auth.resendVerification}`,
+      {}
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
    * Check if user is authenticated
    */
   isAuthenticated(): boolean {
     return this.hasToken() && !this.isTokenExpired();
+  }
+
+  /**
+   * Check if user's email is verified
+   */
+  isEmailVerified(): boolean {
+    const user = this.getCurrentUserValue();
+    return user?.email_verified === true;
+  }
+
+  /**
+   * Check if user belongs to a company
+   */
+  hasCompany(): boolean {
+    const user = this.getCurrentUserValue();
+    return user?.company_id != null;
+  }
+
+  /**
+   * Check if user needs onboarding (verified but no company)
+   */
+  needsOnboarding(): boolean {
+    return this.isAuthenticated() && this.isEmailVerified() && !this.hasCompany();
   }
 
   /**

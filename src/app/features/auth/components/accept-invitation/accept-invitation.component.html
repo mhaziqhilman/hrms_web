@@ -1,0 +1,90 @@
+<div class="min-h-screen flex items-center justify-center bg-background p-4">
+  <div class="w-full max-w-md">
+    <!-- Logo Section -->
+    <div class="flex justify-center mb-8">
+      <a routerLink="/" class="flex items-center">
+        <img alt="Nexura Logo" src="assets/images/Nexura_Logo.png" class="h-16 md:h-20" />
+      </a>
+    </div>
+
+    <z-card class="border shadow-lg">
+      <div z-card-content class="p-6">
+        <div class="text-center">
+          <!-- Processing State -->
+          @if (processing) {
+            <div class="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+              <z-icon zType="loader-circle" class="w-8 h-8 text-primary animate-spin" />
+            </div>
+            <h1 class="text-2xl font-semibold text-foreground mb-2">Accepting Invitation</h1>
+            <p class="text-sm text-muted-foreground">Please wait while we process your invitation...</p>
+          }
+
+          <!-- Success State -->
+          @if (!processing && success) {
+            <div class="mx-auto w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center mb-6">
+              <z-icon [zType]="$any('check-circle')" class="w-8 h-8 text-green-500" />
+            </div>
+            <h1 class="text-2xl font-semibold text-foreground mb-2">Welcome Aboard!</h1>
+            <p class="text-sm text-muted-foreground mb-8">
+              You've successfully joined the company. You can now access the HRMS dashboard.
+            </p>
+            <button
+              z-button
+              type="button"
+              class="w-full"
+              (click)="goToDashboard()"
+            >
+              <span>Go to Dashboard</span>
+              <z-icon [zType]="$any('arrow-right')" class="w-4 h-4 ml-2" />
+            </button>
+          }
+
+          <!-- Not Authenticated State -->
+          @if (!processing && !success && !errorMessage && !isAuthenticated) {
+            <div class="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+              <z-icon [zType]="$any('mail-open')" class="w-8 h-8 text-primary" />
+            </div>
+            <h1 class="text-2xl font-semibold text-foreground mb-2">You've Been Invited!</h1>
+            <p class="text-sm text-muted-foreground mb-8">
+              Please log in or create an account to accept this invitation.
+            </p>
+            <button
+              z-button
+              type="button"
+              class="w-full mb-3"
+              (click)="goToLogin()"
+            >
+              Log In to Accept
+            </button>
+            <button
+              z-button
+              type="button"
+              [zType]="'outline'"
+              class="w-full"
+              (click)="goToRegister()"
+            >
+              Create Account
+            </button>
+          }
+
+          <!-- Error State -->
+          @if (!processing && errorMessage) {
+            <div class="mx-auto w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mb-6">
+              <z-icon [zType]="$any('x-circle')" class="w-8 h-8 text-destructive" />
+            </div>
+            <h1 class="text-2xl font-semibold text-foreground mb-2">Invitation Error</h1>
+            <p class="text-sm text-muted-foreground mb-8">{{ errorMessage }}</p>
+            <button
+              z-button
+              type="button"
+              class="w-full"
+              (click)="goToLogin()"
+            >
+              Go to Login
+            </button>
+          }
+        </div>
+      </div>
+    </z-card>
+  </div>
+</div>

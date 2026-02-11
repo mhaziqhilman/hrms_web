@@ -1,0 +1,450 @@
+<div class="min-h-screen flex items-center justify-center bg-background p-4">
+  <div class="w-full max-w-2xl">
+    <!-- Logo & Title -->
+    <div class="text-center mb-6">
+      <div class="flex justify-center mb-4">
+        <a routerLink="/" class="flex items-center">
+          <img alt="Nexura Logo" src="assets/images/Nexura_Logo.png" class="h-14 md:h-16" />
+        </a>
+      </div>
+      <h1 class="text-2xl font-bold text-foreground">Setup Your Company</h1>
+      <p class="text-sm text-muted-foreground mt-1">Create your company and add your first employee in 3 simple steps</p>
+    </div>
+
+    <!-- Step Indicator -->
+    <div class="flex items-center justify-center mb-8">
+      @for (step of [1, 2, 3]; track step) {
+        <div class="flex items-center">
+          <!-- Step Circle -->
+          <div
+            class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-colors"
+            [ngClass]="{
+              'bg-primary text-primary-foreground': currentStep >= step,
+              'bg-muted text-muted-foreground': currentStep < step
+            }"
+          >
+            @if (currentStep > step) {
+              <z-icon [zType]="$any('check')" class="w-5 h-5" />
+            } @else {
+              {{ step }}
+            }
+          </div>
+          <!-- Step Label -->
+          <span class="ml-2 text-sm hidden sm:inline" [ngClass]="{
+            'text-foreground font-medium': currentStep >= step,
+            'text-muted-foreground': currentStep < step
+          }">
+            @switch (step) {
+              @case (1) { Create Company }
+              @case (2) { Initial Employee }
+              @case (3) { Invite User }
+            }
+          </span>
+          <!-- Connector Line -->
+          @if (step < 3) {
+            <div class="w-12 sm:w-24 h-0.5 mx-3" [ngClass]="{
+              'bg-primary': currentStep > step,
+              'bg-muted': currentStep <= step
+            }"></div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Card -->
+    <z-card class="border shadow-lg">
+      <div z-card-content class="p-6 md:p-8">
+        <!-- Step Header -->
+        <div class="mb-6">
+          <h2 class="text-xl font-semibold text-foreground">{{ stepTitle }}</h2>
+          <p class="text-sm text-muted-foreground mt-1">{{ stepSubtitle }}</p>
+        </div>
+
+        <!-- Error Message -->
+        @if (errorMessage) {
+          <div class="bg-destructive/10 border border-destructive/20 rounded-lg p-3 mb-6 flex items-start gap-2 text-destructive">
+            <z-icon zType="triangle-alert" class="w-5 h-5 mt-0.5 flex-shrink-0" />
+            <span class="text-sm">{{ errorMessage }}</span>
+          </div>
+        }
+
+        <!-- Step 1: Company Information -->
+        @if (currentStep === 1) {
+          <form [formGroup]="companyForm" class="space-y-4">
+            <!-- Company Name -->
+            <div class="space-y-2">
+              <label z-form-label for="companyName">Company Name <span class="text-destructive">*</span></label>
+              <input
+                z-input
+                id="companyName"
+                type="text"
+                placeholder="Acme Corporation"
+                formControlName="name"
+                [class.border-destructive]="companyForm.get('name')?.invalid && companyForm.get('name')?.touched"
+              />
+              @if (companyForm.get('name')?.hasError('required') && companyForm.get('name')?.touched) {
+                <p class="text-sm text-destructive">Company name is required</p>
+              }
+            </div>
+
+            <!-- Registration Number -->
+            <div class="space-y-2">
+              <label z-form-label for="regNo">Company Registration Number</label>
+              <input
+                z-input
+                id="regNo"
+                type="text"
+                placeholder="1234567-X"
+                formControlName="registration_no"
+              />
+              <p class="text-xs text-muted-foreground">Your company's official registration or tax identification number</p>
+            </div>
+
+            <!-- Description -->
+            <div class="space-y-2">
+              <label z-form-label for="description">Company Description</label>
+              <textarea
+                z-input
+                id="description"
+                rows="3"
+                placeholder="Brief description of your company..."
+                formControlName="description"
+                class="resize-y"
+              ></textarea>
+              <p class="text-xs text-muted-foreground">Optional description of your company's activities or mission</p>
+            </div>
+
+            <!-- Industry & Size Row -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="space-y-2">
+                <label z-form-label for="industry">Industry</label>
+                <select
+                  z-input
+                  id="industry"
+                  formControlName="industry"
+                  class="w-full"
+                >
+                  <option value="">Select industry</option>
+                  @for (ind of industries; track ind) {
+                    <option [value]="ind">{{ ind }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="space-y-2">
+                <label z-form-label for="size">Company Size</label>
+                <select
+                  z-input
+                  id="size"
+                  formControlName="size"
+                  class="w-full"
+                >
+                  <option value="">Select size</option>
+                  @for (s of companySizes; track s.value) {
+                    <option [value]="s.value">{{ s.label }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+
+            <!-- Country & Phone Row -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="space-y-2">
+                <label z-form-label for="country">Country</label>
+                <input
+                  z-input
+                  id="country"
+                  type="text"
+                  formControlName="country"
+                />
+              </div>
+
+              <div class="space-y-2">
+                <label z-form-label for="phone">Phone</label>
+                <input
+                  z-input
+                  id="phone"
+                  type="tel"
+                  placeholder="+60 3-XXXX XXXX"
+                  formControlName="phone"
+                />
+              </div>
+            </div>
+
+            <!-- Website -->
+            <div class="space-y-2">
+              <label z-form-label for="website">Website</label>
+              <input
+                z-input
+                id="website"
+                type="url"
+                placeholder="https://www.example.com"
+                formControlName="website"
+              />
+            </div>
+          </form>
+        }
+
+        <!-- Step 2: Initial Employee -->
+        @if (currentStep === 2) {
+          <form [formGroup]="employeeForm" class="space-y-4">
+            <!-- Full Name & Employee ID -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="space-y-2">
+                <label z-form-label for="empName">Full Name <span class="text-destructive">*</span></label>
+                <input
+                  z-input
+                  id="empName"
+                  type="text"
+                  placeholder="John Doe"
+                  formControlName="full_name"
+                  [class.border-destructive]="employeeForm.get('full_name')?.invalid && employeeForm.get('full_name')?.touched"
+                />
+                @if (employeeForm.get('full_name')?.hasError('required') && employeeForm.get('full_name')?.touched) {
+                  <p class="text-sm text-destructive">Full name is required</p>
+                }
+              </div>
+
+              <div class="space-y-2">
+                <label z-form-label for="empId">Employee ID <span class="text-destructive">*</span></label>
+                <input
+                  z-input
+                  id="empId"
+                  type="text"
+                  placeholder="EMP001"
+                  formControlName="employee_id"
+                  [class.border-destructive]="employeeForm.get('employee_id')?.invalid && employeeForm.get('employee_id')?.touched"
+                />
+                @if (employeeForm.get('employee_id')?.hasError('required') && employeeForm.get('employee_id')?.touched) {
+                  <p class="text-sm text-destructive">Employee ID is required</p>
+                }
+              </div>
+            </div>
+
+            <!-- Gender -->
+            <div class="space-y-2">
+              <label z-form-label for="gender">Gender <span class="text-destructive">*</span></label>
+              <select
+                z-input
+                id="gender"
+                formControlName="gender"
+                class="w-full"
+                [class.border-destructive]="employeeForm.get('gender')?.invalid && employeeForm.get('gender')?.touched"
+              >
+                <option value="">Select gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+              @if (employeeForm.get('gender')?.hasError('required') && employeeForm.get('gender')?.touched) {
+                <p class="text-sm text-destructive">Gender is required</p>
+              }
+            </div>
+
+            <!-- Position & Department -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="space-y-2">
+                <label z-form-label for="position">Position</label>
+                <input
+                  z-input
+                  id="position"
+                  type="text"
+                  placeholder="e.g. Director, Manager"
+                  formControlName="position"
+                />
+              </div>
+
+              <div class="space-y-2">
+                <label z-form-label for="department">Department</label>
+                <input
+                  z-input
+                  id="department"
+                  type="text"
+                  placeholder="e.g. Management, HR"
+                  formControlName="department"
+                />
+              </div>
+            </div>
+
+            <!-- Join Date & Salary -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="space-y-2">
+                <label z-form-label for="joinDate">Join Date <span class="text-destructive">*</span></label>
+                <input
+                  z-input
+                  id="joinDate"
+                  type="date"
+                  formControlName="join_date"
+                  [class.border-destructive]="employeeForm.get('join_date')?.invalid && employeeForm.get('join_date')?.touched"
+                />
+                @if (employeeForm.get('join_date')?.hasError('required') && employeeForm.get('join_date')?.touched) {
+                  <p class="text-sm text-destructive">Join date is required</p>
+                }
+              </div>
+
+              <div class="space-y-2">
+                <label z-form-label for="salary">Basic Salary (RM) <span class="text-destructive">*</span></label>
+                <input
+                  z-input
+                  id="salary"
+                  type="number"
+                  placeholder="0.00"
+                  formControlName="basic_salary"
+                  [class.border-destructive]="employeeForm.get('basic_salary')?.invalid && employeeForm.get('basic_salary')?.touched"
+                />
+                @if (employeeForm.get('basic_salary')?.hasError('required') && employeeForm.get('basic_salary')?.touched) {
+                  <p class="text-sm text-destructive">Basic salary is required</p>
+                }
+              </div>
+            </div>
+
+            <!-- Email & Mobile -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="space-y-2">
+                <label z-form-label for="empEmail">Email</label>
+                <input
+                  z-input
+                  id="empEmail"
+                  type="email"
+                  placeholder="john@company.com"
+                  formControlName="email"
+                />
+              </div>
+
+              <div class="space-y-2">
+                <label z-form-label for="mobile">Mobile</label>
+                <input
+                  z-input
+                  id="mobile"
+                  type="tel"
+                  placeholder="+60 1X-XXX XXXX"
+                  formControlName="mobile"
+                />
+              </div>
+            </div>
+          </form>
+        }
+
+        <!-- Step 3: Invite Users -->
+        @if (currentStep === 3) {
+          <div class="space-y-4">
+            <p class="text-sm text-muted-foreground">
+              Invite your team members to join the company. They will receive an email invitation.
+              You can skip this step and invite them later.
+            </p>
+
+            <!-- Invitation List -->
+            @for (invitation of invitations.controls; track $index; let i = $index) {
+              <div class="flex gap-3 items-start" [formGroup]="$any(invitation)">
+                <div class="flex-1 space-y-1">
+                  <input
+                    z-input
+                    type="email"
+                    placeholder="colleague@company.com"
+                    formControlName="email"
+                    [class.border-destructive]="invitation.get('email')?.invalid && invitation.get('email')?.touched"
+                  />
+                  @if (invitation.get('email')?.hasError('email') && invitation.get('email')?.touched) {
+                    <p class="text-xs text-destructive">Invalid email address</p>
+                  }
+                </div>
+                <div class="w-32">
+                  <select
+                    z-input
+                    formControlName="role"
+                    class="w-full"
+                  >
+                    @for (role of roles; track role.value) {
+                      <option [value]="role.value">{{ role.label }}</option>
+                    }
+                  </select>
+                </div>
+                <button
+                  type="button"
+                  class="mt-2 text-muted-foreground hover:text-destructive transition-colors"
+                  (click)="removeInvitation(i)"
+                >
+                  <z-icon [zType]="$any('x')" class="w-5 h-5" />
+                </button>
+              </div>
+            }
+
+            <!-- Add Invitation Button -->
+            <button
+              z-button
+              type="button"
+              [zType]="'outline'"
+              class="w-full border-dashed"
+              (click)="addInvitation()"
+            >
+              <z-icon [zType]="$any('plus')" class="w-4 h-4 mr-2" />
+              <span>Add Team Member</span>
+            </button>
+
+            @if (invitations.length === 0) {
+              <div class="text-center py-6 text-muted-foreground">
+                <z-icon [zType]="$any('users')" class="w-12 h-12 mx-auto mb-3 opacity-50" />
+                <p class="text-sm">No invitations added yet.</p>
+                <p class="text-xs mt-1">You can always invite team members later from the dashboard.</p>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Navigation Buttons -->
+        <div class="flex justify-between mt-8 pt-6 border-t border-border">
+          <div>
+            @if (currentStep === 1) {
+              <button
+                z-button
+                type="button"
+                [zType]="'ghost'"
+                (click)="goBack()"
+              >
+                <z-icon [zType]="$any('arrow-left')" class="w-4 h-4 mr-2" />
+                <span>Back</span>
+              </button>
+            } @else {
+              <button
+                z-button
+                type="button"
+                [zType]="'outline'"
+                (click)="previousStep()"
+              >
+                <z-icon [zType]="$any('arrow-left')" class="w-4 h-4 mr-2" />
+                <span>Previous</span>
+              </button>
+            }
+          </div>
+
+          <div>
+            @if (currentStep < totalSteps) {
+              <button
+                z-button
+                type="button"
+                (click)="nextStep()"
+              >
+                <span>Next</span>
+                <z-icon [zType]="$any('arrow-right')" class="w-4 h-4 ml-2" />
+              </button>
+            } @else {
+              <button
+                z-button
+                type="button"
+                [disabled]="loading"
+                (click)="completeSetup()"
+              >
+                @if (loading) {
+                  <z-icon zType="loader-circle" class="w-4 h-4 mr-2 animate-spin" />
+                  <span>Setting up...</span>
+                } @else {
+                  <z-icon [zType]="$any('check')" class="w-4 h-4 mr-2" />
+                  <span>Complete Setup</span>
+                }
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    </z-card>
+  </div>
+</div>

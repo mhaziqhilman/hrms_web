@@ -11,9 +11,12 @@ export interface User {
   failed_login_attempts: number;
   locked_until: string | null;
   last_login_at: string | null;
+  email_verified: boolean;
+  company_id: number | null;
   created_at: string;
   updated_at: string;
   employee?: Employee | null;
+  company?: Company | null;
 }
 
 export interface Employee {
@@ -37,6 +40,67 @@ export interface Employee {
   join_date: string;
   employment_type?: 'Permanent' | 'Contract' | 'Probation' | 'Intern';
   employment_status?: 'Active' | 'Resigned' | 'Terminated';
+}
+
+export interface Company {
+  id: number;
+  name: string;
+  registration_no?: string;
+  description?: string;
+  industry?: string;
+  size?: '1-10' | '11-50' | '51-200' | '201-500' | '500+';
+  country?: string;
+  address?: string;
+  phone?: string;
+  website?: string;
+  logo_url?: string;
+  owner_id: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Invitation {
+  id: number;
+  company_id: number;
+  invited_by: number;
+  email: string;
+  role: 'admin' | 'manager' | 'staff';
+  status: 'pending' | 'accepted' | 'expired' | 'cancelled';
+  expires_at: string;
+  accepted_at?: string;
+  company?: Company;
+  inviter?: User;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CompanySetupRequest {
+  company: {
+    name: string;
+    registration_no?: string;
+    description?: string;
+    industry?: string;
+    size?: string;
+    country?: string;
+    address?: string;
+    phone?: string;
+    website?: string;
+  };
+  initialEmployee?: {
+    full_name: string;
+    employee_id: string;
+    gender: 'Male' | 'Female';
+    join_date: string;
+    position?: string;
+    department?: string;
+    basic_salary: number;
+    email?: string;
+    mobile?: string;
+  };
+  invitations?: Array<{
+    email: string;
+    role: 'admin' | 'manager' | 'staff';
+  }>;
 }
 
 export interface LoginRequest {

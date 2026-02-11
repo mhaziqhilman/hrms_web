@@ -1,0 +1,75 @@
+<div class="min-h-screen flex items-center justify-center bg-background p-4">
+  <div class="w-full max-w-md">
+    <!-- Logo Section -->
+    <div class="flex justify-center mb-8">
+      <a routerLink="/" class="flex items-center">
+        <img alt="Nexura Logo" src="assets/images/Nexura_Logo.png" class="h-16 md:h-20" />
+      </a>
+    </div>
+
+    <z-card class="border shadow-lg">
+      <div z-card-content class="p-6">
+        <div class="text-center">
+          <!-- Hourglass Icon -->
+          <div class="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+            <z-icon [zType]="$any('hourglass')" class="w-8 h-8 text-primary" />
+          </div>
+
+          <h1 class="text-2xl font-semibold text-foreground mb-2">Waiting for Invitation</h1>
+          <p class="text-sm text-muted-foreground mb-2">
+            Ask your company admin to invite you using your email:
+          </p>
+          <p class="text-sm font-medium text-foreground mb-8">{{ userEmail }}</p>
+
+          <!-- Check Message -->
+          @if (checkMessage) {
+            <div class="bg-muted/50 border border-border rounded-lg p-3 mb-4">
+              <p class="text-sm text-muted-foreground">{{ checkMessage }}</p>
+            </div>
+          }
+
+          <!-- Check Again Button -->
+          <button
+            z-button
+            type="button"
+            class="w-full mb-3"
+            [disabled]="checking"
+            (click)="checkAgain()"
+          >
+            @if (checking) {
+              <z-icon zType="loader-circle" class="w-4 h-4 mr-2 animate-spin" />
+              <span>Checking...</span>
+            } @else {
+              <z-icon [zType]="$any('refresh-cw')" class="w-4 h-4 mr-2" />
+              <span>Check Again</span>
+            }
+          </button>
+
+          <!-- Back Button -->
+          <button
+            z-button
+            type="button"
+            [zType]="'outline'"
+            class="w-full mb-3"
+            (click)="goBack()"
+          >
+            <z-icon [zType]="$any('arrow-left')" class="w-4 h-4 mr-2" />
+            <span>Back</span>
+          </button>
+
+          <!-- Sign Out -->
+          <button
+            z-button
+            type="button"
+            [zType]="'ghost'"
+            class="w-full text-muted-foreground"
+            (click)="logout()"
+          >
+            <z-icon [zType]="$any('log-out')" class="w-4 h-4 mr-2" />
+            <span>Sign Out</span>
+          </button>
+        </div>
+      </div>
+    </z-card>
+  </div>
+</div>
