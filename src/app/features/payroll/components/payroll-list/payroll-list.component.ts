@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { PayrollService } from '../../services/payroll.service';
-import { Payroll, PayrollStatus, MONTH_NAMES, PAYROLL_STATUS_COLORS } from '../../models/payroll.model';
+import { Payroll, PayrollStatus, MONTH_NAMES, PAYROLL_STATUS_COLORS, BulkActionResponse } from '../../models/payroll.model';
+import { Observable } from 'rxjs';
 
 // ZardUI Component Imports
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
@@ -56,6 +57,7 @@ export class PayrollListComponent implements OnInit {
   // Selection
   selectedPayrolls = signal<Set<number>>(new Set());
   selectAll = false;  // Changed from signal to regular property for ngModel compatibility
+  bulkProcessing = signal(false);
 
   // Pagination
   currentPage = signal(1);
@@ -455,6 +457,43 @@ export class PayrollListComponent implements OnInit {
     return payroll.status === PayrollStatus.DRAFT || payroll.status === PayrollStatus.PENDING;
   }
 
+  canDelete(payroll: Payroll): boolean {
+    return payroll.status === PayrollStatus.CANCELLED;
+  }
+
+  deletePayroll(payroll: Payroll): void {
+    this.alertDialogService.confirm({
+      zTitle: 'Delete Payroll',
+      zDescription: `Are you sure you want to permanently delete this payroll record for ${payroll.employee?.full_name}? This action cannot be undone.`,
+      zOkText: 'Delete',
+      zCancelText: 'Go Back',
+      zOkDestructive: true,
+      zOnOk: () => {
+        this.payrollService.permanentDeletePayroll(payroll.id).subscribe({
+          next: (response) => {
+            if (response.success) {
+              this.alertDialogService.info({
+                zTitle: 'Success',
+                zDescription: 'Payroll permanently deleted successfully',
+                zOkText: 'OK'
+              });
+              this.loadPayrolls();
+              this.loadStatusCounts();
+            }
+          },
+          error: (err) => {
+            this.alertDialogService.warning({
+              zTitle: 'Error',
+              zDescription: 'Failed to delete payroll',
+              zOkText: 'OK'
+            });
+            console.error('Error deleting payroll:', err);
+          }
+        });
+      }
+    });
+  }
+
   // Checkbox selection methods
   toggleSelectAll(): void {
     if (this.selectAll) {
@@ -496,16 +535,73 @@ export class PayrollListComponent implements OnInit {
     this.selectAll = false;
   }
 
+  private executeBulkAction(actionName: string, serviceCall: Observable<BulkActionResponse>): void {
+    this.bulkProcessing.set(true);
+
+    serviceCall.subscribe({
+      next: (response) => {
+        this.bulkProcessing.set(false);
+        const { successCount, failCount } = response.data;
+
+        let description = `${successCount} payroll record(s) ${actionName} successfully.`;
+        if (failCount > 0) {
+          description += ` ${failCount} record(s) failed.`;
+        }
+
+        this.alertDialogService.info({
+          zTitle: failCount > 0 ? 'Partial Success' : 'Success',
+          zDescription: description,
+          zOkText: 'OK'
+        });
+
+        this.clearSelection();
+        this.loadPayrolls();
+        this.loadStatusCounts();
+      },
+      error: (err) => {
+        this.bulkProcessing.set(false);
+        this.alertDialogService.warning({
+          zTitle: 'Error',
+          zDescription: `Failed to ${actionName} payrolls. Please try again.`,
+          zOkText: 'OK'
+        });
+        console.error(`Error bulk ${actionName}:`, err);
+      }
+    });
+  }
+
+  getAvailableBulkActions(): { submit: boolean; approve: boolean; markPaid: boolean; cancel: boolean; delete: boolean } {
+    const selectedIds = this.selectedPayrolls();
+    const selectedPayrollObjects = this.payrolls().filter(p => selectedIds.has(p.id));
+    const statuses = new Set(selectedPayrollObjects.map(p => p.status));
+
+    return {
+      submit: statuses.size > 0 && [...statuses].every(s => s === PayrollStatus.DRAFT),
+      approve: statuses.size > 0 && [...statuses].every(s => s === PayrollStatus.PENDING),
+      markPaid: statuses.size > 0 && [...statuses].every(s => s === PayrollStatus.APPROVED),
+      cancel: statuses.size > 0 && [...statuses].every(s => s === PayrollStatus.DRAFT || s === PayrollStatus.PENDING),
+      delete: statuses.size > 0 && [...statuses].every(s => s === PayrollStatus.CANCELLED)
+    };
+  }
+
+  bulkSubmit(): void {
+    const selected = Array.from(this.selectedPayrolls());
+    if (selected.length === 0) return;
+
+    this.alertDialogService.confirm({
+      zTitle: 'Bulk Submit for Approval',
+      zDescription: `Are you sure you want to submit ${selected.length} payroll record(s) for approval?`,
+      zOkText: 'Submit All',
+      zCancelText: 'Cancel',
+      zOnOk: () => {
+        this.executeBulkAction('submitted', this.payrollService.bulkSubmitForApproval(selected));
+      }
+    });
+  }
+
   bulkApprove(): void {
     const selected = Array.from(this.selectedPayrolls());
-    if (selected.length === 0) {
-      this.alertDialogService.warning({
-        zTitle: 'No Selection',
-        zDescription: 'Please select payrolls to approve',
-        zOkText: 'OK'
-      });
-      return;
-    }
+    if (selected.length === 0) return;
 
     this.alertDialogService.confirm({
       zTitle: 'Bulk Approve',
@@ -513,42 +609,54 @@ export class PayrollListComponent implements OnInit {
       zOkText: 'Approve All',
       zCancelText: 'Cancel',
       zOnOk: () => {
-        // TODO: Implement bulk approve API call
-        console.log('Bulk approve:', selected);
-        this.alertDialogService.info({
-          zTitle: 'Information',
-          zDescription: 'Bulk approve functionality to be implemented',
-          zOkText: 'OK'
-        });
+        this.executeBulkAction('approved', this.payrollService.bulkApprovePayrolls(selected));
+      }
+    });
+  }
+
+  bulkMarkPaid(): void {
+    const selected = Array.from(this.selectedPayrolls());
+    if (selected.length === 0) return;
+
+    this.alertDialogService.confirm({
+      zTitle: 'Bulk Mark as Paid',
+      zDescription: `Are you sure you want to mark ${selected.length} payroll record(s) as paid?`,
+      zOkText: 'Mark All Paid',
+      zCancelText: 'Cancel',
+      zOnOk: () => {
+        this.executeBulkAction('marked as paid', this.payrollService.bulkMarkAsPaid(selected));
+      }
+    });
+  }
+
+  bulkCancel(): void {
+    const selected = Array.from(this.selectedPayrolls());
+    if (selected.length === 0) return;
+
+    this.alertDialogService.confirm({
+      zTitle: 'Bulk Cancel',
+      zDescription: `Are you sure you want to cancel ${selected.length} payroll record(s)?`,
+      zOkText: 'Cancel All',
+      zCancelText: 'Go Back',
+      zOkDestructive: true,
+      zOnOk: () => {
+        this.executeBulkAction('cancelled', this.payrollService.bulkCancelPayrolls(selected));
       }
     });
   }
 
   bulkDelete(): void {
     const selected = Array.from(this.selectedPayrolls());
-    if (selected.length === 0) {
-      this.alertDialogService.warning({
-        zTitle: 'No Selection',
-        zDescription: 'Please select payrolls to delete',
-        zOkText: 'OK'
-      });
-      return;
-    }
+    if (selected.length === 0) return;
 
     this.alertDialogService.confirm({
       zTitle: 'Bulk Delete',
-      zDescription: `Are you sure you want to delete ${selected.length} payroll record(s)? This action cannot be undone.`,
+      zDescription: `Are you sure you want to permanently delete ${selected.length} payroll record(s)? This action cannot be undone.`,
       zOkText: 'Delete All',
       zCancelText: 'Cancel',
       zOkDestructive: true,
       zOnOk: () => {
-        // TODO: Implement bulk delete API call
-        console.log('Bulk delete:', selected);
-        this.alertDialogService.info({
-          zTitle: 'Information',
-          zDescription: 'Bulk delete functionality to be implemented',
-          zOkText: 'OK'
-        });
+        this.executeBulkAction('deleted', this.payrollService.bulkPermanentDelete(selected));
       }
     });
   }

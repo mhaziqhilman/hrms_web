@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
   selector: 'z-form-field',
   standalone: true,
   imports: [CommonModule],
+  host: { class: 'block min-w-0' },
   template: `
     <div class="grid gap-2">
       <ng-content></ng-content>

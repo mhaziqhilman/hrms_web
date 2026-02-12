@@ -9,7 +9,8 @@ import {
   PayrollResponse,
   CalculatePayrollRequest,
   UpdatePayrollRequest,
-  PayslipResponse
+  PayslipResponse,
+  BulkActionResponse
 } from '../models/payroll.model';
 
 @Injectable({
@@ -110,6 +111,15 @@ export class PayrollService {
   }
 
   /**
+   * Permanently delete a cancelled payroll record
+   */
+  permanentDeletePayroll(id: number): Observable<{ success: boolean; message: string }> {
+    return this.http.delete<{ success: boolean; message: string }>(
+      `${this.apiUrl}${API_CONFIG.endpoints.payroll.permanentDelete(id)}`
+    );
+  }
+
+  /**
    * Generate payslip for a payroll record
    */
   getPayslip(id: number): Observable<PayslipResponse> {
@@ -125,6 +135,41 @@ export class PayrollService {
     return this.http.get(
       `${this.apiUrl}${API_CONFIG.endpoints.payroll.payslip(id)}/pdf`,
       { responseType: 'blob' }
+    );
+  }
+
+  bulkSubmitForApproval(payrollIds: number[]): Observable<BulkActionResponse> {
+    return this.http.post<BulkActionResponse>(
+      `${this.apiUrl}${API_CONFIG.endpoints.payroll.bulkSubmit}`,
+      { payroll_ids: payrollIds }
+    );
+  }
+
+  bulkApprovePayrolls(payrollIds: number[]): Observable<BulkActionResponse> {
+    return this.http.post<BulkActionResponse>(
+      `${this.apiUrl}${API_CONFIG.endpoints.payroll.bulkApprove}`,
+      { payroll_ids: payrollIds }
+    );
+  }
+
+  bulkMarkAsPaid(payrollIds: number[]): Observable<BulkActionResponse> {
+    return this.http.post<BulkActionResponse>(
+      `${this.apiUrl}${API_CONFIG.endpoints.payroll.bulkMarkPaid}`,
+      { payroll_ids: payrollIds }
+    );
+  }
+
+  bulkCancelPayrolls(payrollIds: number[]): Observable<BulkActionResponse> {
+    return this.http.post<BulkActionResponse>(
+      `${this.apiUrl}${API_CONFIG.endpoints.payroll.bulkCancel}`,
+      { payroll_ids: payrollIds }
+    );
+  }
+
+  bulkPermanentDelete(payrollIds: number[]): Observable<BulkActionResponse> {
+    return this.http.post<BulkActionResponse>(
+      `${this.apiUrl}${API_CONFIG.endpoints.payroll.bulkDelete}`,
+      { payroll_ids: payrollIds }
     );
   }
 }

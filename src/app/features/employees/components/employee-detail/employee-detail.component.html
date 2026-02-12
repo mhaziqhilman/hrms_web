@@ -160,7 +160,7 @@
         <!-- Statutory Information -->
         <z-card
           [zTitle]="'Statutory Information'"
-          [zDescription]="'EPF, SOCSO, and tax details'"
+          [zDescription]="'EPF, SOCSO, tax details and relief'"
           [zHeaderBorder]="true">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
@@ -178,6 +178,37 @@
             <div>
               <label class="block text-xs font-semibold text-muted-foreground mb-1">Tax Category</label>
               <p class="text-sm text-foreground font-medium">{{ employee()!.tax_category || '-' }}</p>
+            </div>
+          </div>
+
+          <!-- Tax Relief Details -->
+          <div class="mt-6 pt-6 border-t">
+            <h4 class="text-sm font-semibold text-foreground mb-4">Tax Relief Details</h4>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <label class="block text-xs font-semibold text-muted-foreground mb-1">Children (Under 18)</label>
+                <p class="text-sm text-foreground font-medium">{{ employee()!.number_of_children ?? 0 }}</p>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-muted-foreground mb-1">Children in Higher Education</label>
+                <p class="text-sm text-foreground font-medium">{{ employee()!.children_in_higher_education ?? 0 }}</p>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-muted-foreground mb-1">Disabled Children</label>
+                <p class="text-sm text-foreground font-medium">{{ employee()!.disabled_children ?? 0 }}</p>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-muted-foreground mb-1">Employee Disability (OKU)</label>
+                <z-badge [zType]="employee()!.disabled_self ? 'default' : 'secondary'" [zShape]="'pill'">
+                  {{ employee()!.disabled_self ? 'Yes' : 'No' }}
+                </z-badge>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-muted-foreground mb-1">Spouse Disability (OKU)</label>
+                <z-badge [zType]="employee()!.disabled_spouse ? 'default' : 'secondary'" [zShape]="'pill'">
+                  {{ employee()!.disabled_spouse ? 'Yes' : 'No' }}
+                </z-badge>
+              </div>
             </div>
           </div>
         </z-card>

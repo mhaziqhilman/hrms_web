@@ -92,6 +92,7 @@ export interface CalculatePayrollRequest {
   employee_id: number;
   year: number;
   month: number;
+  basic_salary?: number;
   allowances?: number;
   overtime_pay?: number;
   bonus?: number;
@@ -169,6 +170,22 @@ export interface Payslip {
 export interface PayslipResponse {
   success: boolean;
   data: Payslip;
+}
+
+export interface BulkActionResult {
+  id: number;
+  success: boolean;
+  message: string;
+}
+
+export interface BulkActionResponse {
+  success: boolean;
+  message: string;
+  data: {
+    successCount: number;
+    failCount: number;
+    results: BulkActionResult[];
+  };
 }
 
 export const MONTH_NAMES = [

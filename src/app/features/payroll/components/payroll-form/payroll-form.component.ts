@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
@@ -17,6 +17,8 @@ import { ZardFormFieldComponent } from '@/shared/components/form/form-field.comp
 import { ZardFormLabelComponent } from '@/shared/components/form/form-label.component';
 import { ZardFormMessageComponent } from '@/shared/components/form/form-message.component';
 import { ZardInputDirective } from '@/shared/components/input/input.directive';
+import { ZardDatePickerComponent } from '@/shared/components/date-picker/date-picker.component';
+import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-dialog.service';
 
 @Component({
   selector: 'app-payroll-form',
@@ -33,12 +35,15 @@ import { ZardInputDirective } from '@/shared/components/input/input.directive';
     ZardFormFieldComponent,
     ZardFormLabelComponent,
     ZardFormMessageComponent,
-    ZardInputDirective
+    ZardInputDirective,
+    ZardDatePickerComponent
   ],
   templateUrl: './payroll-form.component.html',
   styleUrl: './payroll-form.component.css'
 })
 export class PayrollFormComponent implements OnInit {
+  private alertDialog = inject(ZardAlertDialogService);
+
   payrollForm!: FormGroup;
   loading = signal(false);
   submitting = signal(false);
@@ -106,7 +111,7 @@ export class PayrollFormComponent implements OnInit {
       commission: [0, [Validators.min(0)]],
       unpaid_leave_deduction: [0, [Validators.min(0)]],
       other_deductions: [0, [Validators.min(0)]],
-      payment_date: ['', Validators.required],
+      payment_date: [null, Validators.required],
       notes: ['']
     });
   }
@@ -122,9 +127,14 @@ export class PayrollFormComponent implements OnInit {
         this.loadingEmployees.set(false);
       },
       error: (err) => {
-        this.error.set('Failed to load employees');
+        const message = err.message || 'Failed to load employees';
+        this.error.set(message);
         this.loadingEmployees.set(false);
-        console.error('Error loading employees:', err);
+        this.alertDialog.warning({
+          zTitle: 'Failed to Load Employees',
+          zDescription: message,
+          zOkText: 'OK'
+        });
       }
     });
   }
@@ -138,10 +148,9 @@ export class PayrollFormComponent implements OnInit {
         if (response.success) {
           const payroll = response.data;
 
-          // Format payment_date to YYYY-MM-DD for input
           const paymentDate = payroll.payment_date
-            ? new Date(payroll.payment_date).toISOString().split('T')[0]
-            : '';
+            ? new Date(payroll.payment_date)
+            : null;
 
           this.payrollForm.patchValue({
             employee_id: payroll.employee_id,
@@ -161,9 +170,14 @@ export class PayrollFormComponent implements OnInit {
         this.loading.set(false);
       },
       error: (err) => {
-        this.error.set('Failed to load payroll data');
+        const message = err.message || 'Failed to load payroll data';
+        this.error.set(message);
         this.loading.set(false);
-        console.error('Error loading payroll:', err);
+        this.alertDialog.warning({
+          zTitle: 'Failed to Load Payroll',
+          zDescription: message,
+          zOkText: 'OK'
+        });
       }
     });
   }
@@ -198,8 +212,13 @@ export class PayrollFormComponent implements OnInit {
       Number(values.unpaid_leave_deduction || 0) +
       Number(values.other_deductions || 0);
 
-    // Estimated total deductions (11% EPF + manual deductions as rough estimate)
-    const estimatedStatutoryDeductions = grossSalary * 0.11;
+    // Estimated statutory deductions (EPF 11% + SOCSO table-based + EIS table-based)
+    const estimatedEPF = grossSalary * 0.11;
+    // SOCSO: approximate using ~0.5% capped at RM6,000 (actual uses official wage-band table)
+    const estimatedSOCSO = grossSalary > 6000 ? 29.75 : grossSalary * 0.005;
+    // EIS: approximate using ~0.2% capped at RM6,000 (actual uses official wage-band table)
+    const estimatedEIS = grossSalary > 6000 ? 11.90 : grossSalary * 0.002;
+    const estimatedStatutoryDeductions = estimatedEPF + estimatedSOCSO + estimatedEIS;
     const totalDeductions = estimatedStatutoryDeductions + manualDeductions;
 
     this.calculatedTotalDeductions.set(totalDeductions);
@@ -225,15 +244,24 @@ export class PayrollFormComponent implements OnInit {
       this.payrollService.updatePayroll(this.payrollId()!, formData).subscribe({
         next: (response) => {
           if (response.success) {
-            alert('Payroll updated successfully');
-            this.router.navigate(['/payroll']);
+            this.alertDialog.info({
+              zTitle: 'Success',
+              zDescription: 'Payroll updated successfully',
+              zOkText: 'OK',
+              zOnOk: () => this.router.navigate(['/payroll'])
+            });
           }
           this.submitting.set(false);
         },
         error: (err) => {
-          this.error.set(err.message || 'Failed to update payroll');
+          const message = err.message || 'Failed to update payroll';
+          this.error.set(message);
           this.submitting.set(false);
-          console.error('Error updating payroll:', err);
+          this.alertDialog.warning({
+            zTitle: 'Failed to Update Payroll',
+            zDescription: message,
+            zOkText: 'OK'
+          });
         }
       });
     } else {
@@ -241,24 +269,37 @@ export class PayrollFormComponent implements OnInit {
       this.payrollService.calculatePayroll(formData).subscribe({
         next: (response) => {
           if (response.success) {
-            alert('Payroll calculated successfully');
-            this.router.navigate(['/payroll']);
+            this.alertDialog.info({
+              zTitle: 'Success',
+              zDescription: 'Payroll calculated successfully',
+              zOkText: 'OK',
+              zOnOk: () => this.router.navigate(['/payroll'])
+            });
           }
           this.submitting.set(false);
         },
         error: (err) => {
-          this.error.set(err.message || 'Failed to calculate payroll');
+          const message = err.message || 'Failed to calculate payroll';
+          this.error.set(message);
           this.submitting.set(false);
-          console.error('Error calculating payroll:', err);
+          this.alertDialog.warning({
+            zTitle: 'Failed to Calculate Payroll',
+            zDescription: message,
+            zOkText: 'OK'
+          });
         }
       });
     }
   }
 
   onCancel(): void {
-    if (confirm('Are you sure you want to cancel? Any unsaved changes will be lost.')) {
-      this.router.navigate(['/payroll']);
-    }
+    this.alertDialog.confirm({
+      zTitle: 'Cancel',
+      zDescription: 'Are you sure you want to cancel? Any unsaved changes will be lost.',
+      zOkText: 'Yes, Cancel',
+      zCancelText: 'No, Stay',
+      zOnOk: () => this.router.navigate(['/payroll'])
+    });
   }
 
   private markFormGroupTouched(formGroup: FormGroup): void {

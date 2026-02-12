@@ -24,6 +24,7 @@ import { ZardFormLabelComponent } from '@/shared/components/form/form-label.comp
 import { ZardFormControlComponent } from '@/shared/components/form/form-control.component';
 import { ZardFormMessageComponent } from '@/shared/components/form/form-message.component';
 import { ZardDatePickerComponent } from '@/shared/components/date-picker/date-picker.component';
+import { ZardCheckboxComponent } from '@/shared/components/checkbox/checkbox.component';
 
 @Component({
   selector: 'app-employee-form',
@@ -42,7 +43,8 @@ import { ZardDatePickerComponent } from '@/shared/components/date-picker/date-pi
     ZardFormLabelComponent,
     ZardFormControlComponent,
     ZardFormMessageComponent,
-    ZardDatePickerComponent
+    ZardDatePickerComponent,
+    ZardCheckboxComponent
   ],
   templateUrl: './employee-form.component.html',
   styleUrls: ['./employee-form.component.css']
@@ -59,6 +61,11 @@ export class EmployeeFormComponent implements OnInit {
   genders: Gender[] = ['Male', 'Female'];
   maritalStatuses: MaritalStatus[] = ['Single', 'Married', 'Divorced', 'Widowed'];
   employmentTypes: EmploymentType[] = ['Permanent', 'Contract', 'Probation', 'Intern'];
+  taxCategories = [
+    { value: 'KA', label: 'KA - Single / Widowed' },
+    { value: 'KB', label: 'KB - Married (Spouse not working)' },
+    { value: 'KC', label: 'KC - Married (Spouse working)' }
+  ];
 
   constructor(
     private fb: FormBuilder,
@@ -118,7 +125,12 @@ export class EmployeeFormComponent implements OnInit {
       epf_no: ['', [Validators.maxLength(20)]],
       socso_no: ['', [Validators.maxLength(20)]],
       tax_no: ['', [Validators.maxLength(20)]],
-      tax_category: ['Individual', [Validators.maxLength(50)]]
+      tax_category: ['KA'],
+      number_of_children: [0, [Validators.min(0), Validators.max(20)]],
+      children_in_higher_education: [0, [Validators.min(0), Validators.max(20)]],
+      disabled_self: [false],
+      disabled_spouse: [false],
+      disabled_children: [0, [Validators.min(0), Validators.max(20)]]
     });
   }
 
@@ -239,6 +251,11 @@ export class EmployeeFormComponent implements OnInit {
   get socsoNoControl() { return this.employeeForm?.get('socso_no'); }
   get taxNoControl() { return this.employeeForm?.get('tax_no'); }
   get taxCategoryControl() { return this.employeeForm?.get('tax_category'); }
+  get numberOfChildrenControl() { return this.employeeForm?.get('number_of_children'); }
+  get childrenInHigherEducationControl() { return this.employeeForm?.get('children_in_higher_education'); }
+  get disabledSelfControl() { return this.employeeForm?.get('disabled_self'); }
+  get disabledSpouseControl() { return this.employeeForm?.get('disabled_spouse'); }
+  get disabledChildrenControl() { return this.employeeForm?.get('disabled_children'); }
 
   private markFormGroupTouched(formGroup: FormGroup): void {
     Object.keys(formGroup.controls).forEach(key => {

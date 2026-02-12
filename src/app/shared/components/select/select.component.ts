@@ -27,6 +27,7 @@ export type ZardSelectSize = 'sm' | 'default' | 'lg';
   selector: 'z-select',
   standalone: true,
   imports: [CommonModule, OverlayModule, ZardIconComponent, ZardBadgeComponent],
+  host: { class: 'block' },
   template: `
     <div class="relative w-full">
       <!-- Trigger Button -->
@@ -39,7 +40,7 @@ export type ZardSelectSize = 'sm' | 'default' | 'lg';
         class="w-full flex items-center justify-between gap-2 px-3 rounded-md border border-input bg-background text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50">
 
         <!-- Selected Value Display -->
-        <div class="flex-1 flex items-center gap-1.5 overflow-hidden">
+        <div class="flex-1 min-w-0 flex items-center gap-1.5 overflow-hidden">
           @if (displayLabels().length > 0) {
             @if (zMultiple && displayLabels().length > 0) {
               <!-- Multiple Selection - Show Badges -->

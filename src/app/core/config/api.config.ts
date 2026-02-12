@@ -51,7 +51,13 @@ export const API_CONFIG = {
       approve: (id: number) => `/payroll/${id}/approve`,
       markPaid: (id: number) => `/payroll/${id}/mark-paid`,
       payslip: (id: number) => `/payroll/${id}/payslip`,
-      myPayslips: '/payroll/my-payslips'
+      permanentDelete: (id: number) => `/payroll/${id}/permanent`,
+      myPayslips: '/payroll/my-payslips',
+      bulkSubmit: '/payroll/bulk-submit',
+      bulkApprove: '/payroll/bulk-approve',
+      bulkMarkPaid: '/payroll/bulk-mark-paid',
+      bulkCancel: '/payroll/bulk-cancel',
+      bulkDelete: '/payroll/bulk-delete'
     },
     leaves: {
       base: '/leaves',

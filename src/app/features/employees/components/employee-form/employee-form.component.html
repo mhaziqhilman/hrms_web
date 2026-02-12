@@ -485,20 +485,88 @@
             <z-form-field>
               <label z-form-label>Tax Category</label>
               <z-form-control>
-                <input
-                  z-input
-                  type="text"
+                <z-select
                   formControlName="tax_category"
-                  [zStatus]="taxCategoryControl?.invalid && taxCategoryControl?.touched ? 'error' : undefined"
-                  placeholder="e.g., Individual"
-                />
+                  zPlaceholder="Select Tax Category">
+                  @for (cat of taxCategories; track cat.value) {
+                    <z-select-item [zValue]="cat.value">{{ cat.label }}</z-select-item>
+                  }
+                </z-select>
               </z-form-control>
-              @if (taxCategoryControl?.hasError('maxlength') && taxCategoryControl?.touched) {
-                <z-form-message zType="error">Tax category must not exceed 50 characters.</z-form-message>
-              } @else {
-                <z-form-message>Tax category classification.</z-form-message>
-              }
+              <z-form-message>PCB tax category for monthly deduction.</z-form-message>
             </z-form-field>
+          </div>
+
+          <!-- Tax Relief Information -->
+          <div class="mt-6 pt-6 border-t">
+            <h4 class="text-sm font-semibold text-foreground mb-1">Tax Relief Details</h4>
+            <p class="text-xs text-muted-foreground mb-4">Used for PCB (monthly tax deduction) calculation.</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <z-form-field>
+                <label z-form-label>Children (Under 18)</label>
+                <z-form-control>
+                  <input
+                    z-input
+                    type="number"
+                    formControlName="number_of_children"
+                    placeholder="0"
+                    min="0"
+                    max="20"
+                  />
+                </z-form-control>
+                <z-form-message>Qualifying children under 18 or in full-time education.</z-form-message>
+              </z-form-field>
+
+              <z-form-field>
+                <label z-form-label>Children in Higher Education</label>
+                <z-form-control>
+                  <input
+                    z-input
+                    type="number"
+                    formControlName="children_in_higher_education"
+                    placeholder="0"
+                    min="0"
+                    max="20"
+                  />
+                </z-form-control>
+                <z-form-message>Children pursuing diploma/degree level.</z-form-message>
+              </z-form-field>
+
+              <z-form-field>
+                <label z-form-label>Disabled Children</label>
+                <z-form-control>
+                  <input
+                    z-input
+                    type="number"
+                    formControlName="disabled_children"
+                    placeholder="0"
+                    min="0"
+                    max="20"
+                  />
+                </z-form-control>
+                <z-form-message>Number of disabled children (RM6,000 relief each).</z-form-message>
+              </z-form-field>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <z-form-field>
+                <z-form-control>
+                  <z-checkbox formControlName="disabled_self">
+                    Employee has disability (OKU)
+                  </z-checkbox>
+                </z-form-control>
+                <z-form-message>Additional RM6,000 tax relief.</z-form-message>
+              </z-form-field>
+
+              <z-form-field>
+                <z-form-control>
+                  <z-checkbox formControlName="disabled_spouse">
+                    Spouse has disability (OKU)
+                  </z-checkbox>
+                </z-form-control>
+                <z-form-message>Additional RM5,000 tax relief (KB category).</z-form-message>
+              </z-form-field>
+            </div>
           </div>
         </z-card>
       </div>

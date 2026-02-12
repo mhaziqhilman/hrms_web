@@ -21,8 +21,25 @@ import { ZardIconComponent } from '../icon/icon.component';
           <z-icon zType="chevron-left" class="w-4 h-4" />
         </button>
 
-        <div class="text-sm font-semibold">
-          {{ getMonthName(currentMonth()) }} {{ currentYear() }}
+        <div class="flex items-center gap-1">
+          <select
+            [value]="currentMonth()"
+            (change)="onMonthSelect($event)"
+            [disabled]="disabled"
+            class="text-sm font-semibold bg-transparent border border-border rounded-md px-2 py-1 cursor-pointer focus:outline-none focus:ring-1 focus:ring-ring appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_4px_center] pr-5">
+            @for (m of monthOptions; track m.value) {
+              <option [value]="m.value">{{ m.label }}</option>
+            }
+          </select>
+          <select
+            [value]="currentYear()"
+            (change)="onYearSelect($event)"
+            [disabled]="disabled"
+            class="text-sm font-semibold bg-transparent border border-border rounded-md px-2 py-1 cursor-pointer focus:outline-none focus:ring-1 focus:ring-ring appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_4px_center] pr-5">
+            @for (y of yearOptions; track y) {
+              <option [value]="y">{{ y }}</option>
+            }
+          </select>
         </div>
 
         <button
@@ -74,6 +91,22 @@ export class ZardCalendarComponent {
 
   weekDays = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
+  monthOptions = [
+    { value: 0, label: 'Jan' }, { value: 1, label: 'Feb' }, { value: 2, label: 'Mar' },
+    { value: 3, label: 'Apr' }, { value: 4, label: 'May' }, { value: 5, label: 'Jun' },
+    { value: 6, label: 'Jul' }, { value: 7, label: 'Aug' }, { value: 8, label: 'Sep' },
+    { value: 9, label: 'Oct' }, { value: 10, label: 'Nov' }, { value: 11, label: 'Dec' }
+  ];
+
+  yearOptions: number[] = [];
+
+  constructor() {
+    const currentYear = new Date().getFullYear();
+    for (let y = currentYear - 10; y <= currentYear + 10; y++) {
+      this.yearOptions.push(y);
+    }
+  }
+
   calendarDays = computed(() => {
     const year = this.currentYear();
     const month = this.currentMonth();
@@ -114,6 +147,16 @@ export class ZardCalendarComponent {
     } else {
       this.currentMonth.set(month - 1);
     }
+  }
+
+  onMonthSelect(event: Event) {
+    const select = event.target as HTMLSelectElement;
+    this.currentMonth.set(Number(select.value));
+  }
+
+  onYearSelect(event: Event) {
+    const select = event.target as HTMLSelectElement;
+    this.currentYear.set(Number(select.value));
   }
 
   nextMonth() {

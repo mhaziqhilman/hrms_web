@@ -434,7 +434,9 @@ export class AdminSettingsPageComponent implements OnInit {
       epf_employer_threshold: 'EPF Employer Threshold (RM)',
       eis_rate: 'EIS Rate',
       eis_max_salary: 'EIS Max Salary (RM)',
-      socso_max_salary: 'SOCSO Max Salary (RM)'
+      socso_max_salary: 'SOCSO Max Salary (RM)',
+      socso_employee_rate_approx: 'SOCSO Employee Rate (approx.)',
+      socso_employer_rate_approx: 'SOCSO Employer Rate (approx.)'
     };
     return labels[key] || key;
   }

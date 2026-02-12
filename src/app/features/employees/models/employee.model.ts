@@ -49,6 +49,11 @@ export interface Employee {
   socso_no?: string;
   tax_no?: string;
   tax_category?: string;
+  number_of_children?: number;
+  children_in_higher_education?: number;
+  disabled_self?: boolean;
+  disabled_spouse?: boolean;
+  disabled_children?: number;
 
   // Profile
   photo_url?: string;
@@ -97,6 +102,11 @@ export interface CreateEmployeeRequest {
   socso_no?: string;
   tax_no?: string;
   tax_category?: string;
+  number_of_children?: number;
+  children_in_higher_education?: number;
+  disabled_self?: boolean;
+  disabled_spouse?: boolean;
+  disabled_children?: number;
 }
 
 export interface UpdateEmployeeRequest extends Partial<CreateEmployeeRequest> {

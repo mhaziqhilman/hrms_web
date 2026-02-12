@@ -108,7 +108,7 @@
     </div>
   </div>
 
-  <!-- Bulk Actions Bar - Modern SaaS Style -->
+  <!-- Bulk Actions Bar - Context-Aware -->
   <div *ngIf="getSelectedCount() > 0"
     class="mb-4 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 backdrop-blur-sm border-l-4 border-primary shadow-sm">
     <div class="flex items-center justify-between px-6 py-3 gap-4">
@@ -123,18 +123,48 @@
         </div>
       </div>
 
-      <!-- Right: Action Buttons -->
+      <!-- Right: Action Buttons (context-aware) -->
       <div class="flex items-center gap-2">
-        <button type="button" (click)="bulkApprove()"
-          class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary/90 rounded-md transition-all duration-200 shadow-sm hover:shadow-md">
+        <!-- Submit for Approval (Draft -> Pending) -->
+        <button *ngIf="getAvailableBulkActions().submit"
+          type="button" (click)="bulkSubmit()" [disabled]="bulkProcessing()"
+          class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50">
+          <z-icon [zType]="$any('send')" class="w-4 h-4" />
+          <span>Submit</span>
+        </button>
+
+        <!-- Approve (Pending -> Approved) -->
+        <button *ngIf="getAvailableBulkActions().approve"
+          type="button" (click)="bulkApprove()" [disabled]="bulkProcessing()"
+          class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary/90 rounded-md transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50">
           <z-icon zType="circle-check" class="w-4 h-4" />
           <span>Approve</span>
         </button>
-        <button type="button" (click)="bulkDelete()"
-          class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-destructive hover:bg-destructive/90 rounded-md transition-all duration-200 shadow-sm hover:shadow-md">
+
+        <!-- Mark as Paid (Approved -> Paid) -->
+        <button *ngIf="getAvailableBulkActions().markPaid"
+          type="button" (click)="bulkMarkPaid()" [disabled]="bulkProcessing()"
+          class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-md transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50">
+          <z-icon [zType]="$any('dollar-sign')" class="w-4 h-4" />
+          <span>Mark Paid</span>
+        </button>
+
+        <!-- Cancel (Draft/Pending -> Cancelled) -->
+        <button *ngIf="getAvailableBulkActions().cancel"
+          type="button" (click)="bulkCancel()" [disabled]="bulkProcessing()"
+          class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 rounded-md transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50">
+          <z-icon [zType]="$any('circle-x')" class="w-4 h-4" />
+          <span>Cancel</span>
+        </button>
+
+        <!-- Permanent Delete (Cancelled only) -->
+        <button *ngIf="getAvailableBulkActions().delete"
+          type="button" (click)="bulkDelete()" [disabled]="bulkProcessing()"
+          class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-destructive hover:bg-destructive/90 rounded-md transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50">
           <z-icon zType="trash" class="w-4 h-4" />
           <span>Delete</span>
         </button>
+
         <div class="w-px h-6 bg-border mx-1"></div>
         <button type="button" (click)="clearSelection()"
           class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200">
@@ -486,6 +516,12 @@
                 <button *ngIf="canCancel(payroll)" (click)="cancelPayroll(payroll)" z-button zType="outline" zSize="sm"
                   [zTooltip]="'Cancel'" class="text-red-600 hover:text-red-700">
                   <z-icon zType="circle-x" class="w-4 h-4" />
+                </button>
+
+                <!-- Delete (only for Cancelled) -->
+                <button *ngIf="canDelete(payroll)" (click)="deletePayroll(payroll)" z-button zType="outline" zSize="sm"
+                  [zTooltip]="'Delete'" class="text-red-600 hover:text-red-700">
+                  <z-icon zType="trash" class="w-4 h-4" />
                 </button>
               </div>
             </td>
