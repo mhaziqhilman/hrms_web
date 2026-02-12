@@ -7,6 +7,9 @@ import {
   LeaveTypeConfig, ClaimTypeConfig, PublicHoliday,
   StatutoryConfigItem, EmailTemplateItem, CompanyProfile
 } from '../../models/admin-settings.models';
+import {
+  LeaveEntitlement, CreateLeaveEntitlementRequest, UpdateLeaveEntitlementRequest
+} from '../../../leave/models/leave.model';
 
 import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
@@ -24,7 +27,7 @@ import { ZardFormMessageComponent } from '@/shared/components/form/form-message.
 import { ZardDatePickerComponent } from '@/shared/components/date-picker/date-picker.component';
 import { ZardIcon } from '@/shared/components/icon/icons';
 
-type SectionType = 'company' | 'leave-types' | 'claim-types' | 'holidays' | 'payroll-config' | 'email-templates';
+type SectionType = 'company' | 'leave-types' | 'claim-types' | 'holidays' | 'payroll-config' | 'email-templates' | 'leave-entitlements';
 
 @Component({
   selector: 'app-admin-settings-page',
@@ -60,6 +63,7 @@ export class AdminSettingsPageComponent implements OnInit {
   navItems: { id: SectionType; label: string; icon: ZardIcon }[] = [
     { id: 'company', label: 'Company Profile', icon: 'building' },
     { id: 'leave-types', label: 'Leave Types', icon: 'calendar' },
+    { id: 'leave-entitlements', label: 'Leave Entitlements', icon: 'calendar-check' as ZardIcon },
     { id: 'claim-types', label: 'Claim Types', icon: 'file-text' },
     { id: 'holidays', label: 'Public Holidays', icon: 'calendar' },
     { id: 'payroll-config', label: 'Payroll Config', icon: 'circle-dollar-sign' },
@@ -107,6 +111,21 @@ export class AdminSettingsPageComponent implements OnInit {
   statutoryEditing = signal(false);
   statutoryForm: Record<string, string> = {};
 
+  // ─── Leave Entitlements ────────────────────────────────────
+  entitlements = signal<LeaveEntitlement[]>([]);
+  entitlementsPagination = signal<{ total: number; currentPage: number; limit: number; totalPages: number }>({ total: 0, currentPage: 1, limit: 20, totalPages: 0 });
+  entitlementYear = signal(new Date().getFullYear());
+  entitlementYears = [new Date().getFullYear() - 1, new Date().getFullYear(), new Date().getFullYear() + 1];
+  entitlementSearch = '';
+  showEntitlementDialog = signal(false);
+  editingEntitlement: LeaveEntitlement | null = null;
+  entitlementForm: Partial<UpdateLeaveEntitlementRequest> = {};
+  showAddEntitlementDialog = signal(false);
+  addEntitlementForm: Partial<CreateLeaveEntitlementRequest> = {};
+  activeEmployees = signal<{ id: number; employee_id: string; full_name: string }[]>([]);
+  activeLeaveTypesForEntitlement = signal<LeaveTypeConfig[]>([]);
+  initializingYear = signal(false);
+
   // ─── Email Templates ───────────────────────────────────────
   emailTemplates = signal<EmailTemplateItem[]>([]);
   expandedTemplate = signal<string | null>(null);
@@ -153,6 +172,7 @@ export class AdminSettingsPageComponent implements OnInit {
       case 'holidays': this.loadHolidays(); break;
       case 'payroll-config': this.loadStatutoryConfig(); break;
       case 'email-templates': this.loadEmailTemplates(); break;
+      case 'leave-entitlements': this.loadEntitlements(); break;
     }
   }
 
@@ -518,6 +538,164 @@ export class AdminSettingsPageComponent implements OnInit {
           }
         });
       }
+    });
+  }
+
+  // ─── Leave Entitlement Methods ──────────────────────────
+  loadEntitlements(): void {
+    this.service.getLeaveEntitlements({
+      year: this.entitlementYear(),
+      search: this.entitlementSearch || undefined,
+      page: this.entitlementsPagination().currentPage,
+      limit: 20
+    }).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.entitlements.set(res.data.entitlements);
+          this.entitlementsPagination.set(res.data.pagination);
+        }
+        this.loading.set(false);
+      },
+      error: () => this.loading.set(false)
+    });
+  }
+
+  onEntitlementYearChange(year: number): void {
+    this.entitlementYear.set(year);
+    this.entitlementsPagination.update(p => ({ ...p, currentPage: 1 }));
+    this.loading.set(true);
+    this.loadEntitlements();
+  }
+
+  onEntitlementSearch(): void {
+    this.entitlementsPagination.update(p => ({ ...p, currentPage: 1 }));
+    this.loading.set(true);
+    this.loadEntitlements();
+  }
+
+  onEntitlementPageChange(page: number): void {
+    this.entitlementsPagination.update(p => ({ ...p, currentPage: page }));
+    this.loading.set(true);
+    this.loadEntitlements();
+  }
+
+  initializeEntitlementYear(): void {
+    this.alertDialog.confirm({
+      zTitle: 'Initialize Year',
+      zDescription: `This will create leave entitlements for all active employees and leave types for ${this.entitlementYear()}. Existing entitlements will be skipped.`,
+      zOkText: 'Initialize',
+      zCancelText: 'Cancel',
+      zOnOk: () => {
+        this.initializingYear.set(true);
+        this.service.initializeYear(this.entitlementYear()).subscribe({
+          next: (res) => {
+            if (res.success) {
+              this.loadEntitlements();
+            }
+            this.initializingYear.set(false);
+          },
+          error: () => this.initializingYear.set(false)
+        });
+      }
+    });
+  }
+
+  openEditEntitlementDialog(ent: LeaveEntitlement): void {
+    this.editingEntitlement = ent;
+    this.entitlementForm = {
+      total_days: ent.total_days,
+      carry_forward_days: ent.carry_forward_days
+    };
+    this.showEntitlementDialog.set(true);
+  }
+
+  closeEntitlementDialog(): void {
+    this.showEntitlementDialog.set(false);
+    this.editingEntitlement = null;
+  }
+
+  saveEntitlement(): void {
+    if (!this.editingEntitlement) return;
+    this.saving.set(true);
+    this.service.updateLeaveEntitlement(this.editingEntitlement.id, {
+      total_days: this.entitlementForm.total_days,
+      carry_forward_days: this.entitlementForm.carry_forward_days
+    }).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.closeEntitlementDialog();
+          this.loadEntitlements();
+        }
+        this.saving.set(false);
+      },
+      error: () => this.saving.set(false)
+    });
+  }
+
+  deleteEntitlement(ent: LeaveEntitlement): void {
+    const employeeName = ent.employee?.full_name || 'Unknown';
+    const leaveTypeName = ent.leave_type?.name || 'Unknown';
+    this.alertDialog.confirm({
+      zTitle: 'Delete Entitlement',
+      zDescription: `Are you sure you want to delete the entitlement for "${employeeName}" - "${leaveTypeName}" (${ent.year})?`,
+      zOkText: 'Delete',
+      zCancelText: 'Cancel',
+      zOkDestructive: true,
+      zOnOk: () => {
+        this.service.deleteLeaveEntitlement(ent.id).subscribe({
+          next: () => this.loadEntitlements()
+        });
+      }
+    });
+  }
+
+  openAddEntitlementDialog(): void {
+    this.addEntitlementForm = {
+      year: this.entitlementYear(),
+      total_days: 0,
+      carry_forward_days: 0
+    };
+    this.service.getActiveEmployees().subscribe({
+      next: (res: any) => {
+        if (res.success && res.data?.employees) {
+          this.activeEmployees.set(res.data.employees.map((e: any) => ({
+            id: e.id, employee_id: e.employee_id, full_name: e.full_name
+          })));
+        }
+      }
+    });
+    this.service.getLeaveTypes().subscribe({
+      next: (res) => {
+        if (res.success) this.activeLeaveTypesForEntitlement.set(res.data.filter((lt: LeaveTypeConfig) => lt.is_active));
+      }
+    });
+    this.showAddEntitlementDialog.set(true);
+  }
+
+  closeAddEntitlementDialog(): void {
+    this.showAddEntitlementDialog.set(false);
+  }
+
+  onLeaveTypeSelectedForAdd(): void {
+    const selectedType = this.activeLeaveTypesForEntitlement().find(
+      lt => lt.id === this.addEntitlementForm.leave_type_id
+    );
+    if (selectedType) {
+      this.addEntitlementForm.total_days = selectedType.days_per_year;
+    }
+  }
+
+  saveAddEntitlement(): void {
+    this.saving.set(true);
+    this.service.createLeaveEntitlement(this.addEntitlementForm as CreateLeaveEntitlementRequest).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.closeAddEntitlementDialog();
+          this.loadEntitlements();
+        }
+        this.saving.set(false);
+      },
+      error: () => this.saving.set(false)
     });
   }
 

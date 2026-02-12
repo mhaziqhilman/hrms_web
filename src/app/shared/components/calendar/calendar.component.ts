@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, signal, computed } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal, computed, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ZardButtonComponent } from '../button/button.component';
 import { ZardIconComponent } from '../icon/icon.component';
@@ -28,7 +28,7 @@ import { ZardIconComponent } from '../icon/icon.component';
             [disabled]="disabled"
             class="text-sm font-semibold bg-transparent border border-border rounded-md px-2 py-1 cursor-pointer focus:outline-none focus:ring-1 focus:ring-ring appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_4px_center] pr-5">
             @for (m of monthOptions; track m.value) {
-              <option [value]="m.value">{{ m.label }}</option>
+              <option [value]="m.value" [selected]="m.value === currentMonth()">{{ m.label }}</option>
             }
           </select>
           <select
@@ -37,7 +37,7 @@ import { ZardIconComponent } from '../icon/icon.component';
             [disabled]="disabled"
             class="text-sm font-semibold bg-transparent border border-border rounded-md px-2 py-1 cursor-pointer focus:outline-none focus:ring-1 focus:ring-ring appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_4px_center] pr-5">
             @for (y of yearOptions; track y) {
-              <option [value]="y">{{ y }}</option>
+              <option [value]="y" [selected]="y === currentYear()">{{ y }}</option>
             }
           </select>
         </div>
@@ -78,7 +78,7 @@ import { ZardIconComponent } from '../icon/icon.component';
     </div>
   `
 })
-export class ZardCalendarComponent {
+export class ZardCalendarComponent implements OnChanges {
   @Input() value: Date | null = null;
   @Input() minDate?: Date;
   @Input() maxDate?: Date;
@@ -130,10 +130,16 @@ export class ZardCalendarComponent {
     return days;
   });
 
-  ngOnInit() {
-    if (this.value) {
-      this.currentMonth.set(this.value.getMonth());
-      this.currentYear.set(this.value.getFullYear());
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['value']) {
+      const date = changes['value'].currentValue;
+      if (date) {
+        this.currentMonth.set(date.getMonth());
+        this.currentYear.set(date.getFullYear());
+      } else {
+        this.currentMonth.set(new Date().getMonth());
+        this.currentYear.set(new Date().getFullYear());
+      }
     }
   }
 

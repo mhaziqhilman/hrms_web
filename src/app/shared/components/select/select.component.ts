@@ -12,7 +12,9 @@ import {
   forwardRef,
   signal,
   computed,
-  HostListener
+  HostListener,
+  OnChanges,
+  SimpleChanges
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
@@ -104,7 +106,7 @@ export type ZardSelectSize = 'sm' | 'default' | 'lg';
     }
   ]
 })
-export class ZardSelectComponent implements ControlValueAccessor, AfterContentInit {
+export class ZardSelectComponent implements ControlValueAccessor, AfterContentInit, OnChanges {
   @Input() zDisabled = false;
   @Input() zLabel?: string;
   @Input() zMaxLabelCount = 1;
@@ -160,6 +162,18 @@ export class ZardSelectComponent implements ControlValueAccessor, AfterContentIn
   private onTouched: () => void = () => {};
 
   constructor(private cdr: ChangeDetectorRef) {}
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['zValue']) {
+      const value = changes['zValue'].currentValue;
+      if (this.zMultiple) {
+        this.selectedValues.set(Array.isArray(value) ? value : []);
+      } else {
+        this.selectedValue.set(value);
+      }
+      this.updateItemStates();
+    }
+  }
 
   ngAfterContentInit() {
     // Subscribe to item clicks

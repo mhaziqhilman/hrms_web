@@ -116,6 +116,11 @@ export const API_CONFIG = {
       detail: (id: number) => `/leave-types/${id}`,
       toggle: (id: number) => `/leave-types/${id}/toggle`
     },
+    leaveEntitlements: {
+      base: '/leave-entitlements',
+      detail: (id: number) => `/leave-entitlements/${id}`,
+      initialize: '/leave-entitlements/initialize'
+    },
     claimTypes: {
       base: '/claim-types',
       detail: (id: number) => `/claim-types/${id}`,

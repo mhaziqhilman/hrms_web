@@ -131,6 +131,7 @@ import {
   FileChartLine,
   FileChartColumnIncreasing,
   KeyRound,
+  CalendarCheck,
 } from 'lucide-angular';
 
 const DarkMode: LucideIconData = [
@@ -275,6 +276,7 @@ export const ZARD_ICONS = {
   'link': Link,
   'unlink': Unlink,
   'key-round': KeyRound,
+  'calendar-check': CalendarCheck,
 } as const satisfies Record<string, LucideIconData>;
 
 export declare type ZardIcon = keyof typeof ZARD_ICONS | LucideIconData;

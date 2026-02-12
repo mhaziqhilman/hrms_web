@@ -305,6 +305,214 @@
           }
         }
 
+        <!-- ═══════════════════ LEAVE ENTITLEMENTS ═══════════════════ -->
+        @if (activeSection() === 'leave-entitlements') {
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-lg font-semibold">Leave Entitlements</h3>
+                <p class="text-sm text-muted-foreground">Manage leave entitlements for all employees by year.</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <z-select [ngModel]="entitlementYear()" (ngModelChange)="onEntitlementYearChange($event)">
+                  @for (y of entitlementYears; track y) {
+                    <z-select-item [zValue]="y">{{ y }}</z-select-item>
+                  }
+                </z-select>
+                <button z-button zType="outline" (click)="initializeEntitlementYear()" [disabled]="initializingYear()">
+                  @if (initializingYear()) {
+                    <z-icon zType="loader-2" class="h-4 w-4 animate-spin mr-1" />
+                  }
+                  Initialize Year
+                </button>
+                <button z-button (click)="openAddEntitlementDialog()">
+                  <z-icon zType="plus" class="h-4 w-4 mr-1" /> Add
+                </button>
+              </div>
+            </div>
+
+            <!-- Search -->
+            <div class="flex items-center gap-2">
+              <input z-input
+                [(ngModel)]="entitlementSearch"
+                placeholder="Search by employee name..."
+                class="max-w-xs"
+                (keyup.enter)="onEntitlementSearch()" />
+              <button z-button zType="outline" zSize="sm" (click)="onEntitlementSearch()">
+                <z-icon zType="search" class="h-4 w-4" />
+              </button>
+            </div>
+
+            <!-- Table -->
+            <z-card>
+              <div data-slot="card-content" class="p-0">
+                <div class="overflow-x-auto">
+                  <table class="w-full">
+                    <thead>
+                      <tr class="border-b bg-muted/50">
+                        <th class="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Employee</th>
+                        <th class="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Leave Type</th>
+                        <th class="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Total</th>
+                        <th class="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Used</th>
+                        <th class="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Pending</th>
+                        <th class="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Balance</th>
+                        <th class="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Carry Fwd</th>
+                        <th class="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (ent of entitlements(); track ent.id) {
+                        <tr class="border-b last:border-0 hover:bg-muted/30">
+                          <td class="px-4 py-3 text-sm font-medium">{{ ent.employee?.full_name }}</td>
+                          <td class="px-4 py-3 text-sm">{{ ent.leave_type?.name }}</td>
+                          <td class="px-4 py-3 text-sm text-right">{{ ent.total_days }}</td>
+                          <td class="px-4 py-3 text-sm text-right">{{ ent.used_days }}</td>
+                          <td class="px-4 py-3 text-sm text-right">{{ ent.pending_days }}</td>
+                          <td class="px-4 py-3 text-sm text-right font-semibold">{{ ent.balance_days }}</td>
+                          <td class="px-4 py-3 text-sm text-right">{{ ent.carry_forward_days }}</td>
+                          <td class="px-4 py-3 text-sm text-right">
+                            <button z-button zType="ghost" zSize="sm" (click)="openEditEntitlementDialog(ent)">
+                              <z-icon zType="pencil" class="h-4 w-4" />
+                            </button>
+                            <button z-button zType="ghost" zSize="sm" (click)="deleteEntitlement(ent)"
+                              [disabled]="ent.used_days > 0 || ent.pending_days > 0">
+                              <z-icon zType="trash" class="h-4 w-4 text-red-500" />
+                            </button>
+                          </td>
+                        </tr>
+                      } @empty {
+                        <tr>
+                          <td colspan="8" class="px-4 py-8 text-center text-sm text-muted-foreground">
+                            No leave entitlements for {{ entitlementYear() }}. Click "Initialize Year" to create entitlements for all employees.
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </z-card>
+
+            <!-- Pagination -->
+            @if (entitlementsPagination().totalPages > 1) {
+              <div class="flex items-center justify-between px-2">
+                <p class="text-sm text-muted-foreground">
+                  Showing page {{ entitlementsPagination().currentPage }} of {{ entitlementsPagination().totalPages }}
+                  ({{ entitlementsPagination().total }} total)
+                </p>
+                <div class="flex gap-1">
+                  <button z-button zType="outline" zSize="sm"
+                    [disabled]="entitlementsPagination().currentPage <= 1"
+                    (click)="onEntitlementPageChange(entitlementsPagination().currentPage - 1)">Previous</button>
+                  <button z-button zType="outline" zSize="sm"
+                    [disabled]="entitlementsPagination().currentPage >= entitlementsPagination().totalPages"
+                    (click)="onEntitlementPageChange(entitlementsPagination().currentPage + 1)">Next</button>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Edit Entitlement Dialog -->
+          @if (showEntitlementDialog()) {
+            <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" (click)="closeEntitlementDialog()">
+              <div class="bg-background rounded-lg border shadow-lg w-full max-w-md mx-4" (click)="$event.stopPropagation()">
+                <div class="px-6 py-4 border-b">
+                  <h3 class="text-lg font-semibold">Edit Entitlement</h3>
+                  @if (editingEntitlement) {
+                    <p class="text-sm text-muted-foreground">
+                      {{ editingEntitlement.employee?.full_name }} - {{ editingEntitlement.leave_type?.name }} ({{ editingEntitlement.year }})
+                    </p>
+                  }
+                </div>
+                <div class="px-6 py-4 space-y-4">
+                  <z-form-field>
+                    <label z-form-label>Total Days</label>
+                    <z-form-control>
+                      <input z-input type="number" [(ngModel)]="entitlementForm.total_days" min="0" step="0.5" />
+                    </z-form-control>
+                    <z-form-message>Annual entitlement in days.</z-form-message>
+                  </z-form-field>
+                  <z-form-field>
+                    <label z-form-label>Carry Forward Days</label>
+                    <z-form-control>
+                      <input z-input type="number" [(ngModel)]="entitlementForm.carry_forward_days" min="0" step="0.5" />
+                    </z-form-control>
+                    <z-form-message>Days carried forward from previous year.</z-form-message>
+                  </z-form-field>
+                  @if (editingEntitlement) {
+                    <div class="rounded-lg border bg-muted/30 p-4 space-y-1">
+                      <p class="text-sm"><span class="text-muted-foreground">Used:</span> <span class="font-medium">{{ editingEntitlement.used_days }} days</span></p>
+                      <p class="text-sm"><span class="text-muted-foreground">Pending:</span> <span class="font-medium">{{ editingEntitlement.pending_days }} days</span></p>
+                      <p class="text-sm"><span class="text-muted-foreground">New Balance:</span> <span class="font-semibold">{{ (entitlementForm.total_days || 0) + (entitlementForm.carry_forward_days || 0) - editingEntitlement.used_days - editingEntitlement.pending_days }} days</span></p>
+                    </div>
+                  }
+                </div>
+                <div class="px-6 py-4 border-t flex justify-end gap-2">
+                  <button z-button zType="outline" (click)="closeEntitlementDialog()">Cancel</button>
+                  <button z-button (click)="saveEntitlement()" [disabled]="saving()">
+                    @if (saving()) { <z-icon zType="loader-2" class="h-4 w-4 animate-spin mr-1" /> }
+                    Update
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- Add Entitlement Dialog -->
+          @if (showAddEntitlementDialog()) {
+            <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" (click)="closeAddEntitlementDialog()">
+              <div class="bg-background rounded-lg border shadow-lg w-full max-w-md mx-4" (click)="$event.stopPropagation()">
+                <div class="px-6 py-4 border-b">
+                  <h3 class="text-lg font-semibold">Add Leave Entitlement</h3>
+                </div>
+                <div class="px-6 py-4 space-y-4">
+                  <z-form-field>
+                    <label z-form-label [zRequired]="true">Employee</label>
+                    <z-form-control>
+                      <z-select [(ngModel)]="addEntitlementForm.employee_id" zPlaceholder="Select employee">
+                        @for (emp of activeEmployees(); track emp.id) {
+                          <z-select-item [zValue]="emp.id">{{ emp.full_name }} ({{ emp.employee_id }})</z-select-item>
+                        }
+                      </z-select>
+                    </z-form-control>
+                  </z-form-field>
+                  <z-form-field>
+                    <label z-form-label [zRequired]="true">Leave Type</label>
+                    <z-form-control>
+                      <z-select [(ngModel)]="addEntitlementForm.leave_type_id" zPlaceholder="Select leave type" (ngModelChange)="onLeaveTypeSelectedForAdd()">
+                        @for (lt of activeLeaveTypesForEntitlement(); track lt.id) {
+                          <z-select-item [zValue]="lt.id">{{ lt.name }} ({{ lt.days_per_year }} days/yr)</z-select-item>
+                        }
+                      </z-select>
+                    </z-form-control>
+                  </z-form-field>
+                  <z-form-field>
+                    <label z-form-label>Total Days</label>
+                    <z-form-control>
+                      <input z-input type="number" [(ngModel)]="addEntitlementForm.total_days" min="0" step="0.5" />
+                    </z-form-control>
+                    <z-form-message>Will default to the leave type's days per year.</z-form-message>
+                  </z-form-field>
+                  <z-form-field>
+                    <label z-form-label>Carry Forward Days</label>
+                    <z-form-control>
+                      <input z-input type="number" [(ngModel)]="addEntitlementForm.carry_forward_days" min="0" step="0.5" />
+                    </z-form-control>
+                  </z-form-field>
+                </div>
+                <div class="px-6 py-4 border-t flex justify-end gap-2">
+                  <button z-button zType="outline" (click)="closeAddEntitlementDialog()">Cancel</button>
+                  <button z-button (click)="saveAddEntitlement()"
+                    [disabled]="saving() || !addEntitlementForm.employee_id || !addEntitlementForm.leave_type_id">
+                    @if (saving()) { <z-icon zType="loader-2" class="h-4 w-4 animate-spin mr-1" /> }
+                    Create
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+        }
+
         <!-- ═══════════════════ CLAIM TYPES ═══════════════════ -->
         @if (activeSection() === 'claim-types') {
           <div class="space-y-4">

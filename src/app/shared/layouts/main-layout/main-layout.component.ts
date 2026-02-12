@@ -176,6 +176,11 @@ export class MainLayoutComponent implements OnInit {
               route: '/admin-settings/leave-types'
             },
             {
+              title: 'Leave Entitlements',
+              icon: 'calendar-check',
+              route: '/admin-settings/leave-entitlements'
+            },
+            {
               title: 'Claim Types',
               icon: 'file-text',
               route: '/admin-settings/claim-types'

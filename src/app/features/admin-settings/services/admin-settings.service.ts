@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_CONFIG } from '@/core/config/api.config';
 import {
@@ -7,6 +7,11 @@ import {
   StatutoryConfigItem, EmailTemplateItem, EmailPreview,
   CompanyProfile, ApiResponse
 } from '../models/admin-settings.models';
+import {
+  LeaveEntitlementListParams, LeaveEntitlementListResponse,
+  LeaveEntitlementResponse, CreateLeaveEntitlementRequest,
+  UpdateLeaveEntitlementRequest, InitializeYearResponse
+} from '../../leave/models/leave.model';
 
 @Injectable({ providedIn: 'root' })
 export class AdminSettingsService {
@@ -108,5 +113,52 @@ export class AdminSettingsService {
 
   resetEmailTemplate(key: string): Observable<ApiResponse<EmailTemplateItem>> {
     return this.http.post<ApiResponse<EmailTemplateItem>>(`${this.apiUrl}${API_CONFIG.endpoints.emailTemplates.reset(key)}`, {});
+  }
+
+  // ─── Leave Entitlements ──────────────────────────────────
+  getLeaveEntitlements(params?: LeaveEntitlementListParams): Observable<LeaveEntitlementListResponse> {
+    let httpParams = new HttpParams();
+    if (params) {
+      if (params.year) httpParams = httpParams.set('year', params.year.toString());
+      if (params.employee_id) httpParams = httpParams.set('employee_id', params.employee_id.toString());
+      if (params.leave_type_id) httpParams = httpParams.set('leave_type_id', params.leave_type_id.toString());
+      if (params.page) httpParams = httpParams.set('page', params.page.toString());
+      if (params.limit) httpParams = httpParams.set('limit', params.limit.toString());
+      if (params.search) httpParams = httpParams.set('search', params.search);
+    }
+    return this.http.get<LeaveEntitlementListResponse>(
+      `${this.apiUrl}${API_CONFIG.endpoints.leaveEntitlements.base}`,
+      { params: httpParams }
+    );
+  }
+
+  createLeaveEntitlement(data: CreateLeaveEntitlementRequest): Observable<LeaveEntitlementResponse> {
+    return this.http.post<LeaveEntitlementResponse>(
+      `${this.apiUrl}${API_CONFIG.endpoints.leaveEntitlements.base}`, data
+    );
+  }
+
+  updateLeaveEntitlement(id: number, data: UpdateLeaveEntitlementRequest): Observable<LeaveEntitlementResponse> {
+    return this.http.put<LeaveEntitlementResponse>(
+      `${this.apiUrl}${API_CONFIG.endpoints.leaveEntitlements.detail(id)}`, data
+    );
+  }
+
+  deleteLeaveEntitlement(id: number): Observable<ApiResponse<void>> {
+    return this.http.delete<ApiResponse<void>>(
+      `${this.apiUrl}${API_CONFIG.endpoints.leaveEntitlements.detail(id)}`
+    );
+  }
+
+  initializeYear(year: number): Observable<InitializeYearResponse> {
+    return this.http.post<InitializeYearResponse>(
+      `${this.apiUrl}${API_CONFIG.endpoints.leaveEntitlements.initialize}`, { year }
+    );
+  }
+
+  getActiveEmployees(): Observable<ApiResponse<{ employees: { id: number; employee_id: string; full_name: string }[] }>> {
+    return this.http.get<ApiResponse<{ employees: { id: number; employee_id: string; full_name: string }[] }>>(
+      `${this.apiUrl}${API_CONFIG.endpoints.employees.base}?limit=500&employment_status=Active`
+    );
   }
 }

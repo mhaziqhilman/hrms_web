@@ -62,6 +62,60 @@ export interface LeaveEntitlement {
   created_at: string;
   updated_at: string;
   leave_type?: LeaveType;
+  employee?: LeaveEmployee;
+}
+
+export interface LeaveEntitlementListParams {
+  page?: number;
+  limit?: number;
+  year?: number;
+  employee_id?: number;
+  leave_type_id?: number;
+  search?: string;
+}
+
+export interface LeaveEntitlementListResponse {
+  success: boolean;
+  data: {
+    entitlements: LeaveEntitlement[];
+    pagination: {
+      total: number;
+      currentPage: number;
+      limit: number;
+      totalPages: number;
+    };
+  };
+}
+
+export interface LeaveEntitlementResponse {
+  success: boolean;
+  data: LeaveEntitlement;
+  message?: string;
+}
+
+export interface CreateLeaveEntitlementRequest {
+  employee_id: number;
+  leave_type_id: number;
+  year: number;
+  total_days: number;
+  carry_forward_days?: number;
+}
+
+export interface UpdateLeaveEntitlementRequest {
+  total_days?: number;
+  carry_forward_days?: number;
+}
+
+export interface InitializeYearResponse {
+  success: boolean;
+  data: {
+    year: number;
+    created: number;
+    skipped: number;
+    total_employees: number;
+    total_leave_types: number;
+  };
+  message?: string;
 }
 
 export enum LeaveStatus {

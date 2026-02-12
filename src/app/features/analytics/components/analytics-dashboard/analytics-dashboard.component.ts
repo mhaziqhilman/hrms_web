@@ -129,10 +129,14 @@ export class AnalyticsDashboardComponent implements OnInit {
           next: (response) => {
             if (response.success) {
               this.payrollData.set(response.data);
+            } else {
+              this.payrollData.set(null);
             }
             this.loading.set(false);
           },
-          error: () => {
+          error: (err) => {
+            console.error('Payroll analytics error:', err);
+            this.payrollData.set(null);
             this.loading.set(false);
             this.showError('Failed to load payroll analytics');
           }
@@ -144,10 +148,14 @@ export class AnalyticsDashboardComponent implements OnInit {
           next: (response) => {
             if (response.success) {
               this.leaveData.set(response.data);
+            } else {
+              this.leaveData.set(null);
             }
             this.loading.set(false);
           },
-          error: () => {
+          error: (err) => {
+            console.error('Leave analytics error:', err);
+            this.leaveData.set(null);
             this.loading.set(false);
             this.showError('Failed to load leave analytics');
           }
@@ -160,10 +168,14 @@ export class AnalyticsDashboardComponent implements OnInit {
           next: (response) => {
             if (response.success) {
               this.attendanceData.set(response.data);
+            } else {
+              this.attendanceData.set(null);
             }
             this.loading.set(false);
           },
-          error: () => {
+          error: (err) => {
+            console.error('Attendance analytics error:', err);
+            this.attendanceData.set(null);
             this.loading.set(false);
             this.showError('Failed to load attendance analytics');
           }
@@ -175,10 +187,14 @@ export class AnalyticsDashboardComponent implements OnInit {
           next: (response) => {
             if (response.success) {
               this.claimsData.set(response.data);
+            } else {
+              this.claimsData.set(null);
             }
             this.loading.set(false);
           },
-          error: () => {
+          error: (err) => {
+            console.error('Claims analytics error:', err);
+            this.claimsData.set(null);
             this.loading.set(false);
             this.showError('Failed to load claims analytics');
           }
