@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
+import { timeout } from 'rxjs/operators';
 import { AuthService } from '../../../../core/services/auth.service';
 import { InvitationService } from '../../../../core/services/invitation.service';
 
@@ -69,7 +70,9 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   private acceptPendingInvitation(token: string): void {
-    this.invitationService.acceptInvitation(token).subscribe({
+    this.invitationService.acceptInvitation(token).pipe(
+      timeout(15000)
+    ).subscribe({
       next: (response) => {
         localStorage.removeItem('pending_invitation_token');
         // Update session with new token/user that includes the company
@@ -85,7 +88,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         }
       },
       error: () => {
-        // Invitation may be invalid/expired - clear it and continue normally
+        // Invitation may be invalid/expired/timed out - clear it and continue
         localStorage.removeItem('pending_invitation_token');
         this.router.navigate([this.returnUrl]);
       }

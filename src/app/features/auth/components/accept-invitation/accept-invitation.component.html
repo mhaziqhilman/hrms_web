@@ -10,6 +10,7 @@
     <z-card class="border shadow-lg">
       <div z-card-content class="p-6">
         <div class="text-center">
+
           <!-- Loading Info State -->
           @if (loadingInfo) {
             <div class="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6">
@@ -88,19 +89,30 @@
           <!-- Error State -->
           @if (!loadingInfo && !processing && errorMessage) {
             <div class="mx-auto w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mb-6">
-              <z-icon [zType]="$any('x-circle')" class="w-8 h-8 text-destructive" />
+              <z-icon [zType]="$any('circle-x')" class="w-8 h-8 text-destructive" />
             </div>
             <h1 class="text-2xl font-semibold text-foreground mb-2">Invitation Error</h1>
-            <p class="text-sm text-muted-foreground mb-8">{{ errorMessage }}</p>
+            <p class="text-sm text-muted-foreground mb-6">{{ errorMessage }}</p>
             <button
               z-button
               type="button"
+              class="w-full mb-3"
+              (click)="retryLoad()"
+            >
+              <z-icon [zType]="$any('refresh-cw')" class="w-4 h-4 mr-2" />
+              Try Again
+            </button>
+            <button
+              z-button
+              type="button"
+              [zType]="'outline'"
               class="w-full"
               (click)="goToLogin()"
             >
               Go to Login
             </button>
           }
+
         </div>
       </div>
     </z-card>

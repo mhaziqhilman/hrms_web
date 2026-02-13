@@ -26,6 +26,14 @@ export const ATTENDANCE_ROUTES: Routes = [
     data: { title: 'WFH Application' }
   },
   {
+    path: 'my',
+    loadComponent: () =>
+      import('./components/my-attendance/my-attendance.component').then(
+        (m) => m.MyAttendanceComponent
+      ),
+    data: { title: 'My Attendance' }
+  },
+  {
     path: 'wfh/approvals',
     loadComponent: () =>
       import('./components/wfh-approval-list/wfh-approval-list').then(

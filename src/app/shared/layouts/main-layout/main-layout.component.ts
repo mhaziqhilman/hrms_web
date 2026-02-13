@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, RouterOutlet, Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { filter } from 'rxjs/operators';
@@ -39,6 +39,8 @@ import { ZardBreadcrumbModule } from '@/shared/components/breadcrumb/breadcrumb.
   styleUrls: ['./main-layout.component.css']
 })
 export class MainLayoutComponent implements OnInit {
+  private cdr = inject(ChangeDetectorRef);
+
   currentUser: User | null = null;
   currentCompany: Company | null = null;
   companyMemberships: UserCompany[] = [];
@@ -145,7 +147,7 @@ export class MainLayoutComponent implements OnInit {
         {
           title: 'My Attendance',
           icon: 'clock',
-          route: '/attendance',
+          route: '/attendance/my',
           roles: ['staff']
         },
         {
@@ -274,7 +276,11 @@ export class MainLayoutComponent implements OnInit {
         this.companyService.getMyCompany().subscribe({
           next: (res) => {
             if (res.success && res.data) {
-              this.currentCompany = { ...this.currentCompany!, ...res.data };
+              // Defer to next CD cycle to avoid ExpressionChangedAfterItHasBeenCheckedError
+              setTimeout(() => {
+                this.currentCompany = { ...this.currentCompany!, ...res.data };
+                this.cdr.markForCheck();
+              });
             }
           }
         });

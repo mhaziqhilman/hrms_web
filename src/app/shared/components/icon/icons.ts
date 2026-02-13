@@ -76,6 +76,7 @@ import {
   LogOut,
   type LucideIconData,
   Mail,
+  MailOpen,
   Megaphone,
   Minus,
   Monitor,
@@ -132,6 +133,10 @@ import {
   FileChartColumnIncreasing,
   KeyRound,
   CalendarCheck,
+  ShieldCheck,
+  Timer,
+  MapPin,
+  MessageSquare,
 } from 'lucide-angular';
 
 const DarkMode: LucideIconData = [
@@ -150,6 +155,7 @@ export const ZARD_ICONS = {
   search: Search,
   bell: Bell,
   mail: Mail,
+  'mail-open': MailOpen,
   calendar: Calendar,
   'log-out': LogOut,
   'panel-left': PanelLeft,
@@ -277,6 +283,10 @@ export const ZARD_ICONS = {
   'unlink': Unlink,
   'key-round': KeyRound,
   'calendar-check': CalendarCheck,
+  'shield-check': ShieldCheck,
+  'timer': Timer,
+  'map-pin': MapPin,
+  'message-square': MessageSquare,
 } as const satisfies Record<string, LucideIconData>;
 
 export declare type ZardIcon = keyof typeof ZARD_ICONS | LucideIconData;

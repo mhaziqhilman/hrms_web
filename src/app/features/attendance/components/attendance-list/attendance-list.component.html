@@ -1,420 +1,467 @@
 <div class="bg-background min-h-screen">
-  <!-- Header -->
-  <div class="flex items-center justify-between mb-8">
-    <h1 class="text-3xl font-bold text-foreground">Attendance Records</h1>
-    <div class="flex gap-2">
-      <button z-button zType="outline" [routerLink]="['/attendance/wfh']" class="gap-2">
-        <z-icon zType="house" class="w-4 h-4" />
-        WFH Application
-      </button>
-      <button z-button [routerLink]="['/attendance/clock']" class="gap-2">
-        <z-icon zType="clock" class="w-4 h-4" />
-        Clock In/Out
-      </button>
-    </div>
-  </div>
-
   <!-- No Profile State -->
   @if (!loading() && !hasProfile()) {
     <z-card>
       <z-empty
         [zIcon]="$any('user-x')"
         zTitle="Profile Not Set Up"
-        zDescription="Your employee profile has not been created yet. Please contact your administrator or HR department to set up your profile before you can access attendance records." />
+        zDescription="Your employee profile has not been created yet. Please contact your administrator to set up your profile." />
     </z-card>
   }
 
   @if (hasProfile()) {
-  <!-- Filters -->
-  <div class="flex items-center gap-3 mb-6 flex-wrap justify-between">
-    <div class="flex items-center gap-3 flex-1 flex-wrap">
-      <!-- Date Filter -->
-      <z-date-picker
-        placeholder="Select Date"
-        zFormat="dd-MM-yyyy"
-        [(ngModel)]="dateValue"
-        (dateChange)="onDateChange($event)"
-        [class]="selectedDate() ? 'has-value' : ''">
-      </z-date-picker>
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-6">
+      <!-- Left: Title + Divider + Date Navigator -->
+      <div class="flex items-center gap-4">
+        <h1 class="text-2xl font-bold text-foreground">Attendance</h1>
+        <z-divider zOrientation="vertical" class="h-6" />
+        <!-- Date Navigator -->
+        <div class="inline-flex items-center bg-card border rounded-lg overflow-hidden">
+          <button z-button zType="ghost" zSize="sm" (click)="navigateDate(-1)"
+            class="px-2.5 rounded-none border-r h-9">
+            <z-icon zType="chevron-left" class="w-4 h-4" />
+          </button>
+          <button z-button zType="ghost" zSize="sm" (click)="goToToday()"
+            class="px-4 font-medium text-sm min-w-[220px] rounded-none h-9 hover:bg-muted/50">
+            {{ formatViewDate() }}
+          </button>
+          <button z-button zType="ghost" zSize="sm" (click)="navigateDate(1)"
+            class="px-2.5 rounded-none border-l h-9">
+            <z-icon zType="chevron-right" class="w-4 h-4" />
+          </button>
+        </div>
+      </div>
 
-      <!-- Type Filter -->
-      <div z-menu [zMenuTriggerFor]="typeMenu">
-        <button
-          z-button
-          zType="outline"
-          [class]="selectedType()
-            ? 'gap-2 border border-solid px-2 bg-primary/5 text-primary border-primary'
-            : 'gap-2 border border-dashed px-2'">
-          <z-icon [zType]="selectedType() ? 'circle-check' : 'circle-plus'" class="w-4 h-4" />
-          {{ getTypeDisplayName() }}
+      <!-- Right: Action Buttons -->
+      <div class="flex gap-2">
+        <button z-button zType="outline" [routerLink]="['/attendance/wfh']" class="gap-2">
+          <z-icon [zType]="$any('file-text')" class="w-4 h-4" />
+          Attendance Report
+        </button>
+        <button z-button [routerLink]="['/attendance/clock']" class="gap-2">
+          <z-icon [zType]="$any('user-plus')" class="w-4 h-4" />
+          Add Attendance
         </button>
       </div>
-      <ng-template #typeMenu>
-        <div z-menu-content class="w-48">
-          <button type="button" z-menu-item (click)="selectedType.set(''); onFilterChange()">
-            All Types
-          </button>
-          <button type="button" z-menu-item (click)="selectedType.set('Office'); onFilterChange()">
-            Office
-          </button>
-          <button type="button" z-menu-item (click)="selectedType.set('WFH'); onFilterChange()">
-            Work From Home
-          </button>
-        </div>
-      </ng-template>
+    </div>
 
-      <!-- Status Filter -->
-      <div z-menu [zMenuTriggerFor]="statusMenu">
-        <button
-          z-button
-          zType="outline"
-          [class]="showLateOnly() || showEarlyLeaveOnly()
-            ? 'gap-2 border border-solid px-2 bg-primary/5 text-primary border-primary'
-            : 'gap-2 border border-dashed px-2'">
-          <z-icon [zType]="showLateOnly() || showEarlyLeaveOnly() ? 'circle-check' : 'circle-plus'" class="w-4 h-4" />
-          {{ getStatusDisplayName() }}
-        </button>
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <!-- Present Summary -->
+      <div class="bg-card rounded-xl border p-5">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center">
+              <z-icon [zType]="$any('shield-check')" class="w-4 h-4 text-emerald-600" />
+            </div>
+            <span class="font-semibold text-sm text-foreground">Present Summary</span>
+          </div>
+          <z-icon [zType]="$any('ellipsis')" class="w-4 h-4 text-muted-foreground cursor-pointer hover:text-foreground transition-colors" />
+        </div>
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <p class="text-xs text-muted-foreground mb-1">On time</p>
+            <p class="text-2xl font-bold text-foreground">{{ summaryStats().onTime }}</p>
+          </div>
+          <div class="border-l pl-3">
+            <p class="text-xs text-muted-foreground mb-1">Late clock-in</p>
+            <p class="text-2xl font-bold text-foreground">{{ summaryStats().late }}</p>
+          </div>
+          <div class="border-l pl-3">
+            <p class="text-xs text-muted-foreground mb-1">Early leave</p>
+            <p class="text-2xl font-bold text-foreground">{{ summaryStats().earlyLeave }}</p>
+          </div>
+        </div>
       </div>
-      <ng-template #statusMenu>
-        <div z-menu-content class="w-48">
-          <button type="button" z-menu-item (click)="showLateOnly.set(false); showEarlyLeaveOnly.set(false); onFilterChange()">
-            All Status
-          </button>
-          <button type="button" z-menu-item (click)="showLateOnly.set(true); showEarlyLeaveOnly.set(false); onFilterChange()">
-            Late Only
-          </button>
-          <button type="button" z-menu-item (click)="showLateOnly.set(false); showEarlyLeaveOnly.set(true); onFilterChange()">
-            Early Leave Only
-          </button>
-        </div>
-      </ng-template>
 
-      <!-- Clear Filters -->
-      <button
-        *ngIf="selectedDate() || selectedType() || showLateOnly() || showEarlyLeaveOnly()"
-        type="button"
-        z-button
-        zType="outline"
-        class="gap-2 border-none shadow-none px-2"
-        (click)="clearFilters()">
-        Reset
-        <z-icon zType="x" class="w-4 h-4" />
-      </button>
+      <!-- Clock Details -->
+      <div class="bg-card rounded-xl border p-5">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center">
+              <z-icon zType="clock" class="w-4 h-4 text-amber-600" />
+            </div>
+            <span class="font-semibold text-sm text-foreground">Clock Details</span>
+          </div>
+          <z-icon [zType]="$any('ellipsis')" class="w-4 h-4 text-muted-foreground cursor-pointer hover:text-foreground transition-colors" />
+        </div>
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <p class="text-xs text-muted-foreground mb-1">No clock-out</p>
+            <p class="text-2xl font-bold text-foreground">{{ summaryStats().noClockOut }}</p>
+          </div>
+          <div class="border-l pl-3">
+            <p class="text-xs text-muted-foreground mb-1">Office</p>
+            <p class="text-2xl font-bold text-foreground">{{ summaryStats().office }}</p>
+          </div>
+          <div class="border-l pl-3">
+            <p class="text-xs text-muted-foreground mb-1">WFH</p>
+            <p class="text-2xl font-bold text-foreground">{{ summaryStats().wfh }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hours Summary -->
+      <div class="bg-card rounded-xl border p-5">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-violet-50 dark:bg-violet-950/30 flex items-center justify-center">
+              <z-icon [zType]="$any('timer')" class="w-4 h-4 text-violet-600" />
+            </div>
+            <span class="font-semibold text-sm text-foreground">Hours Summary</span>
+          </div>
+          <z-icon [zType]="$any('ellipsis')" class="w-4 h-4 text-muted-foreground cursor-pointer hover:text-foreground transition-colors" />
+        </div>
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <p class="text-xs text-muted-foreground mb-1">Avg hours</p>
+            <p class="text-2xl font-bold text-foreground">{{ formatHours(summaryStats().avgHours) }}</p>
+          </div>
+          <div class="border-l pl-3">
+            <p class="text-xs text-muted-foreground mb-1">Overtime</p>
+            <p class="text-2xl font-bold text-foreground">{{ summaryStats().overtime }}</p>
+          </div>
+          <div class="border-l pl-3">
+            <p class="text-xs text-muted-foreground mb-1">Total</p>
+            <p class="text-2xl font-bold text-foreground">{{ summaryStats().total }}</p>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Column Toggle - Right Side -->
-    <div z-menu [zMenuTriggerFor]="columnMenu">
-      <button z-button zType="outline" class="gap-2 px-2">
-        <z-icon zType="eye" class="w-4 h-4" />
-        View
-      </button>
-    </div>
-    <ng-template #columnMenu>
-      <div z-menu-content class="w-56">
-        <div class="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
-          Toggle Columns
+    <!-- Filters -->
+    <div class="flex items-center gap-3 mb-6 flex-wrap justify-between">
+      <div class="flex items-center gap-3 flex-1 flex-wrap">
+        <!-- Search Bar -->
+        <div class="relative flex-1 min-w-[180px] max-w-md">
+          <z-icon zType="search"
+            class="absolute left-1.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+          <input type="text" [value]="searchQuery()" (input)="searchQuery.set($any($event.target).value)"
+            placeholder="Search by name or employee code..."
+            class="w-full pl-8 pr-2 py-2 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent" />
         </div>
-        @for (column of columnList; track column.key) {
-          <button type="button" z-menu-item (click)="toggleColumn(column.key)" class="justify-between">
-            {{ column.label }}
-            @if (visibleColumns()[column.key]) {
-              <z-icon zType="check" class="w-4 h-4" />
-            } @else {
-              <span class="w-4 h-4"></span>
-            }
+
+        <!-- Type Filter -->
+        <div z-menu [zMenuTriggerFor]="typeMenu">
+          <button z-button zType="outline" [class]="selectedType()
+              ? 'gap-2 border border-solid px-2 bg-primary/5 text-primary border-primary'
+              : 'gap-2 border border-dashed px-2'">
+            <z-icon [zType]="selectedType() ? 'circle-check' : 'circle-plus'" class="w-4 h-4" />
+            {{ getTypeDisplayName() }}
+          </button>
+        </div>
+        <ng-template #typeMenu>
+          <div z-menu-content class="w-48">
+            <button type="button" z-menu-item (click)="selectedType.set(''); onFilterChange()">
+              All Types
+            </button>
+            <button type="button" z-menu-item (click)="selectedType.set('Office'); onFilterChange()">
+              Office
+            </button>
+            <button type="button" z-menu-item (click)="selectedType.set('WFH'); onFilterChange()">
+              Work From Home
+            </button>
+          </div>
+        </ng-template>
+
+        <!-- Status Filter -->
+        <div z-menu [zMenuTriggerFor]="statusMenu">
+          <button z-button zType="outline" [class]="showLateOnly() || showEarlyLeaveOnly()
+              ? 'gap-2 border border-solid px-2 bg-primary/5 text-primary border-primary'
+              : 'gap-2 border border-dashed px-2'">
+            <z-icon [zType]="showLateOnly() || showEarlyLeaveOnly() ? 'circle-check' : 'circle-plus'" class="w-4 h-4" />
+            {{ getStatusDisplayName() }}
+          </button>
+        </div>
+        <ng-template #statusMenu>
+          <div z-menu-content class="w-48">
+            <button type="button" z-menu-item (click)="showLateOnly.set(false); showEarlyLeaveOnly.set(false); onFilterChange()">
+              All Status
+            </button>
+            <button type="button" z-menu-item (click)="showLateOnly.set(true); showEarlyLeaveOnly.set(false); onFilterChange()">
+              Late Only
+            </button>
+            <button type="button" z-menu-item (click)="showLateOnly.set(false); showEarlyLeaveOnly.set(true); onFilterChange()">
+              Early Leave Only
+            </button>
+          </div>
+        </ng-template>
+
+        <!-- Clear Filters -->
+        @if (selectedType() || showLateOnly() || showEarlyLeaveOnly() || searchQuery()) {
+          <button type="button"
+            z-button zType="outline" class="gap-2 border-none shadow-none px-2" (click)="clearFilters()">
+            Reset
+            <z-icon zType="x" class="w-4 h-4" />
           </button>
         }
       </div>
-    </ng-template>
-  </div>
 
-  <!-- Loading State -->
-  @if (loading()) {
-    <div class="flex items-center justify-center py-20">
-      <z-icon zType="loader-circle" class="w-8 h-8 animate-spin text-primary" />
-    </div>
-  }
-
-  <!-- Error State -->
-  @if (error()) {
-    <div class="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-2 text-red-800 mb-6">
-      <z-icon zType="triangle-alert" class="w-5 h-5" />
-      <span>{{ error() }}</span>
-    </div>
-  }
-
-  <!-- Bulk Actions Bar - Modern SaaS Style -->
-  @if (getSelectedCount() > 0) {
-    <div class="mb-4 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 backdrop-blur-sm border-l-4 border-primary shadow-sm">
-      <div class="flex items-center justify-between px-6 py-3 gap-4">
-        <!-- Left: Selection Info -->
-        <div class="flex items-center gap-3">
-          <div class="flex items-center justify-center w-8 h-8 rounded-full bg-primary/20">
-            <z-icon zType="check-circle" class="w-4 h-4 text-primary" />
-          </div>
-          <div class="flex flex-col">
-            <span class="text-sm font-semibold text-foreground">{{ getSelectedCount() }} Selected</span>
-            <span class="text-xs text-muted-foreground">Bulk actions available</span>
-          </div>
-        </div>
-
-        <!-- Right: Action Buttons -->
-        <div class="flex items-center gap-2">
-          <button type="button" (click)="bulkDelete()"
-            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-destructive hover:bg-destructive/90 rounded-md transition-all duration-200 shadow-sm hover:shadow-md">
-            <z-icon zType="trash" class="w-4 h-4" />
-            <span>Delete</span>
-          </button>
-          <div class="w-px h-6 bg-border mx-1"></div>
-          <button type="button" (click)="clearSelection()"
-            class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200">
-            <z-icon zType="x" class="w-4 h-4" />
-            <span>Clear</span>
-          </button>
-        </div>
+      <!-- Column Toggle - Right Side -->
+      <div z-menu [zMenuTriggerFor]="columnMenu">
+        <button z-button zType="outline" class="gap-2 px-2">
+          <z-icon zType="eye" class="w-4 h-4" />
+          View
+        </button>
       </div>
-    </div>
-  }
-
-  <!-- Table -->
-  @if (!loading() && !error()) {
-    <div class="attendance-table-container rounded-lg border" *ngIf="attendances().length > 0">
-      <table z-table class="attendance-table">
-        <thead>
-          <tr>
-            <!-- Checkbox Column -->
-            <th class="!pl-3 w-10 th-text-center">
-              <input
-                type="checkbox"
-                [checked]="selectAll()"
-                (change)="toggleSelectAll()"
-                class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer" />
-            </th>
-
-            <!-- Employee Column - Sortable -->
-            <th class="!pl-3" *ngIf="visibleColumns()['employee']">
-              <button
-                (click)="onSort('employee')"
-                class="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer"
-                [class.text-primary]="isSortActive('employee')">
-                <span>Employee</span>
-                <z-icon [zType]="getSortIcon('employee')" class="w-4 h-4" />
-              </button>
-            </th>
-
-            <!-- Date Column - Sortable -->
-            <th *ngIf="visibleColumns()['date']">
-              <button
-                (click)="onSort('date')"
-                class="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer"
-                [class.text-primary]="isSortActive('date')">
-                <span>Date</span>
-                <z-icon [zType]="getSortIcon('date')" class="w-4 h-4" />
-              </button>
-            </th>
-
-            <!-- Type Column - Sortable -->
-            <th *ngIf="visibleColumns()['type']">
-              <button
-                (click)="onSort('type')"
-                class="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer"
-                [class.text-primary]="isSortActive('type')">
-                <span>Type</span>
-                <z-icon [zType]="getSortIcon('type')" class="w-4 h-4" />
-              </button>
-            </th>
-
-            <!-- Clock In Column - Sortable -->
-            <th *ngIf="visibleColumns()['clockIn']">
-              <button
-                (click)="onSort('clockIn')"
-                class="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer"
-                [class.text-primary]="isSortActive('clockIn')">
-                <span>Clock In</span>
-                <z-icon [zType]="getSortIcon('clockIn')" class="w-4 h-4" />
-              </button>
-            </th>
-
-            <!-- Clock Out Column - Sortable -->
-            <th *ngIf="visibleColumns()['clockOut']">
-              <button
-                (click)="onSort('clockOut')"
-                class="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer"
-                [class.text-primary]="isSortActive('clockOut')">
-                <span>Clock Out</span>
-                <z-icon [zType]="getSortIcon('clockOut')" class="w-4 h-4" />
-              </button>
-            </th>
-
-            <!-- Total Hours Column - Sortable -->
-            <th *ngIf="visibleColumns()['totalHours']">
-              <button
-                (click)="onSort('totalHours')"
-                class="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer"
-                [class.text-primary]="isSortActive('totalHours')">
-                <span>Total Hours</span>
-                <z-icon [zType]="getSortIcon('totalHours')" class="w-4 h-4" />
-              </button>
-            </th>
-
-            <!-- Status Column - Sortable -->
-            <th *ngIf="visibleColumns()['status']">
-              <button
-                (click)="onSort('status')"
-                class="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer"
-                [class.text-primary]="isSortActive('status')">
-                <span>Status</span>
-                <z-icon [zType]="getSortIcon('status')" class="w-4 h-4" />
-              </button>
-            </th>
-
-            <!-- Actions Column -->
-            <th class="!pr-3">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (attendance of attendances(); track attendance.id) {
-            <tr>
-              <!-- Checkbox -->
-              <td class="!pl-3 text-center">
-                <input
-                  type="checkbox"
-                  [checked]="isAttendanceSelected(attendance.id)"
-                  (change)="toggleAttendanceSelection(attendance.id)"
-                  class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer" />
-              </td>
-
-              <!-- Employee -->
-              @if (visibleColumns()['employee']) {
-                <td class="!pl-3">
-                  <div class="flex items-center gap-3">
-                    <z-avatar
-                      [zFallback]="(attendance.employee?.full_name || 'N/A').charAt(0)"
-                      class="w-10 h-10" />
-                    <div class="flex flex-col">
-                      <span class="font-medium text-foreground">{{attendance.employee?.full_name || 'N/A'}}</span>
-                      <span class="text-xs text-muted-foreground">{{attendance.employee?.employee_code || 'N/A'}}</span>
-                    </div>
-                  </div>
-                </td>
+      <ng-template #columnMenu>
+        <div z-menu-content class="w-56">
+          <div class="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
+            Toggle Columns
+          </div>
+          @for (column of columnList; track column.key) {
+            <button type="button" z-menu-item (click)="toggleColumn(column.key)" class="justify-between">
+              {{ column.label }}
+              @if (visibleColumns()[column.key]) {
+                <z-icon zType="check" class="w-4 h-4" />
+              } @else {
+                <span class="w-4 h-4"></span>
               }
-
-              <!-- Date -->
-              @if (visibleColumns()['date']) {
-                <td>{{formatDate(attendance.clock_in_time)}}</td>
-              }
-
-              <!-- Type -->
-              @if (visibleColumns()['type']) {
-                <td>
-                  <z-badge
-                    [zType]="attendance.type === 'Office' ? 'default' : 'secondary'"
-                    [zShape]="'pill'"
-                    class="text-xs">
-                    {{attendance.type}}
-                  </z-badge>
-                </td>
-              }
-
-              <!-- Clock In -->
-              @if (visibleColumns()['clockIn']) {
-                <td>{{formatTime(attendance.clock_in_time)}}</td>
-              }
-
-              <!-- Clock Out -->
-              @if (visibleColumns()['clockOut']) {
-                <td>{{formatTime(attendance.clock_out_time)}}</td>
-              }
-
-              <!-- Total Hours -->
-              @if (visibleColumns()['totalHours']) {
-                <td class="font-medium">{{formatHours(attendance.total_hours)}}</td>
-              }
-
-              <!-- Status -->
-              @if (visibleColumns()['status']) {
-                <td>
-                  <z-badge
-                    [zType]="attendance.is_late && attendance.is_early_leave ? 'destructive' : attendance.is_late ? 'secondary' : attendance.is_early_leave ? 'outline' : 'default'"
-                    [zShape]="'pill'"
-                    class="text-xs">
-                    {{getStatusText(attendance)}}
-                  </z-badge>
-                </td>
-              }
-
-              <!-- Actions -->
-              <td class="!pr-3 text-right">
-                <div class="flex gap-2 flex-nowrap justify-end">
-                  <a [routerLink]="['/attendance', attendance.id]" z-button zType="outline" zSize="sm"
-                    [zTooltip]="'View'">
-                    <z-icon zType="eye" class="w-4 h-4" />
-                  </a>
-                  <button (click)="deleteAttendance(attendance)" z-button zType="outline" zSize="sm"
-                    [zTooltip]="'Delete'" class="text-red-600 hover:text-red-700">
-                    <z-icon zType="trash" class="w-4 h-4" />
-                  </button>
-                </div>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Empty State -->
-    @if (attendances().length === 0) {
-      <div class="bg-card border rounded-lg">
-        <div class="flex flex-col items-center justify-center py-20 text-center">
-          <z-icon zType="calendar" class="w-16 h-16 text-muted-foreground mb-4" />
-          <h3 class="text-lg font-semibold mb-2">No Attendance Records Found</h3>
-          <p class="text-muted-foreground mb-4">There are no attendance records matching your criteria</p>
-          <button z-button [routerLink]="['/attendance/clock']">
-            <z-icon zType="clock" class="mr-2" />
-            Clock In Now
-          </button>
-        </div>
-      </div>
-    }
-
-    <!-- Pagination -->
-    @if (attendances().length > 0) {
-      <div class="flex items-center justify-between mt-4">
-        <div class="text-sm text-muted-foreground">
-          Showing {{ (currentPage() - 1) * limit() + 1 }} to
-          {{ Math.min(currentPage() * limit(), totalRecords()) }} of
-          {{ totalRecords() }} records
-        </div>
-        <div class="flex items-center gap-1">
-          <button
-            z-button
-            zType="outline"
-            zSize="sm"
-            (click)="onPageChange(currentPage() - 1)"
-            [disabled]="currentPage() === 1">
-            Previous
-          </button>
-          @for (page of [].constructor(Math.min(totalPages(), 5)); track $index) {
-            <button
-              z-button
-              [zType]="currentPage() === $index + 1 ? 'default' : 'outline'"
-              zSize="sm"
-              (click)="onPageChange($index + 1)"
-              class="min-w-[36px]">
-              {{ $index + 1 }}
             </button>
           }
-          <button
-            z-button
-            zType="outline"
-            zSize="sm"
-            (click)="onPageChange(currentPage() + 1)"
-            [disabled]="currentPage() === totalPages()">
-            Next
-          </button>
         </div>
+      </ng-template>
+    </div>
+
+    <!-- Loading State -->
+    @if (loading()) {
+      <div class="flex items-center justify-center py-20">
+        <z-icon zType="loader-circle" class="w-8 h-8 animate-spin text-primary" />
       </div>
     }
-  }
+
+    <!-- Error State -->
+    @if (error()) {
+      <div class="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-xl p-4 flex items-center gap-3 text-red-800 dark:text-red-400 mb-6">
+        <z-icon zType="triangle-alert" class="w-5 h-5 shrink-0" />
+        <span class="text-sm">{{ error() }}</span>
+      </div>
+    }
+
+    <!-- Data Table -->
+    @if (!loading() && !error()) {
+      @if (filteredAttendances().length > 0) {
+        <div class="attendance-table-container rounded-xl border bg-card overflow-hidden">
+          <table z-table class="attendance-table">
+            <thead class="bg-sidebar">
+              <tr>
+                <!-- Employee Name -->
+                @if (visibleColumns()['employee']) {
+                  <th class="!pl-5">
+                    <button (click)="onSort('employee')"
+                      class="flex items-center gap-1.5 hover:text-primary transition-colors cursor-pointer font-semibold text-sm text-foreground"
+                      [class.text-primary]="isSortActive('employee')">
+                      <z-icon zType="user" class="w-3.5 h-3.5 text-muted-foreground" />
+                      Employee Name
+                      <z-icon [zType]="getSortIcon('employee')" class="w-3.5 h-3.5" />
+                    </button>
+                  </th>
+                }
+
+                <!-- Clock-in & Out -->
+                @if (visibleColumns()['clockInOut']) {
+                  <th>
+                    <button (click)="onSort('clockIn')"
+                      class="flex items-center gap-1.5 hover:text-primary transition-colors cursor-pointer font-semibold text-sm text-foreground"
+                      [class.text-primary]="isSortActive('clockIn')">
+                      <z-icon zType="clock" class="w-3.5 h-3.5 text-muted-foreground" />
+                      Clock-in & Out
+                      <z-icon [zType]="getSortIcon('clockIn')" class="w-3.5 h-3.5" />
+                    </button>
+                  </th>
+                }
+
+                <!-- Overtime -->
+                @if (visibleColumns()['overtime']) {
+                  <th>
+                    <button (click)="onSort('totalHours')"
+                      class="flex items-center gap-1.5 hover:text-primary transition-colors cursor-pointer font-semibold text-sm text-foreground"
+                      [class.text-primary]="isSortActive('totalHours')">
+                      <z-icon [zType]="$any('timer')" class="w-3.5 h-3.5 text-muted-foreground" />
+                      Overtime
+                      <z-icon [zType]="getSortIcon('totalHours')" class="w-3.5 h-3.5" />
+                    </button>
+                  </th>
+                }
+
+                <!-- Location -->
+                @if (visibleColumns()['location']) {
+                  <th>
+                    <div class="flex items-center gap-1.5 font-semibold text-sm text-foreground">
+                      <z-icon [zType]="$any('map-pin')" class="w-3.5 h-3.5 text-muted-foreground" />
+                      Location
+                    </div>
+                  </th>
+                }
+
+                <!-- Note -->
+                @if (visibleColumns()['note']) {
+                  <th>
+                    <div class="flex items-center gap-1.5 font-semibold text-sm text-foreground">
+                      <z-icon [zType]="$any('message-square')" class="w-3.5 h-3.5 text-muted-foreground" />
+                      Note
+                    </div>
+                  </th>
+                }
+
+                <!-- Actions -->
+                <th class="!pr-5 w-12"></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (attendance of filteredAttendances(); track attendance.id) {
+                <tr class="group cursor-pointer hover:bg-muted/50 transition-colors"
+                  (click)="navigateToDetail(attendance.id)">
+                  <!-- Employee -->
+                  @if (visibleColumns()['employee']) {
+                    <td class="!pl-3">
+                      <div class="flex items-center gap-3">
+                        <z-avatar
+                          [zFallback]="(attendance.employee?.full_name || 'N').charAt(0)"
+                          class="w-9 h-9 shrink-0" />
+                        <div class="min-w-0">
+                          <p class="font-medium text-sm text-foreground truncate">{{ attendance.employee?.full_name || 'N/A' }}</p>
+                          <p class="text-xs text-muted-foreground">{{ attendance.employee?.employee_code || '' }}</p>
+                        </div>
+                      </div>
+                    </td>
+                  }
+
+                  <!-- Clock-in & Out Timeline -->
+                  @if (visibleColumns()['clockInOut']) {
+                    <td>
+                      <div class="flex items-center gap-1.5">
+                        <span class="text-sm font-semibold tabular-nums"
+                          [class]="attendance.is_late ? 'text-red-500' : 'text-emerald-600'">
+                          {{ formatTime(attendance.clock_in_time) }}
+                        </span>
+                        <div class="flex items-center">
+                          <span class="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600"></span>
+                          <span class="timeline-dash"></span>
+                          <span class="text-[10px] text-muted-foreground font-medium px-1 whitespace-nowrap">{{ calculateDuration(attendance) }}</span>
+                          <span class="timeline-dash"></span>
+                          <span class="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600"></span>
+                        </div>
+                        <span class="text-sm font-semibold tabular-nums"
+                          [class]="isOvertime(attendance) ? 'text-red-500' : 'text-foreground'">
+                          {{ formatTime(attendance.clock_out_time) }}
+                        </span>
+                      </div>
+                    </td>
+                  }
+
+                  <!-- Overtime -->
+                  @if (visibleColumns()['overtime']) {
+                    <td>
+                      <span class="text-sm"
+                        [class]="isOvertime(attendance) ? 'font-medium text-amber-600' : 'text-muted-foreground'">
+                        {{ calculateOvertime(attendance) }}
+                      </span>
+                    </td>
+                  }
+
+                  <!-- Location -->
+                  @if (visibleColumns()['location']) {
+                    <td>
+                      @if (attendance.clock_in_location_address) {
+                        <div class="flex items-center gap-1.5 max-w-[160px]">
+                          <z-icon [zType]="$any('map-pin')" class="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                          <span class="text-sm truncate" [title]="attendance.clock_in_location_address">
+                            {{ attendance.clock_in_location_address }}
+                          </span>
+                        </div>
+                      } @else {
+                        <span class="text-sm text-muted-foreground">-</span>
+                      }
+                    </td>
+                  }
+
+                  <!-- Note -->
+                  @if (visibleColumns()['note']) {
+                    <td>
+                      <span class="text-sm text-muted-foreground truncate block max-w-[180px]"
+                        [title]="attendance.remarks || ''">
+                        {{ attendance.remarks || '-' }}
+                      </span>
+                    </td>
+                  }
+
+                  <!-- Actions (visible on hover) -->
+                  <td class="!pr-5" (click)="$event.stopPropagation()">
+                    <div class="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <a [routerLink]="['/attendance', attendance.id]"
+                        z-button zType="ghost" zSize="sm" class="px-1.5 h-7"
+                        (click)="$event.stopPropagation()">
+                        <z-icon zType="eye" class="w-3.5 h-3.5" />
+                      </a>
+                      <button z-button zType="ghost" zSize="sm"
+                        class="px-1.5 h-7 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
+                        (click)="$event.stopPropagation(); deleteAttendance(attendance)">
+                        <z-icon zType="trash" class="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <!-- Empty State -->
+        <div class="bg-card border rounded-xl">
+          <div class="flex flex-col items-center justify-center py-20 text-center">
+            <div class="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mb-4">
+              <z-icon zType="calendar" class="w-8 h-8 text-muted-foreground" />
+            </div>
+            <h3 class="text-lg font-semibold mb-1.5">No Attendance Records</h3>
+            <p class="text-muted-foreground text-sm mb-5">No attendance records found for {{ formatViewDate() }}</p>
+            <button z-button [routerLink]="['/attendance/clock']" class="gap-2">
+              <z-icon zType="clock" class="w-4 h-4" />
+              Clock In Now
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- Pagination -->
+      @if (filteredAttendances().length > 0 && totalPages() > 1) {
+        <div class="flex items-center justify-between mt-4">
+          <div class="text-sm text-muted-foreground">
+            Showing {{ (currentPage() - 1) * limit() + 1 }} to
+            {{ Math.min(currentPage() * limit(), totalRecords()) }} of
+            {{ totalRecords() }} records
+          </div>
+          <div class="flex items-center gap-1">
+            <button
+              z-button
+              zType="outline"
+              zSize="sm"
+              (click)="onPageChange(currentPage() - 1)"
+              [disabled]="currentPage() === 1">
+              Previous
+            </button>
+            @for (page of [].constructor(Math.min(totalPages(), 5)); track $index) {
+              <button
+                z-button
+                [zType]="currentPage() === $index + 1 ? 'default' : 'outline'"
+                zSize="sm"
+                (click)="onPageChange($index + 1)"
+                class="min-w-[36px]">
+                {{ $index + 1 }}
+              </button>
+            }
+            <button
+              z-button
+              zType="outline"
+              zSize="sm"
+              (click)="onPageChange(currentPage() + 1)"
+              [disabled]="currentPage() === totalPages()">
+              Next
+            </button>
+          </div>
+        </div>
+      }
+    }
   }
 </div>

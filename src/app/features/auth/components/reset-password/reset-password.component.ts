@@ -1,7 +1,8 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
+import { AuthService } from '../../../../core/services/auth.service';
 
 // ZardUI Components
 import { ZardCardComponent } from '@/shared/components/card/card.component';
@@ -26,9 +27,14 @@ import { ZardIconComponent } from '@/shared/components/icon/icon.component';
   templateUrl: './reset-password.component.html',
   styleUrls: ['./reset-password.component.css']
 })
-export class ResetPasswordComponent implements OnInit, OnDestroy {
+export class ResetPasswordComponent implements OnInit {
+  private cdr = inject(ChangeDetectorRef);
+  private zone = inject(NgZone);
+
   resetPasswordForm!: FormGroup;
   loading = false;
+  success = false;
+  errorMessage = '';
   token: string | null = null;
   passwordFieldType: 'password' | 'text' = 'password';
   confirmPasswordFieldType: 'password' | 'text' = 'password';
@@ -36,16 +42,18 @@ export class ResetPasswordComponent implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
     this.token = this.route.snapshot.queryParamMap.get('token');
-    this.initForm();
-  }
 
-  ngOnDestroy(): void {
-    // Cleanup if needed
+    if (!this.token) {
+      this.errorMessage = 'Invalid reset link. No token provided.';
+    }
+
+    this.initForm();
   }
 
   initForm(): void {
@@ -77,20 +85,41 @@ export class ResetPasswordComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
-    if (this.resetPasswordForm.valid) {
-      this.loading = true;
-      const { password } = this.resetPasswordForm.value;
-
-      console.log('Reset Password:', password, 'Token:', this.token);
-
-      setTimeout(() => {
-        this.loading = false;
-        this.router.navigate(['/auth/login']);
-      }, 1500);
-    } else {
+    if (this.resetPasswordForm.invalid) {
       Object.keys(this.resetPasswordForm.controls).forEach(key => {
         this.resetPasswordForm.get(key)?.markAsTouched();
       });
+      return;
     }
+
+    if (!this.token) {
+      this.errorMessage = 'Invalid reset link. Please request a new one.';
+      return;
+    }
+
+    this.loading = true;
+    this.errorMessage = '';
+    const { password } = this.resetPasswordForm.value;
+
+    this.authService.resetPassword({ token: this.token, newPassword: password }).subscribe({
+      next: () => {
+        this.zone.run(() => {
+          this.loading = false;
+          this.success = true;
+          this.cdr.detectChanges();
+        });
+      },
+      error: (error) => {
+        this.zone.run(() => {
+          this.loading = false;
+          this.errorMessage = error.message || 'Failed to reset password. The link may have expired.';
+          this.cdr.detectChanges();
+        });
+      }
+    });
+  }
+
+  goToLogin(): void {
+    this.router.navigate(['/auth/login']);
   }
 }

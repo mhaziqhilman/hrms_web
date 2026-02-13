@@ -1,7 +1,8 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { AuthService } from '../../../../core/services/auth.service';
 
 // ZardUI Components
 import { ZardCardComponent } from '@/shared/components/card/card.component';
@@ -26,22 +27,23 @@ import { ZardIconComponent } from '@/shared/components/icon/icon.component';
   templateUrl: './forgot-password.component.html',
   styleUrls: ['./forgot-password.component.css']
 })
-export class ForgotPasswordComponent implements OnInit, OnDestroy {
+export class ForgotPasswordComponent implements OnInit {
+  private cdr = inject(ChangeDetectorRef);
+  private zone = inject(NgZone);
+
   forgotPasswordForm!: FormGroup;
   loading = false;
   submitted = false;
+  errorMessage = '';
 
   constructor(
     private fb: FormBuilder,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
     this.initForm();
-  }
-
-  ngOnDestroy(): void {
-    // Cleanup if needed
   }
 
   initForm(): void {
@@ -51,19 +53,33 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
-    if (this.forgotPasswordForm.valid) {
-      this.loading = true;
-      const { email } = this.forgotPasswordForm.value;
-
-      console.log('Forgot Password:', email);
-
-      setTimeout(() => {
-        this.loading = false;
-        this.submitted = true;
-      }, 1500);
-    } else {
+    if (this.forgotPasswordForm.invalid) {
       this.forgotPasswordForm.get('email')?.markAsTouched();
+      return;
     }
+
+    this.loading = true;
+    this.errorMessage = '';
+    const { email } = this.forgotPasswordForm.value;
+
+    this.authService.forgotPassword({ email }).subscribe({
+      next: () => {
+        this.zone.run(() => {
+          this.loading = false;
+          this.submitted = true;
+          this.cdr.detectChanges();
+        });
+      },
+      error: (error) => {
+        this.zone.run(() => {
+          this.loading = false;
+          // Always show success to prevent email enumeration
+          console.error('Forgot password error:', error);
+          this.submitted = true;
+          this.cdr.detectChanges();
+        });
+      }
+    });
   }
 
   backToLogin(): void {

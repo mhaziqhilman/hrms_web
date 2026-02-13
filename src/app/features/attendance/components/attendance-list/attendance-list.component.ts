@@ -1,6 +1,6 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AttendanceService } from '../../services/attendance.service';
 import { AuthService } from '@/core/services/auth.service';
@@ -13,11 +13,11 @@ import { ZardIconComponent } from '@/shared/components/icon/icon.component';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component';
 import { ZardMenuImports } from '@/shared/components/menu/menu.imports';
-import { ZardDatePickerComponent } from '@/shared/components/date-picker/date-picker.component';
 import { ZardTableImports } from '@/shared/components/table/table.imports';
 import { ZardTooltipModule } from '@/shared/components/tooltip/tooltip';
 import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-dialog.service';
 import { ZardEmptyComponent } from '@/shared/components/empty/empty.component';
+import { ZardDividerComponent } from '@/shared/components/divider/divider.component';
 
 @Component({
   selector: 'app-attendance-list',
@@ -31,11 +31,11 @@ import { ZardEmptyComponent } from '@/shared/components/empty/empty.component';
     ZardBadgeComponent,
     ZardAvatarComponent,
     ZardMenuImports,
-    ZardDatePickerComponent,
     ZardTableImports,
     ZardTooltipModule,
     ZardCardComponent,
-    ZardEmptyComponent
+    ZardEmptyComponent,
+    ZardDividerComponent
   ],
   templateUrl: './attendance-list.component.html',
   styleUrl: './attendance-list.component.css'
@@ -44,6 +44,7 @@ export class AttendanceListComponent implements OnInit {
   private attendanceService = inject(AttendanceService);
   private alertDialogService = inject(ZardAlertDialogService);
   private authService = inject(AuthService);
+  private router = inject(Router);
 
   attendances = signal<Attendance[]>([]);
   loading = signal(false);
@@ -54,7 +55,13 @@ export class AttendanceListComponent implements OnInit {
   currentPage = signal(1);
   totalPages = signal(1);
   totalRecords = signal(0);
-  limit = signal(5);
+  limit = signal(50);
+
+  // Date navigation
+  currentViewDate = signal<Date>(new Date());
+
+  // Search
+  searchQuery = signal('');
 
   // Filters
   selectedType = signal<'Office' | 'WFH' | ''>('');
@@ -62,9 +69,6 @@ export class AttendanceListComponent implements OnInit {
   showLateOnly = signal(false);
   showEarlyLeaveOnly = signal(false);
   employeeIdFilter = signal<number | null>(null);
-
-  // Date picker values
-  dateValue: Date | null = null;
 
   // Sorting
   sortColumn = signal<string>('');
@@ -77,29 +81,55 @@ export class AttendanceListComponent implements OnInit {
   // Column visibility
   visibleColumns = signal<{[key: string]: boolean}>({
     employee: true,
-    date: true,
-    type: true,
-    clockIn: true,
-    clockOut: true,
-    totalHours: false,
-    status: true
+    clockInOut: true,
+    overtime: true,
+    location: true,
+    note: true
   });
 
-  // Column list for toggle menu
   columnList = [
-    { key: 'employee', label: 'Employee' },
-    { key: 'date', label: 'Date' },
-    { key: 'type', label: 'Type' },
-    { key: 'clockIn', label: 'Clock In' },
-    { key: 'clockOut', label: 'Clock Out' },
-    { key: 'totalHours', label: 'Total Hours' },
-    { key: 'status', label: 'Status' }
+    { key: 'employee', label: 'Employee Name' },
+    { key: 'clockInOut', label: 'Clock-in & Out' },
+    { key: 'overtime', label: 'Overtime' },
+    { key: 'location', label: 'Location' },
+    { key: 'note', label: 'Note' }
   ];
 
-  // Expose Math to template
   Math = Math;
 
+  // Computed: filtered attendances based on search query
+  filteredAttendances = computed(() => {
+    const query = this.searchQuery().toLowerCase().trim();
+    const records = this.attendances();
+    if (!query) return records;
+    return records.filter(a =>
+      a.employee?.full_name?.toLowerCase().includes(query) ||
+      a.employee?.employee_code?.toLowerCase().includes(query)
+    );
+  });
+
+  // Computed: summary statistics from loaded data
+  summaryStats = computed(() => {
+    const records = this.attendances();
+    const withHours = records.filter(a => a.total_hours != null && a.total_hours > 0);
+    return {
+      total: records.length,
+      onTime: records.filter(a => a.clock_in_time && !a.is_late).length,
+      late: records.filter(a => a.is_late).length,
+      earlyLeave: records.filter(a => a.is_early_leave).length,
+      noClockOut: records.filter(a => a.clock_in_time && !a.clock_out_time).length,
+      office: records.filter(a => a.type === 'Office').length,
+      wfh: records.filter(a => a.type === 'WFH').length,
+      avgHours: withHours.length > 0
+        ? withHours.reduce((sum, a) => sum + (a.total_hours || 0), 0) / withHours.length
+        : 0,
+      overtime: records.filter(a => (a.total_hours || 0) > 9).length
+    };
+  });
+
   ngOnInit(): void {
+    this.setDateFilter(new Date());
+
     const user = this.authService.getCurrentUserValue();
     if (user?.employee) {
       this.hasProfile.set(true);
@@ -124,15 +154,63 @@ export class AttendanceListComponent implements OnInit {
     }
   }
 
-  // Get selected count for bulk actions
-  getSelectedCount(): number {
-    return this.selectedAttendances().size;
+  // Date navigation
+  navigateDate(direction: -1 | 1): void {
+    const current = new Date(this.currentViewDate());
+    current.setDate(current.getDate() + direction);
+    this.currentViewDate.set(current);
+    this.setDateFilter(current);
+    this.currentPage.set(1);
+    this.loadAttendances();
   }
 
-  // Clear selection
-  clearSelection(): void {
-    this.selectedAttendances.set(new Set());
-    this.selectAll.set(false);
+  goToToday(): void {
+    const today = new Date();
+    this.currentViewDate.set(today);
+    this.setDateFilter(today);
+    this.currentPage.set(1);
+    this.loadAttendances();
+  }
+
+  formatViewDate(): string {
+    return this.currentViewDate().toLocaleDateString('en-US', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long'
+    });
+  }
+
+  private setDateFilter(date: Date): void {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    this.selectedDate.set(`${year}-${month}-${day}`);
+  }
+
+  // Overtime & duration calculations
+  calculateOvertime(attendance: Attendance): string {
+    if (!attendance.total_hours || attendance.total_hours <= 9) return '-';
+    const overtime = attendance.total_hours - 9;
+    const h = Math.floor(overtime);
+    const m = Math.round((overtime - h) * 60);
+    return `${h}h ${m}m`;
+  }
+
+  calculateDuration(attendance: Attendance): string {
+    if (!attendance.clock_in_time || !attendance.clock_out_time) return '--';
+    const diff = new Date(attendance.clock_out_time).getTime() - new Date(attendance.clock_in_time).getTime();
+    if (diff <= 0) return '--';
+    const hours = Math.floor(diff / 3600000);
+    const minutes = Math.floor((diff % 3600000) / 60000);
+    return `${hours}h ${minutes}m`;
+  }
+
+  isOvertime(attendance: Attendance): boolean {
+    return (attendance.total_hours || 0) > 9;
+  }
+
+  navigateToDetail(id: number): void {
+    this.router.navigate(['/attendance', id]);
   }
 
   // Toggle column visibility
@@ -144,21 +222,6 @@ export class AttendanceListComponent implements OnInit {
     });
   }
 
-  // Date change handler
-  onDateChange(date: Date | null): void {
-    if (date) {
-      // Use local date formatting to avoid timezone issues
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      this.selectedDate.set(`${year}-${month}-${day}`);
-    } else {
-      this.selectedDate.set('');
-    }
-    this.dateValue = date;
-    this.onFilterChange();
-  }
-
   loadAttendances(): void {
     this.loading.set(true);
     this.error.set(null);
@@ -168,7 +231,6 @@ export class AttendanceListComponent implements OnInit {
       limit: this.limit()
     };
 
-    // Add filters if set
     if (this.selectedType()) {
       params.type = this.selectedType() as 'Office' | 'WFH';
     }
@@ -187,80 +249,46 @@ export class AttendanceListComponent implements OnInit {
 
     if (this.selectedDate()) {
       params.start_date = this.selectedDate();
-      console.log(params.start_date);
-      
       params.end_date = this.selectedDate();
     }
 
     this.attendanceService.getAllAttendance(params).subscribe({
       next: (response: any) => {
-        console.log('Attendance API Response:', response);
-
-        // Handle different response structures
         let data: any[] = [];
 
         if (response && response.success) {
-          // console.log('Full response object:', response);
-          // console.log('response.data type:', typeof response.data);
-          // console.log('response.data value:', response.data);
-
-          // Check if data is an array
           if (Array.isArray(response.data)) {
             data = response.data;
-            // console.log('Data is array with length:', data.length);
-            // console.log('Data items:', data);
           } else if (response.data && typeof response.data === 'object') {
-            // Maybe data is nested inside response.data
-            console.warn('response.data is an object, checking for nested array...');
-
-            // Check for response.data.attendance (the actual structure from backend)
             if (response.data.attendance && Array.isArray(response.data.attendance)) {
-              console.log('Found nested array in response.data.attendance');
               data = response.data.attendance;
-            }
-            // Check if there's a data property inside response.data
-            else if (response.data.data && Array.isArray(response.data.data)) {
-              console.log('Found nested array in response.data.data');
+            } else if (response.data.data && Array.isArray(response.data.data)) {
               data = response.data.data;
-            } else {
-              console.warn('response.data is not an array and has no nested array:', response.data);
             }
-          } else {
-            console.warn('response.data is not an array:', response.data);
           }
 
-          // Client-side date filtering if selectedDate is set
+          // Client-side date filtering
           if (this.selectedDate() && data.length > 0) {
             const filterDate = new Date(this.selectedDate()).toDateString();
-            console.log('Applying date filter:', filterDate);
             data = data.filter(att => {
               const attDate = new Date(att.clock_in_time).toDateString();
               return attDate === filterDate;
             });
-            console.log('Data after date filter:', data.length, 'items');
           }
 
-          console.log('Setting attendances signal with', data.length, 'items');
           this.attendances.set(data);
-          console.log('Attendances signal value:', this.attendances());
 
-          // Safely access pagination properties
-          // Check both response.pagination and response.data.pagination
           const paginationObj = response.pagination || response.data?.pagination;
-
           if (paginationObj) {
             this.totalPages.set(paginationObj.totalPages || 1);
             this.totalRecords.set(paginationObj.total || data.length);
-            // Use currentPage or page property
             this.currentPage.set(paginationObj.currentPage || paginationObj.page || 1);
           } else {
-            // If no pagination object, set defaults
             this.totalPages.set(1);
             this.totalRecords.set(data.length);
             this.currentPage.set(1);
           }
         } else {
-          console.warn('API response success is false or response is invalid');
           this.attendances.set([]);
           this.totalPages.set(1);
           this.totalRecords.set(0);
@@ -270,7 +298,6 @@ export class AttendanceListComponent implements OnInit {
         this.loading.set(false);
       },
       error: (err: any) => {
-        console.error('Error loading attendances:', err);
         this.error.set(err.error?.message || err.message || 'Failed to load attendance records');
         this.attendances.set([]);
         this.loading.set(false);
@@ -292,18 +319,17 @@ export class AttendanceListComponent implements OnInit {
 
   clearFilters(): void {
     this.selectedType.set('');
-    this.selectedDate.set('');
-    this.dateValue = null;
     this.showLateOnly.set(false);
     this.showEarlyLeaveOnly.set(false);
     this.employeeIdFilter.set(null);
+    this.searchQuery.set('');
     this.currentPage.set(1);
     this.loadAttendances();
   }
 
   getStatusDisplayName(): string {
     if (this.showLateOnly()) return 'Late Only';
-    if (this.showEarlyLeaveOnly()) return 'Early Leave Only';
+    if (this.showEarlyLeaveOnly()) return 'Early Leave';
     return 'Status';
   }
 
@@ -311,19 +337,6 @@ export class AttendanceListComponent implements OnInit {
     const type = this.selectedType();
     if (!type) return 'Type';
     return type === 'WFH' ? 'Work From Home' : type;
-  }
-
-  getStatusBadgeClass(attendance: Attendance): string {
-    if (attendance.is_late && attendance.is_early_leave) {
-      return 'badge-danger';
-    }
-    if (attendance.is_late) {
-      return 'badge-warning';
-    }
-    if (attendance.is_early_leave) {
-      return 'badge-info';
-    }
-    return 'badge-success';
   }
 
   getStatusText(attendance: Attendance): string {
@@ -351,7 +364,6 @@ export class AttendanceListComponent implements OnInit {
 
   formatTime(dateString: string | null | undefined): string {
     if (!dateString) return '--:--';
-
     const date = new Date(dateString);
     return date.toLocaleTimeString('en-MY', {
       hour: '2-digit',
@@ -361,15 +373,10 @@ export class AttendanceListComponent implements OnInit {
   }
 
   formatHours(hours: number | null | undefined): string {
-    if (hours === null || hours === undefined) return '--';
-
+    if (hours === null || hours === undefined || isNaN(hours)) return '--';
     const h = Math.floor(hours);
     const m = Math.floor((hours - h) * 60);
     return `${h}h ${m}m`;
-  }
-
-  getTypeBadgeClass(type: string): string {
-    return type === 'Office' ? 'badge-primary' : 'badge-secondary';
   }
 
   deleteAttendance(attendance: Attendance): void {
@@ -391,54 +398,19 @@ export class AttendanceListComponent implements OnInit {
               this.loadAttendances();
             }
           },
-          error: (err: any) => {
+          error: () => {
             this.alertDialogService.warning({
               zTitle: 'Error',
               zDescription: 'Failed to delete attendance record',
               zOkText: 'OK'
             });
-            console.error('Error deleting attendance:', err);
           }
         });
       }
     });
   }
 
-  bulkDelete(): void {
-    const selected = Array.from(this.selectedAttendances());
-    if (selected.length === 0) {
-      this.alertDialogService.warning({
-        zTitle: 'No Selection',
-        zDescription: 'Please select attendance records to delete',
-        zOkText: 'OK'
-      });
-      return;
-    }
-
-    this.alertDialogService.confirm({
-      zTitle: 'Delete Selected Records',
-      zDescription: `Are you sure you want to delete ${selected.length} attendance record(s)?`,
-      zOkText: 'Delete All',
-      zCancelText: 'Cancel',
-      zOkDestructive: true,
-      zOnOk: () => {
-        this.alertDialogService.info({
-          zTitle: 'Success',
-          zDescription: `${selected.length} attendance record(s) deleted successfully`,
-          zOkText: 'OK'
-        });
-        this.selectedAttendances.set(new Set());
-        this.selectAll.set(false);
-        this.loadAttendances();
-      }
-    });
-  }
-
-  getTodaysDate(): string {
-    return new Date().toISOString().split('T')[0];
-  }
-
-  // Sorting methods
+  // Sorting
   onSort(column: string): void {
     if (this.sortColumn() === column) {
       this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
@@ -452,7 +424,6 @@ export class AttendanceListComponent implements OnInit {
   sortAttendances(): void {
     const column = this.sortColumn();
     const direction = this.sortDirection();
-
     if (!column) return;
 
     const sorted = [...this.attendances()].sort((a, b) => {
@@ -464,21 +435,9 @@ export class AttendanceListComponent implements OnInit {
           aValue = a.employee?.full_name?.toLowerCase() || '';
           bValue = b.employee?.full_name?.toLowerCase() || '';
           break;
-        case 'date':
-          aValue = a.clock_in_time || '';
-          bValue = b.clock_in_time || '';
-          break;
-        case 'type':
-          aValue = a.type?.toLowerCase() || '';
-          bValue = b.type?.toLowerCase() || '';
-          break;
         case 'clockIn':
           aValue = a.clock_in_time || '';
           bValue = b.clock_in_time || '';
-          break;
-        case 'clockOut':
-          aValue = a.clock_out_time || '';
-          bValue = b.clock_out_time || '';
           break;
         case 'totalHours':
           aValue = a.total_hours || 0;
@@ -509,13 +468,12 @@ export class AttendanceListComponent implements OnInit {
     return this.sortColumn() === column;
   }
 
-  // Selection methods
+  // Selection (kept for potential future use)
   toggleSelectAll(): void {
     const newSelectAll = !this.selectAll();
     this.selectAll.set(newSelectAll);
-
     if (newSelectAll) {
-      const allIds = new Set(this.attendances().map(a => a.id));
+      const allIds = new Set(this.filteredAttendances().map(a => a.id));
       this.selectedAttendances.set(allIds);
     } else {
       this.selectedAttendances.set(new Set());
@@ -530,10 +488,19 @@ export class AttendanceListComponent implements OnInit {
       selected.add(id);
     }
     this.selectedAttendances.set(selected);
-    this.selectAll.set(selected.size === this.attendances().length && this.attendances().length > 0);
+    this.selectAll.set(selected.size === this.filteredAttendances().length && this.filteredAttendances().length > 0);
   }
 
   isAttendanceSelected(id: number): boolean {
     return this.selectedAttendances().has(id);
+  }
+
+  getSelectedCount(): number {
+    return this.selectedAttendances().size;
+  }
+
+  clearSelection(): void {
+    this.selectedAttendances.set(new Set());
+    this.selectAll.set(false);
   }
 }

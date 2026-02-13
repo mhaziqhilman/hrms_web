@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, inject, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { timeout } from 'rxjs/operators';
 import { AuthService } from '../../../../core/services/auth.service';
 import { InvitationService } from '../../../../core/services/invitation.service';
 
@@ -20,7 +22,10 @@ import { ZardIconComponent } from '@/shared/components/icon/icon.component';
   ],
   templateUrl: './accept-invitation.component.html'
 })
-export class AcceptInvitationComponent implements OnInit {
+export class AcceptInvitationComponent implements OnInit, OnDestroy {
+  private cdr = inject(ChangeDetectorRef);
+  private zone = inject(NgZone);
+
   token = '';
   processing = false;
   loadingInfo = true;
@@ -33,6 +38,8 @@ export class AcceptInvitationComponent implements OnInit {
   invitedRole = '';
   companyName = '';
   invitationExpired = false;
+
+  private subscriptions: Subscription[] = [];
 
   constructor(
     private authService: AuthService,
@@ -51,32 +58,58 @@ export class AcceptInvitationComponent implements OnInit {
       return;
     }
 
-    // Fetch invitation details first
-    this.invitationService.getInvitationInfo(this.token).subscribe({
+    this.loadInvitationInfo();
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(s => s.unsubscribe());
+  }
+
+  private loadInvitationInfo(): void {
+    this.loadingInfo = true;
+    this.errorMessage = '';
+
+    const sub = this.invitationService.getInvitationInfo(this.token).pipe(
+      timeout(20000)
+    ).subscribe({
       next: (response) => {
-        this.loadingInfo = false;
-        if (response.success && response.data) {
-          this.invitedEmail = response.data.email;
-          this.invitedRole = response.data.role;
-          this.companyName = response.data.company?.name || '';
-          this.invitationExpired = response.data.expired;
+        this.zone.run(() => {
+          this.loadingInfo = false;
 
-          if (this.invitationExpired) {
-            this.errorMessage = 'This invitation has expired or is no longer valid.';
-            return;
+          if (response.success && response.data) {
+            this.invitedEmail = response.data.email;
+            this.invitedRole = response.data.role;
+            this.companyName = response.data.company?.name || '';
+            this.invitationExpired = response.data.expired;
+
+            if (this.invitationExpired) {
+              this.errorMessage = 'This invitation has expired or is no longer valid.';
+            } else if (this.isAuthenticated) {
+              this.acceptInvitation();
+            }
+          } else {
+            this.errorMessage = 'Unable to load invitation details.';
           }
 
-          // If user is logged in, auto-accept
-          if (this.isAuthenticated) {
-            this.acceptInvitation();
-          }
-        }
+          this.cdr.detectChanges();
+        });
       },
       error: (error) => {
-        this.loadingInfo = false;
-        this.errorMessage = error.message || 'Invalid invitation link';
+        this.zone.run(() => {
+          this.loadingInfo = false;
+
+          if (error?.name === 'TimeoutError') {
+            this.errorMessage = 'Server is taking too long to respond. Please try again.';
+          } else {
+            const msg = error?.error?.message || error?.message || '';
+            this.errorMessage = msg || 'Failed to load invitation. Please check the link and try again.';
+          }
+
+          this.cdr.detectChanges();
+        });
       }
     });
+    this.subscriptions.push(sub);
   }
 
   acceptInvitation(): void {
@@ -85,21 +118,38 @@ export class AcceptInvitationComponent implements OnInit {
     this.processing = true;
     this.errorMessage = '';
 
-    this.invitationService.acceptInvitation(this.token).subscribe({
+    const sub = this.invitationService.acceptInvitation(this.token).pipe(
+      timeout(20000)
+    ).subscribe({
       next: (response) => {
-        this.processing = false;
-        this.success = true;
-
-        // Update auth session with new token and user data
-        if (response.data) {
-          this.authService.updateSession(response.data.token, response.data.user);
-        }
+        this.zone.run(() => {
+          this.processing = false;
+          if (response.success && response.data) {
+            this.success = true;
+            this.authService.updateSession(response.data.token, response.data.user);
+          } else {
+            this.errorMessage = 'Failed to accept invitation. Please try again.';
+          }
+          this.cdr.detectChanges();
+        });
       },
       error: (error) => {
-        this.processing = false;
-        this.errorMessage = error.message || 'Failed to accept invitation';
+        this.zone.run(() => {
+          this.processing = false;
+          if (error?.name === 'TimeoutError') {
+            this.errorMessage = 'Server is taking too long to respond. Please try again.';
+          } else {
+            this.errorMessage = error?.message || 'Failed to accept invitation';
+          }
+          this.cdr.detectChanges();
+        });
       }
     });
+    this.subscriptions.push(sub);
+  }
+
+  retryLoad(): void {
+    this.loadInvitationInfo();
   }
 
   goToDashboard(): void {

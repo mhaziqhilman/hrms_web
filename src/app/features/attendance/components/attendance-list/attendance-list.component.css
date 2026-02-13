@@ -1,26 +1,40 @@
-/* Attendance List Component - Table Styling */
+/* Attendance List - SaaS Redesign */
 
-/* Table fixed height rows with horizontal scroll */
+/* Timeline Dash (dashed line between clock-in and clock-out) */
+.timeline-dash {
+  display: inline-block;
+  width: 20px;
+  height: 0;
+  border-top: 1.5px dashed hsl(var(--muted-foreground) / 0.3);
+}
+
+/* Tabular numbers for consistent time alignment */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Table Container */
 .attendance-table-container {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
 
 .attendance-table-container::-webkit-scrollbar {
-  height: 8px;
+  height: 6px;
 }
 
 .attendance-table-container::-webkit-scrollbar-thumb {
-  background-color: rgba(209, 209, 209, 0.5);
-  border-radius: 4px;
+  background-color: hsl(var(--muted-foreground) / 0.2);
+  border-radius: 3px;
 }
 
 .attendance-table-container::-webkit-scrollbar-track {
-  background-color: rgba(209, 209, 209, 0.1);
+  background-color: transparent;
 }
 
+/* Table Rows */
 .attendance-table tbody tr {
-  height: 60px;
+  height: 45px;
 }
 
 .attendance-table th,
@@ -31,51 +45,12 @@
   vertical-align: middle;
 }
 
-.attendance-table th.th-text-center {
-  text-align: center !important;
+/* Header row subtle background */
+.attendance-table thead tr {
+  background: hsl(var(--muted) / 0.3);
 }
 
-/* Date Picker Styling to match filter buttons */
-:host ::ng-deep z-date-picker button {
-  padding-top: 0.5rem !important;
-  padding-bottom: 0.5rem !important;
-  padding-left: 0.5rem !important;
-  padding-right: 0.5rem !important;
-  border-style: dashed !important;
-  border-width: 1px !important;
-  gap: 0.25rem !important;
-  height: auto !important;
-  min-height: auto !important;
-}
-
-:host ::ng-deep z-date-picker button z-icon {
-  margin-right: 0.25rem !important;
-}
-
-:host ::ng-deep z-date-picker .relative > button {
-  padding-top: 0.5rem !important;
-  padding-bottom: 0.5rem !important;
-  padding-left: 0.5rem !important;
-  padding-right: 0.5rem !important;
-  border-style: dashed !important;
-  border-width: 1px !important;
-  gap: 0.25rem !important;
-  height: auto !important;
-  min-height: auto !important;
-}
-
-/* Active state for date picker when value is selected */
-:host ::ng-deep z-date-picker.has-value button,
-:host ::ng-deep z-date-picker[class*="has-value"] button {
-  border-style: solid !important;
-  background-color: rgb(59 130 246 / 0.05) !important;
-  color: rgb(59 130 246) !important;
-  border-color: rgb(59 130 246) !important;
-}
-
-/* Icon color change when active */
-:host ::ng-deep z-date-picker.has-value button svg,
-:host ::ng-deep z-date-picker[class*="has-value"] button svg {
-  margin-right: 10px;
-  color: rgb(59 130 246) !important;
+/* Smooth hover transition for group actions */
+.attendance-table tbody tr .opacity-0 {
+  transition: opacity 0.15s ease;
 }
