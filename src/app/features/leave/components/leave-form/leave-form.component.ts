@@ -9,6 +9,7 @@ import { Employee } from '../../../employees/models/employee.model';
 import { FileUpload } from '../../../../shared/components/file-upload/file-upload';
 import { FileList as FileListComponent } from '../../../../shared/components/file-list/file-list';
 import { FileService, FileUploadMetadata } from '../../../../core/services/file.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 // ZardUI Components
 import { ZardCardComponent } from '@/shared/components/card/card.component';
@@ -55,6 +56,7 @@ export class LeaveFormComponent implements OnInit {
 
   isEditMode = signal(false);
   leaveId = signal<number | null>(null);
+  isStaff = signal(false);
 
   // Attachment mode toggle
   showUrlInput = signal(false);
@@ -75,13 +77,29 @@ export class LeaveFormComponent implements OnInit {
     private leaveService: LeaveService,
     private employeeService: EmployeeService,
     private fileService: FileService,
+    private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
+    const currentUser = this.authService.getCurrentUserValue();
+    this.isStaff.set(currentUser?.role === 'staff');
+
     this.initializeForm();
-    this.loadEmployees();
+
+    if (this.isStaff()) {
+      // Staff users: auto-set their own employee_id, skip loading all employees
+      const employeeId = currentUser?.employee?.id;
+      if (employeeId) {
+        this.leaveForm.patchValue({ employee_id: employeeId });
+        this.loadLeaveBalance(employeeId);
+      }
+    } else {
+      // Manager/Admin: load employee dropdown
+      this.loadEmployees();
+    }
+
     this.initializeLeaveTypes();
     this.initializeFileUploadMetadata();
 

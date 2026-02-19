@@ -158,7 +158,7 @@ export class AdminSettingsService {
 
   getActiveEmployees(): Observable<ApiResponse<{ employees: { id: number; employee_id: string; full_name: string }[] }>> {
     return this.http.get<ApiResponse<{ employees: { id: number; employee_id: string; full_name: string }[] }>>(
-      `${this.apiUrl}${API_CONFIG.endpoints.employees.base}?limit=500&employment_status=Active`
+      `${this.apiUrl}${API_CONFIG.endpoints.employees.base}?limit=100&status=Active`
     );
   }
 }

@@ -5,8 +5,7 @@
     <div>
       <h1 class="text-3xl font-bold text-foreground">Claims Approval Dashboard</h1>
       <p class="text-muted-foreground mt-1">
-        {{ userRole() === 'Manager' ? 'Review and approve pending claims' : 'Process manager-approved claims and
-        payments' }}
+        {{ isAdmin() ? 'Review, approve, and process claim payments' : 'Review and approve pending claims' }}
       </p>
     </div>
     <button z-button zType="outline" routerLink="/claims" class="gap-2">
@@ -20,8 +19,7 @@
     <div class="border-b border-gray-200">
       <nav class="flex gap-1 overflow-auto nav-tab-scroll -mb-px" aria-label="Tabs" role="tablist">
         @for (tab of ['All', 'Pending', 'Manager Approved', 'Finance Approved', 'Paid', 'Rejected']; track tab) {
-        @if (userRole() === 'Manager' ? ['Pending', 'Manager Approved', 'Rejected', 'All'].includes(tab) : ['Manager
-        Approved', 'Finance Approved', 'Paid', 'Rejected', 'All'].includes(tab)) {
+        @if (isAdmin() ? true : ['Pending', 'Manager Approved', 'Rejected', 'All'].includes(tab)) {
         <button type="button" role="tab" (click)="onTabChange({index: 0, label: tab})"
           [attr.aria-selected]="activeTab() === tab" [class]="activeTab() === tab
               ? 'border-b-2 border-blue-600 text-blue-600 text-sm font-medium'
@@ -234,8 +232,7 @@
     </div>
     <h3 class="text-lg font-semibold text-gray-900 mb-1">No claims found</h3>
     <p class="text-gray-500 text-sm max-w-sm mx-auto">
-      {{ userRole() === 'Manager' ? 'All pending claims have been processed.' : 'No claims matching your current filters
-      found.' }}
+      {{ isAdmin() ? 'No claims matching your current filters found.' : 'All pending claims have been processed.' }}
     </p>
     @if (activeTab() !== 'All' || searchQuery()) {
     <button z-button zType="outline" class="mt-6" (click)="clearFilters()">Clear Filters</button>

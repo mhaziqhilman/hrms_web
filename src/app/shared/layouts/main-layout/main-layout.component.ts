@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, ChangeDetectorRef, inject } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectorRef, inject, ViewChild, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, RouterOutlet, Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { filter } from 'rxjs/operators';
@@ -13,6 +13,7 @@ import { LayoutModule } from '@/shared/components/layout/layout.module';
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { ZardIconComponent } from '@/shared/components/icon/icon.component';
 import { ZardMenuImports } from '@/shared/components/menu/menu.imports';
+import { ZardMenuDirective } from '@/shared/components/menu/menu.directive';
 import { ZardTooltipModule } from '@/shared/components/tooltip/tooltip';
 import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component';
 import { ZardDividerComponent } from '@/shared/components/divider/divider.component';
@@ -47,7 +48,18 @@ export class MainLayoutComponent implements OnInit {
   allCompanies: Company[] = [];
   switchingCompany = false;
   isSuperAdmin = false;
+  companyMenuOpen = false;
   expandedMenuItems = new Set<string>();
+
+  @ViewChild('companyMenuTrigger') companyMenuTriggerRef?: ZardMenuDirective;
+
+  @HostListener('document:pointerdown', ['$event'])
+  onDocumentPointerDown(event: PointerEvent): void {
+    if (!this.companyMenuOpen) return;
+    const target = event.target as HTMLElement;
+    if (target.closest('[data-company-trigger]') || target.closest('.cdk-overlay-pane')) return;
+    this.companyMenuTriggerRef?.close();
+  }
   breadcrumbs = signal<{ label: string; url: string }[]>([]);
 
   // Sidebar collapse state driven by ThemeService

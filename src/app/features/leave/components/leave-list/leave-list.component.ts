@@ -50,6 +50,8 @@ export class LeaveListComponent implements OnInit {
   loading = signal(false);
   hasProfile = signal(true);
   error = signal<string | null>(null);
+  isStaff = signal(false);
+  currentEmployeeId = signal<number | null>(null);
 
   // Pagination
   currentPage = signal(1);
@@ -103,6 +105,9 @@ export class LeaveListComponent implements OnInit {
 
   ngOnInit(): void {
     const user = this.authService.getCurrentUserValue();
+    this.isStaff.set(user?.role === 'staff');
+    this.currentEmployeeId.set(user?.employee?.id ?? null);
+
     if (user?.employee) {
       this.hasProfile.set(true);
       this.loadLeaves();
@@ -395,19 +400,31 @@ export class LeaveListComponent implements OnInit {
   }
 
   canEdit(leave: Leave): boolean {
-    return leave.status === LeaveStatus.PENDING;
+    if (leave.status !== LeaveStatus.PENDING) return false;
+    // Staff can only edit their own leaves
+    if (this.isStaff()) {
+      return leave.employee_id === this.currentEmployeeId();
+    }
+    return true;
   }
 
   canApprove(leave: Leave): boolean {
+    if (this.isStaff()) return false;
     return leave.status === LeaveStatus.PENDING;
   }
 
   canReject(leave: Leave): boolean {
+    if (this.isStaff()) return false;
     return leave.status === LeaveStatus.PENDING;
   }
 
   canCancel(leave: Leave): boolean {
-    return leave.status === LeaveStatus.PENDING;
+    if (leave.status !== LeaveStatus.PENDING) return false;
+    // Staff can only cancel their own leaves
+    if (this.isStaff()) {
+      return leave.employee_id === this.currentEmployeeId();
+    }
+    return true;
   }
 
   getPageNumbers(): number[] {

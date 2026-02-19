@@ -25,6 +25,7 @@ export type ZardMenuTrigger = 'click' | 'hover';
 @Directive({
   selector: '[z-menu]',
   standalone: true,
+  exportAs: 'zMenu',
   host: {
     role: 'button',
     '[attr.aria-haspopup]': "'menu'",
@@ -37,6 +38,7 @@ export type ZardMenuTrigger = 'click' | 'hover';
     {
       directive: CdkMenuTrigger,
       inputs: ['cdkMenuTriggerFor: zMenuTriggerFor'],
+      outputs: ['cdkMenuOpened: zMenuOpened', 'cdkMenuClosed: zMenuClosed'],
     },
   ],
 })
@@ -87,6 +89,14 @@ export class ZardMenuDirective implements OnInit, OnDestroy {
     this.menuManager.unregisterHoverMenu(this);
     this.cleanupFunctions.forEach(cleanup => cleanup());
     this.cleanupFunctions.length = 0;
+  }
+
+  get isOpen(): boolean {
+    return this.cdkTrigger.isOpen();
+  }
+
+  toggle(): void {
+    this.cdkTrigger.toggle();
   }
 
   close(): void {

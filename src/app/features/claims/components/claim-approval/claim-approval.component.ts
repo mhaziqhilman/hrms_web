@@ -1,9 +1,10 @@
-import { Component, OnInit, signal, ViewContainerRef, inject } from '@angular/core';
+import { Component, OnInit, signal, computed, ViewContainerRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ClaimService } from '../../services/claim.service';
 import { Claim, ClaimQueryParams } from '../../models/claim.model';
+import { AuthService } from '@/core/services/auth.service';
 
 // ZardUI Components
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
@@ -41,6 +42,7 @@ export class ClaimApprovalComponent implements OnInit {
   private dialogService = inject(ZardDialogService);
   private alertDialogService = inject(ZardAlertDialogService);
   private viewContainerRef = inject(ViewContainerRef);
+  private authService = inject(AuthService);
 
   claims = signal<Claim[]>([]);
   loading = signal(false);
@@ -78,9 +80,13 @@ export class ClaimApprovalComponent implements OnInit {
   selectAll = signal<boolean>(false);
 
 
-  // User role (mock for now - should come from auth service)
-  userRole = signal<'Manager' | 'Finance' | 'Admin'>('Manager'); // TODO: Get from auth service
-  userId = signal<number | null>(1); // TODO: Get from auth service
+  // User role from auth service
+  userRole = signal<string>('staff');
+  userId = signal<number | null>(null);
+
+  // Admin/super_admin can handle all approval levels; manager only Level 1
+  isAdmin = computed(() => ['admin', 'super_admin'].includes(this.userRole()));
+  isManagerOrAbove = computed(() => ['manager', 'admin', 'super_admin'].includes(this.userRole()));
 
   // Expose Math to template
   Math = Math;
@@ -88,6 +94,11 @@ export class ClaimApprovalComponent implements OnInit {
   constructor(private claimService: ClaimService) { }
 
   ngOnInit(): void {
+    const user = this.authService.getCurrentUserValue();
+    if (user) {
+      this.userRole.set(user.role);
+      this.userId.set(user.id);
+    }
     this.loadClaims();
   }
 
@@ -101,22 +112,14 @@ export class ClaimApprovalComponent implements OnInit {
     };
 
     // Filter based on user role
-    if (this.userRole() === 'Manager') {
-      // Managers see only Pending claims
-      params.status = 'Pending';
-    } else if (this.userRole() === 'Finance') {
-      // Finance sees Manager_Approved and Finance_Approved claims
-      if (this.selectedStatus()) {
-        params.status = this.selectedStatus() as any;
-      } else {
-        params.status = 'Manager_Approved'; // Default to Manager_Approved
-      }
-    }
-
-    // Override with selected status if user selected one
-    if (this.selectedStatus() && this.userRole() !== 'Manager') {
+    if (this.selectedStatus()) {
+      // User explicitly selected a status tab
       params.status = this.selectedStatus() as any;
+    } else if (!this.isAdmin()) {
+      // Managers only see Pending claims by default
+      params.status = 'Pending';
     }
+    // Admin/super_admin with no filter selected → see all claims
 
     if (this.selectedClaimType()) {
       params.claim_type_id = this.selectedClaimType()!;
@@ -400,41 +403,28 @@ export class ClaimApprovalComponent implements OnInit {
   confirmApproval(claim: Claim): void {
     this.processingClaimId.set(claim.id);
 
-    if (this.userRole() === 'Manager') {
-      // Manager approval
-      this.claimService.managerApproval(claim.id, { action: 'approve' }).subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.success.set('Claim approved successfully');
-            this.loadClaims();
-            setTimeout(() => this.success.set(null), 3000);
-          }
-          this.processingClaimId.set(null);
-        },
-        error: (err) => {
-          this.error.set(err.error?.message || 'Failed to approve claim');
-          this.processingClaimId.set(null);
-          console.error('Error approving claim:', err);
+    // Determine which API to call based on claim status
+    const approval$ = claim.status === 'Pending'
+      ? this.claimService.managerApproval(claim.id, { action: 'approve' })
+      : this.claimService.financeApproval(claim.id, { action: 'approve' });
+
+    const levelLabel = claim.status === 'Pending' ? 'Manager approval' : 'Finance approval';
+
+    approval$.subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.success.set(`${levelLabel} completed successfully`);
+          this.loadClaims();
+          setTimeout(() => this.success.set(null), 3000);
         }
-      });
-    } else if (this.userRole() === 'Finance') {
-      // Finance approval
-      this.claimService.financeApproval(claim.id, { action: 'approve' }).subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.success.set('Claim approved successfully');
-            this.loadClaims();
-            setTimeout(() => this.success.set(null), 3000);
-          }
-          this.processingClaimId.set(null);
-        },
-        error: (err) => {
-          this.error.set(err.error?.message || 'Failed to approve claim');
-          this.processingClaimId.set(null);
-          console.error('Error approving claim:', err);
-        }
-      });
-    }
+        this.processingClaimId.set(null);
+      },
+      error: (err) => {
+        this.error.set(err.error?.message || 'Failed to approve claim');
+        this.processingClaimId.set(null);
+        console.error('Error approving claim:', err);
+      }
+    });
   }
 
   confirmRejection(claim: Claim, reason: string): void {
@@ -445,39 +435,26 @@ export class ClaimApprovalComponent implements OnInit {
       rejection_reason: reason
     };
 
-    if (this.userRole() === 'Manager') {
-      this.claimService.managerApproval(claim.id, request).subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.success.set('Claim rejected successfully');
-            this.loadClaims();
-            setTimeout(() => this.success.set(null), 3000);
-          }
-          this.processingClaimId.set(null);
-        },
-        error: (err) => {
-          this.error.set(err.error?.message || 'Failed to reject claim');
-          this.processingClaimId.set(null);
-          console.error('Error rejecting claim:', err);
+    // Determine which API to call based on claim status
+    const rejection$ = claim.status === 'Pending'
+      ? this.claimService.managerApproval(claim.id, request)
+      : this.claimService.financeApproval(claim.id, request);
+
+    rejection$.subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.success.set('Claim rejected successfully');
+          this.loadClaims();
+          setTimeout(() => this.success.set(null), 3000);
         }
-      });
-    } else if (this.userRole() === 'Finance') {
-      this.claimService.financeApproval(claim.id, request).subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.success.set('Claim rejected successfully');
-            this.loadClaims();
-            setTimeout(() => this.success.set(null), 3000);
-          }
-          this.processingClaimId.set(null);
-        },
-        error: (err) => {
-          this.error.set(err.error?.message || 'Failed to reject claim');
-          this.processingClaimId.set(null);
-          console.error('Error rejecting claim:', err);
-        }
-      });
-    }
+        this.processingClaimId.set(null);
+      },
+      error: (err) => {
+        this.error.set(err.error?.message || 'Failed to reject claim');
+        this.processingClaimId.set(null);
+        console.error('Error rejecting claim:', err);
+      }
+    });
   }
 
   // Finance Payment Actions
@@ -510,25 +487,27 @@ export class ClaimApprovalComponent implements OnInit {
 
   // Helper methods
   canApprove(claim: Claim): boolean {
-    if (this.userRole() === 'Manager') {
+    if (this.isAdmin()) {
+      // Admin can approve Pending (Level 1) and Manager_Approved (Level 2)
+      return claim.status === 'Pending' || claim.status === 'Manager_Approved';
+    } else if (this.userRole() === 'manager') {
+      // Manager can only approve Pending (Level 1)
       return claim.status === 'Pending';
-    } else if (this.userRole() === 'Finance') {
-      return claim.status === 'Manager_Approved';
     }
     return false;
   }
 
   canReject(claim: Claim): boolean {
-    if (this.userRole() === 'Manager') {
+    if (this.isAdmin()) {
+      return claim.status === 'Pending' || claim.status === 'Manager_Approved';
+    } else if (this.userRole() === 'manager') {
       return claim.status === 'Pending';
-    } else if (this.userRole() === 'Finance') {
-      return claim.status === 'Manager_Approved';
     }
     return false;
   }
 
   canMarkAsPaid(claim: Claim): boolean {
-    return this.userRole() === 'Finance' && claim.status === 'Finance_Approved';
+    return this.isAdmin() && claim.status === 'Finance_Approved';
   }
 
   getStatusBadgeClass(status: string): string {

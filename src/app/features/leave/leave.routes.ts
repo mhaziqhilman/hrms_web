@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { roleGuard } from '@/core/guards/auth.guard';
 
 export const LEAVE_ROUTES: Routes = [
   {
@@ -27,6 +28,7 @@ export const LEAVE_ROUTES: Routes = [
   },
   {
     path: 'approvals',
+    canActivate: [roleGuard(['super_admin', 'admin', 'manager'])],
     loadComponent: () =>
       import('./components/leave-approval/leave-approval.component').then(
         (m) => m.LeaveApprovalComponent

@@ -21,20 +21,22 @@
   <z-card class="mb-6">
     <div z-card-content class="p-6">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- Employee Selector -->
-        <div>
-          <label class="block text-sm font-medium text-foreground mb-2">Employee</label>
-          <z-select
-            zPlaceholder="Select employee"
-            [(ngModel)]="selectedEmployeeId"
-            (zValueChange)="onEmployeeChange()">
-            @for (emp of employees(); track emp.id) {
-              <z-select-item [zValue]="emp.id">
-                {{ emp.full_name }} ({{ emp.employee_id }})
-              </z-select-item>
-            }
-          </z-select>
-        </div>
+        <!-- Employee Selector (Manager/Admin only) -->
+        @if (!isStaff()) {
+          <div>
+            <label class="block text-sm font-medium text-foreground mb-2">Employee</label>
+            <z-select
+              zPlaceholder="Select employee"
+              [(ngModel)]="selectedEmployeeId"
+              (zValueChange)="onEmployeeChange()">
+              @for (emp of employees(); track emp.id) {
+                <z-select-item [zValue]="emp.id">
+                  {{ emp.full_name }} ({{ emp.employee_id }})
+                </z-select-item>
+              }
+            </z-select>
+          </div>
+        }
 
         <!-- Year Selector -->
         <div>

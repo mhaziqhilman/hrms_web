@@ -6,7 +6,9 @@
       <!-- Company Switcher -->
       <div [class]="'flex-shrink-0 border-b ' + (sidebarCollapsed() ? 'p-2' : 'p-3')">
         @if (currentCompany || isSuperAdmin) {
-          <div z-menu [zMenuTriggerFor]="companyMenu" zPlacement="bottomLeft" [class]="
+          <div z-menu #companyMenuTrigger="zMenu" [zMenuTriggerFor]="companyMenu" zPlacement="bottomLeft"
+            (zMenuOpened)="companyMenuOpen = true" (zMenuClosed)="companyMenuOpen = false"
+            data-company-trigger [class]="
               'hover:bg-accent flex cursor-pointer items-center rounded-md transition-colors ' +
               (sidebarCollapsed() ? 'justify-center p-1.5' : 'gap-2.5 p-2')
             ">
@@ -44,14 +46,14 @@
                   [disabled]="switchingCompany">
                   <div class="flex items-center gap-2 min-w-0">
                     <div class="w-6 h-6 rounded bg-muted flex items-center justify-center text-[10px] font-semibold text-muted-foreground flex-shrink-0">
-                      <z-icon [zType]="$any('globe')" class="w-3.5 h-3.5" />
+                      <z-icon zType="globe" class="w-3.5 h-3.5" />
                     </div>
                     <div class="min-w-0">
                       <div class="text-sm truncate">All Companies</div>
                     </div>
                   </div>
                   @if (!currentCompany) {
-                    <z-icon [zType]="$any('check')" class="w-4 h-4 text-primary ml-2 flex-shrink-0" />
+                    <z-icon zType="check" class="w-4 h-4 text-primary ml-2 flex-shrink-0" />
                   }
                 </button>
                 <z-divider zSpacing="sm" />
@@ -73,7 +75,7 @@
                       </div>
                     </div>
                     @if (company.id === currentCompany?.id) {
-                      <z-icon [zType]="$any('check')" class="w-4 h-4 text-primary ml-2 flex-shrink-0" />
+                      <z-icon zType="check" class="w-4 h-4 text-primary ml-2 flex-shrink-0" />
                     }
                   </button>
                 }
@@ -101,7 +103,7 @@
                       </div>
                     </div>
                     @if (membership.company_id === currentCompany?.id) {
-                      <z-icon [zType]="$any('check')" class="w-4 h-4 text-primary ml-2 flex-shrink-0" />
+                      <z-icon zType="check" class="w-4 h-4 text-primary ml-2 flex-shrink-0" />
                     }
                   </button>
                 }

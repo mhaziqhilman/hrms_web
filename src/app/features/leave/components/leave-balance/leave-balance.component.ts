@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { LeaveService } from '../../services/leave.service';
 import { EmployeeService } from '../../../employees/services/employee.service';
 import { Employee } from '../../../employees/models/employee.model';
+import { AuthService } from '../../../../core/services/auth.service';
 
 // ZardUI Components
 import { ZardCardComponent } from '@/shared/components/card/card.component';
@@ -37,6 +38,7 @@ export class LeaveBalanceComponent implements OnInit {
   leaveBalance = signal<any>(null);
   loading = signal(false);
   error = signal<string | null>(null);
+  isStaff = signal(false);
 
   employees = signal<Employee[]>([]);
   selectedEmployeeId = signal<number | null>(null);
@@ -46,7 +48,8 @@ export class LeaveBalanceComponent implements OnInit {
 
   constructor(
     private leaveService: LeaveService,
-    private employeeService: EmployeeService
+    private employeeService: EmployeeService,
+    private authService: AuthService
   ) {
     // Generate year options (current year and 2 previous years)
     const currentYear = new Date().getFullYear();
@@ -56,7 +59,20 @@ export class LeaveBalanceComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadEmployees();
+    const currentUser = this.authService.getCurrentUserValue();
+    this.isStaff.set(currentUser?.role === 'staff');
+
+    if (this.isStaff()) {
+      // Staff: load only their own balance
+      const employeeId = currentUser?.employee?.id;
+      if (employeeId) {
+        this.selectedEmployeeId.set(employeeId);
+        this.loadLeaveBalance();
+      }
+    } else {
+      // Manager/Admin: load employee dropdown
+      this.loadEmployees();
+    }
   }
 
   loadEmployees(): void {

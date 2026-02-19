@@ -47,25 +47,27 @@
 
               <div class="space-y-4">
                 <!-- Employee -->
-                <div>
-                  <label class="block text-sm font-medium text-foreground mb-2">
-                    Employee <span class="text-red-500">*</span>
-                  </label>
-                  <z-select
-                    zPlaceholder="Select Employee"
-                    formControlName="employee_id"
-                    (zValueChange)="onEmployeeChange($event)"
-                    [zDisabled]="isEditMode()">
-                    @for (emp of employees(); track emp.id) {
-                      <z-select-item [zValue]="emp.id">
-                        {{ emp.full_name }} ({{ emp.employee_id }})
-                      </z-select-item>
+                @if (!isStaff()) {
+                  <div>
+                    <label class="block text-sm font-medium text-foreground mb-2">
+                      Employee <span class="text-red-500">*</span>
+                    </label>
+                    <z-select
+                      zPlaceholder="Select Employee"
+                      formControlName="employee_id"
+                      (zValueChange)="onEmployeeChange($event)"
+                      [zDisabled]="isEditMode()">
+                      @for (emp of employees(); track emp.id) {
+                        <z-select-item [zValue]="emp.id">
+                          {{ emp.full_name }} ({{ emp.employee_id }})
+                        </z-select-item>
+                      }
+                    </z-select>
+                    @if (isFieldInvalid('employee_id')) {
+                      <p class="text-xs text-red-600 mt-1">{{ getFieldError('employee_id') }}</p>
                     }
-                  </z-select>
-                  @if (isFieldInvalid('employee_id')) {
-                    <p class="text-xs text-red-600 mt-1">{{ getFieldError('employee_id') }}</p>
-                  }
-                </div>
+                  </div>
+                }
 
                 <!-- Leave Type -->
                 <div>

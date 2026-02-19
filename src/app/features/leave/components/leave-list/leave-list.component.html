@@ -10,10 +10,12 @@
         <z-icon zType="activity" class="w-4 h-4" />
         View Balance
       </button>
-      <button z-button zType="outline" routerLink="/leave/approvals" class="gap-2">
-        <z-icon zType="circle-check" class="w-4 h-4" />
-        Approvals
-      </button>
+      @if (!isStaff()) {
+        <button z-button zType="outline" routerLink="/leave/approvals" class="gap-2">
+          <z-icon zType="circle-check" class="w-4 h-4" />
+          Approvals
+        </button>
+      }
       <button z-button routerLink="/leave/apply" class="gap-2">
         <z-icon zType="plus" class="w-4 h-4" />
         Apply Leave
@@ -139,8 +141,8 @@
     </div>
   }
 
-  <!-- Bulk Actions Bar - Modern SaaS Style -->
-  @if (getSelectedCount() > 0) {
+  <!-- Bulk Actions Bar - Modern SaaS Style (Manager/Admin only) -->
+  @if (!isStaff() && getSelectedCount() > 0) {
     <div class="mb-4 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 backdrop-blur-sm border-l-4 border-primary shadow-sm">
       <div class="flex items-center justify-between px-6 py-3 gap-4">
         <!-- Left: Selection Info -->
@@ -183,10 +185,12 @@
       <table z-table class="leave-table">
         <thead>
           <tr>
-            <!-- Checkbox Column -->
-            <th class="!pl-3 w-10 th-text-center">
-              <span z-checkbox class="border-primary/30" [(ngModel)]="selectAll" (ngModelChange)="toggleSelectAll()"></span>
-            </th>
+            <!-- Checkbox Column (Manager/Admin only) -->
+            @if (!isStaff()) {
+              <th class="!pl-3 w-10 th-text-center">
+                <span z-checkbox class="border-primary/30" [(ngModel)]="selectAll" (ngModelChange)="toggleSelectAll()"></span>
+              </th>
+            }
 
             <!-- Employee Column - Sortable -->
             <th class="!pl-3" *ngIf="visibleColumns()['employee']">
@@ -270,11 +274,13 @@
                   class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer" />
               </td> -->
 
-              <td class="!pl-3 text-center">
-                <span z-checkbox [ngModel]="isLeaveSelected(leave.id)"
-                  (ngModelChange)="toggleLeaveSelection(leave.id)"
-                  class="border-primary/30"></span>
-              </td>
+              @if (!isStaff()) {
+                <td class="!pl-3 text-center">
+                  <span z-checkbox [ngModel]="isLeaveSelected(leave.id)"
+                    (ngModelChange)="toggleLeaveSelection(leave.id)"
+                    class="border-primary/30"></span>
+                </td>
+              }
 
               <!-- Employee -->
               @if (visibleColumns()['employee']) {
