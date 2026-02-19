@@ -133,6 +133,12 @@
               <z-icon zType="download" class="w-4 h-4" />
               Download PDF
             </button>
+            @if (selectedReportType() === 'ea') {
+              <button z-button zType="outline" (click)="downloadExcel()" [disabled]="loading()" class="gap-2">
+                <z-icon zType="file-spreadsheet" class="w-4 h-4" />
+                Download Excel (LHDN)
+              </button>
+            }
             @if (selectedReportType() !== 'ea') {
               <button z-button zType="outline" (click)="downloadCSV()" [disabled]="loading()" class="gap-2">
                 <z-icon zType="file-spreadsheet" class="w-4 h-4" />

@@ -159,6 +159,65 @@
                   </z-form-control>
                   <z-form-message>Company website URL.</z-form-message>
                 </z-form-field>
+
+                <z-divider />
+
+                <!-- Statutory Information -->
+                <div>
+                  <h4 class="text-sm font-semibold text-foreground mb-1">Statutory Information</h4>
+                  <p class="text-xs text-muted-foreground mb-4">Used for EA Forms (LHDN), EPF Borang A, SOCSO, and other statutory reports.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <z-form-field>
+                    <label z-form-label>LHDN E-File No.</label>
+                    <z-form-control>
+                      <input z-input [(ngModel)]="companyForm.e_file_no" placeholder="e.g. E-12345678" />
+                    </z-form-control>
+                    <z-form-message>Employer E-file number (No. Majikan E).</z-form-message>
+                  </z-form-field>
+                  <z-form-field>
+                    <label z-form-label>LHDN Branch / State</label>
+                    <z-form-control>
+                      <input z-input [(ngModel)]="companyForm.lhdn_branch" placeholder="e.g. Kuala Lumpur" />
+                    </z-form-control>
+                    <z-form-message>LHDN state/branch (Cawangan LHDNM).</z-form-message>
+                  </z-form-field>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <z-form-field>
+                    <label z-form-label>Employer EPF No.</label>
+                    <z-form-control>
+                      <input z-input [(ngModel)]="companyForm.employer_epf_no" placeholder="EPF registration number" />
+                    </z-form-control>
+                    <z-form-message>EPF employer registration number.</z-form-message>
+                  </z-form-field>
+                  <z-form-field>
+                    <label z-form-label>Employer SOCSO Code</label>
+                    <z-form-control>
+                      <input z-input [(ngModel)]="companyForm.employer_socso_code" placeholder="SOCSO employer code" />
+                    </z-form-control>
+                    <z-form-message>SOCSO employer code (PERKESO).</z-form-message>
+                  </z-form-field>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <z-form-field>
+                    <label z-form-label>Signatory Name</label>
+                    <z-form-control>
+                      <input z-input [(ngModel)]="companyForm.signatory_name" placeholder="Name of authorised signatory" />
+                    </z-form-control>
+                    <z-form-message>Officer who signs statutory forms.</z-form-message>
+                  </z-form-field>
+                  <z-form-field>
+                    <label z-form-label>Signatory Position</label>
+                    <z-form-control>
+                      <input z-input [(ngModel)]="companyForm.signatory_position" placeholder="e.g. Director" />
+                    </z-form-control>
+                    <z-form-message>Position of the signatory officer.</z-form-message>
+                  </z-form-field>
+                </div>
               </div>
               <div zCardFooter class="flex justify-end pt-6">
                 <button z-button (click)="saveCompany()" [disabled]="saving()">

@@ -57,6 +57,16 @@ export class StatutoryReportsService {
     );
   }
 
+  /**
+   * Download EA Form as Excel (LHDN C.P.8A template)
+   */
+  downloadEAFormExcel(employeeId: number, year: number): Observable<Blob> {
+    return this.http.get(
+      `${this.apiUrl}${API_CONFIG.endpoints.statutoryReports.eaExcel(employeeId, year)}`,
+      { responseType: 'blob' }
+    );
+  }
+
   // ============ EPF Borang A ============
 
   /**

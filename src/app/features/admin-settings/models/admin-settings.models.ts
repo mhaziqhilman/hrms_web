@@ -77,6 +77,13 @@ export interface CompanyProfile {
   website?: string;
   logo_url?: string;
   owner_id: number;
+  // Statutory fields
+  e_file_no?: string;
+  employer_epf_no?: string;
+  employer_socso_code?: string;
+  signatory_name?: string;
+  signatory_position?: string;
+  lhdn_branch?: string;
 }
 
 export interface ApiResponse<T> {

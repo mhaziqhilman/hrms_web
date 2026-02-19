@@ -301,6 +301,39 @@ export class ReportsListComponent implements OnInit {
     });
   }
 
+  downloadExcel(): void {
+    const type = this.selectedReportType();
+    const year = this.selectedYear();
+    const employeeId = this.selectedEmployeeId();
+
+    if (type !== 'ea' || !year || !employeeId) return;
+
+    this.loading.set(true);
+
+    const employee = this.eaEmployees().find(e => e.id === employeeId);
+    const filename = `EA_Form_${employee?.employee_id || employeeId}_${year}.xlsx`;
+
+    this.reportsService.downloadEAFormExcel(employeeId, year).subscribe({
+      next: (blob) => {
+        this.reportsService.downloadFile(blob, filename);
+        this.loading.set(false);
+        this.alertDialogService.info({
+          zTitle: 'Download Complete',
+          zDescription: `${filename} has been downloaded.`,
+          zOkText: 'OK'
+        });
+      },
+      error: (err) => {
+        this.loading.set(false);
+        this.alertDialogService.warning({
+          zTitle: 'Download Failed',
+          zDescription: 'Failed to download the Excel report. Please try again.',
+          zOkText: 'OK'
+        });
+      }
+    });
+  }
+
   downloadCSV(): void {
     const type = this.selectedReportType();
     const year = this.selectedYear();
