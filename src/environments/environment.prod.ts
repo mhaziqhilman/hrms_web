@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://nextura-hrms-api.azurewebsites.net/api',
-  baseUrl: 'https://nextura-hrms-api.azurewebsites.net'
+  apiUrl: 'https://nextura-hrms-api.onrender.com/api',
+  baseUrl: 'https://nextura-hrms-api.onrender.com'
 };

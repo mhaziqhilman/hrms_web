@@ -102,7 +102,7 @@ export class ZardCalendarComponent implements OnChanges {
 
   constructor() {
     const currentYear = new Date().getFullYear();
-    for (let y = currentYear - 10; y <= currentYear + 10; y++) {
+    for (let y = 1980; y <= currentYear + 10; y++) {
       this.yearOptions.push(y);
     }
   }
