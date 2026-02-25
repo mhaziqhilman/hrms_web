@@ -63,35 +63,8 @@ export class PayslipViewComponent implements OnInit {
   }
 
   downloadPayslip(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (!id) return;
-
-    this.downloading.set(true);
-
-    this.payrollService.downloadPayslip(Number(id)).subscribe({
-      next: (blob) => {
-        // Create a download link
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-
-        const payslip = this.payslip();
-        const filename = payslip
-          ? `Payslip_${payslip.employee.employee_id}_${payslip.pay_period.year}_${payslip.pay_period.month}.pdf`
-          : `Payslip_${id}.pdf`;
-
-        link.download = filename;
-        link.click();
-
-        window.URL.revokeObjectURL(url);
-        this.downloading.set(false);
-      },
-      error: (err) => {
-        alert('Failed to download payslip. PDF generation may not be implemented yet.');
-        this.downloading.set(false);
-        console.error('Error downloading payslip:', err);
-      }
-    });
+    // Use browser print dialog - user can select "Save as PDF" to download
+    window.print();
   }
 
   printPayslip(): void {

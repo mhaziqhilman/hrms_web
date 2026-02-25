@@ -24,6 +24,7 @@ import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-d
 import { ZardDialogService } from '@/shared/components/dialog/dialog.service';
 import { ZardTooltipModule } from '@/shared/components/tooltip/tooltip';
 import { ZardCheckboxComponent } from '@/shared/components/checkbox/checkbox.component';
+import { ZardDividerComponent } from '@/shared/components/divider/divider.component';
 
 // Dialog Components
 import { InviteUserDialogComponent } from './dialogs/invite-user-dialog.component';
@@ -42,7 +43,8 @@ import { InviteUserDialogComponent } from './dialogs/invite-user-dialog.componen
     ZardMenuImports,
     ZardTableImports,
     ZardTooltipModule,
-    ZardCheckboxComponent
+    ZardCheckboxComponent,
+    ZardDividerComponent
   ],
   templateUrl: './employee-list.component.html',
   styleUrls: ['./employee-list.component.css']

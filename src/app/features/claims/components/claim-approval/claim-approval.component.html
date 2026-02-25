@@ -178,13 +178,12 @@
             </z-badge>
           </td>
           <td>
-            @if (claim.receipt_url) {
-            <a [href]="claim.receipt_url" target="_blank"
+            <a [routerLink]="['/claims', claim.id]"
               class="text-blue-600 hover:underline inline-flex items-center gap-1">
               <z-icon zType="file-text" class="w-3.5 h-3.5" /> View
             </a>
-            } @else {
-            <span class="text-gray-400 text-xs">None</span>
+            @if (claim.status === 'Rejected' && claim.rejection_reason) {
+              <p class="text-xs text-red-500 italic mt-1">Reason: {{ claim.rejection_reason }}</p>
             }
           </td>
           <td class="pr-4 text-right">

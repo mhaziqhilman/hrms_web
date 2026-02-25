@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PersonalService } from '../../services/personal.service';
@@ -29,6 +29,9 @@ import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-d
 export class MyPayslipsComponent implements OnInit {
   private personalService = inject(PersonalService);
   private alertDialogService = inject(ZardAlertDialogService);
+
+  // Inputs
+  embedded = input(false);
 
   // State
   loading = signal(false);
@@ -66,9 +69,9 @@ export class MyPayslipsComponent implements OnInit {
     this.loading.set(true);
 
     this.personalService.getMyPayslips(
-      this.selectedYear(),
       this.currentPage(),
-      this.pageSize
+      this.pageSize,
+      this.selectedYear()
     ).subscribe({
       next: (response) => {
         if (response.success) {

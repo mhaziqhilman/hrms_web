@@ -57,6 +57,9 @@ export class EmployeeFormComponent implements OnInit {
   error = signal<string | null>(null);
   successMessage = signal<string | null>(null);
 
+  // Reporting manager dropdown
+  availableManagers = signal<{ id: number; employee_id: string; full_name: string; position?: string }[]>([]);
+
   // Dropdown options
   genders: Gender[] = ['Male', 'Female'];
   maritalStatuses: MaritalStatus[] = ['Single', 'Married', 'Divorced', 'Widowed'];
@@ -77,12 +80,36 @@ export class EmployeeFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.loadAvailableManagers();
+
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.isEditMode.set(true);
       this.employeeId.set(Number(id));
       this.loadEmployee(Number(id));
     }
+  }
+
+  loadAvailableManagers(): void {
+    this.employeeService.getEmployees({ status: 'Active', limit: 100 }).subscribe({
+      next: (response) => {
+        if (response.success && response.data?.employees) {
+          // Filter out the current employee being edited (can't report to themselves)
+          const currentId = this.employeeId();
+          this.availableManagers.set(
+            response.data.employees
+              .filter(emp => emp.id !== currentId)
+              .map(emp => ({
+                id: emp.id,
+                employee_id: emp.employee_id,
+                full_name: emp.full_name,
+                position: emp.position
+              }))
+          );
+        }
+      },
+      error: (err) => console.error('Error loading managers:', err)
+    });
   }
 
   initializeForm(): void {
@@ -110,6 +137,7 @@ export class EmployeeFormComponent implements OnInit {
       // Employment Information
       position: ['', [Validators.maxLength(100)]],
       department: ['', [Validators.maxLength(100)]],
+      reporting_manager_id: [null],
       basic_salary: ['', [Validators.required, Validators.min(0)]],
       join_date: ['', Validators.required],
       confirmation_date: [''],

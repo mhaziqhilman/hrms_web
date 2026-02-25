@@ -34,3 +34,33 @@
 .employee-table th.th-text-center {
   text-align: center !important;
 }
+
+/* Frozen action column */
+.employee-table .sticky-action-col {
+  position: sticky;
+  right: 0;
+  z-index: 1;
+  background: hsl(var(--background));
+  text-align: right;
+  padding-left: 1.5rem;
+  padding-right: 0.75rem;
+  position: relative;
+}
+
+.employee-table .sticky-action-col::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: hsl(var(--border));
+}
+
+.employee-table thead .sticky-action-col {
+  z-index: 2;
+}
+
+.employee-table tbody tr:hover .sticky-action-col {
+  background: hsl(var(--muted)) !important;
+}

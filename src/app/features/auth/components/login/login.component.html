@@ -74,7 +74,7 @@
             z-button
             type="submit"
             class="w-full"
-            [disabled]="loginForm.invalid || loading"
+            [disabled]="loading"
           >
             @if (loading) {
               <z-icon zType="loader-circle" class="w-4 h-4 mr-2 animate-spin" />

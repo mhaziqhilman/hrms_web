@@ -152,7 +152,10 @@ export class StatutoryReportsService {
     const link = document.createElement('a');
     link.href = url;
     link.download = filename;
+    link.style.display = 'none';
+    document.body.appendChild(link);
     link.click();
-    window.URL.revokeObjectURL(url);
+    document.body.removeChild(link);
+    setTimeout(() => window.URL.revokeObjectURL(url), 150);
   }
 }

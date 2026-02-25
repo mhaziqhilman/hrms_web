@@ -616,6 +616,20 @@
             </z-form-field>
 
             <z-form-field>
+              <label z-form-label>Reporting Manager</label>
+              <z-form-control>
+                <z-select
+                  formControlName="reporting_manager_id"
+                  zPlaceholder="Select Reporting Manager">
+                  @for (manager of availableManagers(); track manager.id) {
+                    <z-select-item [zValue]="manager.id">{{ manager.full_name }} ({{ manager.employee_id }})@if (manager.position) { - {{ manager.position }}}</z-select-item>
+                  }
+                </z-select>
+              </z-form-control>
+              <z-form-message>Direct supervisor for this employee.</z-form-message>
+            </z-form-field>
+
+            <z-form-field>
               <label z-form-label>Employment Type</label>
               <z-form-control>
                 <z-select

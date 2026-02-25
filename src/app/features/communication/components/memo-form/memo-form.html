@@ -14,10 +14,10 @@
       <div>
         <h2 class="text-3xl font-semibold text-foreground flex items-center gap-2">
           <z-icon zType="megaphone" class="w-8 h-8 text-primary" />
-          {{ isEditMode() ? 'Edit Memo' : 'Create New Memo' }}
+          {{ isEditMode() ? 'Edit Announcement' : 'Create New Announcement' }}
         </h2>
         <p class="text-muted-foreground mt-1">
-          {{ isEditMode() ? 'Update the memo details below' : 'Create and publish announcements to your team' }}
+          {{ isEditMode() ? 'Update the announcement details below' : 'Create and publish announcements to your team' }}
         </p>
       </div>
       <button z-button zType="outline" (click)="cancel()" class="flex items-center gap-2">
@@ -65,8 +65,19 @@
           <z-form-message>{{ form.get('summary')?.value?.length || 0 }} / 500 characters</z-form-message>
         </z-form-field>
 
-        <!-- Priority and Expires At -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Category and Priority -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <z-form-field>
+            <label z-form-label>Category</label>
+            <z-select formControlName="category_id" placeholder="Select category">
+              @for (cat of categories(); track cat.id) {
+                <z-select-item [zValue]="cat.id">
+                  {{ cat.name }}
+                </z-select-item>
+              }
+            </z-select>
+          </z-form-field>
+
           <z-form-field>
             <label z-form-label [zRequired]="true">Priority</label>
             <z-select formControlName="priority" placeholder="Select priority">
@@ -75,7 +86,10 @@
               </z-select-item>
             </z-select>
           </z-form-field>
+        </div>
 
+        <!-- Expires At -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <z-form-field>
             <label z-form-label>Expires At</label>
             <input z-input type="datetime-local" id="expires_at" formControlName="expires_at" />
@@ -91,14 +105,16 @@
           Content
         </h4>
 
-        <form>
-          <label z-form-label [zRequired]="true">Memo Content</label>
-          <quill-editor formControlName="content" [modules]="quillConfig" placeholder="Write your memo content here..."
-            [class.border-destructive]="isFieldInvalid('content')" class="border rounded-md"></quill-editor>
+        <z-form-field>
+          <label z-form-label [zRequired]="true">Announcement Content</label>
+          <textarea z-input id="content" formControlName="content" rows="10"
+            placeholder="Write your announcement content here..."
+            [class.border-destructive]="isFieldInvalid('content')"></textarea>
           <z-form-message zType="error" *ngIf="isFieldInvalid('content')">
             {{ getFieldError('content') }}
           </z-form-message>
-        </form>
+          <z-form-message>{{ form.get('content')?.value?.length || 0 }} characters</z-form-message>
+        </z-form-field>
       </z-card>
 
       <!-- Target Audience Card -->
@@ -165,12 +181,21 @@
           Settings
         </h4>
 
+        <div class="flex items-start space-x-2 mb-4">
+          <input type="checkbox" id="is_pinned" formControlName="is_pinned"
+            class="w-4 h-4 mt-1 text-primary bg-background border-border rounded focus:ring-primary focus:ring-2" />
+          <label for="is_pinned" class="flex flex-col cursor-pointer">
+            <span class="font-semibold text-foreground">Pin Announcement</span>
+            <span class="text-sm text-muted-foreground">Pinned announcements appear in the sidebar and at the top of the feed</span>
+          </label>
+        </div>
+
         <div class="flex items-start space-x-2">
           <input type="checkbox" id="requires_acknowledgment" formControlName="requires_acknowledgment"
             class="w-4 h-4 mt-1 text-primary bg-background border-border rounded focus:ring-primary focus:ring-2" />
           <label for="requires_acknowledgment" class="flex flex-col cursor-pointer">
             <span class="font-semibold text-foreground">Require Acknowledgment</span>
-            <span class="text-sm text-muted-foreground">Employees must acknowledge they have read this memo</span>
+            <span class="text-sm text-muted-foreground">Employees must acknowledge they have read this announcement</span>
           </label>
         </div>
       </z-card>
@@ -195,7 +220,7 @@
             class="flex items-center gap-2">
             <z-icon *ngIf="!saving()" zType="send" class="w-4 h-4" />
             <z-icon *ngIf="saving()" zType="loader-circle" class="w-4 h-4 animate-spin" />
-            {{ isEditMode() ? 'Update & Publish' : 'Publish Memo' }}
+            {{ isEditMode() ? 'Update & Publish' : 'Publish Announcement' }}
           </button>
         </div>
       </div>

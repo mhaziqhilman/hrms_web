@@ -1,6 +1,13 @@
 import { Injectable, signal, computed, OnDestroy } from '@angular/core';
 
 export type ThemePreference = 'light' | 'dark' | 'system';
+export type BorderRadiusPreset = 'sharp' | 'default' | 'round';
+
+const RADIUS_VALUES: Record<BorderRadiusPreset, string> = {
+  sharp: '0.5rem',
+  default: '0.625rem',
+  round: '0.875rem'
+};
 
 @Injectable({
   providedIn: 'root'
@@ -16,6 +23,7 @@ export class ThemeService implements OnDestroy {
   });
 
   compactMode = signal(false);
+  borderRadius = signal<BorderRadiusPreset>('default');
   sidebarCollapsed = signal(false);
 
   private systemPrefersDark = signal(false);
@@ -38,6 +46,7 @@ export class ThemeService implements OnDestroy {
     // Load saved preferences from localStorage
     const savedTheme = localStorage.getItem('theme') as ThemePreference | null;
     const savedCompact = localStorage.getItem('compact_mode');
+    const savedRadius = localStorage.getItem('border_radius') as BorderRadiusPreset | null;
     const savedSidebar = localStorage.getItem('sidebar_collapsed');
 
     if (savedTheme && ['light', 'dark', 'system'].includes(savedTheme)) {
@@ -46,6 +55,9 @@ export class ThemeService implements OnDestroy {
     if (savedCompact !== null) {
       this.compactMode.set(savedCompact === 'true');
     }
+    if (savedRadius && ['sharp', 'default', 'round'].includes(savedRadius)) {
+      this.borderRadius.set(savedRadius);
+    }
     if (savedSidebar !== null) {
       this.sidebarCollapsed.set(savedSidebar === 'true');
     }
@@ -53,6 +65,7 @@ export class ThemeService implements OnDestroy {
     // Apply initial state
     this.applyDarkClass(this.darkMode());
     this.applyCompactClass(this.compactMode());
+    this.applyBorderRadius(this.borderRadius());
   }
 
   ngOnDestroy(): void {
@@ -83,6 +96,12 @@ export class ThemeService implements OnDestroy {
     this.applyCompactClass(compact);
   }
 
+  setBorderRadius(preset: BorderRadiusPreset): void {
+    this.borderRadius.set(preset);
+    localStorage.setItem('border_radius', preset);
+    this.applyBorderRadius(preset);
+  }
+
   setSidebarCollapsed(collapsed: boolean): void {
     this.sidebarCollapsed.set(collapsed);
     localStorage.setItem('sidebar_collapsed', String(collapsed));
@@ -102,5 +121,9 @@ export class ThemeService implements OnDestroy {
     } else {
       document.documentElement.classList.remove('compact');
     }
+  }
+
+  private applyBorderRadius(preset: BorderRadiusPreset): void {
+    document.documentElement.style.setProperty('--radius', RADIUS_VALUES[preset]);
   }
 }

@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { API_CONFIG } from '../../../core/config/api.config';
 import {
   Leave,
+  LeaveType,
   LeaveListParams,
   LeaveListResponse,
   LeaveResponse,
@@ -12,6 +13,7 @@ import {
   ApproveRejectLeaveRequest,
   LeaveBalanceResponse
 } from '../models/leave.model';
+import { ApiResponse } from '../../../core/models/auth.models';
 
 @Injectable({
   providedIn: 'root'
@@ -87,6 +89,15 @@ export class LeaveService {
   cancelLeave(id: number): Observable<{ success: boolean; message: string }> {
     return this.http.delete<{ success: boolean; message: string }>(
       `${this.apiUrl}${API_CONFIG.endpoints.leaves.detail(id)}`
+    );
+  }
+
+  /**
+   * Get all leave types
+   */
+  getLeaveTypes(): Observable<ApiResponse<LeaveType[]>> {
+    return this.http.get<ApiResponse<LeaveType[]>>(
+      `${this.apiUrl}${API_CONFIG.endpoints.leaveTypes.base}`
     );
   }
 

@@ -11,12 +11,12 @@
 
 ## Pre-Testing Setup
 
-- [ ] Backend running locally (`localhost:3000`)
-- [ ] Frontend running locally (`localhost:4200`)
-- [ ] Connected to Supabase PostgreSQL
-- [ ] Supabase Storage bucket `hrms-files` accessible
-- [ ] Super admin account accessible
-- [ ] Browser DevTools open (Network tab for API monitoring)
+- [/] Backend running locally (`localhost:3000`)
+- [/] Frontend running locally (`localhost:4200`)
+- [/] Connected to Supabase PostgreSQL
+- [/] Supabase Storage bucket `hrms-files` accessible
+- [/] Super admin account accessible
+- [/] Browser DevTools open (Network tab for API monitoring)
 
 ---
 
@@ -27,75 +27,78 @@
 **Endpoints:** 9 auth + 7 company + 7 invitation = 23 endpoints
 
 ### Login & Registration
-- [ ] Login with valid credentials → JWT returned, redirected to dashboard
-- [ ] Login with invalid credentials → proper error message shown
-- [ ] Login with locked account → account lockout message
-- [ ] Register new user → account created, verification email sent
-- [ ] Register with duplicate email → proper error
+- [/] Login with valid credentials → JWT returned, redirected to dashboard
+- [/] Login with invalid credentials → proper error message shown
+- [/] Login with locked account → account lockout message
+- [/] Register new user → account created, verification email sent
+- [-] Register with duplicate email → proper error
 
 ### Email Verification
-- [ ] Verify email with valid token → `email_verified` flag set to true
-- [ ] Verify email with invalid/expired token → error message
-- [ ] Resend verification email → new email sent
+- [/] Verify email with valid token → `email_verified` flag set to true
+- [/] Verify email with invalid/expired token → error message
+- [/] Resend verification email → new email sent
 
 ### Password Recovery
-- [ ] Forgot password → reset email sent to registered email
-- [ ] Reset password with valid token → password changed, can login with new password
-- [ ] Reset password with expired token → error message
+- [/] Forgot password → reset email sent to registered email
+- [/] Reset password with valid token → password changed, can login with new password
+- [/] Reset password with expired token → error message
 
 ### Auth Guards
-- [ ] Unauthenticated user accessing `/dashboard` → redirected to `/auth/login`
-- [ ] Unverified email user → redirected to `/auth/verify-email-pending`
-- [ ] User without company → redirected to `/onboarding`
-- [ ] Super admin bypasses email/company checks
+- [/] Unauthenticated user accessing `/dashboard` → redirected to `/auth/login`
+- [/] Unverified email user → redirected to `/auth/verify-email-pending`
+- [/] User without company → redirected to `/onboarding`
+- [/] Super admin bypasses email/company checks
 
 ### Onboarding Flow
-- [ ] Onboarding choice page loads → "Setup Company" or "Wait for Invitation"
-- [ ] Company setup wizard → company created, user assigned admin role
-- [ ] Wait for invitation → shows pending status
+- [/] Onboarding choice page loads → "Setup Company" or "Wait for Invitation"
+- [/] Company setup wizard → company created, user assigned admin role
+- [/] Wait for invitation → shows pending status
 
 ### Invitation System
-- [ ] Admin invites user by email → invitation email sent
-- [ ] Invitation list loads for admin
-- [ ] Accept invitation with valid token → user joins company with assigned role
-- [ ] Cancel pending invitation
-- [ ] Resend invitation
+- [/] Admin invites user by email → invitation email sent
+- [X] Invitation list loads for admin
+- [/] Accept invitation with valid token → user joins company with assigned role
+- [X] Cancel pending invitation
+- [X] Resend invitation
 
 ### Multi-Company
-- [ ] Existing user can create additional company via onboarding
-- [ ] Company switcher in sidebar shows all companies
-- [ ] Switch company → new JWT issued, data reloads for new company
-- [ ] `GET /api/company/my-companies` returns all user companies
-- [ ] `POST /api/company/switch` issues new token with updated company_id
+- [X] Existing user can create additional company via onboarding
+- [X] Company switcher in sidebar shows all companies
+- [X] Switch company → new JWT issued, data reloads for new company
+- [X] `GET /api/company/my-companies` returns all user companies
+- [X] `POST /api/company/switch` issues new token with updated company_id
 
 **Issues Found:**
 ```
-(document issues here during testing)
+I think the validation error or popup error was too slow on auth pages. Even i notice the console log on browser devtools display error first but then on UI i need randomly click on somewhere else to trigger the validator or alert card.
 ```
-
+Theres no list of invitation, so no action to cancel pending invitation or resend invitation.
 ---
+I think just let admin to create multiple company.
 
 ## Module 2: Dashboard
 
 **Backend:** `dashboard.routes.js` (3 endpoints)
 **Frontend:** `features/dashboard/*` (admin, manager, staff dashboards)
 
-- [ ] Admin dashboard (`/dashboard/admin`) loads with correct KPIs
-  - [ ] Employee count accurate
-  - [ ] Payroll summary accurate
-  - [ ] Leave requests pending count
-  - [ ] Claims pending count
-- [ ] Manager dashboard (`/dashboard/manager`) loads with team data
-- [ ] Staff dashboard (`/dashboard/staff`) loads with personal data
-- [ ] Role-based redirect works (admin→admin dashboard, staff→staff dashboard)
-- [ ] Dashboard data matches actual database records
+- [/] Admin dashboard (`/dashboard/admin`) loads with correct KPIs
+  - [/] Employee count accurate
+  - [/] Payroll summary accurate
+  - [/] Leave requests pending count
+  - [/] Claims pending count
+- [/] Manager dashboard (`/dashboard/manager`) loads with team data
+- [/] Staff dashboard (`/dashboard/staff`) loads with personal data
+- [X] Role-based redirect works (admin→admin dashboard, staff→staff dashboard)
+- [/] Dashboard data matches actual database records
 
 **Issues Found:**
 ```
+I logged in as Admin i was redirected to staff dashboard.
 
 ```
-
+When i logged as manager, the number displayed is nothing changes, maybe i dont have a team to report to me, but somehow i think how the staff can be assigned to be report to me?
 ---
+I can see the manager dashboard as i login using Admin account. That shouldnt be.
 
 ## Module 3: Employee Management
 
@@ -103,33 +106,41 @@
 **Frontend:** `features/employees/*` (list, form, detail)
 
 ### CRUD Operations
-- [ ] Employee list loads with pagination
-- [ ] Search by name/employee ID works
-- [ ] Filter by department/status works
-- [ ] Create new employee → form validation, save, appears in list
-- [ ] View employee detail → all sections render (personal, employment, statutory)
-- [ ] Edit employee → changes saved correctly
-- [ ] Delete employee → soft delete, removed from active list
+- [/] Employee list loads with pagination
+- [/] Search by name/employee ID works
+- [/] Filter by department/status works
+- [X] Create new employee → form validation, save, appears in list
+- [X] View employee detail → all sections render (personal, employment, statutory)
+- [/] Edit employee → changes saved correctly
+- [X] Delete employee → soft delete, removed from active list
 
 ### Self-Service
-- [ ] `GET /api/employees/me` → returns own profile for authenticated user
-- [ ] `PUT /api/employees/me` → staff can update own limited fields
+- [/] `GET /api/employees/me` → returns own profile for authenticated user
+- [/] `PUT /api/employees/me` → staff can update own limited fields
 
 ### Statistics & YTD
-- [ ] Employee statistics endpoint → correct counts by department/status
-- [ ] YTD statutory data (`GET /api/employees/:id/ytd`) displays correctly
+- [/] Employee statistics endpoint → correct counts by department/status
+- [/] YTD statutory data (`GET /api/employees/:id/ytd`) displays correctly
 
 ### Role Access
-- [ ] Staff can only see own profile
-- [ ] Manager sees team members
-- [ ] Admin sees all employees
+- [/] Staff can only see own profile
+- [X] Manager sees team members
+- [/] Admin sees all employees
 
 **Issues Found:**
 ```
+For create new employee, I notice when i just fill in mandatory input (with asterix symbol) employeeID, fullname, gender, basic salary and join date, the error of validation displayed with details:
+employee-form.component.ts:188 
+ POST http://localhost:3000/api/employees 400 (Bad Request)
+onSubmit	@	employee-form.component.ts:188
+
+But when i fillup almost the attributes it can add the employee with no errors.
 
 ```
+View employee got error on Year-to-Date Statutory Summary. even the data for 2026 is not available, but for 2025 the dropdown is not working.
 
 ---
+For delete employee, the delete function is only change the status of the emplyee from acctive to terminate. It should have another status from terminate to inactive which not appeared in the list.
 
 ## Module 4: Payroll
 
@@ -137,42 +148,44 @@
 **Frontend:** `features/payroll/*` (list, form, payslip-view)
 
 ### Calculation
-- [ ] Calculate payroll for an employee → all components computed
-- [ ] EPF: Employee 11% / Employer 13% (verify with age/salary variations)
-- [ ] EPF caps at RM30,000 monthly salary
-- [ ] SOCSO: 34-tier contribution table applied correctly (cap: RM10,800)
-- [ ] EIS: 0.2% employee + 0.2% employer (verify)
-- [ ] PCB: Progressive tax rates applied correctly
-- [ ] Net pay = Gross - Employee deductions
+- [/] Calculate payroll for an employee → all components computed
+- [/] EPF: Employee 11% / Employer 13% (verify with age/salary variations)
+- [/] EPF caps at RM30,000 monthly salary
+- [/] SOCSO: 34-tier contribution table applied correctly (cap: RM10,800)
+- [/] EIS: 0.2% employee + 0.2% employer (verify)
+- [/] PCB: Progressive tax rates applied correctly
+- [/] Net pay = Gross - Employee deductions
 
 ### Workflow
-- [ ] Payroll list loads with filters (month, year, status, employee)
-- [ ] Draft payroll created after calculation
-- [ ] Submit for approval → status changes to Pending
-- [ ] Approve payroll (admin) → status changes to Approved
-- [ ] Mark as paid (admin) → status changes to Paid
-- [ ] YTD auto-updates after payroll approval
+- [/] Payroll list loads with filters (month, year, status, employee)
+- [/] Draft payroll created after calculation
+- [/] Submit for approval → status changes to Pending
+- [/] Approve payroll (admin) → status changes to Approved
+- [/] Mark as paid (admin) → status changes to Paid
+- [/] YTD auto-updates after payroll approval
 
 ### Bulk Operations
-- [ ] Bulk submit for approval
-- [ ] Bulk approve
-- [ ] Bulk mark as paid
-- [ ] Bulk cancel
-- [ ] Bulk delete
+- [/] Bulk submit for approval
+- [/] Bulk approve
+- [/] Bulk mark as paid
+- [/] Bulk cancel
+- [/] Bulk delete
 
 ### Payslip
-- [ ] Generate payslip PDF → correct data, proper format
-- [ ] Download payslip works
-- [ ] My payslips → staff sees own payslips only (`GET /api/payroll/my-payslips`)
+- [/] Generate payslip PDF → correct data, proper format
+- [X] Download payslip works
+- [X] My payslips → staff sees own payslips only (`GET /api/payroll/my-payslips`)
 
 ### Edit & Delete
-- [ ] Edit payroll (only in draft/pending status)
-- [ ] Cancel payroll
-- [ ] Soft delete payroll
-- [ ] Permanent delete payroll (admin only)
+- [/] Edit payroll (only in draft/pending status)
+- [/] Cancel payroll
+- [/] Soft delete payroll
+- [/] Permanent delete payroll (admin only)
 
 **Issues Found:**
 ```
+Generate payslip is correct, but i want to change the format and template later.
+Download payslip not implemented yet.
 
 ```
 
@@ -184,40 +197,44 @@
 **Frontend:** `features/leave/*` (list, form, approval, balance, details)
 
 ### Application
-- [ ] Leave list loads with filters (status, type, date range)
-- [ ] Apply leave → date picker, leave type dropdown, reason field
-- [ ] Half-day leave option works
-- [ ] Document upload for specific leave types (e.g., medical certificate)
-- [ ] Leave type document requirements enforced
+- [/] Leave list loads with filters (status, type, date range)
+- [X] Apply leave → date picker, leave type dropdown, reason field
+- [/] Half-day leave option works
+- [/] Document upload for specific leave types (e.g., medical certificate)
+- [/] Leave type document requirements enforced
 
 ### Balance & Entitlements
-- [ ] Leave balance page shows all leave types with used/remaining
-- [ ] `GET /api/leaves/balance/:employee_id` returns correct data
-- [ ] Pro-rated calculation for mid-year joiner
-- [ ] Carry forward days display correctly
+- [/] Leave balance page shows all leave types with used/remaining
+- [X] `GET /api/leaves/balance/:employee_id` returns correct data
+- [X] Pro-rated calculation for mid-year joiner
+- [X] Carry forward days display correctly
 
 ### Approval Workflow
-- [ ] Manager sees pending approvals (`/leave/approvals`)
-- [ ] Approve leave → balance updated
-- [ ] Reject leave with remarks
-- [ ] Approval history shown in leave details
+- [/] Manager sees pending approvals (`/leave/approvals`)
+- [/] Approve leave → balance updated
+- [/] Reject leave with remarks
+- [/] Approval history shown in leave details
 
 ### CRUD
-- [ ] Edit pending leave application
-- [ ] Cancel own leave
-- [ ] Leave details page shows full info + timeline
+- [/] Edit pending leave application
+- [/] Cancel own leave
+- [/] Leave details page shows full info + timeline
 
 ### Role Access
-- [ ] Staff sees own leaves
-- [ ] Manager sees team leaves
-- [ ] Admin sees all leaves
+- [/] Staff sees own leaves
+- [X] Manager sees team leaves
+- [/] Admin sees all leaves
 
 **Issues Found:**
 ```
+When user want to apply leave, some of the leave balance not tally with leave entitlement. For example for VLX-001 hospitalization leave is 10 remainings, but on leave form the remaining leave for hospitalization is 5 which is 5 leave supposedly for emergency leave.
 
 ```
+User cant apply leave for unpaid leave since backend mentioned there is no remaining leave for unpaid. I know unpaid is unlimited thats why we put the entitlement is 0. But this should not be how its work. Fix it
 
 ---
+When leave is applied then dialog success should using ZardUI component like alert or dialog. Not using browser alert like current setup.
+
 
 ## Module 6: Attendance & WFH
 
@@ -225,27 +242,27 @@
 **Frontend:** `features/attendance/*` (list, clock-in-out, wfh, detail, my-attendance)
 
 ### Clock In/Out
-- [ ] Clock in → timestamp captured + location (lat/long)
-- [ ] Clock out → duration calculated automatically
-- [ ] Cannot clock in twice on same day
-- [ ] Late detection (`is_late` flag set correctly)
-- [ ] Early leave detection (`is_early_leave` flag)
+- [/] Clock in → timestamp captured + location (lat/long)
+- [/] Clock out → duration calculated automatically
+- [/] Cannot clock in twice on same day
+- [/] Late detection (`is_late` flag set correctly)
+- [/] Early leave detection (`is_early_leave` flag)
 
 ### Attendance Records
-- [ ] Attendance list with filters (date range, employee, type)
-- [ ] Attendance detail shows clock times, duration, type (Office/WFH)
-- [ ] My attendance view → staff sees own records
-- [ ] Attendance summary → correct stats (total days, late count, etc.)
+- [/] Attendance list with filters (date range, employee, type)
+- [/] Attendance detail shows clock times, duration, type (Office/WFH)
+- [/] My attendance view → staff sees own records
+- [/] Attendance summary → correct stats (total days, late count, etc.)
 
 ### WFH Management
-- [ ] WFH application → submit with date + reason
-- [ ] WFH approval list loads for managers
-- [ ] Manager approve WFH → creates attendance record with type=WFH
-- [ ] Manager reject WFH with remarks
+- [/] WFH application → submit with date + reason
+- [/] WFH approval list loads for managers
+- [/] Manager approve WFH → creates attendance record with type=WFH
+- [/] Manager reject WFH with remarks
 
 ### Admin Operations
-- [ ] Edit attendance record (admin/manager)
-- [ ] Delete attendance record (admin)
+- [/] Edit attendance record (admin/manager)
+- [/] Delete attendance record (admin)
 
 **Issues Found:**
 ```
@@ -260,33 +277,36 @@
 **Frontend:** `features/claims/*` (list, form, approval)
 
 ### Submission
-- [ ] Claims list loads with filters (status, type, date)
-- [ ] Submit claim → type, amount, date, description, receipt upload
-- [ ] Claim amount validated against claim type max limit
-- [ ] Receipt file attached and viewable
+- [/] Claims list loads with filters (status, type, date)
+- [/] Submit claim → type, amount, date, description, receipt upload
+- [/] Claim amount validated against claim type max limit
+- [X] Receipt file attached and viewable
 
 ### Multi-Level Approval
-- [ ] Manager approval → `PATCH /api/claims/:id/manager-approval`
-- [ ] Finance approval → `PATCH /api/claims/:id/finance-approval`
-- [ ] Mark as paid (finance/admin)
-- [ ] Rejection with remarks at each level
+- [/] Manager approval → `PATCH /api/claims/:id/manager-approval`
+- [/] Finance approval → `PATCH /api/claims/:id/finance-approval`
+- [X] Mark as paid (finance/admin)
+- [X] Rejection with remarks at each level
 
 ### CRUD & Reports
-- [ ] Edit pending claim
-- [ ] Delete pending claim (staff can delete own)
-- [ ] Claims summary per employee (`GET /api/claims/summary/:employee_id`)
+- [/] Edit pending claim
+- [/] Delete pending claim (staff can delete own)
+- [X] Claims summary per employee (`GET /api/claims/summary/:employee_id`)
 
 ### Role Access
-- [ ] Staff sees own claims
-- [ ] Manager sees team claims + approval interface
-- [ ] Admin sees all claims + finance approval
+- [/] Staff sees own claims
+- [/] Manager sees team claims + approval interface
+- [/] Admin sees all claims + finance approval
 
 **Issues Found:**
 ```
+Receipt file attached and viewable not working on view claim once the receipt is approved by manager and finance. 
 
 ```
+Once claim is rejected, first, the manager column in claim list should state rejected, not approved. Second user cannot see the rejected reason/remark. 
 
 ---
+Where is Claims summary per employee? I missed this feature.
 
 ## Module 8: HR Communications
 
@@ -326,36 +346,36 @@
 **Frontend:** `features/statutory-reports/*` (reports-list)
 
 ### Reports Generation
-- [ ] Reports list page loads
-- [ ] Available periods → returns months with payroll data
+- [/] Reports list page loads
+- [/] Available periods → returns months with payroll data
 - [ ] **EA Form:**
-  - [ ] Select employee + year → data loads correctly
-  - [ ] Data matches annual payroll totals (gross, EPF, SOCSO, PCB)
-  - [ ] PDF download → valid PDF with correct layout
-- [ ] **EPF Borang A:**
-  - [ ] Select month/year → all employees listed with EPF amounts
-  - [ ] Employee + employer contributions correct
-  - [ ] PDF download works
-- [ ] **SOCSO Form 8A:**
-  - [ ] Monthly SOCSO contributions for all employees
-  - [ ] Tier amounts match payroll records
-  - [ ] PDF download works
-- [ ] **PCB CP39:**
-  - [ ] Monthly tax deductions for all employees
-  - [ ] Amounts match payroll PCB calculations
-  - [ ] PDF download works
+  - [/] Select employee + year → data loads correctly
+  - [/] Data matches annual payroll totals (gross, EPF, SOCSO, PCB)
+  - [/] PDF download → valid PDF with correct layout
+- [/] **EPF Borang A:**
+  - [/] Select month/year → all employees listed with EPF amounts
+  - [/] Employee + employer contributions correct
+  - [/] PDF download works
+- [/] **SOCSO Form 8A:**
+  - [/] Monthly SOCSO contributions for all employees
+  - [/] Tier amounts match payroll records
+  - [/] PDF download works
+- [/] **PCB CP39:**
+  - [/] Monthly tax deductions for all employees
+  - [/] Amounts match payroll PCB calculations
+  - [/] PDF download works
 
 ### Export
-- [ ] CSV export for each report type (`GET /api/statutory-reports/csv/:type/:year/:month`)
-- [ ] CSV format matches e-filing requirements
+- [/] CSV export for each report type (`GET /api/statutory-reports/csv/:type/:year/:month`)
+- [/] CSV format matches e-filing requirements
 
 ### Data Accuracy
-- [ ] Report totals match sum of individual payroll records
-- [ ] Year-to-date figures accurate in EA form
+- [/] Report totals match sum of individual payroll records
+- [/] Year-to-date figures accurate in EA form
 
 **Issues Found:**
 ```
-
+I want to improves on UI/UX part later.
 ```
 
 ---
@@ -365,15 +385,15 @@
 **Backend:** `analytics.routes.js` (7 endpoints)
 **Frontend:** `features/analytics/*` (dashboard + 4 chart components)
 
-- [ ] Analytics dashboard loads (`/analytics`)
-- [ ] **Payroll Cost Chart:** renders with monthly cost data, filters by year
-- [ ] **Leave Utilization Chart:** shows usage by leave type
-- [ ] **Attendance Punctuality Chart:** shows on-time vs late percentages
-- [ ] **Claims Spending Chart:** shows spending by claim type
-- [ ] Date range / year filter works across all charts
-- [ ] Export to Excel → valid `.xlsx` with all analytics data
-- [ ] Export to PDF → valid report document
-- [ ] Role access: only manager+ can access analytics page
+- [/] Analytics dashboard loads (`/analytics`)
+- [/] **Payroll Cost Chart:** renders with monthly cost data, filters by year
+- [/] **Leave Utilization Chart:** shows usage by leave type
+- [/] **Attendance Punctuality Chart:** shows on-time vs late percentages
+- [/] **Claims Spending Chart:** shows spending by claim type
+- [/] Date range / year filter works across all charts
+- [/] Export to Excel → valid `.xlsx` with all analytics data
+- [/] Export to PDF → valid report document
+- [/] Role access: only manager+ can access analytics page
 
 **Issues Found:**
 ```
@@ -425,24 +445,24 @@
 **Backend:** `GET/PUT /api/employees/me`, `GET /api/payroll/my-payslips`, `POST /api/auth/change-password`
 **Frontend:** `features/personal/*` (my-profile, my-payslips, change-password)
 
-- [ ] **My Profile** (`/personal/profile`)
-  - [ ] Page loads with personal info (name, email, phone, IC)
-  - [ ] Employment info shown (department, position, join date)
-  - [ ] Edit limited fields → changes saved
-- [ ] **My Payslips** (`/personal/payslips` or via payroll/my-payslips)
-  - [ ] Payslip history loads with list of months
-  - [ ] Click payslip → detail view / PDF download
-- [ ] **Change Password** (`/personal/change-password`)
-  - [ ] Current password required
-  - [ ] New password validation (strength rules)
-  - [ ] Password changed successfully → can login with new password
-- [ ] All authenticated users can access own personal pages
+- [/] **My Profile** (`/personal/profile`)
+  - [/] Page loads with personal info (name, email, phone, IC)
+  - [/] Employment info shown (department, position, join date)
+  - [/] Edit limited fields → changes saved
+- [X] **My Payslips** (`/personal/payslips` or via payroll/my-payslips)
+  - [X] Payslip history loads with list of months
+  - [X] Click payslip → detail view / PDF download
+- [X] **Change Password** (`/personal/change-password`)
+  - [X] Current password required
+  - [X] New password validation (strength rules)
+  - [X] Password changed successfully → can login with new password
+- [/] All authenticated users can access own personal pages
 
 **Issues Found:**
 ```
-
+I want to add tabs for payslip in my profile page.
 ```
-
+Change password should be in account system settings.
 ---
 
 ## Module 13: User Management
@@ -450,13 +470,13 @@
 **Backend:** `user.routes.js` (8 endpoints)
 **Frontend:** `features/user-management/*` (user-list)
 
-- [ ] User list loads with pagination/filters
-- [ ] View user details (linked employee, role, status)
-- [ ] Update user role → only super_admin can change roles
-- [ ] Toggle user active/inactive → deactivated user cannot login
-- [ ] Link user to employee record
-- [ ] Unlink user from employee
-- [ ] Admin reset user password
+- [/] User list loads with pagination/filters
+- [/] View user details (linked employee, role, status)
+- [/] Update user role → only super_admin can change roles
+- [/] Toggle user active/inactive → deactivated user cannot login
+- [/] Link user to employee record
+- [/] Unlink user from employee
+- [/] Admin reset user password
 - [ ] Unlinked employees list → shows employees without user accounts
 - [ ] Role access: admin+ only can access user management
 
@@ -607,18 +627,28 @@
 
 ## Issue Log
 
-| # | Module | Severity | Description | Status |
-|---|--------|----------|-------------|--------|
-| 1 | | | | |
-| 2 | | | | |
-| 3 | | | | |
+| # | Module | Severity | Description | Fix Applied | Status |
+|---|--------|----------|-------------|-------------|--------|
+| 1 | Leave | Critical | Leave balance mismatch — `/balance/:employee_id` route collided with `/:id` | Reordered routes in `leave.routes.js` — specific routes before parameterized | FIXED |
+| 2 | Leave | Critical | Unpaid leave blocked by 0 entitlement check | Added `leaveType.is_paid !== false` check before balance validation in `leaveController.js` | FIXED |
+| 3 | Dashboard | Major | Admin redirected to staff dashboard instead of admin | Created `dashboardRedirectGuard` in `dashboard-routing.module.ts` to check user role | FIXED |
+| 4 | Dashboard | Major | Admin could access manager dashboard | Removed 'admin' from manager dashboard `roleGuard` — now `['super_admin', 'manager']` only | FIXED |
+| 5 | Employee | Major | Employee creation fails with only mandatory fields (400 error) | Added `{ values: 'falsy' }` to `.optional()` validators in `employee.routes.js` for `ic_no`, `email`, `employment_type` | FIXED |
+| 6 | Employee | Major | YTD statutory year dropdown not working / no data shown | Rewrote `getEmployeeYTD` in `employeeController.js` — `findOne` → `findAll`, aggregate monthly breakdown + totals | FIXED |
+| 7 | Payroll | Major | Payslip download button calls non-existent `/payslip/pdf` endpoint | Changed `downloadPayslip()` to use `window.print()` (Save as PDF) in `payslip-view.component.ts` | FIXED |
+| 8 | Claims | Major | Receipt file not viewable after approval (private Supabase URL) | Changed receipt "View" link to navigate to claim detail page (has file-list component) | FIXED |
+| 9 | Claims | Major | Rejected claim shows "Approved" in manager column | Added status check in `claim-list.component.html` — shows "Rejected" with red icon when `status === 'Rejected'` | FIXED |
+| 10 | Claims | Major | User can't see rejection reason/remarks on claims | Added `rejection_reason` display in both manager and finance columns in `claim-list.component.html` and `claim-approval.component.html` | FIXED |
+| 11 | Leave | Minor | Success dialog uses browser `alert()` instead of ZardUI | Replaced 4x `alert()` calls with `alertDialogService.info()` in `leave-form.component.ts` | FIXED |
+| 12 | Auth | Minor | Validation errors only show after touching each field individually | Removed `loginForm.invalid` from submit button disabled condition — errors now show on submit click | FIXED |
 
 **Severity Levels:** Critical (blocks usage) | Major (broken feature) | Minor (cosmetic/UX) | Enhancement
 
 ---
 
-**Document Version:** 1.0
+**Document Version:** 1.1
 **Created:** February 15, 2026
-**Testing Start Date:** ___
+**Bug Fixes Applied:** February 19, 2026
+**Testing Start Date:** February 18, 2026
 **Testing End Date:** ___
 **Tested By:** ___

@@ -44,6 +44,72 @@
           <!-- ============ ACCOUNT SECTION ============ -->
           @case ('account') {
             <div class="space-y-6">
+              <!-- Profile Picture -->
+              @if (accountInfo()) {
+                <z-card>
+                  <div zCardHeader class="grid gap-2 pb-4">
+                    <h3 zCardTitle class="flex items-center gap-2 font-semibold">
+                      <z-icon zType="image" class="h-5 w-5" />
+                      Profile Picture
+                    </h3>
+                    <p zCardDescription class="text-sm font-light">Upload a photo or use your initials as your avatar</p>
+                  </div>
+                  <div zCardContent>
+                    <div class="flex items-center gap-6">
+                      <!-- Avatar Preview -->
+                      <div class="relative">
+                        @if (accountInfo()!.photo_url) {
+                          <img
+                            [src]="accountInfo()!.photo_url"
+                            alt="Profile picture"
+                            class="h-24 w-24 rounded-full object-cover border-2 border-border" />
+                        } @else {
+                          <div class="h-24 w-24 rounded-full bg-primary/10 border-2 border-border flex items-center justify-center">
+                            <span class="text-2xl font-semibold text-primary">{{ getInitials() }}</span>
+                          </div>
+                        }
+                        @if (uploadingPhoto()) {
+                          <div class="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center">
+                            <z-icon zType="loader-2" class="h-6 w-6 animate-spin text-white" />
+                          </div>
+                        }
+                      </div>
+
+                      <!-- Actions -->
+                      <div class="flex flex-col gap-2">
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp"
+                          class="hidden"
+                          #fileInput
+                          (change)="onProfilePictureSelect($event)" />
+                        <button z-button zType="outline" zSize="sm" class="px-2"
+                          [disabled]="uploadingPhoto() || removingPhoto()"
+                          (click)="fileInput.click()">
+                          <z-icon zType="upload" class="mr-2 h-4 w-4" />
+                          Upload Photo
+                        </button>
+                        @if (accountInfo()!.photo_url) {
+                          <button z-button zType="outline" zSize="sm"
+                            class="text-red-600 hover:text-red-700"
+                            [disabled]="uploadingPhoto() || removingPhoto()"
+                            (click)="removeProfilePicture()">
+                            @if (removingPhoto()) {
+                              <z-icon zType="loader-2" class="mr-2 h-4 w-4 animate-spin" />
+                              Removing...
+                            } @else {
+                              <z-icon zType="trash-2" class="mr-2 h-4 w-4" />
+                              Remove Photo
+                            }
+                          </button>
+                        }
+                        <p class="text-xs text-muted-foreground">JPG, PNG or WebP. Max 2MB.</p>
+                      </div>
+                    </div>
+                  </div>
+                </z-card>
+              }
+
               <!-- Account Info -->
               @if (accountInfo()) {
                 <z-card>
@@ -58,7 +124,7 @@
                     <div class="space-y-4">
                       <div class="flex items-center justify-between py-2">
                         <span class="text-sm text-muted-foreground">Name</span>
-                        <span class="text-sm font-medium">{{ accountInfo()!.employee_name }}</span>
+                        <span class="text-sm font-medium">{{ accountInfo()!.employee_name || 'Not set' }}</span>
                       </div>
                       <z-divider />
                       <div class="flex items-center justify-between py-2">
@@ -412,6 +478,48 @@
                       (click)="setTheme('system')">
                       <z-icon zType="sun-moon" class="h-6 w-6" />
                       <span class="text-sm font-medium">System</span>
+                    </button>
+                  </div>
+                </div>
+              </z-card>
+
+              <!-- Border Radius -->
+              <z-card>
+                <div zCardHeader class="grid gap-2 pb-4">
+                  <h3 zCardTitle class="flex items-center gap-2 font-semibold">
+                    <z-icon zType="square" class="h-5 w-5" />
+                    Border Radius
+                  </h3>
+                  <p zCardDescription class="text-sm font-light">Adjust the roundedness of UI elements globally</p>
+                </div>
+                <div zCardContent>
+                  <div class="grid grid-cols-3 gap-3">
+                    <!-- Sharp -->
+                    <button
+                      type="button"
+                      class="flex flex-col items-center gap-3 border-2 p-4 transition-colors cursor-pointer rounded-lg"
+                      [ngClass]="selectedBorderRadius === 'sharp' ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground/30'"
+                      (click)="setBorderRadius('sharp')">
+                      <div class="h-10 w-10 border-2 border-foreground/40 rounded-sm"></div>
+                      <span class="text-sm font-medium">Sharp</span>
+                    </button>
+                    <!-- Default -->
+                    <button
+                      type="button"
+                      class="flex flex-col items-center gap-3 border-2 p-4 transition-colors cursor-pointer rounded-lg"
+                      [ngClass]="selectedBorderRadius === 'default' ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground/30'"
+                      (click)="setBorderRadius('default')">
+                      <div class="h-10 w-10 border-2 border-foreground/40 rounded-lg"></div>
+                      <span class="text-sm font-medium">Default</span>
+                    </button>
+                    <!-- Round -->
+                    <button
+                      type="button"
+                      class="flex flex-col items-center gap-3 border-2 p-4 transition-colors cursor-pointer rounded-lg"
+                      [ngClass]="selectedBorderRadius === 'round' ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground/30'"
+                      (click)="setBorderRadius('round')">
+                      <div class="h-10 w-10 border-2 border-foreground/40 rounded-2xl"></div>
+                      <span class="text-sm font-medium">Round</span>
                     </button>
                   </div>
                 </div>

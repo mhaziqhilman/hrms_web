@@ -15,6 +15,13 @@ export interface FileUploadMetadata {
   is_public?: boolean;
 }
 
+export interface UploaderInfo {
+  id: number;
+  name: string;
+  email: string;
+  employee?: { full_name: string };
+}
+
 export interface FileMetadata {
   id: number;
   original_filename: string;
@@ -26,6 +33,7 @@ export interface FileMetadata {
   category: string;
   sub_category?: string;
   uploaded_by: number;
+  company_id?: number;
   related_to_employee_id?: number;
   related_to_claim_id?: number;
   related_to_leave_id?: number;
@@ -39,6 +47,7 @@ export interface FileMetadata {
   uploaded_at: string;
   deleted_at?: string;
   deleted_by?: number;
+  uploader?: UploaderInfo;
 }
 
 export interface FileListResponse {
@@ -66,6 +75,44 @@ export interface StorageStats {
     count: number;
     size: number;
   }>;
+}
+
+export interface CategoryBreakdown {
+  category: string;
+  count: number;
+  size: number;
+}
+
+export interface RecentActivity {
+  id: number;
+  original_filename: string;
+  file_extension: string;
+  category: string;
+  uploaded_at: string;
+  uploader: UploaderInfo | null;
+}
+
+export interface DocumentOverviewStats {
+  total_documents: number;
+  pending_verification: number;
+  recently_uploaded: number;
+  total_size: number;
+  category_breakdown: CategoryBreakdown[];
+  recent_activity: RecentActivity[];
+}
+
+export interface FileListFilters {
+  category?: string;
+  uploaded_by?: number;
+  related_to_employee_id?: number;
+  related_to_claim_id?: number;
+  related_to_leave_id?: number;
+  search?: string;
+  is_verified?: string;
+  page?: number;
+  limit?: number;
+  sort?: string;
+  order?: string;
 }
 
 @Injectable({
@@ -124,23 +171,22 @@ export class FileService {
   }
 
   /**
+   * Get document overview stats (admin)
+   */
+  getDocumentOverview(): Observable<{ success: boolean; data: DocumentOverviewStats }> {
+    return this.http.get<{ success: boolean; data: DocumentOverviewStats }>(`${this.apiUrl}/overview`);
+  }
+
+  /**
    * Get all files with filters
    */
-  getFiles(filters?: {
-    category?: string;
-    uploaded_by?: number;
-    related_to_employee_id?: number;
-    related_to_claim_id?: number;
-    related_to_leave_id?: number;
-    page?: number;
-    limit?: number;
-  }): Observable<FileListResponse> {
+  getFiles(filters?: FileListFilters): Observable<FileListResponse> {
     let params = new HttpParams();
 
     if (filters) {
       Object.keys(filters).forEach(key => {
         const value = (filters as any)[key];
-        if (value !== undefined && value !== null) {
+        if (value !== undefined && value !== null && value !== '') {
           params = params.set(key, value.toString());
         }
       });
@@ -198,6 +244,13 @@ export class FileService {
     is_verified?: boolean;
   }): Observable<FileResponse> {
     return this.http.put<FileResponse>(`${this.apiUrl}/${fileId}`, updates);
+  }
+
+  /**
+   * Verify or unverify a file (admin only)
+   */
+  verifyFile(fileId: number, isVerified: boolean): Observable<FileResponse> {
+    return this.http.patch<FileResponse>(`${this.apiUrl}/${fileId}/verify`, { is_verified: isVerified });
   }
 
   /**
@@ -290,15 +343,48 @@ export class FileService {
   }
 
   /**
-   * Get file icon based on MIME type
+   * Get file icon based on MIME type (Lucide icon names)
    */
   getFileIcon(mimeType: string): string {
     if (mimeType.startsWith('image/')) return 'image';
-    if (mimeType === 'application/pdf') return 'picture_as_pdf';
-    if (mimeType.includes('word')) return 'description';
-    if (mimeType.includes('sheet') || mimeType.includes('excel')) return 'grid_on';
-    if (mimeType.includes('zip') || mimeType.includes('rar')) return 'folder_zip';
-    return 'insert_drive_file';
+    if (mimeType === 'application/pdf') return 'file-text';
+    if (mimeType.includes('word')) return 'file-type';
+    if (mimeType.includes('sheet') || mimeType.includes('excel')) return 'file-spreadsheet';
+    if (mimeType.includes('zip') || mimeType.includes('rar')) return 'file-archive';
+    if (mimeType.includes('text')) return 'file-text';
+    return 'file';
+  }
+
+  /**
+   * Get category display label
+   */
+  getCategoryLabel(category: string): string {
+    const labels: Record<string, string> = {
+      'employee_document': 'Employee',
+      'claim_receipt': 'Claims',
+      'payslip': 'Payslip',
+      'leave_document': 'Leave',
+      'company_document': 'Company',
+      'invoice': 'Invoice',
+      'other': 'Other'
+    };
+    return labels[category] || category;
+  }
+
+  /**
+   * Get category badge color class
+   */
+  getCategoryColor(category: string): string {
+    const colors: Record<string, string> = {
+      'employee_document': 'bg-blue-100 text-blue-700',
+      'claim_receipt': 'bg-purple-100 text-purple-700',
+      'payslip': 'bg-green-100 text-green-700',
+      'leave_document': 'bg-orange-100 text-orange-700',
+      'company_document': 'bg-cyan-100 text-cyan-700',
+      'invoice': 'bg-rose-100 text-rose-700',
+      'other': 'bg-gray-100 text-gray-700'
+    };
+    return colors[category] || 'bg-gray-100 text-gray-700';
   }
 
   /**

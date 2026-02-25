@@ -4,6 +4,7 @@ export interface UserSettings {
   theme: 'light' | 'dark' | 'system';
   sidebar_collapsed: boolean;
   compact_mode: boolean;
+  border_radius: 'sharp' | 'default' | 'round';
   language: string;
   timezone: string;
   date_format: string;
@@ -24,12 +25,17 @@ export interface AccountInfo {
   role: string;
   last_login: string;
   employee_name: string;
+  employee_id: string;
+  department: string;
+  position: string;
+  photo_url: string | null;
 }
 
 export interface AppearanceSettings {
   theme: 'light' | 'dark' | 'system';
   sidebar_collapsed: boolean;
   compact_mode: boolean;
+  border_radius: 'sharp' | 'default' | 'round';
 }
 
 export interface DisplaySettings {

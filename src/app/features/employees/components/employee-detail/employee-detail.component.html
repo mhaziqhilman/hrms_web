@@ -381,6 +381,18 @@
             </div>
             <z-divider />
             <div>
+              <label class="block text-xs font-semibold text-muted-foreground mb-1">Reporting Manager</label>
+              @if (employee()!.manager) {
+                <p class="text-sm text-foreground font-medium">{{ employee()!.manager!.full_name }} ({{ employee()!.manager!.employee_id }})</p>
+                @if (employee()!.manager!.position) {
+                  <p class="text-xs text-muted-foreground">{{ employee()!.manager!.position }}</p>
+                }
+              } @else {
+                <p class="text-sm text-muted-foreground">-</p>
+              }
+            </div>
+            <z-divider />
+            <div>
               <label class="block text-xs font-semibold text-muted-foreground mb-1">Employment Type</label>
               <p class="text-sm text-foreground font-medium">{{ employee()!.employment_type || '-' }}</p>
             </div>

@@ -70,6 +70,12 @@ export interface ClaimSummary {
   };
 }
 
+export interface ClaimAnalytics {
+  status: { total: number; approved: number; rejected: number; pending: number };
+  status_prev: { total: number; approved: number; rejected: number; pending: number };
+  by_type: { name: string; count: number }[];
+}
+
 export interface SubmitClaimRequest {
   employee_id: number;
   claim_type_id: number;

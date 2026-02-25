@@ -100,6 +100,37 @@ export interface YTDSummary {
   total_pcb: number;
 }
 
+export interface EmployeeDocument {
+  id: number;
+  original_filename: string;
+  stored_filename: string;
+  file_size: number;
+  mime_type: string;
+  file_extension: string;
+  category: string;
+  sub_category: string | null;
+  description: string | null;
+  is_verified: boolean;
+  status: string;
+  uploaded_at: string;
+  uploader?: {
+    id: number;
+    email: string;
+    employee?: { full_name: string };
+  };
+}
+
+export interface EmployeeDocumentsResponse {
+  success: boolean;
+  data: EmployeeDocument[];
+  pagination: {
+    total: number;
+    currentPage: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
 // API Response types
 export interface EmployeeProfileResponse {
   success: boolean;

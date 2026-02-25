@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { PersonalService } from '../../services/personal.service';
-import { EmployeeProfile, UpdateProfileRequest } from '../../models/personal.model';
+import { EmployeeProfile, EmployeeDocument, UpdateProfileRequest } from '../../models/personal.model';
+import { MyPayslipsComponent } from '../my-payslips/my-payslips.component';
 
 // ZardUI Components
 import { ZardCardComponent } from '@/shared/components/card/card.component';
@@ -35,7 +36,8 @@ import { ZardEmptyComponent } from '@/shared/components/empty/empty.component';
     ZardProgressBarComponent,
     ZardAvatarComponent,
     ZardDividerComponent,
-    ZardEmptyComponent
+    ZardEmptyComponent,
+    MyPayslipsComponent
   ],
   templateUrl: './my-profile.component.html'
 })
@@ -49,6 +51,14 @@ export class MyProfileComponent implements OnInit {
   saving = signal(false);
   editMode = signal(false);
   profile = signal<EmployeeProfile | null>(null);
+
+  // Documents state
+  documents = signal<EmployeeDocument[]>([]);
+  loadingDocuments = signal(false);
+  downloadingDoc = signal<number | null>(null);
+  docSearch = '';
+  docSort = 'uploaded_at';
+  docOrder = 'DESC';
 
   // Editable form data
   formData: UpdateProfileRequest = {};
@@ -118,9 +128,14 @@ export class MyProfileComponent implements OnInit {
     this.personalService.getMyProfile().subscribe({
       next: (response) => {
         if (response.success && response.data) {
+          // Only accept absolute URLs for photo_url — reject raw storage paths
+          if (response.data.photo_url && !response.data.photo_url.startsWith('http')) {
+            response.data.photo_url = null;
+          }
           this.profile.set(response.data);
           this.hasProfile.set(true);
           this.resetFormData();
+          this.loadDocuments();
         } else {
           this.hasProfile.set(false);
         }
@@ -192,5 +207,107 @@ export class MyProfileComponent implements OnInit {
 
   formatCurrency(amount: number): string {
     return `RM ${amount.toLocaleString('en-MY', { minimumFractionDigits: 2 })}`;
+  }
+
+  // Document methods
+  loadDocuments(): void {
+    this.loadingDocuments.set(true);
+    this.personalService.getMyDocuments({
+      search: this.docSearch || undefined,
+      sort: this.docSort,
+      order: this.docOrder
+    }).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.documents.set(response.data);
+        }
+        this.loadingDocuments.set(false);
+      },
+      error: () => {
+        this.loadingDocuments.set(false);
+      }
+    });
+  }
+
+  onDocSearch(): void {
+    this.loadDocuments();
+  }
+
+  onDocSort(field: string): void {
+    if (this.docSort === field) {
+      this.docOrder = this.docOrder === 'ASC' ? 'DESC' : 'ASC';
+    } else {
+      this.docSort = field;
+      this.docOrder = 'ASC';
+    }
+    this.loadDocuments();
+  }
+
+  getCategoryLabel(category: string): string {
+    const labels: Record<string, string> = {
+      employee_document: 'Employee',
+      claim_receipt: 'Claim',
+      leave_document: 'Leave',
+      payslip: 'Payslip',
+      company_document: 'Company',
+      invoice: 'Invoice',
+      other: 'Other'
+    };
+    return labels[category] || category;
+  }
+
+  getCategoryColor(category: string): string {
+    const colors: Record<string, string> = {
+      employee_document: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
+      claim_receipt: 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300',
+      leave_document: 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300',
+      payslip: 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300',
+      company_document: 'bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300',
+      invoice: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300',
+      other: 'bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300'
+    };
+    return colors[category] || colors['other'];
+  }
+
+  getFileIconColor(mimeType: string): string {
+    if (mimeType.startsWith('image/')) return 'text-pink-500';
+    if (mimeType === 'application/pdf') return 'text-red-500';
+    if (mimeType.includes('spreadsheet') || mimeType.includes('excel')) return 'text-green-600';
+    if (mimeType.includes('document') || mimeType.includes('word')) return 'text-blue-600';
+    return 'text-gray-500';
+  }
+
+  downloadDocument(doc: EmployeeDocument): void {
+    this.downloadingDoc.set(doc.id);
+    this.personalService.downloadDocument(doc.id).subscribe({
+      next: (blob: Blob) => {
+        this.personalService.downloadFile(blob, doc.original_filename);
+        this.downloadingDoc.set(null);
+      },
+      error: () => {
+        this.downloadingDoc.set(null);
+        this.alertDialogService.warning({
+          zTitle: 'Error',
+          zDescription: 'Failed to download document',
+          zOkText: 'OK'
+        });
+      }
+    });
+  }
+
+  formatFileSize(bytes: number): string {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+  }
+
+  getFileIcon(mimeType: string): string {
+    if (mimeType.startsWith('image/')) return 'image';
+    if (mimeType === 'application/pdf') return 'file-text';
+    if (mimeType.includes('spreadsheet') || mimeType.includes('excel')) return 'file-spreadsheet';
+    if (mimeType.includes('document') || mimeType.includes('word')) return 'file-text';
+    return 'file';
   }
 }

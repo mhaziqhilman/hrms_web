@@ -6,6 +6,7 @@ import {
   Claim,
   ClaimType,
   ClaimSummary,
+  ClaimAnalytics,
   SubmitClaimRequest,
   UpdateClaimRequest,
   ManagerApprovalRequest,
@@ -75,6 +76,11 @@ export class ClaimService {
     if (year) httpParams = httpParams.set('year', year.toString());
 
     return this.http.get<ApiResponse<ClaimSummary>>(`${this.apiUrl}/summary/${employeeId}`, { params: httpParams });
+  }
+
+  // Get claims analytics
+  getClaimsAnalytics(): Observable<ApiResponse<ClaimAnalytics>> {
+    return this.http.get<ApiResponse<ClaimAnalytics>>(`${this.apiUrl}/analytics`);
   }
 
   // Get all claim types

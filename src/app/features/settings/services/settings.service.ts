@@ -42,6 +42,18 @@ export class SettingsService {
     return this.http.post<ChangePasswordResponse>(`${this.apiUrl}/settings/change-password`, data);
   }
 
+  uploadProfilePicture(file: File): Observable<{ success: boolean; message: string; data: { photo_url: string } }> {
+    const formData = new FormData();
+    formData.append('photo', file);
+    return this.http.post<{ success: boolean; message: string; data: { photo_url: string } }>(
+      `${this.apiUrl}/settings/profile-picture`, formData
+    );
+  }
+
+  removeProfilePicture(): Observable<UpdateSettingsResponse> {
+    return this.http.delete<UpdateSettingsResponse>(`${this.apiUrl}/settings/profile-picture`);
+  }
+
   resetToDefault(): Observable<UpdateSettingsResponse> {
     return this.http.post<UpdateSettingsResponse>(`${this.apiUrl}/settings/reset`, {});
   }

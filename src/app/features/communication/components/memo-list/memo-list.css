@@ -1,2 +1,41 @@
-/* Memo List Component - ZardUI Migration Complete */
-/* All styles are now using Tailwind CSS utility classes */
+/* Announcement Feed Layout */
+:host {
+  display: block;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Override card content padding to px-5 */
+:host ::ng-deep [data-slot="card-content"] {
+  padding-left: 1.15rem;
+  padding-right: 1.15rem;
+}
+
+/* Line clamp utility */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Responsive: hide right column on medium screens */
+@media (max-width: 1023px) {
+  aside:last-child {
+    display: none;
+  }
+}
+
+/* Responsive: hide left column on small screens */
+@media (max-width: 767px) {
+  aside:first-child {
+    display: none;
+  }
+}

@@ -1,12 +1,18 @@
-import { Component, OnInit, signal, ChangeDetectorRef, inject, ViewChild, HostListener } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectorRef, inject, ViewChild, ViewContainerRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, RouterOutlet, Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { AuthService } from '@/core/services/auth.service';
 import { CompanyService } from '@/core/services/company.service';
 import { ThemeService } from '@/core/services/theme';
+import { UserProfileService } from '@/core/services/user-profile.service';
 import { User, Company, UserCompany } from '@/core/models/auth.models';
 import { SidebarMenuGroup } from '@/core/models/sidebar.models';
+import { MENU_GROUPS } from '@/core/config/menu.config';
+import { CommandPaletteService } from '@/shared/components/command-palette/command-palette.service';
+import { NotificationService } from '@/core/services/notification.service';
+import { Notification as AppNotification, NotificationType } from '@/core/models/notification.models';
+import { TimeAgoPipe } from '@/shared/pipes/time-ago.pipe';
 
 // ZardUI Component Imports
 import { LayoutModule } from '@/shared/components/layout/layout.module';
@@ -34,14 +40,20 @@ import { ZardBreadcrumbModule } from '@/shared/components/breadcrumb/breadcrumb.
     ZardTooltipModule,
     ZardAvatarComponent,
     ZardDividerComponent,
-    ZardBreadcrumbModule
+    ZardBreadcrumbModule,
+    TimeAgoPipe
   ],
   templateUrl: './main-layout.component.html',
   styleUrls: ['./main-layout.component.css']
 })
 export class MainLayoutComponent implements OnInit {
   private cdr = inject(ChangeDetectorRef);
+  private commandPaletteService = inject(CommandPaletteService);
+  private viewContainerRef = inject(ViewContainerRef);
+  userProfileService = inject(UserProfileService);
+  notificationService = inject(NotificationService);
 
+  notificationMenuOpen = false;
   currentUser: User | null = null;
   currentCompany: Company | null = null;
   companyMemberships: UserCompany[] = [];
@@ -67,195 +79,7 @@ export class MainLayoutComponent implements OnInit {
     return this.themeService.sidebarCollapsed;
   }
 
-  menuGroups: SidebarMenuGroup[] = [
-    {
-      label: 'Dashboards',
-      items: [
-        {
-          title: 'Admin Dashboard',
-          icon: 'layout-dashboard',
-          route: '/dashboard/admin',
-          roles: ['super_admin', 'admin']
-        },
-        {
-          title: 'Manager Dashboard',
-          icon: 'users',
-          route: '/dashboard/manager',
-          roles: ['super_admin', 'admin', 'manager']
-        },
-        {
-          title: 'Staff Dashboard',
-          icon: 'circle-user',
-          route: '/dashboard/staff'
-        }
-      ]
-    },
-    {
-      label: 'HR Management',
-      roles: ['super_admin', 'admin', 'manager'],
-      items: [
-        {
-          title: 'Employees',
-          icon: 'user',
-          route: '/employees'
-        },
-        {
-          title: 'Payroll',
-          icon: 'dollar-sign',
-          route: '/payroll'
-        },
-        {
-          title: 'Leave',
-          icon: 'calendar',
-          route: '/leave'
-        },
-        {
-          title: 'Attendance',
-          icon: 'clock',
-          children: [
-            {
-              title: 'Attendance List',
-              icon: 'list',
-              route: '/attendance'
-            },
-            {
-              title: 'WFH',
-              icon: 'house',
-              route: '/attendance/wfh'
-            }
-          ]
-        },
-        {
-          title: 'Claims',
-          icon: 'file-text',
-          route: '/claims'
-        },
-        {
-          title: 'Statutory Reports',
-          icon: 'file-chart-column',
-          route: '/statutory-reports'
-        },
-        {
-          title: 'Analytics',
-          icon: 'bar-chart-3',
-          route: '/analytics'
-        }
-      ]
-    },
-    {
-      label: 'Personal',
-      items: [
-        {
-          title: 'My Profile',
-          icon: 'user-circle',
-          route: '/personal/profile'
-        },
-        {
-          title: 'My Leave',
-          icon: 'calendar',
-          route: '/leave',
-          roles: ['staff']
-        },
-        {
-          title: 'My Attendance',
-          icon: 'clock',
-          route: '/attendance/my',
-          roles: ['staff']
-        },
-        {
-          title: 'My Claims',
-          icon: 'file-text',
-          route: '/claims',
-          roles: ['staff']
-        }
-      ]
-    },
-    {
-      label: 'Administration',
-      roles: ['super_admin', 'admin'],
-      items: [
-        {
-          title: 'Admin Settings',
-          icon: 'settings',
-          roles: ['super_admin', 'admin'],
-          children: [
-            {
-              title: 'Company Profile',
-              icon: 'building',
-              route: '/admin-settings/company'
-            },
-            {
-              title: 'Leave Types',
-              icon: 'calendar',
-              route: '/admin-settings/leave-types'
-            },
-            {
-              title: 'Leave Entitlements',
-              icon: 'calendar-check',
-              route: '/admin-settings/leave-entitlements'
-            },
-            {
-              title: 'Claim Types',
-              icon: 'file-text',
-              route: '/admin-settings/claim-types'
-            },
-            {
-              title: 'Public Holidays',
-              icon: 'calendar',
-              route: '/admin-settings/holidays'
-            },
-            {
-              title: 'Payroll Config',
-              icon: 'circle-dollar-sign',
-              route: '/admin-settings/payroll-config'
-            },
-            {
-              title: 'Email Templates',
-              icon: 'mail',
-              route: '/admin-settings/email-templates'
-            }
-          ]
-        }
-      ]
-    },
-    {
-      label: 'Systems',
-      items: [
-        {
-          title: 'User Management',
-          icon: 'shield',
-          route: '/user-management',
-          roles: ['super_admin', 'admin']
-        },
-        {
-          title: 'Settings',
-          icon: 'settings',
-          children: [
-            {
-              title: 'Account',
-              icon: 'circle-user',
-              route: '/settings/account'
-            },
-            {
-              title: 'Appearance',
-              icon: 'sun-moon',
-              route: '/settings/appearance'
-            },
-            {
-              title: 'Notifications',
-              icon: 'bell',
-              route: '/settings/notifications'
-            },
-            {
-              title: 'Display',
-              icon: 'monitor',
-              route: '/settings/display'
-            }
-          ]
-        }
-      ]
-    }
-  ];
+  menuGroups: SidebarMenuGroup[] = MENU_GROUPS;
 
   constructor(
     private authService: AuthService,
@@ -306,6 +130,9 @@ export class MainLayoutComponent implements OnInit {
         this.allCompanies = [];
       }
     });
+
+    // Load profile picture
+    this.userProfileService.loadProfile();
 
     // Refresh user data from API to ensure localStorage is up-to-date
     this.authService.getCurrentUser().subscribe();
@@ -420,6 +247,18 @@ export class MainLayoutComponent implements OnInit {
     });
   }
 
+  @HostListener('document:keydown', ['$event'])
+  onKeydown(event: KeyboardEvent): void {
+    if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
+      event.preventDefault();
+      this.openCommandPalette();
+    }
+  }
+
+  openCommandPalette(): void {
+    this.commandPaletteService.open(this.viewContainerRef);
+  }
+
   toggleTheme() {
     this.themeService.toggleTheme();
   }
@@ -512,5 +351,58 @@ export class MainLayoutComponent implements OnInit {
         console.error('Logout error:', error);
       }
     });
+  }
+
+  // Notification helpers
+  onNotificationMenuOpen(): void {
+    this.notificationMenuOpen = true;
+    this.notificationService.loadRecentNotifications();
+  }
+
+  onNotificationClick(notification: AppNotification): void {
+    if (!notification.is_read) {
+      this.notificationService.markAsRead(notification.id);
+    }
+    if (notification.data?.['link']) {
+      this.router.navigate([notification.data['link']]);
+    }
+  }
+
+  markAllNotificationsRead(): void {
+    this.notificationService.markAllAsRead();
+  }
+
+  getNotificationIcon(type: NotificationType): string {
+    const icons: Record<string, string> = {
+      leave_approved: 'check-circle',
+      leave_rejected: 'circle-x',
+      claim_approved: 'check-circle',
+      claim_rejected: 'circle-x',
+      claim_finance_approved: 'check-circle',
+      claim_finance_rejected: 'circle-x',
+      wfh_approved: 'check-circle',
+      wfh_rejected: 'circle-x',
+      announcement_published: 'megaphone',
+      team_member_joined: 'users',
+      policy_published: 'file-text'
+    };
+    return icons[type] || 'bell';
+  }
+
+  getNotificationIconBg(type: NotificationType): string {
+    const bgs: Record<string, string> = {
+      leave_approved: 'bg-emerald-500',
+      leave_rejected: 'bg-red-500',
+      claim_approved: 'bg-emerald-500',
+      claim_rejected: 'bg-red-500',
+      claim_finance_approved: 'bg-emerald-500',
+      claim_finance_rejected: 'bg-red-500',
+      wfh_approved: 'bg-emerald-500',
+      wfh_rejected: 'bg-red-500',
+      announcement_published: 'bg-blue-500',
+      team_member_joined: 'bg-purple-500',
+      policy_published: 'bg-amber-500'
+    };
+    return bgs[type] || 'bg-gray-500';
   }
 }

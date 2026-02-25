@@ -31,14 +31,12 @@ interface PaginatedResponse<T> {
 })
 export class MemoService {
   private http = inject(HttpClient);
-  private apiUrl = `${API_CONFIG.apiUrl}/memos`;
+  private apiUrl = `${API_CONFIG.apiUrl}${API_CONFIG.endpoints.announcements.base}`;
 
-  // Create a new memo
   createMemo(data: MemoFormData): Observable<ApiResponse<Memo>> {
     return this.http.post<ApiResponse<Memo>>(this.apiUrl, data);
   }
 
-  // Get all memos with pagination and filtering
   getAllMemos(filters?: MemoFilters): Observable<PaginatedResponse<Memo>> {
     let httpParams = new HttpParams();
 
@@ -58,37 +56,55 @@ export class MemoService {
     return this.http.get<PaginatedResponse<Memo>>(this.apiUrl, { params: httpParams });
   }
 
-  // Get single memo by ID
   getMemoById(id: number): Observable<ApiResponse<Memo>> {
-    return this.http.get<ApiResponse<Memo>>(`${this.apiUrl}/${id}`);
+    return this.http.get<ApiResponse<Memo>>(
+      `${API_CONFIG.apiUrl}${API_CONFIG.endpoints.announcements.detail(id)}`
+    );
   }
 
-  // Update memo
   updateMemo(id: number, data: Partial<MemoFormData>): Observable<ApiResponse<Memo>> {
-    return this.http.put<ApiResponse<Memo>>(`${this.apiUrl}/${id}`, data);
+    return this.http.put<ApiResponse<Memo>>(
+      `${API_CONFIG.apiUrl}${API_CONFIG.endpoints.announcements.detail(id)}`,
+      data
+    );
   }
 
-  // Delete memo
   deleteMemo(id: number): Observable<ApiResponse<void>> {
-    return this.http.delete<ApiResponse<void>>(`${this.apiUrl}/${id}`);
+    return this.http.delete<ApiResponse<void>>(
+      `${API_CONFIG.apiUrl}${API_CONFIG.endpoints.announcements.detail(id)}`
+    );
   }
 
-  // Acknowledge memo
   acknowledgeMemo(id: number): Observable<ApiResponse<any>> {
-    return this.http.post<ApiResponse<any>>(`${this.apiUrl}/${id}/acknowledge`, {});
+    return this.http.post<ApiResponse<any>>(
+      `${API_CONFIG.apiUrl}${API_CONFIG.endpoints.announcements.acknowledge(id)}`,
+      {}
+    );
   }
 
-  // Get memo statistics
   getMemoStatistics(id: number): Observable<ApiResponse<MemoStatistics>> {
-    return this.http.get<ApiResponse<MemoStatistics>>(`${this.apiUrl}/${id}/statistics`);
+    return this.http.get<ApiResponse<MemoStatistics>>(
+      `${API_CONFIG.apiUrl}${API_CONFIG.endpoints.announcements.statistics(id)}`
+    );
   }
 
-  // Publish memo (change status from Draft to Published)
+  getPinnedMemos(): Observable<ApiResponse<Memo[]>> {
+    return this.http.get<ApiResponse<Memo[]>>(
+      `${API_CONFIG.apiUrl}${API_CONFIG.endpoints.announcements.pinned}`
+    );
+  }
+
+  togglePin(id: number): Observable<ApiResponse<Memo>> {
+    return this.http.post<ApiResponse<Memo>>(
+      `${API_CONFIG.apiUrl}${API_CONFIG.endpoints.announcements.togglePin(id)}`,
+      {}
+    );
+  }
+
   publishMemo(id: number): Observable<ApiResponse<Memo>> {
     return this.updateMemo(id, { status: 'Published', published_at: new Date().toISOString() });
   }
 
-  // Archive memo
   archiveMemo(id: number): Observable<ApiResponse<Memo>> {
     return this.updateMemo(id, { status: 'Archived' });
   }

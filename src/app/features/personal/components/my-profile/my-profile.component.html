@@ -621,6 +621,133 @@
       }
     </z-tab>
 
+    <!-- Payslips Tab -->
+    <z-tab label="Payslips">
+      <div class="mt-6">
+        <app-my-payslips [embedded]="true" />
+      </div>
+    </z-tab>
+
+    <!-- Documents Tab -->
+    <z-tab label="Documents">
+      <div class="mt-6 space-y-4">
+        <!-- Search & Sort Bar -->
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div class="relative w-full sm:w-80">
+            <z-icon zType="search" class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <input z-input
+              class="pl-9"
+              placeholder="Search files..."
+              [(ngModel)]="docSearch"
+              (keyup.enter)="onDocSearch()" />
+          </div>
+          <div class="flex items-center gap-1 text-sm text-muted-foreground">
+            <span>Sort:</span>
+            <button class="px-2 py-1 rounded hover:bg-muted transition-colors"
+              [class.font-semibold]="docSort === 'original_filename'"
+              [class.text-foreground]="docSort === 'original_filename'"
+              (click)="onDocSort('original_filename')">
+              Name
+              @if (docSort === 'original_filename') {
+                <z-icon [zType]="$any(docOrder === 'ASC' ? 'arrow-up' : 'arrow-down')" class="inline h-3 w-3" />
+              }
+            </button>
+            <button class="px-2 py-1 rounded hover:bg-muted transition-colors"
+              [class.font-semibold]="docSort === 'uploaded_at'"
+              [class.text-foreground]="docSort === 'uploaded_at'"
+              (click)="onDocSort('uploaded_at')">
+              Date
+              @if (docSort === 'uploaded_at') {
+                <z-icon [zType]="$any(docOrder === 'ASC' ? 'arrow-up' : 'arrow-down')" class="inline h-3 w-3" />
+              }
+            </button>
+            <button class="px-2 py-1 rounded hover:bg-muted transition-colors"
+              [class.font-semibold]="docSort === 'file_size'"
+              [class.text-foreground]="docSort === 'file_size'"
+              (click)="onDocSort('file_size')">
+              Size
+              @if (docSort === 'file_size') {
+                <z-icon [zType]="$any(docOrder === 'ASC' ? 'arrow-up' : 'arrow-down')" class="inline h-3 w-3" />
+              }
+            </button>
+          </div>
+        </div>
+
+        <!-- Loading -->
+        @if (loadingDocuments()) {
+          <div class="flex items-center justify-center py-12">
+            <z-icon zType="loader-2" class="h-8 w-8 animate-spin text-primary" />
+          </div>
+        } @else if (documents().length > 0) {
+          <!-- File List -->
+          <div class="rounded-lg border border-border divide-y divide-border bg-card">
+            @for (doc of documents(); track doc.id) {
+              <div class="flex items-center gap-4 px-4 py-3 hover:bg-muted/40 transition-colors group">
+                <!-- File Icon -->
+                <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-muted/60 shrink-0">
+                  <z-icon [zType]="$any(getFileIcon(doc.mime_type))" class="h-5 w-5" [ngClass]="getFileIconColor(doc.mime_type)" />
+                </div>
+
+                <!-- File Info -->
+                <div class="flex-1 min-w-0">
+                  <p class="font-medium text-sm truncate" [title]="doc.original_filename">{{ doc.original_filename }}</p>
+                  <div class="flex items-center gap-2 mt-0.5">
+                    <span class="text-xs px-1.5 py-0.5 rounded-full font-medium" [ngClass]="getCategoryColor(doc.category)">{{ getCategoryLabel(doc.category) }}</span>
+                    @if (doc.is_verified) {
+                      <span class="flex items-center gap-0.5 text-xs text-green-600 dark:text-green-400">
+                        <z-icon [zType]="$any('badge-check')" class="h-3 w-3" />
+                        Verified
+                      </span>
+                    }
+                  </div>
+                </div>
+
+                <!-- Date -->
+                <div class="hidden md:block text-sm text-muted-foreground whitespace-nowrap">
+                  {{ formatDate(doc.uploaded_at) }}
+                </div>
+
+                <!-- Size -->
+                <div class="hidden sm:block text-sm text-muted-foreground whitespace-nowrap w-16 text-right">
+                  {{ formatFileSize(doc.file_size) }}
+                </div>
+
+                <!-- Download -->
+                <button z-button zType="ghost" zSize="sm"
+                  class="opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                  [disabled]="downloadingDoc() === doc.id"
+                  (click)="downloadDocument(doc)">
+                  @if (downloadingDoc() === doc.id) {
+                    <z-icon zType="loader-2" class="h-4 w-4 animate-spin" />
+                  } @else {
+                    <z-icon zType="download" class="h-4 w-4" />
+                  }
+                </button>
+              </div>
+            }
+          </div>
+
+          <!-- File Count -->
+          <p class="text-xs text-muted-foreground text-right">{{ documents().length }} file(s)</p>
+        } @else {
+          <!-- Empty State -->
+          <z-card>
+            <div zCardContent class="py-12 text-center">
+              <z-icon [zType]="$any('folder-open')" class="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <h3 class="text-lg font-semibold mb-1">No Documents</h3>
+              <p class="text-sm text-muted-foreground">
+                @if (docSearch) {
+                  No files matching "{{ docSearch }}"
+                } @else {
+                  Your documents will appear here once uploaded.
+                }
+              </p>
+            </div>
+          </z-card>
+        }
+      </div>
+    </z-tab>
+
     <!-- Activity Tab -->
     <z-tab label="Activity">
       <div class="mt-6">

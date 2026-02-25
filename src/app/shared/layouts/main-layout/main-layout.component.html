@@ -317,7 +317,7 @@
             'hover:bg-accent flex cursor-pointer items-center rounded-md ' +
             (sidebarCollapsed() ? 'justify-center p-0' : 'gap-2 p-2')
           ">
-          <z-avatar [zAlt]="currentUser?.employee?.full_name || 'User'" [zFallback]="getUserInitials()" zSize="sm" />
+          <z-avatar [zSrc]="userProfileService.profilePictureUrl() ?? undefined" [zAlt]="currentUser?.employee?.full_name || 'User'" [zFallback]="getUserInitials()" zSize="sm" />
 
           @if (!sidebarCollapsed()) {
           <div class="flex-1 min-w-0">
@@ -380,37 +380,93 @@
           </div>
         </div>
 
-        <!-- Center: Search Bar -->
-        <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm hidden md:block">
-          <div class="relative items-center">
+        <!-- Center: Search Bar (Command Palette Trigger) -->
+        <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm hidden md:block"
+          (click)="openCommandPalette()">
+          <div class="relative items-center cursor-pointer">
             <z-icon zType="search"
               class="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
-            <input z-input type="search" placeholder="Search..."
-              class="pl-11 pr-14 w-full h-9 text-sm rounded-xl shadow-sm" />
+            <div
+              class="flex items-center pl-11 pr-14 w-full h-9 text-sm rounded-xl shadow-sm border border-input bg-background text-muted-foreground select-none">
+              Search...
+            </div>
             <div
               class="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none flex items-center gap-0.5 text-xs text-muted-foreground">
-              <span>⌘</span>
-              <span>+</span>
-              <span>K</span>
+              <kbd class="pointer-events-none inline-flex h-5 select-none items-center gap-0.5 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+                <span class="text-xs">Ctrl</span>K
+              </kbd>
             </div>
           </div>
         </div>
 
         <!-- Right: Action Icons -->
         <div class="flex items-center gap-2 ml-auto z-10">
-          <!-- Messages -->
-          <a type="button" z-button zType="ghost" zSize="sm" class="relative" [zTooltip]="'Messages'">
-            <z-icon zType="mail" />
-            <span
-              class="absolute top-0 right-0 inline-flex items-center justify-center w-2 h-2 bg-destructive rounded-full"></span>
-          </a>
-
           <!-- Notifications -->
-          <a type="button" z-button zType="ghost" zSize="sm" class="relative" [zTooltip]="'Notifications'">
-            <z-icon zType="bell" />
-            <span
-              class="absolute top-0 right-0 inline-flex items-center justify-center w-2 h-2 bg-destructive rounded-full"></span>
-          </a>
+          <div z-menu [zMenuTriggerFor]="notificationDropdown" zPlacement="bottomRight"
+            (zMenuOpened)="onNotificationMenuOpen()" (zMenuClosed)="notificationMenuOpen = false">
+            <button type="button" z-button zType="ghost" zSize="sm" class="relative">
+              <z-icon zType="bell" />
+              @if (notificationService.unreadCount() > 0) {
+                <span class="absolute top-0 right-0 w-2.5 h-2.5 bg-destructive rounded-full border-2 border-background"></span>
+              }
+            </button>
+          </div>
+
+          <ng-template #notificationDropdown>
+            <div z-menu-content class="w-[380px] p-0">
+              <!-- Header -->
+              <div class="flex items-center justify-between px-4 py-3">
+                <h4 class="font-semibold text-sm">Notifications</h4>
+                <a routerLink="/notifications" class="text-xs text-primary hover:underline cursor-pointer">View all</a>
+              </div>
+              <z-divider zSpacing="none" />
+
+              <!-- Notification List -->
+              <div class="max-h-[400px] overflow-y-auto">
+                @if (notificationService.notifications().length === 0) {
+                  <div class="flex flex-col items-center justify-center py-8 text-muted-foreground">
+                    <z-icon zType="bell" zSize="lg" class="mb-2 opacity-40" />
+                    <p class="text-sm">No notifications yet</p>
+                  </div>
+                } @else {
+                  @for (notification of notificationService.notifications(); track notification.id) {
+                    <div class="flex items-start gap-3 px-4 py-3 hover:bg-muted/50 cursor-pointer transition-colors border-b border-border/50 last:border-b-0"
+                      [class.bg-primary/5]="!notification.is_read"
+                      (click)="onNotificationClick(notification)">
+                      <!-- Type Icon -->
+                      <div class="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center mt-0.5"
+                        [ngClass]="getNotificationIconBg(notification.type)">
+                        <z-icon [zType]="$any(getNotificationIcon(notification.type))" class="w-4 h-4 text-white" />
+                      </div>
+                      <!-- Content -->
+                      <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium leading-tight" [class.font-semibold]="!notification.is_read">
+                          {{ notification.title }}
+                        </p>
+                        <p class="text-xs text-muted-foreground mt-0.5 line-clamp-2">{{ notification.message }}</p>
+                        <p class="text-[11px] text-muted-foreground/70 mt-1">{{ notification.created_at | timeAgo }}</p>
+                      </div>
+                      <!-- Unread Dot -->
+                      @if (!notification.is_read) {
+                        <span class="flex-shrink-0 w-2.5 h-2.5 bg-destructive rounded-full mt-1.5"></span>
+                      }
+                    </div>
+                  }
+                }
+              </div>
+
+              <!-- Footer -->
+              @if (notificationService.unreadCount() > 0) {
+                <z-divider zSpacing="none" />
+                <div class="px-4 py-2">
+                  <button z-button zType="ghost" zSize="sm" class="w-full text-xs" (click)="markAllNotificationsRead()">
+                    <z-icon zType="check" class="w-3.5 h-3.5 mr-1.5" />
+                    Mark all as read
+                  </button>
+                </div>
+              }
+            </div>
+          </ng-template>
 
           <!-- Dark Mode Toggle -->
           <button type="button" z-button zType="ghost" zSize="sm" class="relative"
@@ -424,7 +480,7 @@
           <!-- User Profile Menu -->
           <div z-menu [zMenuTriggerFor]="userMenuHeader" zPlacement="bottomRight">
             <button type="button" z-button zType="ghost" class="relative h-9 w-9 rounded-full p-0">
-              <z-avatar class="h-8 w-8" [zAlt]="currentUser?.employee?.full_name || 'User'"
+              <z-avatar class="h-8 w-8" [zSrc]="userProfileService.profilePictureUrl() ?? undefined" [zAlt]="currentUser?.employee?.full_name || 'User'"
                 [zFallback]="getUserInitials()" />
             </button>
           </div>
@@ -432,9 +488,10 @@
           <ng-template #userMenuHeader>
             <div z-menu-content class="w-56">
               <div class="flex items-center justify-start gap-2 p-2">
-                <div class="flex flex-col space-y-1 leading-none">
-                  <p class="font-medium text-sm">{{ currentUser?.employee?.full_name || 'Admin User' }}</p>
-                  <p class="text-xs text-muted-foreground">{{ currentUser?.email || 'admin@hrms.com' }}</p>
+                <z-avatar class="h-8 w-8 flex-shrink-0" [zSrc]="userProfileService.profilePictureUrl() ?? undefined" [zAlt]="currentUser?.employee?.full_name || 'User'" [zFallback]="getUserInitials()" />
+                <div class="flex flex-col space-y-1 leading-none min-w-0">
+                  <p class="font-medium text-sm truncate">{{ currentUser?.employee?.full_name || 'Admin User' }}</p>
+                  <p class="text-xs text-muted-foreground truncate">{{ currentUser?.email || 'admin@hrms.com' }}</p>
                 </div>
               </div>
               <z-divider zSpacing="sm" />

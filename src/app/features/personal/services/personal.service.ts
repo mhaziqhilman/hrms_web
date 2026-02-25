@@ -8,7 +8,8 @@ import {
   UpdateProfileResponse,
   ChangePasswordRequest,
   ChangePasswordResponse,
-  MyPayslipsResponse
+  MyPayslipsResponse,
+  EmployeeDocumentsResponse
 } from '../models/personal.model';
 
 @Injectable({
@@ -71,6 +72,31 @@ export class PersonalService {
   downloadPayslipPdf(payrollId: number): Observable<Blob> {
     return this.http.get(
       `${this.apiUrl}${API_CONFIG.endpoints.payroll.payslip(payrollId)}/pdf`,
+      { responseType: 'blob' }
+    );
+  }
+
+  /**
+   * Get my documents (all files related to current user)
+   */
+  getMyDocuments(options?: { search?: string; sort?: string; order?: string }): Observable<EmployeeDocumentsResponse> {
+    let params = new HttpParams().set('limit', '100');
+    if (options?.search) params = params.set('search', options.search);
+    if (options?.sort) params = params.set('sort', options.sort);
+    if (options?.order) params = params.set('order', options.order);
+
+    return this.http.get<EmployeeDocumentsResponse>(
+      `${this.apiUrl}${API_CONFIG.endpoints.files.myDocuments}`,
+      { params }
+    );
+  }
+
+  /**
+   * Download a document file
+   */
+  downloadDocument(fileId: number): Observable<Blob> {
+    return this.http.get(
+      `${this.apiUrl}${API_CONFIG.endpoints.files.download(fileId)}`,
       { responseType: 'blob' }
     );
   }

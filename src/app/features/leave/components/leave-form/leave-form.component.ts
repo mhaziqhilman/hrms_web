@@ -4,12 +4,13 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { LeaveService } from '../../services/leave.service';
 import { EmployeeService } from '../../../employees/services/employee.service';
-import { Leave, LeaveType, DEFAULT_LEAVE_TYPES } from '../../models/leave.model';
+import { Leave, LeaveType } from '../../models/leave.model';
 import { Employee } from '../../../employees/models/employee.model';
 import { FileUpload } from '../../../../shared/components/file-upload/file-upload';
 import { FileList as FileListComponent } from '../../../../shared/components/file-list/file-list';
 import { FileService, FileUploadMetadata } from '../../../../core/services/file.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-dialog.service';
 
 // ZardUI Components
 import { ZardCardComponent } from '@/shared/components/card/card.component';
@@ -69,15 +70,13 @@ export class LeaveFormComponent implements OnInit {
     description: 'Medical certificate for leave'
   };
 
-  // Constants
-  DEFAULT_LEAVE_TYPES = DEFAULT_LEAVE_TYPES;
-
   constructor(
     private fb: FormBuilder,
     private leaveService: LeaveService,
     private employeeService: EmployeeService,
     private fileService: FileService,
     private authService: AuthService,
+    private alertDialogService: ZardAlertDialogService,
     private router: Router,
     private route: ActivatedRoute
   ) {}
@@ -147,21 +146,17 @@ export class LeaveFormComponent implements OnInit {
   }
 
   initializeLeaveTypes(): void {
-    // Create mock leave types based on DEFAULT_LEAVE_TYPES
-    const mockLeaveTypes: LeaveType[] = DEFAULT_LEAVE_TYPES.map((name, index) => ({
-      id: index + 1,
-      name: name,
-      days_per_year: name === 'Annual Leave' ? 14 : name === 'Medical Leave' ? 14 : 0,
-      is_paid: !name.includes('Unpaid'),
-      carry_forward_allowed: name === 'Annual Leave',
-      carry_forward_max_days: name === 'Annual Leave' ? 7 : 0,
-      prorate_for_new_joiners: true,
-      requires_document: name.includes('Medical') || name.includes('Hospitalization'),
-      description: `${name} entitlement`,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    }));
-    this.leaveTypes.set(mockLeaveTypes);
+    // Load actual leave types from the API to get correct database IDs
+    this.leaveService.getLeaveTypes().subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          this.leaveTypes.set(response.data);
+        }
+      },
+      error: (err) => {
+        console.error('Error loading leave types:', err);
+      }
+    });
   }
 
   loadEmployees(): void {
@@ -334,8 +329,12 @@ export class LeaveFormComponent implements OnInit {
       this.leaveService.updateLeave(this.leaveId()!, updateData).subscribe({
         next: (response) => {
           if (response.success) {
-            alert('Leave application updated successfully');
-            this.router.navigate(['/leave']);
+            this.alertDialogService.info({
+              zTitle: 'Success',
+              zDescription: 'Leave application updated successfully! Redirecting to leave list.',
+              zOkText: 'OK',
+              zOnOk: () => this.router.navigate(['/leave'])
+            });
           }
           this.submitting.set(false);
         },
@@ -362,9 +361,13 @@ export class LeaveFormComponent implements OnInit {
             if (newLeaveId && this.mcFiles().length > 0) {
               this.uploadFilesForLeave(newLeaveId);
             } else {
-              alert('Leave application submitted successfully');
-              this.router.navigate(['/leave']);
               this.submitting.set(false);
+              this.alertDialogService.info({
+                zTitle: 'Success',
+                zDescription: 'Leave application submitted successfully! Redirecting to leave list.',
+                zOkText: 'OK',
+                zOnOk: () => this.router.navigate(['/leave'])
+              });
             }
           } else {
             this.submitting.set(false);
@@ -386,8 +389,12 @@ export class LeaveFormComponent implements OnInit {
   onFileUploadComplete(response: any): void {
     console.log('Files uploaded successfully:', response);
     const documentType = this.getDocumentTitle().replace(' Upload', '').toLowerCase();
-    alert(`Leave application and ${documentType} uploaded successfully`);
-    this.router.navigate(['/leave']);
+    this.alertDialogService.info({
+      zTitle: 'Success',
+      zDescription: `Leave application and ${documentType} uploaded successfully! Redirecting to leave list.`,
+      zOkText: 'OK',
+      zOnOk: () => this.router.navigate(['/leave'])
+    });
   }
 
   onFileUploadError(error: any): void {
@@ -407,10 +414,14 @@ export class LeaveFormComponent implements OnInit {
       next: (response) => {
         console.log('Files uploaded successfully:', response);
         const documentType = this.getDocumentTitle().replace(' Upload', '').toLowerCase();
-        alert(`Leave application and ${documentType} submitted successfully`);
         this.mcFiles.set([]);
-        this.router.navigate(['/leave']);
         this.submitting.set(false);
+        this.alertDialogService.info({
+          zTitle: 'Success',
+          zDescription: `Leave application and ${documentType} submitted successfully! Redirecting to leave list.`,
+          zOkText: 'OK',
+          zOnOk: () => this.router.navigate(['/leave'])
+        });
       },
       error: (error) => {
         this.error.set(error.error?.message || 'Failed to upload medical certificate');

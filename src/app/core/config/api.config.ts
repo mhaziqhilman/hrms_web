@@ -140,6 +140,39 @@ export const API_CONFIG = {
       preview: (key: string) => `/email-templates/${key}/preview`,
       reset: (key: string) => `/email-templates/${key}/reset`
     },
+    files: {
+      base: '/files',
+      upload: '/files/upload',
+      overview: '/files/overview',
+      detail: (id: number) => `/files/${id}`,
+      download: (id: number) => `/files/${id}/download`,
+      preview: (id: number) => `/files/${id}/preview`,
+      verify: (id: number) => `/files/${id}/verify`,
+      bulkDelete: '/files/bulk-delete',
+      myDocuments: '/files/my-documents',
+      byEmployee: (id: number) => `/files/employee/${id}`,
+      byClaim: (id: number) => `/files/claim/${id}`,
+      stats: '/files/stats/storage'
+    },
+    announcements: {
+      base: '/memos',
+      detail: (id: number) => `/memos/${id}`,
+      pinned: '/memos/pinned',
+      togglePin: (id: number) => `/memos/${id}/toggle-pin`,
+      acknowledge: (id: number) => `/memos/${id}/acknowledge`,
+      statistics: (id: number) => `/memos/${id}/statistics`
+    },
+    announcementCategories: {
+      base: '/announcement-categories',
+      detail: (id: number) => `/announcement-categories/${id}`
+    },
+    notifications: {
+      base: '/notifications',
+      unreadCount: '/notifications/unread-count',
+      markAllRead: '/notifications/mark-all-read',
+      markAsRead: (id: number) => `/notifications/${id}/read`,
+      detail: (id: number) => `/notifications/${id}`
+    },
     settings: {
       base: '/settings',
       account: '/settings/account',

@@ -2,9 +2,9 @@ import { Component, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { QuillModule } from 'ngx-quill';
 import { MemoService } from '../../services/memo.service';
-import { MemoFormData } from '../../models/memo.model';
+import { AnnouncementCategoryService } from '../../services/announcement-category.service';
+import { MemoFormData, AnnouncementCategory } from '../../models/memo.model';
 
 // ZardUI Component Imports
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
@@ -24,7 +24,6 @@ import { ZardSelectItemComponent } from '@/shared/components/select/select-item.
     CommonModule,
     ReactiveFormsModule,
     RouterModule,
-    QuillModule,
     ZardButtonComponent,
     ZardIconComponent,
     ZardCardComponent,
@@ -46,25 +45,10 @@ export class MemoFormComponent implements OnInit {
   saving = signal(false);
   error = signal<string | null>(null);
 
-  // Quill editor configuration
-  quillConfig = {
-    toolbar: [
-      ['bold', 'italic', 'underline', 'strike'],
-      ['blockquote', 'code-block'],
-      [{ 'header': 1 }, { 'header': 2 }],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-      [{ 'indent': '-1'}, { 'indent': '+1' }],
-      [{ 'size': ['small', false, 'large', 'huge'] }],
-      [{ 'color': [] }, { 'background': [] }],
-      [{ 'align': [] }],
-      ['link'],
-      ['clean']
-    ]
-  };
-
   // Options for dropdowns
   priorities = ['Low', 'Normal', 'High', 'Urgent'];
   targetAudiences = ['All', 'Department', 'Position', 'Specific'];
+  categories = signal<AnnouncementCategory[]>([]);
 
   // Placeholder data - in real app, these would come from API
   departments = ['HR', 'IT', 'Finance', 'Operations', 'Sales', 'Marketing'];
@@ -74,7 +58,8 @@ export class MemoFormComponent implements OnInit {
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
-    private memoService: MemoService
+    private memoService: MemoService,
+    private categoryService: AnnouncementCategoryService
   ) {
     this.form = this.fb.group({
       title: ['', [Validators.required, Validators.maxLength(200)]],
@@ -86,11 +71,15 @@ export class MemoFormComponent implements OnInit {
       target_positions: [[]],
       target_employee_ids: [[]],
       requires_acknowledgment: [false],
-      expires_at: [null]
+      expires_at: [null],
+      category_id: [null],
+      is_pinned: [false]
     });
   }
 
   ngOnInit(): void {
+    this.loadCategories();
+
     const id = this.route.snapshot.paramMap.get('id');
     if (id && id !== 'new') {
       this.isEditMode.set(true);
@@ -107,6 +96,13 @@ export class MemoFormComponent implements OnInit {
           target_employee_ids: []
         });
       }
+    });
+  }
+
+  loadCategories(): void {
+    this.categoryService.getCategories().subscribe({
+      next: (res) => this.categories.set(res.data.categories),
+      error: (err) => console.error('Error loading categories:', err)
     });
   }
 
@@ -128,7 +124,9 @@ export class MemoFormComponent implements OnInit {
             target_positions: memo.target_positions || [],
             target_employee_ids: memo.target_employee_ids || [],
             requires_acknowledgment: memo.requires_acknowledgment,
-            expires_at: memo.expires_at ? memo.expires_at.substring(0, 16) : null
+            expires_at: memo.expires_at ? memo.expires_at.substring(0, 16) : null,
+            category_id: memo.category_id || null,
+            is_pinned: memo.is_pinned || false
           });
         }
         this.loading.set(false);

@@ -1,9 +1,27 @@
+export interface AnnouncementCategory {
+  id: number;
+  company_id: number;
+  name: string;
+  slug: string;
+  color?: string;
+  icon?: string;
+  sort_order: number;
+  is_active: boolean;
+  memo_count?: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Memo {
   id: number;
   title: string;
   content: string;
   summary?: string;
   author_id: number;
+  company_id: number;
+  category_id?: number;
+  is_pinned: boolean;
+  pinned_at?: string;
   status: 'Draft' | 'Published' | 'Archived';
   priority: 'Low' | 'Normal' | 'High' | 'Urgent';
   target_audience: 'All' | 'Department' | 'Position' | 'Specific';
@@ -21,7 +39,20 @@ export interface Memo {
   author?: {
     id: number;
     email: string;
-    full_name: string;
+    role: string;
+    employee?: {
+      full_name: string;
+      position?: string;
+      department?: string;
+      photo_url?: string;
+    };
+  };
+  category?: {
+    id: number;
+    name: string;
+    slug: string;
+    color?: string;
+    icon?: string;
   };
   read_receipts?: MemoReadReceipt[];
 }
@@ -60,6 +91,8 @@ export interface MemoFormData {
   summary?: string;
   status?: 'Draft' | 'Published' | 'Archived';
   priority?: 'Low' | 'Normal' | 'High' | 'Urgent';
+  category_id?: number;
+  is_pinned?: boolean;
   target_audience?: 'All' | 'Department' | 'Position' | 'Specific';
   target_departments?: string[];
   target_positions?: string[];
@@ -74,8 +107,12 @@ export interface MemoFilters {
   limit?: number;
   status?: 'Draft' | 'Published' | 'Archived';
   priority?: 'Low' | 'Normal' | 'High' | 'Urgent';
+  category_id?: number;
   target_audience?: 'All' | 'Department' | 'Position' | 'Specific';
   search?: string;
   author_id?: number;
   include_expired?: boolean;
+  date_from?: string;
+  date_to?: string;
+  sort_by?: 'newest' | 'oldest' | 'priority';
 }

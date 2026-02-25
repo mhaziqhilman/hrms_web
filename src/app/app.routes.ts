@@ -46,6 +46,10 @@ export const routes: Routes = [
                 loadChildren: () => import('./features/claims/claims.routes').then(m => m.CLAIMS_ROUTES)
             },
             {
+                path: 'documents',
+                loadChildren: () => import('./features/documents/documents.routes').then(m => m.DOCUMENTS_ROUTES)
+            },
+            {
                 path: 'communication',
                 loadChildren: () => import('./features/communication/communication.routes').then(m => m.COMMUNICATION_ROUTES)
             },
@@ -72,6 +76,10 @@ export const routes: Routes = [
             {
                 path: 'settings',
                 loadChildren: () => import('./features/settings/settings.routes').then(m => m.SETTINGS_ROUTES)
+            },
+            {
+                path: 'notifications',
+                loadChildren: () => import('./features/notifications/notifications.routes').then(m => m.NOTIFICATIONS_ROUTES)
             }
         ]
     },

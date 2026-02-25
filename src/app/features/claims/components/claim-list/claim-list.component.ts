@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ClaimService } from '../../services/claim.service';
 import { AuthService } from '@/core/services/auth.service';
-import { Claim, ClaimQueryParams } from '../../models/claim.model';
+import { Claim, ClaimAnalytics, ClaimQueryParams } from '../../models/claim.model';
 
 // ZardUI Components
 import { ZardCardComponent } from '@/shared/components/card/card.component';
@@ -48,6 +48,9 @@ export class ClaimListComponent implements OnInit {
   loading = signal(false);
   hasProfile = signal(true);
   error = signal<string | null>(null);
+
+  // Analytics
+  analytics = signal<ClaimAnalytics | null>(null);
 
   // Pagination
   currentPage = signal(1);
@@ -113,6 +116,7 @@ export class ClaimListComponent implements OnInit {
     if (user?.employee) {
       this.hasProfile.set(true);
       this.loadClaims();
+      this.loadAnalytics();
     } else {
       this.loading.set(true);
       this.authService.getCurrentUser().subscribe({
@@ -120,6 +124,7 @@ export class ClaimListComponent implements OnInit {
           if (res.success && res.data?.employee) {
             this.hasProfile.set(true);
             this.loadClaims();
+            this.loadAnalytics();
           } else {
             this.hasProfile.set(false);
             this.loading.set(false);
@@ -131,6 +136,26 @@ export class ClaimListComponent implements OnInit {
         }
       });
     }
+  }
+
+  loadAnalytics(): void {
+    this.claimService.getClaimsAnalytics().subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.analytics.set(res.data);
+        }
+      },
+      error: (err) => console.error('Error loading analytics:', err)
+    });
+  }
+
+  getChangeDiff(current: number, previous: number): number {
+    return current - previous;
+  }
+
+  getMaxTypeCount(): number {
+    const types = this.analytics()?.by_type || [];
+    return types.length ? Math.max(...types.map(t => t.count)) : 1;
   }
 
   loadClaims(): void {

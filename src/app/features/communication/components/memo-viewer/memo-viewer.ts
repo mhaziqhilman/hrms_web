@@ -1,7 +1,8 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MemoService } from '../../services/memo.service';
+import { AuthService } from '@/core/services/auth.service';
 import { Memo, MemoStatistics } from '../../models/memo.model';
 
 // ZardUI Component Imports
@@ -27,6 +28,8 @@ import { ZardTableComponent } from '@/shared/components/table/table.component';
   styleUrl: './memo-viewer.css',
 })
 export class MemoViewerComponent implements OnInit {
+  private authService = inject(AuthService);
+
   memo = signal<Memo | null>(null);
   statistics = signal<MemoStatistics | null>(null);
   loading = signal(false);
@@ -34,12 +37,12 @@ export class MemoViewerComponent implements OnInit {
   acknowledging = signal(false);
   loadingStatistics = signal(false);
 
-  // User info would come from auth service
-  // For now, we'll determine based on memo data
   canEdit = signal(false);
   canDelete = signal(false);
   canViewStatistics = signal(false);
   hasAcknowledged = signal(false);
+
+  private currentUser: any = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -48,6 +51,7 @@ export class MemoViewerComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.currentUser = this.authService.getCurrentUserValue();
     const id = Number(this.route.snapshot.paramMap.get('id'));
     if (id) {
       this.loadMemo(id);
@@ -63,13 +67,14 @@ export class MemoViewerComponent implements OnInit {
         if (response.success) {
           this.memo.set(response.data);
 
-          // Determine permissions
-          // In a real app, you'd check against current user from auth service
-          this.canEdit.set(true); // Placeholder - should check if user is admin or author
-          this.canDelete.set(true); // Placeholder - should check if user is admin or author
-          this.canViewStatistics.set(true); // Placeholder - should check if user is admin/manager/author
+          const role = this.currentUser?.role;
+          const isAdmin = ['super_admin', 'admin'].includes(role);
+          const isAuthor = response.data.author_id === this.currentUser?.id;
 
-          // Load statistics if user has permission
+          this.canEdit.set(isAdmin || isAuthor);
+          this.canDelete.set(isAdmin || isAuthor);
+          this.canViewStatistics.set(isAdmin || isAuthor);
+
           if (this.canViewStatistics()) {
             this.loadStatistics(id);
           }

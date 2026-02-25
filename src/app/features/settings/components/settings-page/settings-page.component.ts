@@ -1,10 +1,10 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, ViewContainerRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SettingsService } from '../../services/settings.service';
 import { PersonalService } from '@/features/personal/services/personal.service';
-import { ThemeService, ThemePreference } from '@/core/services/theme';
+import { ThemeService, ThemePreference, BorderRadiusPreset } from '@/core/services/theme';
 import { MyPayslip, YTDSummary } from '@/features/personal/models/personal.model';
 import {
   UserSettings,
@@ -24,7 +24,10 @@ import { ZardSelectComponent } from '@/shared/components/select/select.component
 import { ZardSelectItemComponent } from '@/shared/components/select/select-item.component';
 import { ZardDividerComponent } from '@/shared/components/divider/divider.component';
 import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-dialog.service';
+import { ZardDialogService } from '@/shared/components/dialog/dialog.service';
 import { ZardIcon } from '@/shared/components/icon/icons';
+import { UserProfileService } from '@/core/services/user-profile.service';
+import { ProfilePictureCropDialogComponent } from '../profile-picture-crop-dialog/profile-picture-crop-dialog.component';
 
 type SectionType = 'account' | 'payslips' | 'appearance' | 'notifications' | 'display';
 
@@ -56,6 +59,9 @@ export class SettingsPageComponent implements OnInit {
   private personalService = inject(PersonalService);
   private themeService = inject(ThemeService);
   private alertDialogService = inject(ZardAlertDialogService);
+  private dialogService = inject(ZardDialogService);
+  private userProfileService = inject(UserProfileService);
+  private viewContainerRef = inject(ViewContainerRef);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
@@ -92,6 +98,7 @@ export class SettingsPageComponent implements OnInit {
   selectedTheme: 'light' | 'dark' | 'system' = 'light';
   sidebarCollapsed = false;
   compactMode = false;
+  selectedBorderRadius: BorderRadiusPreset = 'default';
 
   // Display form
   selectedLanguage = 'en';
@@ -132,6 +139,10 @@ export class SettingsPageComponent implements OnInit {
   notifyPayslipReady = true;
   notifyMemoReceived = true;
   notifyPolicyUpdate = true;
+
+  // Profile picture
+  uploadingPhoto = signal(false);
+  removingPhoto = signal(false);
 
   // Change password form
   savingPassword = signal(false);
@@ -196,13 +207,11 @@ export class SettingsPageComponent implements OnInit {
         if (response.success) {
           const s = response.data;
           this.settings.set(s);
-          // Populate appearance form and apply via ThemeService
-          this.selectedTheme = s.theme;
-          this.sidebarCollapsed = s.sidebar_collapsed;
-          this.compactMode = s.compact_mode;
-          this.themeService.setTheme(s.theme);
-          this.themeService.setCompactMode(s.compact_mode);
-          this.themeService.setSidebarCollapsed(s.sidebar_collapsed);
+          // Populate appearance form from ThemeService (source of truth, reflects top-nav toggles too)
+          this.selectedTheme = this.themeService.themePreference();
+          this.sidebarCollapsed = this.themeService.sidebarCollapsed();
+          this.compactMode = this.themeService.compactMode();
+          this.selectedBorderRadius = this.themeService.borderRadius();
           // Populate display form
           this.selectedLanguage = s.language;
           this.selectedTimezone = s.timezone;
@@ -229,7 +238,12 @@ export class SettingsPageComponent implements OnInit {
     this.settingsService.getAccountInfo().subscribe({
       next: (response) => {
         if (response.success) {
-          this.accountInfo.set(response.data);
+          const data = response.data;
+          // Only accept absolute URLs for photo_url — reject raw storage paths
+          if (data.photo_url && !data.photo_url.startsWith('http')) {
+            data.photo_url = null;
+          }
+          this.accountInfo.set(data);
         }
       }
     });
@@ -246,6 +260,11 @@ export class SettingsPageComponent implements OnInit {
     this.themeService.setCompactMode(this.compactMode);
   }
 
+  setBorderRadius(preset: BorderRadiusPreset): void {
+    this.selectedBorderRadius = preset;
+    this.themeService.setBorderRadius(preset);
+  }
+
   onSidebarCollapsedChange(): void {
     this.themeService.setSidebarCollapsed(this.sidebarCollapsed);
   }
@@ -255,12 +274,14 @@ export class SettingsPageComponent implements OnInit {
     const data: AppearanceSettings = {
       theme: this.selectedTheme,
       sidebar_collapsed: this.sidebarCollapsed,
-      compact_mode: this.compactMode
+      compact_mode: this.compactMode,
+      border_radius: this.selectedBorderRadius
     };
 
     // Apply all settings immediately
     this.themeService.setTheme(this.selectedTheme);
     this.themeService.setCompactMode(this.compactMode);
+    this.themeService.setBorderRadius(this.selectedBorderRadius);
     this.themeService.setSidebarCollapsed(this.sidebarCollapsed);
 
     this.settingsService.updateAppearance(data).subscribe({
@@ -570,6 +591,136 @@ export class SettingsPageComponent implements OnInit {
         this.alertDialogService.warning({
           zTitle: 'Error',
           zDescription: message,
+          zOkText: 'OK'
+        });
+      }
+    });
+  }
+
+  // --- Profile Picture ---
+
+  getInitials(): string {
+    const name = this.accountInfo()?.employee_name || this.accountInfo()?.email || '';
+    if (!name) return '?';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+    return name[0].toUpperCase();
+  }
+
+  onProfilePictureSelect(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      this.alertDialogService.warning({
+        zTitle: 'Invalid File',
+        zDescription: 'Please select a JPG, PNG, or WebP image',
+        zOkText: 'OK'
+      });
+      input.value = '';
+      return;
+    }
+
+    // Validate file size (5MB max for source image before crop)
+    if (file.size > 5 * 1024 * 1024) {
+      this.alertDialogService.warning({
+        zTitle: 'File Too Large',
+        zDescription: 'Image must be under 5MB',
+        zOkText: 'OK'
+      });
+      input.value = '';
+      return;
+    }
+
+    this.openCropDialog(file);
+    input.value = '';
+  }
+
+  private openCropDialog(file: File): void {
+    this.dialogService.create({
+      zTitle: 'Crop Profile Picture',
+      zDescription: 'Drag to reposition. Use controls to zoom.',
+      zContent: ProfilePictureCropDialogComponent,
+      zData: { imageFile: file },
+      zViewContainerRef: this.viewContainerRef,
+      zWidth: '480px',
+      zOkText: 'Save',
+      zOkIcon: 'check',
+      zCancelText: 'Cancel',
+      zOnOk: (instance: ProfilePictureCropDialogComponent): false | void => {
+        const croppedFile = instance.getCroppedFile();
+        if (croppedFile) {
+          this.uploadProfilePicture(croppedFile);
+        } else {
+          this.alertDialogService.warning({
+            zTitle: 'Error',
+            zDescription: 'Failed to crop image. Please try again.',
+            zOkText: 'OK'
+          });
+          return false;
+        }
+      }
+    });
+  }
+
+  private uploadProfilePicture(file: File): void {
+    this.uploadingPhoto.set(true);
+    this.settingsService.uploadProfilePicture(file).subscribe({
+      next: (response) => {
+        if (response.success) {
+          const url = response.data.photo_url;
+          const validUrl = url?.startsWith('http') ? url : null;
+          const current = this.accountInfo();
+          if (current) {
+            this.accountInfo.set({ ...current, photo_url: validUrl });
+          }
+          // Update global profile state (sidebar, header, etc.)
+          if (validUrl) {
+            this.userProfileService.setProfilePicture(validUrl);
+          }
+          this.alertDialogService.info({
+            zTitle: 'Success',
+            zDescription: 'Profile picture updated successfully',
+            zOkText: 'OK'
+          });
+        }
+        this.uploadingPhoto.set(false);
+      },
+      error: (error) => {
+        this.uploadingPhoto.set(false);
+        this.alertDialogService.warning({
+          zTitle: 'Error',
+          zDescription: error.error?.message || 'Failed to upload profile picture',
+          zOkText: 'OK'
+        });
+      }
+    });
+  }
+
+  removeProfilePicture(): void {
+    this.removingPhoto.set(true);
+    this.settingsService.removeProfilePicture().subscribe({
+      next: (response) => {
+        if (response.success) {
+          const current = this.accountInfo();
+          if (current) {
+            this.accountInfo.set({ ...current, photo_url: null });
+          }
+          // Update global profile state (sidebar, header, etc.)
+          this.userProfileService.clearProfilePicture();
+        }
+        this.removingPhoto.set(false);
+      },
+      error: () => {
+        this.removingPhoto.set(false);
+        this.alertDialogService.warning({
+          zTitle: 'Error',
+          zDescription: 'Failed to remove profile picture',
           zOkText: 'OK'
         });
       }

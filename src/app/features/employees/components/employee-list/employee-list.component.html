@@ -257,8 +257,8 @@
             </button>
           </th>
 
-          <!-- Actions Column -->
-          <th class="!pr-3">Actions</th>
+          <!-- Actions Column (Frozen) -->
+          <th class="sticky-action-col">Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -317,20 +317,31 @@
           </td>
           }
 
-          <!-- Actions -->
-          <td class="!pr-3 text-right">
-            <div class="flex gap-2 flex-nowrap justify-end">
-              <a [routerLink]="['/employees', employee.id]" z-button zType="outline" zSize="sm" [zTooltip]="'View'">
-                <z-icon zType="eye" class="w-4 h-4" />
-              </a>
-              <a [routerLink]="['/employees', employee.id, 'edit']" z-button zType="outline" zSize="sm"
-                [zTooltip]="'Edit'">
-                <z-icon zType="pencil" class="w-4 h-4" />
-              </a>
-              <button (click)="deleteEmployee(employee)" z-button zType="outline" zSize="sm" [zTooltip]="'Delete'"
-                class="text-red-600 hover:text-red-700">
-                <z-icon zType="trash" class="w-4 h-4" />
-              </button>
+          <!-- Actions (Frozen) -->
+          <td class="sticky-action-col">
+            <div class="flex justify-end">
+              <div z-menu [zMenuTriggerFor]="actionMenu">
+                <button z-button zType="ghost" zSize="sm">
+                  <z-icon zType="ellipsis" class="w-4 h-4" />
+                </button>
+              </div>
+              <ng-template #actionMenu>
+                <div z-menu-content class="w-40">
+                  <a z-menu-item [routerLink]="['/employees', employee.id]" class="gap-2">
+                    <z-icon zType="eye" class="w-4 h-4" />
+                    View
+                  </a>
+                  <a z-menu-item [routerLink]="['/employees', employee.id, 'edit']" class="gap-2">
+                    <z-icon zType="pencil" class="w-4 h-4" />
+                    Edit
+                  </a>
+                  <z-divider zSpacing="sm" />
+                  <button z-menu-item (click)="deleteEmployee(employee)" class="gap-2 text-destructive">
+                    <z-icon zType="trash" class="w-4 h-4" />
+                    Delete
+                  </button>
+                </div>
+              </ng-template>
             </div>
           </td>
         </tr>

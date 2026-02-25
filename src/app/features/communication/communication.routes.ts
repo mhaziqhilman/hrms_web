@@ -6,14 +6,14 @@ export const COMMUNICATION_ROUTES: Routes = [
     redirectTo: 'memos',
     pathMatch: 'full'
   },
-  // Memo Routes
+  // Announcement Routes
   {
     path: 'memos',
     loadComponent: () =>
       import('./components/memo-list/memo-list').then(
         (m) => m.MemoListComponent
       ),
-    data: { title: 'Memos & Announcements' }
+    data: { title: 'Announcements' }
   },
   {
     path: 'memos/new',
@@ -21,7 +21,7 @@ export const COMMUNICATION_ROUTES: Routes = [
       import('./components/memo-form/memo-form').then(
         (m) => m.MemoFormComponent
       ),
-    data: { title: 'Create Memo' }
+    data: { title: 'Create Announcement' }
   },
   {
     path: 'memos/:id',
@@ -29,7 +29,7 @@ export const COMMUNICATION_ROUTES: Routes = [
       import('./components/memo-viewer/memo-viewer').then(
         (m) => m.MemoViewerComponent
       ),
-    data: { title: 'View Memo' }
+    data: { title: 'View Announcement' }
   },
   {
     path: 'memos/:id/edit',
@@ -37,7 +37,7 @@ export const COMMUNICATION_ROUTES: Routes = [
       import('./components/memo-form/memo-form').then(
         (m) => m.MemoFormComponent
       ),
-    data: { title: 'Edit Memo' }
+    data: { title: 'Edit Announcement' }
   },
   // Policy Routes
   {
