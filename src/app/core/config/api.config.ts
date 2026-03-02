@@ -51,6 +51,8 @@ export const API_CONFIG = {
       approve: (id: number) => `/payroll/${id}/approve`,
       markPaid: (id: number) => `/payroll/${id}/mark-paid`,
       payslip: (id: number) => `/payroll/${id}/payslip`,
+      downloadPayslipPdf: (id: number) => `/payroll/${id}/payslip/download`,
+      sendPayslipEmail: (id: number) => `/payroll/${id}/payslip/send-email`,
       permanentDelete: (id: number) => `/payroll/${id}/permanent`,
       myPayslips: '/payroll/my-payslips',
       bulkSubmit: '/payroll/bulk-submit',
@@ -80,10 +82,13 @@ export const API_CONFIG = {
       ea: (employeeId: number, year: number) => `/statutory-reports/ea/${employeeId}/${year}`,
       eaPdf: (employeeId: number, year: number) => `/statutory-reports/ea/${employeeId}/${year}/pdf`,
       eaExcel: (employeeId: number, year: number) => `/statutory-reports/ea/${employeeId}/${year}/excel`,
+      eaSendEmail: (employeeId: number, year: number) => `/statutory-reports/ea/${employeeId}/${year}/send-email`,
       epf: (year: number, month: number) => `/statutory-reports/epf/${year}/${month}`,
       epfPdf: (year: number, month: number) => `/statutory-reports/epf/${year}/${month}/pdf`,
       socso: (year: number, month: number) => `/statutory-reports/socso/${year}/${month}`,
       socsoPdf: (year: number, month: number) => `/statutory-reports/socso/${year}/${month}/pdf`,
+      eis: (year: number, month: number) => `/statutory-reports/eis/${year}/${month}`,
+      eisPdf: (year: number, month: number) => `/statutory-reports/eis/${year}/${month}/pdf`,
       pcb: (year: number, month: number) => `/statutory-reports/pcb/${year}/${month}`,
       pcbPdf: (year: number, month: number) => `/statutory-reports/pcb/${year}/${month}/pdf`,
       csv: (type: string, year: number, month: number) => `/statutory-reports/csv/${type}/${year}/${month}`
@@ -139,6 +144,10 @@ export const API_CONFIG = {
       detail: (key: string) => `/email-templates/${key}`,
       preview: (key: string) => `/email-templates/${key}/preview`,
       reset: (key: string) => `/email-templates/${key}/reset`
+    },
+    emailConfig: {
+      base: '/email-config',
+      test: '/email-config/test'
     },
     files: {
       base: '/files',

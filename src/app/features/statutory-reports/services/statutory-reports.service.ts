@@ -8,6 +8,7 @@ import {
   EAFormResponse,
   EPFBorangAResponse,
   SOCSOForm8AResponse,
+  EISLampiran1Response,
   PCBCP39Response
 } from '../models/statutory-reports.model';
 
@@ -67,6 +68,16 @@ export class StatutoryReportsService {
     );
   }
 
+  /**
+   * Send EA Form via email with PDF attachment
+   */
+  sendEAFormEmail(employeeId: number, year: number): Observable<{ success: boolean; message: string }> {
+    return this.http.post<{ success: boolean; message: string }>(
+      `${this.apiUrl}${API_CONFIG.endpoints.statutoryReports.eaSendEmail(employeeId, year)}`,
+      {}
+    );
+  }
+
   // ============ EPF Borang A ============
 
   /**
@@ -109,6 +120,27 @@ export class StatutoryReportsService {
     );
   }
 
+  // ============ EIS Lampiran 1 ============
+
+  /**
+   * Get EIS Lampiran 1 data
+   */
+  getEISLampiran1(year: number, month: number): Observable<EISLampiran1Response> {
+    return this.http.get<EISLampiran1Response>(
+      `${this.apiUrl}${API_CONFIG.endpoints.statutoryReports.eis(year, month)}`
+    );
+  }
+
+  /**
+   * Download EIS Lampiran 1 as PDF
+   */
+  downloadEISLampiran1PDF(year: number, month: number): Observable<Blob> {
+    return this.http.get(
+      `${this.apiUrl}${API_CONFIG.endpoints.statutoryReports.eisPdf(year, month)}`,
+      { responseType: 'blob' }
+    );
+  }
+
   // ============ PCB CP39 ============
 
   /**
@@ -135,7 +167,7 @@ export class StatutoryReportsService {
   /**
    * Download report as CSV
    */
-  downloadCSV(type: 'epf' | 'socso' | 'pcb', year: number, month: number): Observable<Blob> {
+  downloadCSV(type: 'epf' | 'socso' | 'eis' | 'pcb', year: number, month: number): Observable<Blob> {
     return this.http.get(
       `${this.apiUrl}${API_CONFIG.endpoints.statutoryReports.csv(type, year, month)}`,
       { responseType: 'blob' }

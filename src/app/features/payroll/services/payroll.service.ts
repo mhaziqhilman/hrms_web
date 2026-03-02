@@ -129,12 +129,24 @@ export class PayrollService {
   }
 
   /**
-   * Download payslip as PDF (placeholder - to be implemented)
+   * Download payslip as PDF (server-generated)
    */
-  downloadPayslip(id: number): Observable<Blob> {
+  downloadPayslipPdf(id: number): Observable<Blob> {
     return this.http.get(
-      `${this.apiUrl}${API_CONFIG.endpoints.payroll.payslip(id)}/pdf`,
+      `${this.apiUrl}${API_CONFIG.endpoints.payroll.downloadPayslipPdf(id)}`,
       { responseType: 'blob' }
+    );
+  }
+
+  /**
+   * Send payslip via email with PDF attachment (frontend-generated PDF)
+   */
+  sendPayslipEmail(id: number, pdfBlob: Blob, fileName: string): Observable<{ success: boolean; message: string }> {
+    const formData = new FormData();
+    formData.append('pdf', pdfBlob, fileName);
+    return this.http.post<{ success: boolean; message: string }>(
+      `${this.apiUrl}${API_CONFIG.endpoints.payroll.sendPayslipEmail(id)}`,
+      formData
     );
   }
 

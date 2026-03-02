@@ -150,6 +150,7 @@ import {
   Image,
   FileType2,
   FileArchive,
+  TicketCheck,
 } from 'lucide-angular';
 
 const DarkMode: LucideIconData = [
@@ -266,6 +267,7 @@ export const ZARD_ICONS = {
   activity: Activity,
   paperclip: Paperclip,
   pencil: Pencil,
+  'ticket-check': TicketCheck,
   download: Download,
   megaphone: Megaphone,
   'refresh-cw': RefreshCw,

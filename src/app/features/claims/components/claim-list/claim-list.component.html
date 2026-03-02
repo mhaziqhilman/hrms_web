@@ -2,7 +2,7 @@
   <!-- Header -->
   <div class="flex items-center justify-between mb-8">
     <div>
-      <h1 class="text-3xl font-bold text-foreground">Claims Management</h1>
+      <h1 class="text-2xl font-bold text-foreground">Claims Management</h1>
       <p class="text-muted-foreground">View and manage expense claims</p>
     </div>
     <div class="flex gap-2">
@@ -40,62 +40,66 @@
   @if (analytics(); as a) {
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
       <!-- Approval Status Card -->
-      <z-card class="p-6">
+      <z-card class="py-5 card-analytics-claim">
         <div class="flex items-center justify-between mb-5">
           <div class="flex items-center gap-2">
             <z-icon zType="users" class="w-5 h-5 text-primary" />
             <h3 class="text-base font-semibold text-foreground">Approval Status</h3>
           </div>
         </div>
-        <div class="grid grid-cols-4 gap-4">
+        <div class="grid grid-cols-4">
           <!-- Requested -->
-          <div>
-            <p class="text-xs text-muted-foreground mb-1">Requested</p>
-            <p class="text-2xl font-bold text-foreground">{{ a.status.total }}</p>
-            <p class="text-xs mt-1" [class]="getChangeDiff(a.status.total, a.status_prev.total) >= 0 ? 'text-emerald-600' : 'text-red-500'">
-              {{ getChangeDiff(a.status.total, a.status_prev.total) >= 0 ? '+' : '' }}{{ getChangeDiff(a.status.total, a.status_prev.total) }} vs last month
+          <div class="px-4">
+            <p class="text-xs font-medium text-muted-foreground mb-1 antialiased">Requested</p>
+            <p class="text-2xl font-bold text-foreground font-stretch-extra-condensed text-shadow-sm">{{ a.status.total }}</p>
+            <p class="text-xs mt-1">
+              <span class="font-semibold text-shadow-sm" [class]="getChangeDiff(a.status.total, a.status_prev.total) >= 0 ? 'text-emerald-600' : 'text-red-500'">{{ getChangeDiff(a.status.total, a.status_prev.total) >= 0 ? '+' : '' }}{{ getChangeDiff(a.status.total, a.status_prev.total) }}</span>
+              <span class="text-muted-foreground"> vs last month</span>
             </p>
           </div>
           <!-- Approved -->
-          <div>
-            <p class="text-xs text-muted-foreground mb-1">Approved</p>
-            <p class="text-2xl font-bold text-foreground">{{ a.status.approved }}</p>
-            <p class="text-xs mt-1" [class]="getChangeDiff(a.status.approved, a.status_prev.approved) >= 0 ? 'text-emerald-600' : 'text-red-500'">
-              {{ getChangeDiff(a.status.approved, a.status_prev.approved) >= 0 ? '+' : '' }}{{ getChangeDiff(a.status.approved, a.status_prev.approved) }} vs last month
+          <div class="px-4 border-l border-border">
+            <p class="text-xs font-medium text-muted-foreground mb-1 antialiased">Approved</p>
+            <p class="text-2xl font-bold text-foreground font-stretch-extra-condensed text-shadow-sm">{{ a.status.approved }}</p>
+            <p class="text-xs mt-1">
+              <span class="font-semibold text-shadow-sm" [class]="getChangeDiff(a.status.approved, a.status_prev.approved) >= 0 ? 'text-emerald-600' : 'text-red-500'">{{ getChangeDiff(a.status.approved, a.status_prev.approved) >= 0 ? '+' : '' }}{{ getChangeDiff(a.status.approved, a.status_prev.approved) }}</span>
+              <span class="text-muted-foreground"> vs last month</span>
             </p>
           </div>
           <!-- Rejected -->
-          <div>
-            <p class="text-xs text-muted-foreground mb-1">Rejected</p>
-            <p class="text-2xl font-bold text-foreground">{{ a.status.rejected }}</p>
-            <p class="text-xs mt-1" [class]="getChangeDiff(a.status.rejected, a.status_prev.rejected) <= 0 ? 'text-emerald-600' : 'text-red-500'">
-              {{ getChangeDiff(a.status.rejected, a.status_prev.rejected) >= 0 ? '+' : '' }}{{ getChangeDiff(a.status.rejected, a.status_prev.rejected) }} vs last month
+          <div class="px-4 border-l border-border">
+            <p class="text-xs font-medium text-muted-foreground mb-1 antialiased">Rejected</p>
+            <p class="text-2xl font-bold text-foreground font-stretch-extra-condensed text-shadow-sm">{{ a.status.rejected }}</p>
+            <p class="text-xs mt-1">
+              <span class="font-semibold text-shadow-sm" [class]="getChangeDiff(a.status.rejected, a.status_prev.rejected) <= 0 ? 'text-emerald-600' : 'text-red-500'">{{ getChangeDiff(a.status.rejected, a.status_prev.rejected) >= 0 ? '+' : '' }}{{ getChangeDiff(a.status.rejected, a.status_prev.rejected) }}</span>
+              <span class="text-muted-foreground"> vs last month</span>
             </p>
           </div>
           <!-- Pending -->
-          <div>
-            <p class="text-xs text-muted-foreground mb-1">Pending</p>
-            <p class="text-2xl font-bold text-foreground">{{ a.status.pending }}</p>
-            <p class="text-xs mt-1" [class]="getChangeDiff(a.status.pending, a.status_prev.pending) <= 0 ? 'text-emerald-600' : 'text-red-500'">
-              {{ getChangeDiff(a.status.pending, a.status_prev.pending) >= 0 ? '+' : '' }}{{ getChangeDiff(a.status.pending, a.status_prev.pending) }} vs last month
+          <div class="px-4 border-l border-border">
+            <p class="text-xs font-medium text-muted-foreground mb-1 antialiased">Pending</p>
+            <p class="text-2xl font-bold text-foreground font-stretch-extra-condensed text-shadow-sm">{{ a.status.pending }}</p>
+            <p class="text-xs mt-1">
+              <span class="font-semibold text-shadow-sm" [class]="getChangeDiff(a.status.pending, a.status_prev.pending) <= 0 ? 'text-emerald-600' : 'text-red-500'">{{ getChangeDiff(a.status.pending, a.status_prev.pending) >= 0 ? '+' : '' }}{{ getChangeDiff(a.status.pending, a.status_prev.pending) }}</span>
+              <span class="text-muted-foreground"> vs last month</span>
             </p>
           </div>
         </div>
       </z-card>
 
       <!-- Reimbursement Request Type Card -->
-      <z-card class="p-6">
+      <z-card class="py-5">
         <div class="flex items-center justify-between mb-5">
           <div class="flex items-center gap-2">
-            <z-icon [zType]="$any('receipt')" class="w-5 h-5 text-primary" />
+            <z-icon [zType]="$any('ticket-check')" class="w-5 h-5 text-primary" />
             <h3 class="text-base font-semibold text-foreground">Reimbursement Request Type</h3>
           </div>
         </div>
         <div class="flex flex-col gap-3">
           @for (type of a.by_type; track type.name) {
             <div class="flex items-center gap-3">
-              <span class="text-sm text-foreground w-36 truncate shrink-0">{{ type.name }}</span>
-              <div class="flex-1 h-3 bg-secondary rounded-full overflow-hidden">
+              <span class="text-xs font-semibold text-foreground w-36 truncate shrink-0">{{ type.name }}</span>
+              <div class="flex-1 h-2 bg-secondary rounded-full overflow-hidden">
                 <div
                   class="h-full bg-primary rounded-full transition-all duration-500"
                   [style.width.%]="(type.count / getMaxTypeCount()) * 100">

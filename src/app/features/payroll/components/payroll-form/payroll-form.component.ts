@@ -127,7 +127,7 @@ export class PayrollFormComponent implements OnInit {
         this.loadingEmployees.set(false);
       },
       error: (err) => {
-        const message = err.message || 'Failed to load employees';
+        const message = err.error?.message || 'Failed to load employees';
         this.error.set(message);
         this.loadingEmployees.set(false);
         this.alertDialog.warning({
@@ -170,7 +170,7 @@ export class PayrollFormComponent implements OnInit {
         this.loading.set(false);
       },
       error: (err) => {
-        const message = err.message || 'Failed to load payroll data';
+        const message = err.error?.message || 'Failed to load payroll data';
         this.error.set(message);
         this.loading.set(false);
         this.alertDialog.warning({
@@ -213,7 +213,7 @@ export class PayrollFormComponent implements OnInit {
       Number(values.other_deductions || 0);
 
     // Estimated statutory deductions (EPF 11% + SOCSO table-based + EIS table-based)
-    const estimatedEPF = grossSalary * 0.11;
+    const estimatedEPF = Math.ceil(grossSalary * 0.11);
     // SOCSO: approximate using ~0.5% capped at RM6,000 (actual uses official wage-band table)
     const estimatedSOCSO = grossSalary > 6000 ? 29.75 : grossSalary * 0.005;
     // EIS: approximate using ~0.2% capped at RM6,000 (actual uses official wage-band table)
@@ -237,7 +237,25 @@ export class PayrollFormComponent implements OnInit {
     this.submitting.set(true);
     this.error.set(null);
 
-    const formData = this.payrollForm.value;
+    const raw = this.payrollForm.value;
+
+    // Ensure correct types for express-validator v7
+    const formData: any = {
+      employee_id: Number(raw.employee_id),
+      month: Number(raw.month),
+      year: Number(raw.year),
+      basic_salary: Number(raw.basic_salary || 0),
+      allowances: Number(raw.allowances || 0),
+      overtime_pay: Number(raw.overtime_pay || 0),
+      bonus: Number(raw.bonus || 0),
+      commission: Number(raw.commission || 0),
+      unpaid_leave_deduction: Number(raw.unpaid_leave_deduction || 0),
+      other_deductions: Number(raw.other_deductions || 0),
+      payment_date: raw.payment_date instanceof Date
+        ? raw.payment_date.toISOString()
+        : raw.payment_date,
+      notes: raw.notes || ''
+    };
 
     if (this.isEditMode() && this.payrollId()) {
       // Update existing payroll
@@ -254,7 +272,7 @@ export class PayrollFormComponent implements OnInit {
           this.submitting.set(false);
         },
         error: (err) => {
-          const message = err.message || 'Failed to update payroll';
+          const message = err.error?.message || 'Failed to update payroll';
           this.error.set(message);
           this.submitting.set(false);
           this.alertDialog.warning({
@@ -279,7 +297,7 @@ export class PayrollFormComponent implements OnInit {
           this.submitting.set(false);
         },
         error: (err) => {
-          const message = err.message || 'Failed to calculate payroll';
+          const message = err.error?.message || 'Failed to calculate payroll';
           this.error.set(message);
           this.submitting.set(false);
           this.alertDialog.warning({

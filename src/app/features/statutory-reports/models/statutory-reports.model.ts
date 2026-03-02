@@ -138,6 +138,40 @@ export interface SOCSOForm8AResponse {
   data: SOCSOForm8AData;
 }
 
+// EIS Lampiran 1 data
+export interface EISEmployee {
+  employee_id: string;
+  full_name: string;
+  ic_no: string;
+  eis_no: string;
+  wages: number;
+  employee_eis: number;
+  employer_eis: number;
+  total_eis: number;
+}
+
+export interface EISLampiran1Data {
+  year: number;
+  month: number;
+  employer: {
+    name: string;
+    socso_code: string;
+  };
+  employees: EISEmployee[];
+  totals: {
+    wages: number;
+    employee_eis: number;
+    employer_eis: number;
+    total_eis: number;
+  };
+  employee_count: number;
+}
+
+export interface EISLampiran1Response {
+  success: boolean;
+  data: EISLampiran1Data;
+}
+
 // PCB CP39 data
 export interface PCBEmployee {
   employee_id: string;
@@ -171,7 +205,7 @@ export interface PCBCP39Response {
 }
 
 // Report type for navigation
-export type ReportType = 'ea' | 'epf' | 'socso' | 'pcb';
+export type ReportType = 'ea' | 'epf' | 'socso' | 'eis' | 'pcb';
 
 export interface ReportTypeInfo {
   id: ReportType;
@@ -202,6 +236,13 @@ export const REPORT_TYPES: ReportTypeInfo[] = [
     description: 'Monthly SOCSO Contribution Statement',
     frequency: 'Monthly',
     icon: 'shield'
+  },
+  {
+    id: 'eis',
+    name: 'EIS Lampiran 1',
+    description: 'Monthly EIS Contribution Statement',
+    frequency: 'Monthly',
+    icon: 'shield-check' as ZardIcon
   },
   {
     id: 'pcb',

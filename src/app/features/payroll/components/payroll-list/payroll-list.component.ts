@@ -4,6 +4,8 @@ import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { PayrollService } from '../../services/payroll.service';
 import { Payroll, PayrollStatus, MONTH_NAMES, PAYROLL_STATUS_COLORS, BulkActionResponse } from '../../models/payroll.model';
+import { AnalyticsService } from '../../../analytics/services/analytics.service';
+import { PayrollCostAnalytics } from '../../../analytics/models/analytics.model';
 import { Observable } from 'rxjs';
 
 // ZardUI Component Imports
@@ -49,8 +51,10 @@ import { ZardCheckboxComponent } from '@/shared/components/checkbox/checkbox.com
 })
 export class PayrollListComponent implements OnInit {
   private alertDialogService = inject(ZardAlertDialogService);
+  private analyticsService = inject(AnalyticsService);
 
   payrolls = signal<Payroll[]>([]);
+  payrollAnalytics = signal<PayrollCostAnalytics | null>(null);
   loading = signal(false);
   error = signal<string | null>(null);
 
@@ -78,7 +82,7 @@ export class PayrollListComponent implements OnInit {
 
   // Filters
   selectedStatus = signal<PayrollStatus | ''>('');
-  selectedYear = signal<number | null>(null);
+  selectedYear = signal<number>(new Date().getFullYear());
   selectedMonth = signal<number | ''>('');
   searchEmployeeId = signal<string>('');
 
@@ -116,10 +120,28 @@ export class PayrollListComponent implements OnInit {
   ngOnInit(): void {
     this.loadPayrolls();
     this.loadStatusCounts();
+    this.loadAnalytics();
+  }
+
+  loadAnalytics(): void {
+    const month = this.selectedMonth();
+    const startMonth = typeof month === 'number' ? month : undefined;
+    const endMonth = typeof month === 'number' ? month : undefined;
+
+    this.analyticsService.getPayrollCostAnalytics(this.selectedYear(), startMonth, endMonth).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.payrollAnalytics.set(response.data);
+        }
+      },
+      error: (err) => {
+        console.error('Payroll analytics error:', err);
+      }
+    });
   }
 
   loadStatusCounts(): void {
-    // Load counts for each status from backend
+    // Load counts for each status from backend, scoped to global year
     const counts = {
       All: 0,
       Draft: 0,
@@ -129,8 +151,10 @@ export class PayrollListComponent implements OnInit {
       Cancelled: 0
     };
 
+    const year = this.selectedYear();
+
     // Get total count (All)
-    this.payrollService.getPayrolls({ limit: 1 }).subscribe({
+    this.payrollService.getPayrolls({ limit: 1, year }).subscribe({
       next: (response) => {
         if (response.success) {
           counts.All = response.data.pagination.total;
@@ -140,7 +164,7 @@ export class PayrollListComponent implements OnInit {
     });
 
     // Get Draft count
-    this.payrollService.getPayrolls({ status: PayrollStatus.DRAFT, limit: 1 }).subscribe({
+    this.payrollService.getPayrolls({ status: PayrollStatus.DRAFT, limit: 1, year }).subscribe({
       next: (response) => {
         if (response.success) {
           counts.Draft = response.data.pagination.total;
@@ -150,7 +174,7 @@ export class PayrollListComponent implements OnInit {
     });
 
     // Get Pending count
-    this.payrollService.getPayrolls({ status: PayrollStatus.PENDING, limit: 1 }).subscribe({
+    this.payrollService.getPayrolls({ status: PayrollStatus.PENDING, limit: 1, year }).subscribe({
       next: (response) => {
         if (response.success) {
           counts.Pending = response.data.pagination.total;
@@ -160,7 +184,7 @@ export class PayrollListComponent implements OnInit {
     });
 
     // Get Approved count
-    this.payrollService.getPayrolls({ status: PayrollStatus.APPROVED, limit: 1 }).subscribe({
+    this.payrollService.getPayrolls({ status: PayrollStatus.APPROVED, limit: 1, year }).subscribe({
       next: (response) => {
         if (response.success) {
           counts.Approved = response.data.pagination.total;
@@ -170,7 +194,7 @@ export class PayrollListComponent implements OnInit {
     });
 
     // Get Paid count
-    this.payrollService.getPayrolls({ status: PayrollStatus.PAID, limit: 1 }).subscribe({
+    this.payrollService.getPayrolls({ status: PayrollStatus.PAID, limit: 1, year }).subscribe({
       next: (response) => {
         if (response.success) {
           counts.Paid = response.data.pagination.total;
@@ -180,7 +204,7 @@ export class PayrollListComponent implements OnInit {
     });
 
     // Get Cancelled count
-    this.payrollService.getPayrolls({ status: PayrollStatus.CANCELLED, limit: 1 }).subscribe({
+    this.payrollService.getPayrolls({ status: PayrollStatus.CANCELLED, limit: 1, year }).subscribe({
       next: (response) => {
         if (response.success) {
           counts.Cancelled = response.data.pagination.total;
@@ -207,9 +231,8 @@ export class PayrollListComponent implements OnInit {
     this.currentPage.set(1);
     this.clearSelection();
 
-    // Clear all filters when switching to "All Request" tab
+    // Clear inline filters when switching to "All Request" tab
     if (tab === 'All') {
-      this.selectedYear.set(null);
       this.selectedMonth.set('');
     }
 
@@ -228,9 +251,7 @@ export class PayrollListComponent implements OnInit {
     if (this.selectedStatus()) {
       params.status = this.selectedStatus();
     }
-    if (this.selectedYear()) {
-      params.year = this.selectedYear();
-    }
+    params.year = this.selectedYear();
     if (this.selectedMonth()) {
       params.month = this.selectedMonth();
     }
@@ -260,6 +281,7 @@ export class PayrollListComponent implements OnInit {
   onFilterChange(): void {
     this.currentPage.set(1);
     this.loadPayrolls();
+    this.loadAnalytics();
   }
 
   onPageChange(page: number): void {
@@ -267,13 +289,29 @@ export class PayrollListComponent implements OnInit {
     this.loadPayrolls();
   }
 
+  onGlobalYearChange(year: number): void {
+    this.selectedYear.set(year);
+    this.currentPage.set(1);
+    this.clearSelection();
+    this.loadPayrolls();
+    this.loadStatusCounts();
+    this.loadAnalytics();
+  }
+
+  onAnalyticsMonthChange(month: number | ''): void {
+    this.selectedMonth.set(month);
+    this.currentPage.set(1);
+    this.loadPayrolls();
+    this.loadAnalytics();
+  }
+
   clearFilters(): void {
     this.selectedStatus.set('');
-    this.selectedYear.set(null);
     this.selectedMonth.set('');
     this.searchEmployeeId.set('');
     this.currentPage.set(1);
     this.loadPayrolls();
+    this.loadAnalytics();
   }
 
   getStatusBadgeClass(status: PayrollStatus): string {

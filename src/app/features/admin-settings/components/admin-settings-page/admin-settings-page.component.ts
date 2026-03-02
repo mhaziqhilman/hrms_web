@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AdminSettingsService } from '../../services/admin-settings.service';
 import {
   LeaveTypeConfig, ClaimTypeConfig, PublicHoliday,
-  StatutoryConfigItem, EmailTemplateItem, CompanyProfile
+  StatutoryConfigItem, EmailTemplateItem, EmailConfigItem, CompanyProfile
 } from '../../models/admin-settings.models';
 import {
   LeaveEntitlement, CreateLeaveEntitlementRequest, UpdateLeaveEntitlementRequest
@@ -27,7 +27,7 @@ import { ZardFormMessageComponent } from '@/shared/components/form/form-message.
 import { ZardDatePickerComponent } from '@/shared/components/date-picker/date-picker.component';
 import { ZardIcon } from '@/shared/components/icon/icons';
 
-type SectionType = 'company' | 'leave-types' | 'claim-types' | 'holidays' | 'payroll-config' | 'email-templates' | 'leave-entitlements';
+type SectionType = 'company' | 'leave-types' | 'claim-types' | 'holidays' | 'payroll-config' | 'email-templates' | 'email-config' | 'leave-entitlements';
 
 @Component({
   selector: 'app-admin-settings-page',
@@ -67,6 +67,7 @@ export class AdminSettingsPageComponent implements OnInit {
     { id: 'claim-types', label: 'Claim Types', icon: 'file-text' },
     { id: 'holidays', label: 'Public Holidays', icon: 'calendar' },
     { id: 'payroll-config', label: 'Payroll Config', icon: 'circle-dollar-sign' },
+    { id: 'email-config', label: 'Email Configuration', icon: 'settings' as ZardIcon },
     { id: 'email-templates', label: 'Email Templates', icon: 'mail' }
   ];
 
@@ -126,6 +127,12 @@ export class AdminSettingsPageComponent implements OnInit {
   activeLeaveTypesForEntitlement = signal<LeaveTypeConfig[]>([]);
   initializingYear = signal(false);
 
+  // ─── Email Configuration ─────────────────────────────────
+  emailConfig = signal<EmailConfigItem | null>(null);
+  emailConfigForm: Partial<EmailConfigItem> & { smtp_password?: string } = {};
+  testingEmail = signal(false);
+  testResult = signal<{ success: boolean; message: string } | null>(null);
+
   // ─── Email Templates ───────────────────────────────────────
   emailTemplates = signal<EmailTemplateItem[]>([]);
   expandedTemplate = signal<string | null>(null);
@@ -138,7 +145,9 @@ export class AdminSettingsPageComponent implements OnInit {
     leave_status: 'Leave Status',
     welcome: 'Welcome Email',
     verification: 'Email Verification',
-    invitation: 'Invitation Email'
+    invitation: 'Invitation Email',
+    claim_status: 'Claim Status',
+    ea_form: 'EA Form'
   };
 
   ngOnInit(): void {
@@ -171,6 +180,7 @@ export class AdminSettingsPageComponent implements OnInit {
       case 'claim-types': this.loadClaimTypes(); break;
       case 'holidays': this.loadHolidays(); break;
       case 'payroll-config': this.loadStatutoryConfig(); break;
+      case 'email-config': this.loadEmailConfig(); break;
       case 'email-templates': this.loadEmailTemplates(); break;
       case 'leave-entitlements': this.loadEntitlements(); break;
     }
@@ -192,7 +202,9 @@ export class AdminSettingsPageComponent implements OnInit {
 
   saveCompany(): void {
     this.saving.set(true);
-    this.service.updateCompany(this.companyForm).subscribe({
+    // Only send editable fields — exclude read-only and logo (handled by separate upload)
+    const { id, owner_id, logo_url, created_at, updated_at, ...editable } = this.companyForm as any;
+    this.service.updateCompany(editable).subscribe({
       next: (res) => {
         if (res.success) {
           this.company.set(res.data);
@@ -456,7 +468,8 @@ export class AdminSettingsPageComponent implements OnInit {
       eis_max_salary: 'EIS Max Salary (RM)',
       socso_max_salary: 'SOCSO Max Salary (RM)',
       socso_employee_rate_approx: 'SOCSO Employee Rate (approx.)',
-      socso_employer_rate_approx: 'SOCSO Employer Rate (approx.)'
+      socso_employer_rate_approx: 'SOCSO Employer Rate (approx.)',
+      pcb_minimum_threshold: 'PCB Minimum Threshold (< RM10 = 0)'
     };
     return labels[key] || key;
   }
@@ -465,14 +478,85 @@ export class AdminSettingsPageComponent implements OnInit {
     if (key.startsWith('epf_')) return 'EPF';
     if (key.startsWith('eis_')) return 'EIS';
     if (key.startsWith('socso_')) return 'SOCSO';
+    if (key.startsWith('pcb_')) return 'PCB';
     return 'Other';
   }
 
+  isBooleanConfig(key: string): boolean {
+    return key === 'pcb_minimum_threshold';
+  }
+
+  toggleBooleanConfig(key: string): void {
+    this.statutoryForm[key] = this.statutoryForm[key] === 'true' ? 'false' : 'true';
+  }
+
   formatRate(value: string, key: string): string {
+    if (key === 'pcb_minimum_threshold') {
+      return value === 'true' ? 'Enabled' : 'Disabled';
+    }
     if (key.includes('rate')) {
       return `${(parseFloat(value) * 100).toFixed(1)}%`;
     }
     return `RM ${parseFloat(value).toLocaleString()}`;
+  }
+
+  // ─── Email Configuration Methods ────────────────────────────
+  loadEmailConfig(): void {
+    this.service.getEmailConfig().subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.emailConfig.set(res.data);
+          if (res.data) {
+            this.emailConfigForm = { ...res.data, smtp_password: '' };
+          } else {
+            this.emailConfigForm = {
+              smtp_host: '', smtp_port: 587, smtp_secure: false,
+              smtp_user: '', smtp_password: '', from_name: '', from_email: '', is_active: false
+            };
+          }
+        }
+        this.loading.set(false);
+      },
+      error: () => this.loading.set(false)
+    });
+  }
+
+  saveEmailConfig(): void {
+    this.saving.set(true);
+    this.testResult.set(null);
+    const payload: any = { ...this.emailConfigForm };
+    // Don't send empty password (keep existing)
+    if (!payload.smtp_password) delete payload.smtp_password;
+    // Remove frontend-only fields
+    delete payload.has_password;
+    delete payload.id;
+    delete payload.company_id;
+
+    this.service.updateEmailConfig(payload).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.emailConfig.set(res.data);
+          this.emailConfigForm = { ...res.data, smtp_password: '' };
+        }
+        this.saving.set(false);
+      },
+      error: () => this.saving.set(false)
+    });
+  }
+
+  testEmailConnection(): void {
+    this.testingEmail.set(true);
+    this.testResult.set(null);
+    this.service.testEmailConfig().subscribe({
+      next: (res) => {
+        this.testResult.set({ success: true, message: res.message || 'Test email sent successfully!' });
+        this.testingEmail.set(false);
+      },
+      error: (err) => {
+        this.testResult.set({ success: false, message: err.error?.message || 'Test failed. Check your settings.' });
+        this.testingEmail.set(false);
+      }
+    });
   }
 
   // ─── Email Template Methods ─────────────────────────────────

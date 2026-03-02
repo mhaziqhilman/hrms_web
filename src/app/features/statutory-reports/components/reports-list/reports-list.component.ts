@@ -10,8 +10,10 @@ import {
   EAFormData,
   EPFBorangAData,
   SOCSOForm8AData,
+  EISLampiran1Data,
   PCBCP39Data
 } from '../../models/statutory-reports.model';
+import { toast } from 'ngx-sonner';
 
 // ZardUI Components
 import { ZardCardComponent } from '@/shared/components/card/card.component';
@@ -20,7 +22,6 @@ import { ZardIconComponent } from '@/shared/components/icon/icon.component';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { ZardSelectComponent } from '@/shared/components/select/select.component';
 import { ZardSelectItemComponent } from '@/shared/components/select/select-item.component';
-import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-dialog.service';
 import { ZardTableComponent } from '@/shared/components/table/table.component';
 
 @Component({
@@ -41,7 +42,6 @@ import { ZardTableComponent } from '@/shared/components/table/table.component';
   styleUrl: './reports-list.component.css'
 })
 export class ReportsListComponent implements OnInit {
-  private alertDialogService = inject(ZardAlertDialogService);
   private reportsService = inject(StatutoryReportsService);
 
   // Constants
@@ -66,6 +66,7 @@ export class ReportsListComponent implements OnInit {
   // Report data
   reportData = signal<any>(null);
   showPreview = signal(false);
+  sendingEmail = signal(false);
 
   ngOnInit(): void {
     this.loadAvailablePeriods();
@@ -218,6 +219,23 @@ export class ReportsListComponent implements OnInit {
         });
         break;
 
+      case 'eis':
+        if (!month) return;
+        this.reportsService.getEISLampiran1(year, month).subscribe({
+          next: (response) => {
+            if (response.success) {
+              this.reportData.set(response.data);
+              this.showPreview.set(true);
+            }
+            this.loading.set(false);
+          },
+          error: (err) => {
+            this.error.set('Failed to generate EIS Lampiran 1');
+            this.loading.set(false);
+          }
+        });
+        break;
+
       case 'pcb':
         if (!month) return;
         this.reportsService.getPCBCP39(year, month).subscribe({
@@ -270,6 +288,12 @@ export class ReportsListComponent implements OnInit {
         filename = `SOCSO_Form_8A_${year}_${String(month).padStart(2, '0')}.pdf`;
         break;
 
+      case 'eis':
+        if (!month) return;
+        download$ = this.reportsService.downloadEISLampiran1PDF(year, month);
+        filename = `EIS_Lampiran_1_${year}_${String(month).padStart(2, '0')}.pdf`;
+        break;
+
       case 'pcb':
         if (!month) return;
         download$ = this.reportsService.downloadPCBCP39PDF(year, month);
@@ -280,23 +304,23 @@ export class ReportsListComponent implements OnInit {
         return;
     }
 
+    const toastId = toast.loading('Preparing download...');
+
     download$.subscribe({
       next: (blob) => {
         this.reportsService.downloadFile(blob, filename);
         this.loading.set(false);
-        this.alertDialogService.info({
-          zTitle: 'Download Complete',
-          zDescription: `${filename} has been downloaded.`,
-          zOkText: 'OK'
-        });
+        toast.success(`${filename} downloaded successfully.`, { id: toastId });
       },
       error: (err) => {
         this.loading.set(false);
-        this.alertDialogService.warning({
-          zTitle: 'Download Failed',
-          zDescription: 'Failed to download the report. Please try again.',
-          zOkText: 'OK'
-        });
+        // IDM or similar download managers intercept the XHR request causing status 0.
+        // The file is still downloaded by the extension, so treat it as success.
+        if (err?.status === 0) {
+          toast.success('Your download will start shortly.', { id: toastId });
+        } else {
+          toast.error('Failed to download the report. Please try again.', { id: toastId });
+        }
       }
     });
   }
@@ -313,23 +337,21 @@ export class ReportsListComponent implements OnInit {
     const employee = this.eaEmployees().find(e => e.id === employeeId);
     const filename = `EA_Form_${employee?.employee_id || employeeId}_${year}.xlsx`;
 
+    const toastId = toast.loading('Preparing download...');
+
     this.reportsService.downloadEAFormExcel(employeeId, year).subscribe({
       next: (blob) => {
         this.reportsService.downloadFile(blob, filename);
         this.loading.set(false);
-        this.alertDialogService.info({
-          zTitle: 'Download Complete',
-          zDescription: `${filename} has been downloaded.`,
-          zOkText: 'OK'
-        });
+        toast.success(`${filename} downloaded successfully.`, { id: toastId });
       },
       error: (err) => {
         this.loading.set(false);
-        this.alertDialogService.warning({
-          zTitle: 'Download Failed',
-          zDescription: 'Failed to download the Excel report. Please try again.',
-          zOkText: 'OK'
-        });
+        if (err?.status === 0) {
+          toast.success('Your download will start shortly.', { id: toastId });
+        } else {
+          toast.error('Failed to download the Excel report. Please try again.', { id: toastId });
+        }
       }
     });
   }
@@ -345,23 +367,21 @@ export class ReportsListComponent implements OnInit {
 
     const filename = `${type.toUpperCase()}_${year}_${String(month).padStart(2, '0')}.csv`;
 
-    this.reportsService.downloadCSV(type as 'epf' | 'socso' | 'pcb', year, month).subscribe({
+    const toastId = toast.loading('Preparing download...');
+
+    this.reportsService.downloadCSV(type as 'epf' | 'socso' | 'eis' | 'pcb', year, month).subscribe({
       next: (blob) => {
         this.reportsService.downloadFile(blob, filename);
         this.loading.set(false);
-        this.alertDialogService.info({
-          zTitle: 'Download Complete',
-          zDescription: `${filename} has been downloaded.`,
-          zOkText: 'OK'
-        });
+        toast.success(`${filename} downloaded successfully.`, { id: toastId });
       },
       error: (err) => {
         this.loading.set(false);
-        this.alertDialogService.warning({
-          zTitle: 'Download Failed',
-          zDescription: 'Failed to download the CSV. Please try again.',
-          zOkText: 'OK'
-        });
+        if (err?.status === 0) {
+          toast.success('Your download will start shortly.', { id: toastId });
+        } else {
+          toast.error('Failed to download the CSV. Please try again.', { id: toastId });
+        }
       }
     });
   }
@@ -397,5 +417,30 @@ export class ReportsListComponent implements OnInit {
 
   onEmployeeSelect(value: number): void {
     this.selectedEmployeeId.set(value);
+  }
+
+  sendEAFormEmail(): void {
+    const employeeId = this.selectedEmployeeId();
+    const year = this.selectedYear();
+
+    if (!employeeId || !year) return;
+
+    this.sendingEmail.set(true);
+    const toastId = toast.loading('Sending EA Form email...');
+
+    this.reportsService.sendEAFormEmail(employeeId, year).subscribe({
+      next: (response) => {
+        this.sendingEmail.set(false);
+        if (response.success) {
+          toast.success(response.message || 'EA Form sent successfully', { id: toastId });
+        } else {
+          toast.error('Failed to send EA Form email', { id: toastId });
+        }
+      },
+      error: (err) => {
+        this.sendingEmail.set(false);
+        toast.error(err?.error?.message || 'Failed to send EA Form email', { id: toastId });
+      }
+    });
   }
 }

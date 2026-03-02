@@ -64,6 +64,19 @@ export interface EmailPreview {
   body: string;
 }
 
+export interface EmailConfigItem {
+  id?: number;
+  company_id?: number;
+  smtp_host: string;
+  smtp_port: number;
+  smtp_secure: boolean;
+  smtp_user: string;
+  has_password: boolean;
+  from_name: string;
+  from_email: string;
+  is_active: boolean;
+}
+
 export interface CompanyProfile {
   id: number;
   name: string;
@@ -84,6 +97,7 @@ export interface CompanyProfile {
   signatory_name?: string;
   signatory_position?: string;
   lhdn_branch?: string;
+  employer_phone?: string;
 }
 
 export interface ApiResponse<T> {

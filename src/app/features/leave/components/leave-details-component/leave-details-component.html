@@ -31,7 +31,7 @@
             <z-icon zType="arrow-left" class="w-4 h-4" />
             Back
           </button>
-          <h1 class="text-3xl font-semibold text-foreground">{{ leave()!.leave_type?.name || 'Leave Application' }}</h1>
+          <h1 class="text-2xl font-bold text-foreground">{{ leave()!.leave_type?.name || 'Leave Application' }}</h1>
         </div>
         <div class="flex items-center gap-2">
           <z-badge [zType]="getStatusBadgeType(leave()!.status)">

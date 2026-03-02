@@ -5,7 +5,7 @@ import { API_CONFIG } from '@/core/config/api.config';
 import {
   LeaveTypeConfig, ClaimTypeConfig, PublicHoliday,
   StatutoryConfigItem, EmailTemplateItem, EmailPreview,
-  CompanyProfile, ApiResponse
+  EmailConfigItem, CompanyProfile, ApiResponse
 } from '../models/admin-settings.models';
 import {
   LeaveEntitlementListParams, LeaveEntitlementListResponse,
@@ -113,6 +113,19 @@ export class AdminSettingsService {
 
   resetEmailTemplate(key: string): Observable<ApiResponse<EmailTemplateItem>> {
     return this.http.post<ApiResponse<EmailTemplateItem>>(`${this.apiUrl}${API_CONFIG.endpoints.emailTemplates.reset(key)}`, {});
+  }
+
+  // ─── Email Configuration ─────────────────────────────────
+  getEmailConfig(): Observable<ApiResponse<EmailConfigItem | null>> {
+    return this.http.get<ApiResponse<EmailConfigItem | null>>(`${this.apiUrl}${API_CONFIG.endpoints.emailConfig.base}`);
+  }
+
+  updateEmailConfig(data: Partial<EmailConfigItem> & { smtp_password?: string }): Observable<ApiResponse<EmailConfigItem>> {
+    return this.http.put<ApiResponse<EmailConfigItem>>(`${this.apiUrl}${API_CONFIG.endpoints.emailConfig.base}`, data);
+  }
+
+  testEmailConfig(): Observable<ApiResponse<{ message: string }>> {
+    return this.http.post<ApiResponse<{ message: string }>>(`${this.apiUrl}${API_CONFIG.endpoints.emailConfig.test}`, {});
   }
 
   // ─── Leave Entitlements ──────────────────────────────────

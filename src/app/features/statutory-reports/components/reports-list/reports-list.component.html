@@ -2,7 +2,7 @@
   <!-- Header -->
   <div class="flex items-center justify-between mb-8">
     <div>
-      <h1 class="text-3xl font-bold text-foreground">Statutory Reports</h1>
+      <h1 class="text-2xl font-bold text-foreground">Statutory Reports</h1>
       <p class="text-muted-foreground">Generate Malaysian statutory compliance reports</p>
     </div>
     @if (selectedReportType()) {
@@ -137,6 +137,14 @@
               <button z-button zType="outline" (click)="downloadExcel()" [disabled]="loading()" class="gap-2">
                 <z-icon zType="file-spreadsheet" class="w-4 h-4" />
                 Download Excel (LHDN)
+              </button>
+              <button z-button zType="outline" (click)="sendEAFormEmail()" [disabled]="sendingEmail()" class="gap-2">
+                @if (sendingEmail()) {
+                  <z-icon zType="loader-circle" class="w-4 h-4 animate-spin" />
+                } @else {
+                  <z-icon zType="mail" class="w-4 h-4" />
+                }
+                Send to Email
               </button>
             }
             @if (selectedReportType() !== 'ea') {
@@ -273,6 +281,13 @@
                       <th class="px-4 py-3 text-right">Employer</th>
                       <th class="px-4 py-3 text-right">Total</th>
                     }
+                    @if (selectedReportType() === 'eis') {
+                      <th class="px-4 py-3 text-left">EIS No</th>
+                      <th class="px-4 py-3 text-right">Wages</th>
+                      <th class="px-4 py-3 text-right">Employee</th>
+                      <th class="px-4 py-3 text-right">Employer</th>
+                      <th class="px-4 py-3 text-right">Total</th>
+                    }
                     @if (selectedReportType() === 'pcb') {
                       <th class="px-4 py-3 text-left">Tax No</th>
                       <th class="px-4 py-3 text-right">Gross Salary</th>
@@ -301,6 +316,13 @@
                         <td class="px-4 py-3 text-right">{{ formatCurrency(emp.employer_socso) }}</td>
                         <td class="px-4 py-3 text-right font-medium">{{ formatCurrency(emp.total_socso) }}</td>
                       }
+                      @if (selectedReportType() === 'eis') {
+                        <td class="px-4 py-3">{{ emp.eis_no || '-' }}</td>
+                        <td class="px-4 py-3 text-right">{{ formatCurrency(emp.wages) }}</td>
+                        <td class="px-4 py-3 text-right">{{ formatCurrency(emp.employee_eis) }}</td>
+                        <td class="px-4 py-3 text-right">{{ formatCurrency(emp.employer_eis) }}</td>
+                        <td class="px-4 py-3 text-right font-medium">{{ formatCurrency(emp.total_eis) }}</td>
+                      }
                       @if (selectedReportType() === 'pcb') {
                         <td class="px-4 py-3">{{ emp.tax_no || '-' }}</td>
                         <td class="px-4 py-3 text-right">{{ formatCurrency(emp.gross_salary) }}</td>
@@ -326,6 +348,13 @@
                       <td class="px-4 py-3 text-right">{{ formatCurrency(reportData().totals.employee_socso) }}</td>
                       <td class="px-4 py-3 text-right">{{ formatCurrency(reportData().totals.employer_socso) }}</td>
                       <td class="px-4 py-3 text-right">{{ formatCurrency(reportData().totals.total_socso) }}</td>
+                    }
+                    @if (selectedReportType() === 'eis') {
+                      <td class="px-4 py-3"></td>
+                      <td class="px-4 py-3 text-right">{{ formatCurrency(reportData().totals.wages) }}</td>
+                      <td class="px-4 py-3 text-right">{{ formatCurrency(reportData().totals.employee_eis) }}</td>
+                      <td class="px-4 py-3 text-right">{{ formatCurrency(reportData().totals.employer_eis) }}</td>
+                      <td class="px-4 py-3 text-right">{{ formatCurrency(reportData().totals.total_eis) }}</td>
                     }
                     @if (selectedReportType() === 'pcb') {
                       <td class="px-4 py-3"></td>

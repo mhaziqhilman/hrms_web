@@ -218,6 +218,14 @@
                     <z-form-message>Position of the signatory officer.</z-form-message>
                   </z-form-field>
                 </div>
+
+                <z-form-field>
+                  <label z-form-label>Employer Contact No. (No. Telefon Majikan)</label>
+                  <z-form-control>
+                    <input z-input [(ngModel)]="companyForm.employer_phone" placeholder="+60..." />
+                  </z-form-control>
+                  <z-form-message>Employer's contact number used on EA Forms and statutory reports.</z-form-message>
+                </z-form-field>
               </div>
               <div zCardFooter class="flex justify-end pt-6">
                 <button z-button (click)="saveCompany()" [disabled]="saving()">
@@ -808,7 +816,7 @@
               }
             </div>
 
-            <!-- Group by EPF, EIS, SOCSO -->
+            <!-- Group by EPF, EIS, SOCSO, PCB -->
             @for (group of ['EPF', 'EIS', 'SOCSO']; track group) {
               <z-card>
                 <div zCardHeader class="grid gap-2 pb-4">
@@ -839,16 +847,39 @@
               </z-card>
             }
 
-            <!-- PCB Info Card -->
+            <!-- PCB Settings Card -->
             <z-card>
               <div zCardHeader class="grid gap-2 pb-4">
                 <h4 zCardTitle class="text-sm font-semibold">PCB (Monthly Tax Deduction)</h4>
               </div>
               <div zCardContent>
-                <p class="text-sm text-muted-foreground">
+                <p class="text-sm text-muted-foreground mb-4">
                   PCB rates follow the Malaysian government's tax brackets and are automatically calculated based on annual income.
                   These brackets are updated when the government announces changes.
                 </p>
+                @for (config of statutoryConfigs(); track config.id) {
+                  @if (getConfigGroup(config.config_key) === 'PCB') {
+                    <z-divider />
+                    <div class="flex items-center justify-between py-3">
+                      <div>
+                        <p class="text-sm font-medium">{{ getConfigLabel(config.config_key) }}</p>
+                        @if (config.description) {
+                          <p class="text-xs text-muted-foreground">{{ config.description }}</p>
+                        }
+                      </div>
+                      @if (statutoryEditing()) {
+                        <button z-button [zType]="statutoryForm[config.config_key] === 'true' ? 'default' : 'outline'" zSize="sm"
+                          (click)="toggleBooleanConfig(config.config_key)">
+                          {{ statutoryForm[config.config_key] === 'true' ? 'Enabled' : 'Disabled' }}
+                        </button>
+                      } @else {
+                        <span class="text-sm font-semibold" [class.text-green-600]="config.config_value === 'true'" [class.text-muted-foreground]="config.config_value !== 'true'">
+                          {{ formatRate(config.config_value, config.config_key) }}
+                        </span>
+                      }
+                    </div>
+                  }
+                }
               </div>
             </z-card>
 
@@ -861,6 +892,119 @@
                 </button>
               </div>
             }
+          </div>
+        }
+
+        <!-- ═══════════════════ EMAIL CONFIGURATION ═══════════════════ -->
+        @if (activeSection() === 'email-config') {
+          <div class="space-y-6">
+            <div>
+              <h3 class="text-lg font-semibold">Email Configuration</h3>
+              <p class="text-sm text-muted-foreground">Configure SMTP settings for sending emails from your company. If not configured, the system default email settings will be used.</p>
+            </div>
+
+            <z-card>
+              <div zCardHeader>
+                <h4 zCardTitle class="text-sm font-semibold">SMTP Settings</h4>
+              </div>
+              <div zCardContent class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <z-form-field>
+                    <label z-form-label>SMTP Host</label>
+                    <z-form-control>
+                      <input z-input [(ngModel)]="emailConfigForm.smtp_host" placeholder="e.g. smtp.gmail.com" />
+                    </z-form-control>
+                    <z-form-message>Your email provider's SMTP server address.</z-form-message>
+                  </z-form-field>
+
+                  <z-form-field>
+                    <label z-form-label>SMTP Port</label>
+                    <z-form-control>
+                      <input z-input type="number" [(ngModel)]="emailConfigForm.smtp_port" placeholder="587" />
+                    </z-form-control>
+                    <z-form-message>Common ports: 587 (TLS), 465 (SSL), 25 (unencrypted).</z-form-message>
+                  </z-form-field>
+
+                  <z-form-field>
+                    <label z-form-label>SMTP Username</label>
+                    <z-form-control>
+                      <input z-input [(ngModel)]="emailConfigForm.smtp_user" placeholder="your-email@company.com" />
+                    </z-form-control>
+                    <z-form-message>Usually your email address.</z-form-message>
+                  </z-form-field>
+
+                  <z-form-field>
+                    <label z-form-label>SMTP Password</label>
+                    <z-form-control>
+                      <input z-input type="password" [(ngModel)]="emailConfigForm.smtp_password" [placeholder]="emailConfig()?.has_password ? '••••••••' : 'Enter password'" />
+                    </z-form-control>
+                    <z-form-message>App password or SMTP password. Leave blank to keep existing.</z-form-message>
+                  </z-form-field>
+                </div>
+
+                <div>
+                  <z-checkbox [(ngModel)]="emailConfigForm.smtp_secure"><span class="text-sm">Use SSL/TLS (port 465)</span></z-checkbox>
+                </div>
+              </div>
+            </z-card>
+
+            <z-card>
+              <div zCardHeader>
+                <h4 zCardTitle class="text-sm font-semibold">Sender Information</h4>
+              </div>
+              <div zCardContent class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <z-form-field>
+                    <label z-form-label>From Name</label>
+                    <z-form-control>
+                      <input z-input [(ngModel)]="emailConfigForm.from_name" placeholder="e.g. HR Department" />
+                    </z-form-control>
+                    <z-form-message>Display name shown in recipient's inbox.</z-form-message>
+                  </z-form-field>
+
+                  <z-form-field>
+                    <label z-form-label>From Email</label>
+                    <z-form-control>
+                      <input z-input type="email" [(ngModel)]="emailConfigForm.from_email" placeholder="hr@company.com" />
+                    </z-form-control>
+                    <z-form-message>Sender email address. Must be allowed by your SMTP provider.</z-form-message>
+                  </z-form-field>
+                </div>
+              </div>
+            </z-card>
+
+            <z-card>
+              <div zCardHeader>
+                <h4 zCardTitle class="text-sm font-semibold">Status</h4>
+              </div>
+              <div zCardContent>
+                <z-checkbox [(ngModel)]="emailConfigForm.is_active"><span class="text-sm">Enable this email configuration</span></z-checkbox>
+                <p class="text-xs text-muted-foreground mt-1">When disabled, the system default email settings will be used instead.</p>
+              </div>
+            </z-card>
+
+            <!-- Test Result -->
+            @if (testResult()) {
+              <div [class]="testResult()!.success ? 'rounded-lg border border-green-200 bg-green-50 p-4' : 'rounded-lg border border-red-200 bg-red-50 p-4'">
+                <div class="flex items-center gap-2">
+                  <z-icon [zType]="$any(testResult()!.success ? 'check-circle' : 'x-circle')" [class]="testResult()!.success ? 'h-5 w-5 text-green-600' : 'h-5 w-5 text-red-600'" />
+                  <p [class]="testResult()!.success ? 'text-sm font-medium text-green-800' : 'text-sm font-medium text-red-800'">{{ testResult()!.message }}</p>
+                </div>
+              </div>
+            }
+
+            <!-- Actions -->
+            <div class="flex justify-between">
+              <button z-button zType="outline" (click)="testEmailConnection()" [disabled]="testingEmail() || !emailConfig()">
+                @if (testingEmail()) { <z-icon zType="loader-2" class="h-4 w-4 animate-spin mr-1" /> }
+                <z-icon zType="send" class="h-4 w-4 mr-1" />
+                Send Test Email
+              </button>
+              <button z-button (click)="saveEmailConfig()" [disabled]="saving()">
+                @if (saving()) { <z-icon zType="loader-2" class="h-4 w-4 animate-spin mr-1" /> }
+                Save Configuration
+              </button>
+            </div>
           </div>
         }
 
@@ -905,7 +1049,7 @@
                       <z-form-field>
                         <label z-form-label>Body</label>
                         <z-form-control>
-                          <textarea z-input class="font-mono" [(ngModel)]="editingTemplate.body" rows="8"></textarea>
+                          <textarea z-input class="font-mono !h-auto min-h-[200px] resize-y" [(ngModel)]="editingTemplate.body" rows="8"></textarea>
                         </z-form-control>
                         <z-form-message>Email body content with variable placeholders.</z-form-message>
                       </z-form-field>

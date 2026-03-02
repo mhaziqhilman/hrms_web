@@ -29,10 +29,10 @@ import { TimeAgoPipe } from '@/shared/pipes/time-ago.pipe';
     TimeAgoPipe
   ],
   template: `
-    <div class="bg-background min-h-screen">
+    <div class="bg-background min-h-screen max-w-6xl mx-auto">
       <!-- Header -->
       <div class="flex items-center justify-between mb-8">
-        <h1 class="text-3xl font-bold text-foreground">Notifications</h1>
+        <h1 class="text-2xl font-bold text-foreground">Notifications</h1>
         <div class="flex items-center gap-2">
           @if (notificationService.unreadCount() > 0) {
             <button z-button (click)="markAllAsRead()" class="gap-2">
@@ -132,7 +132,7 @@ import { TimeAgoPipe } from '@/shared/pipes/time-ago.pipe';
           </div>
         } @else {
           @for (notification of notificationService.notifications(); track notification.id) {
-            <div class="flex items-start gap-4 px-6 py-4 border-b border-border/50 last:border-b-0 hover:bg-muted/30 cursor-pointer transition-colors relative"
+            <div class="flex items-start gap-4 px-5 py-4 border-b border-border/50 last:border-b-0 hover:bg-muted/30 cursor-pointer transition-colors relative"
               [class.bg-primary/5]="!notification.is_read"
               (click)="onNotificationClick(notification)">
               <!-- Unread accent bar -->
@@ -153,7 +153,7 @@ import { TimeAgoPipe } from '@/shared/pipes/time-ago.pipe';
                     </p>
                     <p class="text-sm text-muted-foreground mt-0.5">{{ notification.message }}</p>
                   </div>
-                  <div class="flex items-center gap-3 flex-shrink-0">
+                  <div class="flex items-center flex-shrink-0">
                     <z-badge zType="secondary" zShape="pill" class="text-[11px]">{{ getTypeLabel(notification.type) }}</z-badge>
                     <span class="text-xs text-muted-foreground whitespace-nowrap">{{ notification.created_at | timeAgo }}</span>
                   </div>

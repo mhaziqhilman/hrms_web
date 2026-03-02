@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payslip</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      font-size: 12.5px;
+      color: #1a1a1a;
+      background: #f5f5f5;
+    }
+
+    .payslip {
+      width: 800px;
+      margin: 20px auto;
+      background: #fff;
+      padding: 32px 36px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+
+    /* ── Header ── */
+    .header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    .company-logo {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+    }
+
+    .company-logo-placeholder {
+      width: 80px;
+      height: 80px;
+      border: 1px dashed #ccc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: #999;
+      text-align: center;
+      border-radius: 4px;
+    }
+
+    .company-info {
+      padding-top: 4px;
+    }
+
+    .company-info .title {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+
+    .company-info .company-name {
+      font-size: 13px;
+      margin-top: 2px;
+    }
+
+    .company-info .reg-no {
+      font-size: 12px;
+      color: #555;
+      margin-top: 1px;
+    }
+
+    .header-right {
+      text-align: right;
+      padding-top: 4px;
+    }
+
+    .header-right .period {
+      font-size: 13px;
+    }
+
+    .header-right .period strong {
+      font-weight: 700;
+    }
+
+    .header-right .issued {
+      font-size: 12px;
+      color: #555;
+      margin-top: 2px;
+    }
+
+    /* ── Dividers ── */
+    .divider-solid {
+      border: none;
+      border-top: 2px solid #c0392b;
+      margin: 16px 0;
+    }
+
+    .divider-dashed {
+      border: none;
+      border-top: 1.5px dashed #bbb;
+      margin: 20px 0;
+    }
+
+    /* ── Employee Info ── */
+    .employee-info {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 40px;
+      margin: 20px 0;
+    }
+
+    .info-row {
+      display: flex;
+      align-items: baseline;
+    }
+
+    .info-label {
+      width: 130px;
+      flex-shrink: 0;
+      font-size: 13px;
+      color: #333;
+    }
+
+    .info-colon {
+      width: 14px;
+      flex-shrink: 0;
+      text-align: center;
+    }
+
+    .info-value {
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    /* ── Main Table ── */
+    .main-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 6px;
+    }
+
+    .main-table th {
+      text-align: left;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 8px 10px;
+      border: 1px solid #d0d0d0;
+      background: #fafafa;
+    }
+
+    .main-table td {
+      padding: 5px 10px;
+      border-left: 1px solid #d0d0d0;
+      border-right: 1px solid #d0d0d0;
+      font-size: 13px;
+      vertical-align: top;
+    }
+
+    .main-table .amount {
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .main-table .item-label {
+      padding-left: 18px;
+    }
+
+    .main-table .spacer-row td {
+      height: 14px;
+    }
+
+    /* ── Totals Row ── */
+    .totals-row td {
+      border-top: 1px solid #d0d0d0;
+      border-bottom: 1px solid #d0d0d0;
+      font-weight: 600;
+      padding: 9px 10px;
+      background: #fafafa;
+    }
+
+    /* ── Net Payable ── */
+    .net-payable {
+      display: flex;
+      align-items: center;
+      margin-top: 16px;
+      border: 1.5px solid #1a1a1a;
+    }
+
+    .net-payable-label {
+      flex: 1;
+      padding: 12px 14px;
+      border-right: 1.5px solid #1a1a1a;
+    }
+
+    .net-payable-label .main-label {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .net-payable-label .sub-label {
+      font-size: 11px;
+      color: #666;
+      margin-top: 1px;
+    }
+
+    .net-payable-amount {
+      flex: 1;
+      text-align: center;
+      font-size: 18px;
+      font-weight: 700;
+      padding: 12px 14px;
+    }
+
+    /* ── Amount in Words ── */
+    .amount-words {
+      text-align: center;
+      font-size: 12px;
+      color: #444;
+      margin: 18px 0 10px;
+      font-style: italic;
+    }
+
+    /* ── YTD Section ── */
+    .ytd-section {
+      margin-top: 14px;
+    }
+
+    .ytd-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .ytd-table td {
+      padding: 4px 6px;
+      font-size: 12px;
+      vertical-align: top;
+    }
+
+    .ytd-table .ytd-label {
+      width: 200px;
+    }
+
+    .ytd-table .ytd-rm {
+      width: 30px;
+      text-align: right;
+      color: #555;
+    }
+
+    .ytd-table .ytd-amount {
+      width: 90px;
+      text-align: right;
+    }
+
+    .ytd-table .ytd-spacer {
+      width: 30px;
+    }
+
+    /* ── Footer ── */
+    .confidential {
+      text-align: center;
+      font-size: 11.5px;
+      color: #c0392b;
+      font-style: italic;
+      margin-top: 30px;
+    }
+
+    /* ── Print ── */
+    @media print {
+      body {
+        background: #fff;
+      }
+      .payslip {
+        box-shadow: none;
+        margin: 0;
+        padding: 30px 40px;
+        width: 100%;
+      }
+    }
+
+    @page {
+      size: A4;
+      margin: 15mm;
+    }
+  </style>
+</head>
+<body>
+  <div class="payslip">
+
+    <!-- ═══════ HEADER ═══════ -->
+    <div class="header">
+      <div class="header-left">
+        <div class="company-logo-placeholder">Company<br>Logo</div>
+        <!-- Replace with: <img class="company-logo" src="logo.png" alt="Logo"> -->
+        <div class="company-info">
+          <div class="title">PAYSLIP</div>
+          <div class="company-name">VELARIX TECHNOLOGY SDN. BHD.</div>
+          <div class="reg-no">Registration No. 202501004754 (1606168-X)</div>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="period">Payslip for <strong>December 2025</strong></div>
+        <div class="issued">Issued on 12 January 2026 by Haziq Hamzan</div>
+      </div>
+    </div>
+
+    <hr class="divider-solid">
+
+    <!-- ═══════ EMPLOYEE INFO ═══════ -->
+    <div class="employee-info">
+      <div class="info-row">
+        <span class="info-label">Employee Name</span>
+        <span class="info-colon">:</span>
+        <span class="info-value">Abdul Muhaimin bin Zulkifli</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Employee ID</span>
+        <span class="info-colon">:</span>
+        <span class="info-value">VLX-006</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">I/C No</span>
+        <span class="info-colon">:</span>
+        <span class="info-value">990925-06-5523</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Designation</span>
+        <span class="info-colon">:</span>
+        <span class="info-value">Software Engineer</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Bank Name</span>
+        <span class="info-colon">:</span>
+        <span class="info-value">Maybank</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Department</span>
+        <span class="info-colon">:</span>
+        <span class="info-value">UD - Data Operation</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Account No</span>
+        <span class="info-colon">:</span>
+        <span class="info-value">156084870588</span>
+      </div>
+      <div class="info-row"></div>
+    </div>
+
+    <hr class="divider-dashed">
+
+    <!-- ═══════ EARNINGS / DEDUCTIONS / CONTRIBUTIONS ═══════ -->
+    <table class="main-table">
+      <thead>
+        <tr>
+          <th style="width:25%">Earnings</th>
+          <th class="amount" style="width:10%"></th>
+          <th style="width:17%">Deductions</th>
+          <th class="amount" style="width:10%"></th>
+          <th style="width:22%">Employer Contributions</th>
+          <th class="amount" style="width:12%"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Row 1 -->
+        <tr>
+          <td>Basic Salary</td>
+          <td class="amount">4,900.00</td>
+          <td>EPF</td>
+          <td class="amount">539.00</td>
+          <td>EPF</td>
+          <td class="amount">637.00</td>
+        </tr>
+        <!-- Row 2 -->
+        <tr>
+          <td></td>
+          <td></td>
+          <td>SOCSO</td>
+          <td class="amount">24.25</td>
+          <td>SOCSO</td>
+          <td class="amount">84.85</td>
+        </tr>
+        <!-- Row 3 -->
+        <tr>
+          <td></td>
+          <td></td>
+          <td>EIS</td>
+          <td class="amount">9.70</td>
+          <td>EIS</td>
+          <td class="amount">9.70</td>
+        </tr>
+        <!-- Row 4 -->
+        <tr>
+          <td></td>
+          <td></td>
+          <td>PCB</td>
+          <td class="amount">104.00</td>
+          <td></td>
+          <td></td>
+        </tr>
+        <!-- Spacer rows to fill table height -->
+        <tr class="spacer-row"><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr class="spacer-row"><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr class="spacer-row"><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr class="spacer-row"><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      </tbody>
+      <tfoot>
+        <tr class="totals-row">
+          <td>Gross Earnings (RM)</td>
+          <td class="amount">4,900.00</td>
+          <td>Total Deductions (RM)</td>
+          <td class="amount">676.95</td>
+          <td>Total Contributions (RM)</td>
+          <td class="amount">731.55</td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <!-- ═══════ NET PAYABLE ═══════ -->
+    <div class="net-payable">
+      <div class="net-payable-label">
+        <div class="main-label">Total Net Payable (RM)</div>
+        <div class="sub-label">Gross Earning - Total Deduction</div>
+      </div>
+      <div class="net-payable-amount">RM4,223.05</div>
+    </div>
+
+    <!-- ═══════ AMOUNT IN WORDS ═══════ -->
+    <div class="amount-words">
+      Amount in Words: Ringgit Malaysia Four Thousand Two Hundred Twenty-Three and Five Sen
+    </div>
+
+    <!-- ═══════ YTD SECTION ═══════ -->
+    <div class="ytd-section">
+      <table class="ytd-table">
+        <tr>
+          <td class="ytd-label">YTD Employee EPF</td>
+          <td class="ytd-rm">:RM</td>
+          <td class="ytd-amount">4,312.00</td>
+          <td class="ytd-spacer"></td>
+          <td class="ytd-label">YTD Employer EPF</td>
+          <td class="ytd-rm">:RM</td>
+          <td class="ytd-amount">5,096.00</td>
+        </tr>
+        <tr>
+          <td class="ytd-label">YTD Employee SOCSO</td>
+          <td class="ytd-rm">:RM</td>
+          <td class="ytd-amount">194.00</td>
+          <td class="ytd-spacer"></td>
+          <td class="ytd-label">YTD Employer SOCSO</td>
+          <td class="ytd-rm">:RM</td>
+          <td class="ytd-amount">678.80</td>
+        </tr>
+        <tr>
+          <td class="ytd-label">YTD Employee EIS</td>
+          <td class="ytd-rm">:RM</td>
+          <td class="ytd-amount">77.60</td>
+          <td class="ytd-spacer"></td>
+          <td class="ytd-label">YTD Employer EIS</td>
+          <td class="ytd-rm">:RM</td>
+          <td class="ytd-amount">77.60</td>
+        </tr>
+        <tr>
+          <td class="ytd-label">YTD Employee Income Tax PCB</td>
+          <td class="ytd-rm">:RM</td>
+          <td class="ytd-amount">832.00</td>
+          <td class="ytd-spacer"></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- ═══════ CONFIDENTIAL NOTICE ═══════ -->
+    <p class="confidential">
+      This payslip is confidential and intended only for the recipient. Unauthorized disclosure is prohibited.
+    </p>
+
+  </div>
+</body>
+</html>

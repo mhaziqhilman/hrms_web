@@ -117,6 +117,11 @@ export interface UpdatePayrollRequest {
 
 export interface Payslip {
   payroll_id: number;
+  company: {
+    name: string;
+    registration_no: string;
+    logo_url: string | null;
+  };
   employee: {
     id: number;
     employee_id: string;
@@ -162,8 +167,18 @@ export interface Payslip {
     bank_name: string;
     account_no: string;
   };
+  ytd?: {
+    epf_employee: number;
+    epf_employer: number;
+    socso_employee: number;
+    socso_employer: number;
+    eis_employee: number;
+    eis_employer: number;
+    pcb: number;
+  };
   status: PayrollStatus;
   notes?: string;
+  issued_by?: string;
   generated_at: string;
 }
 

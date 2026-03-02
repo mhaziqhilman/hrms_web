@@ -54,3 +54,9 @@
 .claim-table th.th-text-center {
   text-align: center !important;
 }
+
+/* Override card content padding to px-5 */
+:host ::ng-deep [data-slot="card-content"] {
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+}

@@ -2,6 +2,12 @@
   display: block;
 }
 
+/* Remove horizontal padding from card body for full-width table */
+:host ::ng-deep .doc-list-card > [data-slot="card-content"] {
+  padding-left: 0;
+  padding-right: 0;
+}
+
 /* Table container with horizontal scroll */
 .doc-table-container {
   overflow-x: auto;
