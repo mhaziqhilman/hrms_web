@@ -49,6 +49,12 @@ export class LoginComponent implements OnInit, OnDestroy {
     // Get return URL from query params or default to dashboard
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
 
+    // Check for OAuth error
+    const oauthError = this.route.snapshot.queryParams['error'];
+    if (oauthError === 'oauth_failed') {
+      this.errorMessage = 'Social login failed. Please try again or use email login.';
+    }
+
     // Check if already authenticated
     if (this.authService.isAuthenticated()) {
       this.router.navigate([this.returnUrl]);
@@ -93,6 +99,14 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.router.navigate([this.returnUrl]);
       }
     });
+  }
+
+  loginWithGoogle(): void {
+    this.authService.loginWithGoogle(this.returnUrl);
+  }
+
+  loginWithGithub(): void {
+    this.authService.loginWithGithub(this.returnUrl);
   }
 
   onSubmit(): void {

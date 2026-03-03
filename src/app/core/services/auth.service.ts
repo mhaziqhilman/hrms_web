@@ -230,6 +230,33 @@ export class AuthService {
   }
 
   /**
+   * Initiate Google OAuth login — redirects browser to backend OAuth endpoint
+   */
+  loginWithGoogle(returnUrl?: string): void {
+    const url = returnUrl
+      ? `${API_CONFIG.baseUrl}/api${API_CONFIG.endpoints.auth.googleLogin}?returnUrl=${encodeURIComponent(returnUrl)}`
+      : `${API_CONFIG.baseUrl}/api${API_CONFIG.endpoints.auth.googleLogin}`;
+    window.location.href = url;
+  }
+
+  /**
+   * Initiate GitHub OAuth login — redirects browser to backend OAuth endpoint
+   */
+  loginWithGithub(returnUrl?: string): void {
+    const url = returnUrl
+      ? `${API_CONFIG.baseUrl}/api${API_CONFIG.endpoints.auth.githubLogin}?returnUrl=${encodeURIComponent(returnUrl)}`
+      : `${API_CONFIG.baseUrl}/api${API_CONFIG.endpoints.auth.githubLogin}`;
+    window.location.href = url;
+  }
+
+  /**
+   * Handle OAuth callback — called by OAuthCallbackComponent
+   */
+  handleOAuthCallback(token: string, user: User): void {
+    this.setSession(token, user);
+  }
+
+  /**
    * Set authentication session
    */
   private setSession(token: string, user: User): void {

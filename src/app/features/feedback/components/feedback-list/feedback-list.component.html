@@ -1,0 +1,366 @@
+<div class="max-w-7xl mx-auto">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold">User Feedback</h1>
+      <p class="text-muted-foreground text-sm mt-1">Review and manage feedback submitted by users</p>
+    </div>
+    @if (stats()) {
+      <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 text-xs font-medium">
+          <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+          {{ getStatusCount('new') }} New
+        </div>
+        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 text-xs font-medium">
+          <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+          {{ getStatusCount('in_review') }} In Review
+        </div>
+        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-xs font-medium">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          {{ getStatusCount('resolved') }} Resolved
+        </div>
+        @if (stats()!.average_rating > 0) {
+          <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-purple-50 dark:bg-purple-500/10 text-purple-700 dark:text-purple-400 text-xs font-medium">
+            <z-icon [zType]="$any('star')" class="w-3.5 h-3.5" />
+            {{ stats()!.average_rating }} avg
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Filters -->
+  <div class="flex items-center gap-3 mb-5">
+    <!-- Search -->
+    <div class="relative flex-1 max-w-sm">
+      <z-icon zType="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
+      <input type="text"
+        [value]="searchTerm()"
+        (input)="onSearch($any($event.target).value)"
+        placeholder="Search feedback..."
+        class="w-full pl-9 pr-3 py-2 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent" />
+    </div>
+
+    <!-- Status Filter -->
+    <div z-menu [zMenuTriggerFor]="statusMenu">
+      <button z-button zType="outline" zSize="sm"
+        [class]="statusFilter()
+          ? 'gap-2 border border-solid px-2 bg-primary/5 text-primary border-primary'
+          : 'gap-2 border border-dashed px-2'">
+        <z-icon [zType]="statusFilter() ? 'circle-check' : 'circle-plus'" class="w-4 h-4" />
+        {{ statusFilter() ? getStatusLabel($any(statusFilter())) : 'Status' }}
+      </button>
+    </div>
+    <ng-template #statusMenu>
+      <div z-menu-content class="w-44">
+        <button type="button" z-menu-item (click)="onStatusFilterChange('')">All Statuses</button>
+        @for (s of statuses; track s.value) {
+          <button type="button" z-menu-item (click)="onStatusFilterChange(s.value)">{{ s.label }}</button>
+        }
+      </div>
+    </ng-template>
+
+    <!-- Category Filter -->
+    <div z-menu [zMenuTriggerFor]="categoryMenu">
+      <button z-button zType="outline" zSize="sm"
+        [class]="categoryFilter()
+          ? 'gap-2 border border-solid px-2 bg-primary/5 text-primary border-primary'
+          : 'gap-2 border border-dashed px-2'">
+        <z-icon [zType]="categoryFilter() ? 'circle-check' : 'circle-plus'" class="w-4 h-4" />
+        {{ categoryFilter() ? getCategoryLabel($any(categoryFilter())) : 'Category' }}
+      </button>
+    </div>
+    <ng-template #categoryMenu>
+      <div z-menu-content class="w-48">
+        <button type="button" z-menu-item (click)="onCategoryFilterChange('')">All Categories</button>
+        @for (cat of categories; track cat.value) {
+          <button type="button" z-menu-item (click)="onCategoryFilterChange(cat.value)">{{ cat.label }}</button>
+        }
+      </div>
+    </ng-template>
+
+    @if (statusFilter() || categoryFilter() || searchTerm()) {
+      <button type="button" z-button zType="outline" zSize="sm"
+        class="gap-2 border-none shadow-none px-2"
+        (click)="clearFilters()">
+        Reset
+        <z-icon zType="x" class="w-4 h-4" />
+      </button>
+    }
+  </div>
+
+  <div class="flex gap-5">
+    <!-- Main Table -->
+    <div class="flex-1 min-w-0">
+      <div class="rounded-lg border bg-background">
+        @if (loading()) {
+          <!-- Skeleton Loading -->
+          <div class="divide-y">
+            @for (i of [1,2,3,4,5,6,7,8]; track i) {
+              <div class="flex items-center gap-4 px-5 py-4">
+                <z-skeleton class="w-8 h-8 rounded-full" />
+                <div class="flex-1 space-y-2">
+                  <z-skeleton class="h-4 w-48" />
+                  <z-skeleton class="h-3 w-72" />
+                </div>
+                <z-skeleton class="h-5 w-16 rounded-full" />
+                <z-skeleton class="h-5 w-14 rounded-full" />
+              </div>
+            }
+          </div>
+        } @else if (feedbacks().length === 0) {
+          <!-- Empty State -->
+          <div class="flex flex-col items-center justify-center py-16 text-muted-foreground">
+            <z-icon [zType]="$any('message-square')" zSize="xl" class="mb-3 opacity-30" />
+            <p class="font-medium">No feedback found</p>
+            <p class="text-sm mt-1">
+              @if (statusFilter() || categoryFilter() || searchTerm()) {
+                Try adjusting your filters
+              } @else {
+                Feedback from users will appear here
+              }
+            </p>
+          </div>
+        } @else {
+          <!-- Feedback Table -->
+          <table z-table>
+            <thead>
+              <tr z-table-row>
+                <th z-table-head class="w-[180px]">User</th>
+                <th z-table-head class="w-[90px]">Rating</th>
+                <th z-table-head class="w-[100px]">Category</th>
+                <th z-table-head>Description</th>
+                <th z-table-head class="w-[100px]">Status</th>
+                <th z-table-head class="w-[120px]">Date</th>
+                <th z-table-head class="w-[80px] text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody z-table-body>
+              @for (feedback of feedbacks(); track feedback.id) {
+                <tr z-table-row
+                  class="cursor-pointer transition-colors"
+                  [class.bg-primary/5]="selectedFeedback()?.id === feedback.id"
+                  (click)="selectFeedback(feedback)">
+                  <!-- User -->
+                  <td z-table-cell>
+                    <div class="min-w-0">
+                      <p class="text-sm font-medium truncate">{{ feedback.user?.employee?.full_name || 'No name' }}</p>
+                      <p class="text-xs text-muted-foreground truncate">{{ feedback.user?.email }}</p>
+                    </div>
+                  </td>
+                  <!-- Rating -->
+                  <td z-table-cell>
+                    <div class="flex items-center gap-0.5">
+                      @for (star of getRatingStars(feedback.rating); track star) {
+                        <z-icon [zType]="$any('star')"
+                          class="w-3.5 h-3.5"
+                          [ngClass]="{
+                            'text-amber-400 fill-amber-400': star <= feedback.rating,
+                            'text-muted-foreground/20': star > feedback.rating
+                          }" />
+                      }
+                    </div>
+                  </td>
+                  <!-- Category -->
+                  <td z-table-cell>
+                    <z-badge [zType]="$any(getCategoryBadgeType(feedback.category))">
+                      {{ getCategoryLabel(feedback.category) }}
+                    </z-badge>
+                  </td>
+                  <!-- Description -->
+                  <td z-table-cell>
+                    <p class="text-sm truncate max-w-[300px]">{{ truncateText(feedback.description) }}</p>
+                    @if (feedback.screenshot_url) {
+                      <span class="inline-flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
+                        <z-icon [zType]="$any('image')" class="w-3 h-3" />
+                        Screenshot
+                      </span>
+                    }
+                  </td>
+                  <!-- Status -->
+                  <td z-table-cell>
+                    <z-badge [zType]="$any(getStatusBadgeType(feedback.status))">
+                      {{ getStatusLabel(feedback.status) }}
+                    </z-badge>
+                  </td>
+                  <!-- Date -->
+                  <td z-table-cell>
+                    <span class="text-sm text-muted-foreground">{{ feedback.created_at | timeAgo }}</span>
+                  </td>
+                  <!-- Actions -->
+                  <td z-table-cell class="text-right">
+                    <div z-menu [zMenuTriggerFor]="actionMenu" zPlacement="bottomRight" (click)="$event.stopPropagation()">
+                      <button z-button zType="ghost" zSize="sm">
+                        <z-icon zType="ellipsis" class="w-4 h-4" />
+                      </button>
+                    </div>
+                    <ng-template #actionMenu>
+                      <div z-menu-content class="w-44">
+                        <div class="px-2 py-1.5">
+                          <p class="text-xs font-medium text-muted-foreground">Set Status</p>
+                        </div>
+                        @for (s of statuses; track s.value) {
+                          <button z-menu-item
+                            [disabled]="feedback.status === s.value"
+                            (click)="updateStatus(feedback, s.value)">
+                            @if (feedback.status === s.value) {
+                              <z-icon zType="check" class="w-4 h-4 mr-2 text-primary" />
+                            } @else {
+                              <span class="w-4 mr-2"></span>
+                            }
+                            {{ s.label }}
+                          </button>
+                        }
+                        <z-divider zSpacing="sm" />
+                        <button z-menu-item class="text-red-600" (click)="deleteFeedback(feedback)">
+                          <z-icon zType="trash-2" class="w-4 h-4 mr-2" />
+                          Delete
+                        </button>
+                      </div>
+                    </ng-template>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+
+          <!-- Pagination -->
+          @if (pagination().totalPages > 1) {
+            <div class="flex items-center justify-between px-5 py-3 border-t">
+              <p class="text-sm text-muted-foreground">
+                Showing {{ (pagination().currentPage - 1) * pagination().limit + 1 }}–{{ [pagination().currentPage * pagination().limit, pagination().total] | slice:0:1 }} of {{ pagination().total }}
+              </p>
+              <div class="flex items-center gap-1">
+                <button z-button zType="outline" zSize="sm"
+                  [disabled]="pagination().currentPage <= 1"
+                  (click)="goToPage(pagination().currentPage - 1)">
+                  <z-icon zType="chevron-left" class="w-4 h-4" />
+                </button>
+                <span class="text-sm px-3">Page {{ pagination().currentPage }} of {{ pagination().totalPages }}</span>
+                <button z-button zType="outline" zSize="sm"
+                  [disabled]="pagination().currentPage >= pagination().totalPages"
+                  (click)="goToPage(pagination().currentPage + 1)">
+                  <z-icon zType="chevron-right" class="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          }
+        }
+      </div>
+    </div>
+
+    <!-- Detail Panel (shows when a row is selected) -->
+    @if (selectedFeedback()) {
+      <div class="w-[380px] flex-shrink-0 rounded-lg border bg-background overflow-hidden">
+        <!-- Detail Header -->
+        <div class="flex items-center justify-between px-5 py-4 border-b">
+          <h3 class="font-semibold text-sm">Feedback Detail</h3>
+          <button z-button zType="ghost" zSize="sm" (click)="selectedFeedback.set(null)">
+            <z-icon zType="x" class="w-4 h-4" />
+          </button>
+        </div>
+
+        <div class="px-5 py-4 space-y-4 overflow-y-auto max-h-[calc(100vh-280px)]">
+          <!-- User Info -->
+          <div>
+            <p class="text-xs font-medium text-muted-foreground mb-1">Submitted by</p>
+            <p class="text-sm font-medium">{{ selectedFeedback()!.user?.employee?.full_name || 'No name' }}</p>
+            <p class="text-xs text-muted-foreground">{{ selectedFeedback()!.user?.email }}</p>
+          </div>
+
+          <!-- Rating -->
+          <div>
+            <p class="text-xs font-medium text-muted-foreground mb-1">Rating</p>
+            <div class="flex items-center gap-1">
+              @for (star of getRatingStars(selectedFeedback()!.rating); track star) {
+                <z-icon [zType]="$any('star')"
+                  class="w-5 h-5"
+                  [ngClass]="{
+                    'text-amber-400 fill-amber-400': star <= selectedFeedback()!.rating,
+                    'text-muted-foreground/20': star > selectedFeedback()!.rating
+                  }" />
+              }
+              <span class="text-sm ml-1">{{ selectedFeedback()!.rating }}/5</span>
+            </div>
+          </div>
+
+          <!-- Category & Status -->
+          <div class="flex items-center gap-3">
+            <div>
+              <p class="text-xs font-medium text-muted-foreground mb-1">Category</p>
+              <z-badge [zType]="$any(getCategoryBadgeType(selectedFeedback()!.category))">
+                {{ getCategoryLabel(selectedFeedback()!.category) }}
+              </z-badge>
+            </div>
+            <div>
+              <p class="text-xs font-medium text-muted-foreground mb-1">Status</p>
+              <z-badge [zType]="$any(getStatusBadgeType(selectedFeedback()!.status))">
+                {{ getStatusLabel(selectedFeedback()!.status) }}
+              </z-badge>
+            </div>
+          </div>
+
+          <z-divider zSpacing="sm" />
+
+          <!-- Description -->
+          <div>
+            <p class="text-xs font-medium text-muted-foreground mb-1">Description</p>
+            <p class="text-sm whitespace-pre-wrap">{{ selectedFeedback()!.description }}</p>
+          </div>
+
+          <!-- Page URL -->
+          @if (selectedFeedback()!.page_url) {
+            <div>
+              <p class="text-xs font-medium text-muted-foreground mb-1">Page</p>
+              <p class="text-sm text-primary font-mono text-xs">{{ selectedFeedback()!.page_url }}</p>
+            </div>
+          }
+
+          <!-- Screenshot -->
+          @if (selectedFeedback()!.screenshot_signed_url || selectedFeedback()!.screenshot_url) {
+            <div>
+              <p class="text-xs font-medium text-muted-foreground mb-1">Screenshot</p>
+              <div class="rounded-lg border overflow-hidden">
+                <img [src]="selectedFeedback()!.screenshot_signed_url || selectedFeedback()!.screenshot_url"
+                  alt="Feedback screenshot"
+                  class="w-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                  (click)="$event.stopPropagation()" />
+              </div>
+            </div>
+          }
+
+          <!-- Timestamp -->
+          <div>
+            <p class="text-xs font-medium text-muted-foreground mb-1">Submitted</p>
+            <p class="text-sm">{{ selectedFeedback()!.created_at | timeAgo }}</p>
+          </div>
+
+          @if (selectedFeedback()!.resolved_at) {
+            <div>
+              <p class="text-xs font-medium text-muted-foreground mb-1">Resolved</p>
+              <p class="text-sm">{{ selectedFeedback()!.resolved_at | timeAgo }}</p>
+            </div>
+          }
+
+          <z-divider zSpacing="sm" />
+
+          <!-- Quick Actions -->
+          <div class="space-y-2">
+            <p class="text-xs font-medium text-muted-foreground">Quick Actions</p>
+            <div class="flex flex-wrap gap-2">
+              @for (s of statuses; track s.value) {
+                <button z-button
+                  [zType]="selectedFeedback()!.status === s.value ? 'default' : 'outline'"
+                  zSize="sm"
+                  [disabled]="selectedFeedback()!.status === s.value || updatingStatus()"
+                  (click)="updateStatus(selectedFeedback()!, s.value)">
+                  {{ s.label }}
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

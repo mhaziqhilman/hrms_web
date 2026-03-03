@@ -17,7 +17,9 @@ export const API_CONFIG = {
       resetPassword: '/auth/reset-password',
       changePassword: '/auth/change-password',
       verifyEmail: '/auth/verify-email',
-      resendVerification: '/auth/resend-verification'
+      resendVerification: '/auth/resend-verification',
+      googleLogin: '/auth/google',
+      githubLogin: '/auth/github'
     },
     company: {
       setup: '/company/setup',
@@ -181,6 +183,13 @@ export const API_CONFIG = {
       markAllRead: '/notifications/mark-all-read',
       markAsRead: (id: number) => `/notifications/${id}/read`,
       detail: (id: number) => `/notifications/${id}`
+    },
+    feedback: {
+      base: '/feedback',
+      stats: '/feedback/stats',
+      my: '/feedback/my',
+      detail: (id: number) => `/feedback/${id}`,
+      updateStatus: (id: number) => `/feedback/${id}/status`,
     },
     settings: {
       base: '/settings',

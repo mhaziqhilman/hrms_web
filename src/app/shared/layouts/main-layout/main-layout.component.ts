@@ -24,6 +24,7 @@ import { ZardTooltipModule } from '@/shared/components/tooltip/tooltip';
 import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component';
 import { ZardDividerComponent } from '@/shared/components/divider/divider.component';
 import { ZardBreadcrumbModule } from '@/shared/components/breadcrumb/breadcrumb.module';
+import { FeedbackWidgetComponent } from '@/shared/components/feedback-widget/feedback-widget.component';
 
 @Component({
   selector: 'app-main-layout',
@@ -41,7 +42,8 @@ import { ZardBreadcrumbModule } from '@/shared/components/breadcrumb/breadcrumb.
     ZardAvatarComponent,
     ZardDividerComponent,
     ZardBreadcrumbModule,
-    TimeAgoPipe
+    TimeAgoPipe,
+    FeedbackWidgetComponent
   ],
   templateUrl: './main-layout.component.html',
   styleUrls: ['./main-layout.component.css']

@@ -1,0 +1,4 @@
+/* Star fill support */
+:host ::ng-deep .fill-amber-400 svg {
+  fill: currentColor;
+}

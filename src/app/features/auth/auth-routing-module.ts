@@ -7,6 +7,7 @@ import { ResetPasswordComponent } from './components/reset-password/reset-passwo
 import { VerifyEmailPendingComponent } from './components/verify-email-pending/verify-email-pending.component';
 import { VerifyEmailComponent } from './components/verify-email/verify-email.component';
 import { AcceptInvitationComponent } from './components/accept-invitation/accept-invitation.component';
+import { OAuthCallbackComponent } from './components/oauth-callback/oauth-callback.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -16,7 +17,8 @@ const routes: Routes = [
   { path: 'reset-password', component: ResetPasswordComponent },
   { path: 'verify-email-pending', component: VerifyEmailPendingComponent },
   { path: 'verify-email', component: VerifyEmailComponent },
-  { path: 'accept-invitation', component: AcceptInvitationComponent }
+  { path: 'accept-invitation', component: AcceptInvitationComponent },
+  { path: 'oauth-callback', component: OAuthCallbackComponent }
 ];
 
 @NgModule({

@@ -4,8 +4,8 @@
 > **Purpose:** Module-by-module verification before production go-live
 > **Status:** Pending Testing
 > **Test Users:** Super Admin (`admin@nextura.com` / `Admin@1234`), + create Manager & Staff test users
-> **Backend:** 22 route groups, 220+ endpoints, 24 models
-> **Frontend:** 15 feature modules, 69 components
+> **Backend:** 25 route groups, 250+ endpoints, 27 models
+> **Frontend:** 19 feature modules, 80+ components
 
 ---
 
@@ -310,7 +310,7 @@ Where is Claims summary per employee? I missed this feature.
 
 ## Module 8: HR Communications
 
-**Backend:** `memo.routes.js` (7 endpoints), `policy.routes.js` (9 endpoints)
+**Backend:** `memo.routes.js` (7 endpoints), `policy.routes.js` (9 endpoints), `announcementCategory.routes.js` (4 endpoints)
 **Frontend:** `features/communication/*` (memo-form/list/viewer, policy-form/list/viewer)
 
 ### Memos
@@ -321,6 +321,12 @@ Where is Claims summary per employee? I missed this feature.
 - [ ] Memo statistics → read/unread counts
 - [ ] Edit memo (author/admin)
 - [ ] Delete memo (author/admin)
+
+### Announcement Categories
+- [ ] `GET /api/announcement-categories` → returns all categories
+- [ ] Create announcement category (name, color, icon) → admin only
+- [ ] Edit announcement category → changes saved
+- [ ] Delete announcement category → admin only
 
 ### Policies
 - [ ] Policy list loads with categories
@@ -402,25 +408,36 @@ I want to improves on UI/UX part later.
 
 ---
 
-## Module 11: File Management
+## Module 11: Document Management
 
-**Backend:** `file.routes.js` (12 endpoints)
-**Frontend:** shared components (`file-upload`, `file-list`, `file-viewer`)
+**Backend:** `file.routes.js` (15 endpoints)
+**Frontend:** `features/documents/*` (document-overview) + shared components (`file-upload`, `file-list`, `file-viewer`)
+
+### Document Overview (Admin)
+- [ ] Document overview page loads (`/documents`)
+- [ ] Stat cards display (total files, categories, storage, verified count)
+- [ ] Category breakdown renders correctly
+- [ ] Recent activity list loads
+- [ ] Quick actions available (upload, filter)
+- [ ] Filterable document table with search, sort, verification filter
+- [ ] `GET /api/files/overview` → returns overview stats (admin only)
 
 ### Upload & Download
 - [ ] Upload single file → stored in Supabase Storage, metadata in DB
 - [ ] Upload multiple files (up to 10)
-- [ ] Download file → signed URL generated, file downloads
-- [ ] Preview file inline (PDF, images)
+- [ ] Download file → signed URL generated, file downloads (`GET /api/files/:id/download`)
+- [ ] Preview file inline (PDF, images) (`GET /api/files/:id/preview`)
 - [ ] File size limit enforced (10MB max)
 - [ ] File type validation (only allowed extensions)
 
 ### File Management
-- [ ] File list with filters (category, employee, date)
-- [ ] File metadata update (description, category)
-- [ ] Soft delete file
-- [ ] Permanent delete file (admin only)
-- [ ] Bulk delete multiple files
+- [ ] File list with filters (category, employee, date, search, is_verified, sort) (`GET /api/files`)
+- [ ] My documents → user sees own files (`GET /api/files/my-documents`)
+- [ ] File metadata update (description, category) (`PUT /api/files/:id`)
+- [ ] Verify/unverify file toggle (admin only) (`PATCH /api/files/:id/verify`)
+- [ ] Soft delete file (`DELETE /api/files/:id`)
+- [ ] Permanent delete file (admin only) (`DELETE /api/files/:id/permanent`)
+- [ ] Bulk delete multiple files (`POST /api/files/bulk-delete`)
 
 ### Relationships
 - [ ] Files by employee (`GET /api/files/employee/:employee_id`)
@@ -429,7 +446,7 @@ I want to improves on UI/UX part later.
 
 ### Access Control
 - [ ] File owner can access own files
-- [ ] Admin can access all files
+- [ ] Admin can access all files + overview page
 - [ ] Manager can access team files
 - [ ] Staff cannot access others' files
 
@@ -489,7 +506,7 @@ Change password should be in account system settings.
 
 ## Module 14: Admin Settings
 
-**Backend:** `leave-type.routes.js` (5), `leave-entitlement.routes.js` (6), `claim-type.routes.js` (5), `public-holiday.routes.js` (5), `statutory-config.routes.js` (2), `email-template.routes.js` (5), `company.routes.js` (7)
+**Backend:** `leave-type.routes.js` (5), `leave-entitlement.routes.js` (6), `claim-type.routes.js` (5), `public-holiday.routes.js` (5), `statutory-config.routes.js` (2), `email-template.routes.js` (5), `email-config.routes.js` (3), `company.routes.js` (7)
 **Frontend:** `features/admin-settings/*` (admin-settings-page with sections)
 
 ### Company Profile
@@ -536,6 +553,11 @@ Change password should be in account system settings.
 - [ ] Preview template with sample data
 - [ ] Reset template to system default
 
+### Email Configuration (SMTP)
+- [ ] View current SMTP config (`GET /api/email-config`) → admin only
+- [ ] Update SMTP config (host, port, user) (`PUT /api/email-config`) → admin only
+- [ ] Test SMTP connection (`POST /api/email-config/test`) → sends test email
+
 ### Access Control
 - [ ] Only admin+ can access admin settings
 - [ ] Staff/manager redirected away
@@ -549,18 +571,70 @@ Change password should be in account system settings.
 
 ## Module 15: Personal Settings
 
-**Backend:** `settings.routes.js` (9 endpoints)
-**Frontend:** `features/settings/*` (settings-page with sections)
+**Backend:** `settings.routes.js` (12 endpoints)
+**Frontend:** `features/settings/*` (settings-page, profile-picture-crop-dialog)
 
 - [ ] Settings page loads (`/settings/account`)
-- [ ] **Account:** view/update account info
-- [ ] **Appearance:** toggle theme (light/dark), sidebar collapsed
-- [ ] **Display:** language, timezone settings
-- [ ] **Notifications:** toggle email/push notification preferences
-- [ ] **Change Password:** (within settings) change password flow
-- [ ] **Two-Factor:** enable/disable 2FA toggle (UI only, MFA not fully implemented)
-- [ ] **Reset:** reset all settings to defaults
+- [ ] **Account:** view account info (`GET /api/settings/account`), update session timeout (`PUT /api/settings/account`)
+- [ ] **Appearance:** toggle theme (light/dark/system), sidebar collapsed, compact mode (`PUT /api/settings/appearance`)
+- [ ] **Display:** language, timezone, date format, time format (12h/24h) (`PUT /api/settings/display`)
+- [ ] **Notifications:** toggle email/push preferences per category (leave, claim, payslip, memo, policy) (`PUT /api/settings/notifications`)
+- [ ] **Profile Picture:** upload profile picture with crop dialog (`POST /api/settings/profile-picture`)
+- [ ] **Profile Picture:** remove profile picture (`DELETE /api/settings/profile-picture`)
+- [ ] **Change Password:** current password required, strength validation (`POST /api/settings/change-password`)
+- [ ] **Two-Factor:** enable/disable 2FA toggle (`POST /api/settings/two-factor/enable`, `/disable`)
+- [ ] **Reset:** reset all settings to defaults (`POST /api/settings/reset`)
 - [ ] All authenticated users can access personal settings
+
+**Issues Found:**
+```
+
+```
+
+---
+
+## Module 16: Notifications
+
+**Backend:** `notification.routes.js` (5 endpoints)
+**Frontend:** `features/notifications/*` (notifications page) + top nav dropdown (bell icon)
+**Triggers:** Integrated into leaveController, claimController, attendanceController, memoController, invitationController
+
+### Notification Page
+- [ ] Notifications page loads (`/notifications`)
+- [ ] Notification list renders with unread accent bar + type icons
+- [ ] Search notifications by keyword
+- [ ] Filter by status (All / Unread / Read)
+- [ ] Filter by type (Leave, Claim, WFH, Announcement, Team, Policy)
+- [ ] Clear/reset filters
+- [ ] Pagination works correctly
+
+### Actions
+- [ ] Click notification → marks as read + navigates to related page (if link exists)
+- [ ] Mark all as read button → all notifications marked read (`PATCH /api/notifications/mark-all-read`)
+- [ ] Mark single as read (`PATCH /api/notifications/:id/read`)
+- [ ] Delete notification (`DELETE /api/notifications/:id`)
+
+### Top Nav Dropdown (Bell Icon)
+- [ ] Bell icon shows unread count badge in top nav
+- [ ] Dropdown shows recent notifications
+- [ ] Clicking a notification navigates to full page or related content
+- [ ] Unread count auto-refreshes (60s polling)
+
+### Notification Triggers
+- [ ] Leave approved/rejected → notification sent to employee
+- [ ] Claim approved/rejected (manager level) → notification sent to employee
+- [ ] Claim approved/rejected (finance level) → notification sent to employee
+- [ ] WFH approved/rejected → notification sent to employee
+- [ ] Memo/announcement published → notification sent to target audience
+- [ ] Policy published → notification sent to relevant users
+- [ ] Team member joined (invitation accepted) → notification sent to manager/admin
+
+### API Endpoints
+- [ ] `GET /api/notifications` → returns paginated list with filters (is_read, type, search)
+- [ ] `GET /api/notifications/unread-count` → returns unread badge count
+- [ ] `PATCH /api/notifications/:id/read` → marks single notification as read
+- [ ] `PATCH /api/notifications/mark-all-read` → marks all as read
+- [ ] `DELETE /api/notifications/:id` → deletes notification
 
 **Issues Found:**
 ```
@@ -612,16 +686,17 @@ Change password should be in account system settings.
 | 5. Leave Management | 15 | | | |
 | 6. Attendance & WFH | 14 | | | |
 | 7. Claims | 11 | | | |
-| 8. HR Communications | 15 | | | |
+| 8. HR Communications | 19 | | | |
 | 9. Statutory Reports | 14 | | | |
 | 10. Analytics | 8 | | | |
-| 11. File Management | 14 | | | |
+| 11. Document Management | 21 | | | |
 | 12. Personal Pages | 5 | | | |
 | 13. User Management | 9 | | | |
-| 14. Admin Settings | 18 | | | |
-| 15. Personal Settings | 8 | | | |
+| 14. Admin Settings | 21 | | | |
+| 15. Personal Settings | 11 | | | |
+| 16. Notifications | 20 | | | |
 | Cross-Cutting | 14 | | | |
-| **TOTAL** | **206** | | | |
+| **TOTAL** | **243** | | | |
 
 ---
 
@@ -646,9 +721,10 @@ Change password should be in account system settings.
 
 ---
 
-**Document Version:** 1.1
+**Document Version:** 1.2
 **Created:** February 15, 2026
 **Bug Fixes Applied:** February 19, 2026
+**Checklist Updated:** March 3, 2026 — Added Module 16 (Notifications), updated Module 8 (Announcement Categories), Module 11 (Document Management), Module 14 (Email Config), Module 15 (Profile Picture)
 **Testing Start Date:** February 18, 2026
 **Testing End Date:** ___
 **Tested By:** ___

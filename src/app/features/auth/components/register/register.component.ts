@@ -136,6 +136,14 @@ export class RegisterComponent implements OnInit, OnDestroy {
     this.confirmPasswordFieldType = this.confirmPasswordFieldType === 'password' ? 'text' : 'password';
   }
 
+  loginWithGoogle(): void {
+    this.authService.loginWithGoogle();
+  }
+
+  loginWithGithub(): void {
+    this.authService.loginWithGithub();
+  }
+
   onSubmit(): void {
     if (this.registerForm.invalid) {
       Object.keys(this.registerForm.controls).forEach(key => {

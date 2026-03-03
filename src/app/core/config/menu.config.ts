@@ -124,6 +124,12 @@ export const MENU_GROUPS: SidebarMenuGroup[] = [
     roles: ['super_admin', 'admin'],
     items: [
       {
+        title: 'Feedback',
+        icon: 'message-square',
+        route: '/feedback',
+        roles: ['super_admin']
+      },
+      {
         title: 'Admin Settings',
         icon: 'settings',
         roles: ['super_admin', 'admin'],

@@ -1,0 +1,137 @@
+<!-- Backdrop -->
+@if (isOpen()) {
+  <div class="fixed inset-0 bg-black/30 z-[998] backdrop-blur-[1px]" (click)="close()"></div>
+}
+
+<!-- Feedback Form Panel -->
+@if (isOpen()) {
+  <div class="fixed bottom-20 right-6 z-[999] w-[380px] max-h-[calc(100vh-120px)] overflow-y-auto rounded-xl border bg-background shadow-2xl animate-in slide-in-from-bottom-4 fade-in duration-200">
+    <!-- Header -->
+    <div class="flex items-center justify-between px-5 py-4 border-b">
+      <div>
+        <h3 class="font-semibold text-base">Send Feedback</h3>
+        <p class="text-xs text-muted-foreground mt-0.5">Help us improve your experience</p>
+      </div>
+      <button type="button" z-button zType="ghost" zSize="sm" (click)="close()">
+        <z-icon zType="x" class="w-4 h-4" />
+      </button>
+    </div>
+
+    @if (submitted()) {
+      <!-- Success State -->
+      <div class="flex flex-col items-center justify-center py-12 px-6">
+        <div class="w-14 h-14 rounded-full bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center mb-4">
+          <z-icon zType="check" class="w-7 h-7 text-emerald-600 dark:text-emerald-400" />
+        </div>
+        <h4 class="font-semibold text-lg">Thank you!</h4>
+        <p class="text-sm text-muted-foreground text-center mt-1">Your feedback has been submitted successfully.</p>
+      </div>
+    } @else {
+      <!-- Form -->
+      <div class="px-5 py-4 space-y-4">
+        <!-- Error Message -->
+        @if (error()) {
+          <div class="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-lg p-3 flex items-start gap-2 text-red-800 dark:text-red-400 text-sm">
+            <z-icon zType="triangle-alert" class="w-4 h-4 mt-0.5 flex-shrink-0" />
+            <span>{{ error() }}</span>
+          </div>
+        }
+
+        <!-- Rating -->
+        <div>
+          <label class="text-sm font-medium mb-2 block">How's your experience? <span class="text-red-500">*</span></label>
+          <div class="flex items-center gap-1">
+            @for (star of [1, 2, 3, 4, 5]; track star) {
+              <button type="button"
+                class="p-0.5 rounded-sm transition-transform hover:scale-110 focus:outline-none"
+                (click)="setRating(star)"
+                (mouseenter)="hoverRating.set(star)"
+                (mouseleave)="hoverRating.set(0)">
+                <z-icon
+                  [zType]="$any('star')"
+                  class="w-7 h-7 transition-colors"
+                  [ngClass]="{
+                    'text-amber-400 fill-amber-400': star <= (hoverRating() || rating()),
+                    'text-muted-foreground/30': star > (hoverRating() || rating())
+                  }" />
+              </button>
+            }
+            @if (rating() > 0) {
+              <span class="text-xs text-muted-foreground ml-2">
+                {{ rating() === 1 ? 'Poor' : rating() === 2 ? 'Fair' : rating() === 3 ? 'Good' : rating() === 4 ? 'Great' : 'Excellent' }}
+              </span>
+            }
+          </div>
+        </div>
+
+        <!-- Category -->
+        <div>
+          <label class="text-sm font-medium mb-2 block">Category <span class="text-red-500">*</span></label>
+          <z-select
+            [zPlaceholder]="'Select a category'"
+            [ngModel]="category()"
+            (ngModelChange)="category.set($event)"
+            zSize="sm">
+            @for (cat of categories; track cat.value) {
+              <z-select-item [zValue]="cat.value">{{ cat.label }}</z-select-item>
+            }
+          </z-select>
+        </div>
+
+        <!-- Description -->
+        <div>
+          <label class="text-sm font-medium mb-2 block">Description <span class="text-red-500">*</span></label>
+          <textarea z-input
+            [ngModel]="description()"
+            (ngModelChange)="description.set($event)"
+            placeholder="Tell us what's on your mind... (min 10 characters)"
+            class="min-h-[100px] resize-none text-sm"
+            rows="4"></textarea>
+          <p class="text-xs text-muted-foreground mt-1">{{ description().length }}/10 min characters</p>
+        </div>
+
+        <!-- Screenshot Upload -->
+        <div>
+          <label class="text-sm font-medium mb-2 block">Screenshot <span class="text-muted-foreground font-normal">(optional)</span></label>
+          @if (screenshotPreview()) {
+            <div class="relative rounded-lg border overflow-hidden">
+              <img [src]="screenshotPreview()" alt="Screenshot preview" class="w-full h-32 object-cover" />
+              <button type="button"
+                class="absolute top-2 right-2 w-6 h-6 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80"
+                (click)="removeScreenshot()">
+                <z-icon zType="x" class="w-3.5 h-3.5" />
+              </button>
+            </div>
+          } @else {
+            <label class="flex items-center gap-2 px-3 py-2.5 border border-dashed rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
+              <z-icon zType="image" class="w-4 h-4 text-muted-foreground" />
+              <span class="text-sm text-muted-foreground">Attach a screenshot</span>
+              <input type="file" accept="image/*" class="hidden" (change)="onFileSelected($event)" />
+            </label>
+          }
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="px-5 py-4 border-t flex items-center justify-end gap-2">
+        <button type="button" z-button zType="outline" zSize="sm" (click)="close()">Cancel</button>
+        <button type="button" z-button zSize="sm"
+          [disabled]="!isFormValid() || submitting()"
+          (click)="submit()">
+          @if (submitting()) {
+            <z-icon zType="loader-circle" class="w-4 h-4 animate-spin mr-1" />
+          }
+          Submit Feedback
+        </button>
+      </div>
+    }
+  </div>
+}
+
+<!-- FAB Button -->
+<button type="button"
+  class="fixed bottom-6 right-6 z-[997] w-12 h-12 rounded-full bg-primary text-primary-foreground shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 flex items-center justify-center group"
+  (click)="toggleWidget()"
+  [class.rotate-90]="isOpen()">
+  <z-icon [zType]="$any(isOpen() ? 'x' : 'message-square-plus')" class="w-5 h-5 transition-transform" />
+</button>

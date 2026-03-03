@@ -13,6 +13,9 @@ export interface User {
   last_login_at: string | null;
   email_verified: boolean;
   company_id: number | null;
+  oauth_provider?: 'google' | 'github' | null;
+  avatar_url?: string | null;
+  has_password?: boolean;
   created_at: string;
   updated_at: string;
   employee?: Employee | null;
