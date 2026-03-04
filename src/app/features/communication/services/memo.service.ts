@@ -56,33 +56,33 @@ export class MemoService {
     return this.http.get<PaginatedResponse<Memo>>(this.apiUrl, { params: httpParams });
   }
 
-  getMemoById(id: number): Observable<ApiResponse<Memo>> {
+  getMemoById(id: number | string): Observable<ApiResponse<Memo>> {
     return this.http.get<ApiResponse<Memo>>(
       `${API_CONFIG.apiUrl}${API_CONFIG.endpoints.announcements.detail(id)}`
     );
   }
 
-  updateMemo(id: number, data: Partial<MemoFormData>): Observable<ApiResponse<Memo>> {
+  updateMemo(id: number | string, data: Partial<MemoFormData>): Observable<ApiResponse<Memo>> {
     return this.http.put<ApiResponse<Memo>>(
       `${API_CONFIG.apiUrl}${API_CONFIG.endpoints.announcements.detail(id)}`,
       data
     );
   }
 
-  deleteMemo(id: number): Observable<ApiResponse<void>> {
+  deleteMemo(id: number | string): Observable<ApiResponse<void>> {
     return this.http.delete<ApiResponse<void>>(
       `${API_CONFIG.apiUrl}${API_CONFIG.endpoints.announcements.detail(id)}`
     );
   }
 
-  acknowledgeMemo(id: number): Observable<ApiResponse<any>> {
+  acknowledgeMemo(id: number | string): Observable<ApiResponse<any>> {
     return this.http.post<ApiResponse<any>>(
       `${API_CONFIG.apiUrl}${API_CONFIG.endpoints.announcements.acknowledge(id)}`,
       {}
     );
   }
 
-  getMemoStatistics(id: number): Observable<ApiResponse<MemoStatistics>> {
+  getMemoStatistics(id: number | string): Observable<ApiResponse<MemoStatistics>> {
     return this.http.get<ApiResponse<MemoStatistics>>(
       `${API_CONFIG.apiUrl}${API_CONFIG.endpoints.announcements.statistics(id)}`
     );
@@ -94,18 +94,18 @@ export class MemoService {
     );
   }
 
-  togglePin(id: number): Observable<ApiResponse<Memo>> {
+  togglePin(id: number | string): Observable<ApiResponse<Memo>> {
     return this.http.post<ApiResponse<Memo>>(
       `${API_CONFIG.apiUrl}${API_CONFIG.endpoints.announcements.togglePin(id)}`,
       {}
     );
   }
 
-  publishMemo(id: number): Observable<ApiResponse<Memo>> {
+  publishMemo(id: number | string): Observable<ApiResponse<Memo>> {
     return this.updateMemo(id, { status: 'Published', published_at: new Date().toISOString() });
   }
 
-  archiveMemo(id: number): Observable<ApiResponse<Memo>> {
+  archiveMemo(id: number | string): Observable<ApiResponse<Memo>> {
     return this.updateMemo(id, { status: 'Archived' });
   }
 }

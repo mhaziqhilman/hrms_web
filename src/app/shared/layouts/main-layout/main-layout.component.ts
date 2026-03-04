@@ -315,7 +315,9 @@ export class MainLayoutComponent implements OnInit {
 
       if (routeURL !== '') {
         url += `/${routeURL}`;
-        const label = this.findLabelByUrl(url) || this.formatLabel(routeURL);
+        const menuLabel = this.findLabelByUrl(url);
+        const routeTitle = child.snapshot.data['title'] as string | undefined;
+        const label = menuLabel || (this.isUuid(routeURL) && routeTitle ? routeTitle : this.formatLabel(routeURL));
         breadcrumbs.push({ label, url });
       }
 
@@ -338,6 +340,10 @@ export class MainLayoutComponent implements OnInit {
       }
     }
     return null;
+  }
+
+  private isUuid(text: string): boolean {
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(text);
   }
 
   private formatLabel(text: string): string {

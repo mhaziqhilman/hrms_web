@@ -526,43 +526,24 @@
   animation: fadeIn 0.3s ease;
 }
 
-/* Modal Styles */
-.modal-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  animation: fadeIn 0.2s ease;
+/* File Viewer Modal */
+.file-viewer-overlay {
+  animation: overlayFadeIn 0.15s ease-out;
 }
 
-.modal-dialog {
-  width: 90%;
-  max-width: 1200px;
-  max-height: 90vh;
-  background-color: #ffffff;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  animation: slideUp 0.3s ease;
+.file-viewer-dialog {
+  animation: dialogSlideUp 0.2s ease-out;
 }
 
-.modal-content {
-  width: 100%;
-  height: 100%;
-  max-height: 90vh;
-  overflow: auto;
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-@keyframes slideUp {
+@keyframes dialogSlideUp {
   from {
     opacity: 0;
-    transform: translateY(20px) scale(0.95);
+    transform: translateY(8px) scale(0.98);
   }
   to {
     opacity: 1;

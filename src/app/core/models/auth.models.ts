@@ -135,6 +135,7 @@ export interface AuthResponse {
   data: {
     token: string;
     user: User;
+    refreshToken?: string;
   };
 }
 

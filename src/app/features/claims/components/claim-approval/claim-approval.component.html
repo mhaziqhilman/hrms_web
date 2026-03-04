@@ -178,7 +178,7 @@
             </z-badge>
           </td>
           <td>
-            <a [routerLink]="['/claims', claim.id]"
+            <a [routerLink]="['/claims', claim.public_id]"
               class="text-blue-600 hover:underline inline-flex items-center gap-1">
               <z-icon zType="file-text" class="w-3.5 h-3.5" /> View
             </a>
@@ -188,7 +188,7 @@
           </td>
           <td class="pr-4 text-right">
             <div class="flex items-center justify-end gap-2">
-              <a [routerLink]="['/claims', claim.id]" z-button zType="ghost" zSize="sm" class="h-8 w-8 p-0"
+              <a [routerLink]="['/claims', claim.public_id]" z-button zType="ghost" zSize="sm" class="h-8 w-8 p-0"
                 title="View Details">
                 <z-icon zType="eye" class="w-4 h-4 text-gray-500" />
               </a>

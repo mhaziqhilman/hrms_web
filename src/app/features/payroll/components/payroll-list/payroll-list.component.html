@@ -546,13 +546,13 @@
             <td class="!pr-3 text-right">
               <div class="flex gap-2 flex-nowrap">
                 <!-- View Payslip -->
-                <a [routerLink]="['/payroll', payroll.id]" z-button zType="outline" zSize="sm"
+                <a [routerLink]="['/payroll', payroll.public_id]" z-button zType="outline" zSize="sm"
                   [zTooltip]="'View Payslip'">
                   <z-icon zType="eye" class="w-4 h-4" />
                 </a>
 
                 <!-- Edit -->
-                <a *ngIf="canEdit(payroll)" [routerLink]="['/payroll', payroll.id, 'edit']" z-button zType="outline"
+                <a *ngIf="canEdit(payroll)" [routerLink]="['/payroll', payroll.public_id, 'edit']" z-button zType="outline"
                   zSize="sm" [zTooltip]="'Edit'">
                   <z-icon zType="pencil" class="w-4 h-4" />
                 </a>

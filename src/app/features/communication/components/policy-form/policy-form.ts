@@ -16,7 +16,7 @@ import { PolicyFormData } from '../../models/policy.model';
 export class PolicyFormComponent implements OnInit {
   form: FormGroup;
   isEditMode = signal(false);
-  policyId: number | null = null;
+  policyId: string | null = null;
   loading = signal(false);
   saving = signal(false);
   error = signal<string | null>(null);
@@ -65,12 +65,12 @@ export class PolicyFormComponent implements OnInit {
     const id = this.route.snapshot.paramMap.get('id');
     if (id && id !== 'new') {
       this.isEditMode.set(true);
-      this.policyId = Number(id);
+      this.policyId = id;
       this.loadPolicy(this.policyId);
     }
   }
 
-  loadPolicy(id: number): void {
+  loadPolicy(id: string): void {
     this.loading.set(true);
     this.error.set(null);
 

@@ -12,9 +12,9 @@ import { ZardIconComponent } from '../icon/icon.component';
 })
 export class FileList implements OnInit, OnDestroy {
   @Input() category?: string;
-  @Input() relatedToEmployeeId?: number;
-  @Input() relatedToClaimId?: number;
-  @Input() relatedToLeaveId?: number;
+  @Input() relatedToEmployeeId?: number | string;
+  @Input() relatedToClaimId?: number | string;
+  @Input() relatedToLeaveId?: number | string;
   @Input() showActions: boolean = true;
   @Input() showFilters: boolean = true;
   @Input() maxDisplay?: number;

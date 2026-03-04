@@ -2,7 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, tap, catchError, throwError } from 'rxjs';
 import { Router } from '@angular/router';
-import { API_CONFIG, TOKEN_KEY, USER_KEY } from '../config/api.config';
+import { API_CONFIG, TOKEN_KEY, REFRESH_TOKEN_KEY, USER_KEY } from '../config/api.config';
 import {
   User,
   LoginRequest,
@@ -63,11 +63,40 @@ export class AuthService {
     ).pipe(
       tap(response => {
         if (response.success && response.data) {
-          this.setSession(response.data.token, response.data.user);
+          this.setSession(response.data.token, response.data.user, response.data.refreshToken);
         }
       }),
       catchError(this.handleError)
     );
+  }
+
+  /**
+   * Exchange refresh token for a new access token
+   */
+  refreshTokenRequest(): Observable<AuthResponse> {
+    const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
+    return this.http.post<AuthResponse>(
+      `${this.apiUrl}${API_CONFIG.endpoints.auth.refreshToken}`,
+      { refreshToken }
+    ).pipe(
+      tap(response => {
+        if (response.success && response.data) {
+          localStorage.setItem(TOKEN_KEY, response.data.token);
+          if (response.data['refreshToken']) {
+            localStorage.setItem(REFRESH_TOKEN_KEY, response.data['refreshToken']);
+          }
+          this.isAuthenticatedSignal.set(true);
+        }
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Get stored refresh token
+   */
+  getRefreshToken(): string | null {
+    return localStorage.getItem(REFRESH_TOKEN_KEY);
   }
 
   /**
@@ -259,9 +288,12 @@ export class AuthService {
   /**
    * Set authentication session
    */
-  private setSession(token: string, user: User): void {
+  private setSession(token: string, user: User, refreshToken?: string): void {
     localStorage.setItem(TOKEN_KEY, token);
     localStorage.setItem(USER_KEY, JSON.stringify(user));
+    if (refreshToken) {
+      localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+    }
     this.currentUserSubject.next(user);
     this.currentUserSignal.set(user);
     this.isAuthenticatedSignal.set(true);
@@ -272,6 +304,7 @@ export class AuthService {
    */
   private clearSession(): void {
     localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
     this.currentUserSubject.next(null);
     this.currentUserSignal.set(null);

@@ -5,6 +5,7 @@ export type EmploymentStatus = 'Active' | 'Resigned' | 'Terminated';
 
 export interface Employee {
   id: number;
+  public_id?: string;
   user_id?: number;
 
   // Employee Information

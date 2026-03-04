@@ -18,6 +18,7 @@ export const API_CONFIG = {
       changePassword: '/auth/change-password',
       verifyEmail: '/auth/verify-email',
       resendVerification: '/auth/resend-verification',
+      refreshToken: '/auth/refresh-token',
       googleLogin: '/auth/google',
       githubLogin: '/auth/github'
     },
@@ -41,21 +42,21 @@ export const API_CONFIG = {
     employees: {
       base: '/employees',
       statistics: '/employees/statistics',
-      ytd: (id: number) => `/employees/${id}/ytd`,
-      detail: (id: number) => `/employees/${id}`,
+      ytd: (id: number | string) => `/employees/${id}/ytd`,
+      detail: (id: number | string) => `/employees/${id}`,
       me: '/employees/me'
     },
     payroll: {
       base: '/payroll',
       calculate: '/payroll/calculate',
-      detail: (id: number) => `/payroll/${id}`,
-      submit: (id: number) => `/payroll/${id}/submit`,
-      approve: (id: number) => `/payroll/${id}/approve`,
-      markPaid: (id: number) => `/payroll/${id}/mark-paid`,
-      payslip: (id: number) => `/payroll/${id}/payslip`,
-      downloadPayslipPdf: (id: number) => `/payroll/${id}/payslip/download`,
-      sendPayslipEmail: (id: number) => `/payroll/${id}/payslip/send-email`,
-      permanentDelete: (id: number) => `/payroll/${id}/permanent`,
+      detail: (id: number | string) => `/payroll/${id}`,
+      submit: (id: number | string) => `/payroll/${id}/submit`,
+      approve: (id: number | string) => `/payroll/${id}/approve`,
+      markPaid: (id: number | string) => `/payroll/${id}/mark-paid`,
+      payslip: (id: number | string) => `/payroll/${id}/payslip`,
+      downloadPayslipPdf: (id: number | string) => `/payroll/${id}/payslip/download`,
+      sendPayslipEmail: (id: number | string) => `/payroll/${id}/payslip/send-email`,
+      permanentDelete: (id: number | string) => `/payroll/${id}/permanent`,
       myPayslips: '/payroll/my-payslips',
       bulkSubmit: '/payroll/bulk-submit',
       bulkApprove: '/payroll/bulk-approve',
@@ -65,15 +66,15 @@ export const API_CONFIG = {
     },
     leaves: {
       base: '/leaves',
-      detail: (id: number) => `/leaves/${id}`,
-      approveReject: (id: number) => `/leaves/${id}/approve-reject`,
+      detail: (id: number | string) => `/leaves/${id}`,
+      approveReject: (id: number | string) => `/leaves/${id}/approve-reject`,
       balance: (employee_id: number) => `/leaves/balance/${employee_id}`
     },
     attendance: {
       base: '/attendance',
       clockIn: '/attendance/clock-in',
       clockOut: '/attendance/clock-out',
-      detail: (id: number) => `/attendance/${id}`,
+      detail: (id: number | string) => `/attendance/${id}`,
       summary: (employee_id: number) => `/attendance/summary/${employee_id}`,
       wfh: '/attendance/wfh',
       wfhApproveReject: (id: number) => `/attendance/wfh/${id}/approve-reject`
@@ -167,11 +168,11 @@ export const API_CONFIG = {
     },
     announcements: {
       base: '/memos',
-      detail: (id: number) => `/memos/${id}`,
+      detail: (id: number | string) => `/memos/${id}`,
       pinned: '/memos/pinned',
-      togglePin: (id: number) => `/memos/${id}/toggle-pin`,
-      acknowledge: (id: number) => `/memos/${id}/acknowledge`,
-      statistics: (id: number) => `/memos/${id}/statistics`
+      togglePin: (id: number | string) => `/memos/${id}/toggle-pin`,
+      acknowledge: (id: number | string) => `/memos/${id}/acknowledge`,
+      statistics: (id: number | string) => `/memos/${id}/statistics`
     },
     announcementCategories: {
       base: '/announcement-categories',
@@ -191,6 +192,9 @@ export const API_CONFIG = {
       detail: (id: number) => `/feedback/${id}`,
       updateStatus: (id: number) => `/feedback/${id}/status`,
     },
+    auditLogs: {
+      base: '/audit-logs'
+    },
     settings: {
       base: '/settings',
       account: '/settings/account',
@@ -208,4 +212,5 @@ export const API_CONFIG = {
 };
 
 export const TOKEN_KEY = 'hrms_token';
+export const REFRESH_TOKEN_KEY = 'hrms_refresh_token';
 export const USER_KEY = 'hrms_user';

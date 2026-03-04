@@ -1,5 +1,6 @@
 export interface Leave {
   id: number;
+  public_id?: string;
   employee_id: number;
   leave_type_id: number;
   start_date: string;

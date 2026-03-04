@@ -56,7 +56,7 @@ export class LeaveFormComponent implements OnInit {
   leaveBalance = signal<any>(null);
 
   isEditMode = signal(false);
-  leaveId = signal<number | null>(null);
+  leaveId = signal<string | null>(null);
   isStaff = signal(false);
 
   // Attachment mode toggle
@@ -106,8 +106,8 @@ export class LeaveFormComponent implements OnInit {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.isEditMode.set(true);
-      this.leaveId.set(Number(id));
-      this.loadLeaveData(Number(id));
+      this.leaveId.set(id);
+      this.loadLeaveData(id);
     }
 
     // Subscribe to form value changes
@@ -177,7 +177,7 @@ export class LeaveFormComponent implements OnInit {
     });
   }
 
-  loadLeaveData(id: number): void {
+  loadLeaveData(id: string): void {
     this.loading.set(true);
     this.error.set(null);
 

@@ -95,11 +95,11 @@ export class ManagerDashboardComponent implements OnInit {
   }
 
   approveLeave(leave: any): void {
-    this.router.navigate(['/leave'], { queryParams: { action: 'approve', id: leave.id } });
+    this.router.navigate(['/leave'], { queryParams: { action: 'approve', id: leave.public_id } });
   }
 
   rejectLeave(leave: any): void {
-    this.router.navigate(['/leave'], { queryParams: { action: 'reject', id: leave.id } });
+    this.router.navigate(['/leave'], { queryParams: { action: 'reject', id: leave.public_id } });
   }
 
   approveClaim(claim: any): void {

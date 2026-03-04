@@ -45,7 +45,7 @@ export class PayrollService {
   /**
    * Get single payroll record by ID
    */
-  getPayrollById(id: number): Observable<PayrollResponse> {
+  getPayrollById(id: number | string): Observable<PayrollResponse> {
     return this.http.get<PayrollResponse>(
       `${this.apiUrl}${API_CONFIG.endpoints.payroll.detail(id)}`
     );
@@ -64,7 +64,7 @@ export class PayrollService {
   /**
    * Update payroll record
    */
-  updatePayroll(id: number, request: UpdatePayrollRequest): Observable<PayrollResponse> {
+  updatePayroll(id: number | string, request: UpdatePayrollRequest): Observable<PayrollResponse> {
     return this.http.put<PayrollResponse>(
       `${this.apiUrl}${API_CONFIG.endpoints.payroll.detail(id)}`,
       request
@@ -74,7 +74,7 @@ export class PayrollService {
   /**
    * Submit payroll for approval (Draft -> Pending)
    */
-  submitForApproval(id: number): Observable<PayrollResponse> {
+  submitForApproval(id: number | string): Observable<PayrollResponse> {
     return this.http.patch<PayrollResponse>(
       `${this.apiUrl}${API_CONFIG.endpoints.payroll.submit(id)}`,
       {}
@@ -84,7 +84,7 @@ export class PayrollService {
   /**
    * Approve payroll (Pending -> Approved)
    */
-  approvePayroll(id: number): Observable<PayrollResponse> {
+  approvePayroll(id: number | string): Observable<PayrollResponse> {
     return this.http.patch<PayrollResponse>(
       `${this.apiUrl}${API_CONFIG.endpoints.payroll.approve(id)}`,
       {}
@@ -94,7 +94,7 @@ export class PayrollService {
   /**
    * Mark payroll as paid
    */
-  markAsPaid(id: number): Observable<PayrollResponse> {
+  markAsPaid(id: number | string): Observable<PayrollResponse> {
     return this.http.patch<PayrollResponse>(
       `${this.apiUrl}${API_CONFIG.endpoints.payroll.markPaid(id)}`,
       {}
@@ -104,7 +104,7 @@ export class PayrollService {
   /**
    * Cancel payroll
    */
-  cancelPayroll(id: number): Observable<{ success: boolean; message: string }> {
+  cancelPayroll(id: number | string): Observable<{ success: boolean; message: string }> {
     return this.http.delete<{ success: boolean; message: string }>(
       `${this.apiUrl}${API_CONFIG.endpoints.payroll.detail(id)}`
     );
@@ -113,7 +113,7 @@ export class PayrollService {
   /**
    * Permanently delete a cancelled payroll record
    */
-  permanentDeletePayroll(id: number): Observable<{ success: boolean; message: string }> {
+  permanentDeletePayroll(id: number | string): Observable<{ success: boolean; message: string }> {
     return this.http.delete<{ success: boolean; message: string }>(
       `${this.apiUrl}${API_CONFIG.endpoints.payroll.permanentDelete(id)}`
     );
@@ -122,7 +122,7 @@ export class PayrollService {
   /**
    * Generate payslip for a payroll record
    */
-  getPayslip(id: number): Observable<PayslipResponse> {
+  getPayslip(id: number | string): Observable<PayslipResponse> {
     return this.http.get<PayslipResponse>(
       `${this.apiUrl}${API_CONFIG.endpoints.payroll.payslip(id)}`
     );
@@ -131,7 +131,7 @@ export class PayrollService {
   /**
    * Download payslip as PDF (server-generated)
    */
-  downloadPayslipPdf(id: number): Observable<Blob> {
+  downloadPayslipPdf(id: number | string): Observable<Blob> {
     return this.http.get(
       `${this.apiUrl}${API_CONFIG.endpoints.payroll.downloadPayslipPdf(id)}`,
       { responseType: 'blob' }
@@ -141,7 +141,7 @@ export class PayrollService {
   /**
    * Send payslip via email with PDF attachment (frontend-generated PDF)
    */
-  sendPayslipEmail(id: number, pdfBlob: Blob, fileName: string): Observable<{ success: boolean; message: string }> {
+  sendPayslipEmail(id: number | string, pdfBlob: Blob, fileName: string): Observable<{ success: boolean; message: string }> {
     const formData = new FormData();
     formData.append('pdf', pdfBlob, fileName);
     return this.http.post<{ success: boolean; message: string }>(

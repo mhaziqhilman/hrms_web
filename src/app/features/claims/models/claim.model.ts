@@ -1,5 +1,6 @@
 export interface Claim {
   id: number;
+  public_id?: string;
   employee_id: number;
   claim_type_id: number;
   date: string;

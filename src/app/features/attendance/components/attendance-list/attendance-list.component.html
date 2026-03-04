@@ -312,7 +312,7 @@
             <tbody>
               @for (attendance of filteredAttendances(); track attendance.id) {
                 <tr class="group cursor-pointer hover:bg-muted/50 transition-colors"
-                  (click)="navigateToDetail(attendance.id)">
+                  (click)="navigateToDetail(attendance.public_id)">
                   <!-- Employee -->
                   @if (visibleColumns()['employee']) {
                     <td class="!pl-3">

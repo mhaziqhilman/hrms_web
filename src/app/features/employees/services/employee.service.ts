@@ -59,7 +59,7 @@ export class EmployeeService {
   /**
    * Get employee by ID
    */
-  getEmployeeById(id: number): Observable<ApiResponse<Employee>> {
+  getEmployeeById(id: number | string): Observable<ApiResponse<Employee>> {
     return this.http.get<ApiResponse<Employee>>(
       `${this.apiUrl}${API_CONFIG.endpoints.employees.detail(id)}`
     ).pipe(
@@ -82,7 +82,7 @@ export class EmployeeService {
   /**
    * Update employee
    */
-  updateEmployee(id: number, data: UpdateEmployeeRequest): Observable<ApiResponse<Employee>> {
+  updateEmployee(id: number | string, data: UpdateEmployeeRequest): Observable<ApiResponse<Employee>> {
     return this.http.put<ApiResponse<Employee>>(
       `${this.apiUrl}${API_CONFIG.endpoints.employees.detail(id)}`,
       data
@@ -94,7 +94,7 @@ export class EmployeeService {
   /**
    * Delete employee (soft delete - change status)
    */
-  deleteEmployee(id: number, status: 'Resigned' | 'Terminated', reason?: string): Observable<ApiResponse> {
+  deleteEmployee(id: number | string, status: 'Resigned' | 'Terminated', reason?: string): Observable<ApiResponse> {
     return this.http.delete<ApiResponse>(
       `${this.apiUrl}${API_CONFIG.endpoints.employees.detail(id)}`,
       {
@@ -108,7 +108,7 @@ export class EmployeeService {
   /**
    * Get employee YTD statutory summary
    */
-  getEmployeeYTD(id: number, year?: number): Observable<ApiResponse<EmployeeYTD>> {
+  getEmployeeYTD(id: number | string, year?: number): Observable<ApiResponse<EmployeeYTD>> {
     let httpParams = new HttpParams();
     if (year) {
       httpParams = httpParams.set('year', year.toString());

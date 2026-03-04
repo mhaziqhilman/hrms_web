@@ -84,6 +84,10 @@ export const routes: Routes = [
             {
                 path: 'feedback',
                 loadChildren: () => import('./features/feedback/feedback.routes').then(m => m.FEEDBACK_ROUTES)
+            },
+            {
+                path: 'audit-log',
+                loadChildren: () => import('./features/audit-log/audit-log.routes').then(m => m.AUDIT_LOG_ROUTES)
             }
         ]
     },

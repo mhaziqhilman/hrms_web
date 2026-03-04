@@ -53,7 +53,7 @@ export class PayrollFormComponent implements OnInit {
   loadingEmployees = signal(false);
 
   isEditMode = signal(false);
-  payrollId = signal<number | null>(null);
+  payrollId = signal<string | null>(null);
 
   // Constants
   MONTH_NAMES = MONTH_NAMES;
@@ -87,8 +87,8 @@ export class PayrollFormComponent implements OnInit {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.isEditMode.set(true);
-      this.payrollId.set(Number(id));
-      this.loadPayrollData(Number(id));
+      this.payrollId.set(id);
+      this.loadPayrollData(id);
     }
 
     // Subscribe to form value changes for auto-calculation
@@ -139,7 +139,7 @@ export class PayrollFormComponent implements OnInit {
     });
   }
 
-  loadPayrollData(id: number): void {
+  loadPayrollData(id: string): void {
     this.loading.set(true);
     this.error.set(null);
 

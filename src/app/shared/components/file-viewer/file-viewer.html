@@ -1,142 +1,152 @@
-<div class="file-viewer-container">
+<div class="flex flex-col h-full bg-background">
+
   <!-- Header -->
   @if (showHeader && fileMetadata()) {
-    <div class="viewer-header">
-      <div class="file-info-header">
-        <i class="material-icons file-type-icon">{{ getFileIcon(fileMetadata()!.mime_type) }}</i>
-        <div class="file-details">
-          <h3 class="file-title">{{ fileMetadata()!.original_filename }}</h3>
-          <div class="file-meta-info">
-            <span class="meta-item">
-              <i class="material-icons">storage</i>
-              {{ formatFileSize(fileMetadata()!.file_size) }}
-            </span>
-            <span class="separator">•</span>
-            <span class="meta-item">
-              <i class="material-icons">label</i>
-              {{ getCategoryLabel(fileMetadata()!.category) }}
-            </span>
-            <span class="separator">•</span>
-            <span class="meta-item">
-              <i class="material-icons">schedule</i>
-              {{ formatDate(fileMetadata()!.uploaded_at) }}
-            </span>
+    <div class="flex items-center justify-between px-5 py-3.5 border-b border-border shrink-0">
+      <!-- File info -->
+      <div class="flex items-center gap-3 min-w-0 flex-1 mr-4">
+        <div class="flex items-center justify-center w-9 h-9 rounded-lg bg-muted shrink-0">
+          <z-icon [zType]="$any(getFileIcon(fileMetadata()!.mime_type))" zSize="sm"
+            class="text-muted-foreground" />
+        </div>
+        <div class="min-w-0">
+          <h3 class="text-sm font-semibold text-foreground truncate leading-tight">
+            {{ fileMetadata()!.original_filename }}
+          </h3>
+          <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
+            <span class="text-xs text-muted-foreground">{{ formatFileSize(fileMetadata()!.file_size) }}</span>
+            <span class="text-xs text-border">·</span>
+            <span class="text-xs text-muted-foreground">{{ getCategoryLabel(fileMetadata()!.category) }}</span>
+            <span class="text-xs text-border">·</span>
+            <span class="text-xs text-muted-foreground">{{ formatDate(fileMetadata()!.uploaded_at) }}</span>
           </div>
         </div>
       </div>
 
-      <div class="header-actions">
+      <!-- Actions -->
+      <div class="flex items-center gap-1.5 shrink-0">
         @if (showActions) {
-          <button
-            type="button"
-            (click)="downloadFile()"
-            class="action-button download-button"
-            title="Download"
-          >
-            <i class="material-icons">file_download</i>
-            <span>Download</span>
+          <button z-button zType="outline" zSize="sm" (click)="downloadFile()" title="Download file">
+            <z-icon zType="download" zSize="sm" />
+            <span class="hidden sm:inline">Download</span>
           </button>
-          <button
-            type="button"
-            (click)="deleteFile()"
-            class="action-button delete-button"
-            title="Delete"
-          >
-            <i class="material-icons">delete</i>
+          <button z-button zType="ghost" zSize="sm" (click)="deleteFile()" title="Delete file"
+            class="text-muted-foreground hover:!text-destructive hover:!bg-destructive/10">
+            <z-icon zType="trash-2" zSize="sm" />
           </button>
         }
-        <button
-          type="button"
-          (click)="close()"
-          class="action-button close-button"
-          title="Close"
-        >
-          <i class="material-icons">close</i>
+        <button z-button zType="ghost" zSize="sm" (click)="close()" title="Close"
+          class="text-muted-foreground">
+          <z-icon zType="x" zSize="sm" />
         </button>
       </div>
     </div>
   }
 
-  <!-- File Description -->
-  @if (fileMetadata() && fileMetadata()!.description) {
-    <div class="file-description-section">
-      <i class="material-icons">description</i>
-      <p>{{ fileMetadata()!.description }}</p>
+  <!-- Description -->
+  @if (fileMetadata()?.description) {
+    <div class="flex items-start gap-2.5 px-5 py-2.5 bg-muted/50 border-b border-border shrink-0">
+      <z-icon [zType]="$any('file-text')" zSize="sm" class="text-muted-foreground mt-0.5 shrink-0" />
+      <p class="text-xs text-muted-foreground leading-relaxed m-0">{{ fileMetadata()!.description }}</p>
     </div>
   }
 
-  <!-- Error Message -->
+  <!-- Error -->
   @if (error()) {
-    <div class="error-container">
-      <i class="material-icons">error</i>
-      <span>{{ error() }}</span>
+    <div class="flex items-center gap-2.5 mx-4 mt-3 px-3.5 py-2.5 rounded-lg bg-destructive/10 border border-destructive/20 shrink-0">
+      <z-icon [zType]="$any('circle-alert')" zSize="sm" class="text-destructive shrink-0" />
+      <span class="text-xs text-destructive">{{ error() }}</span>
     </div>
   }
 
-  <!-- Loading State -->
+  <!-- Loading -->
   @if (loading()) {
-    <div class="loading-container">
-      <div class="spinner"></div>
-      <p>Loading file preview...</p>
+    <div class="flex-1 flex flex-col items-center justify-center min-h-[300px]">
+      <div class="viewer-spinner"></div>
+      <p class="text-xs text-muted-foreground mt-3.5">Loading preview…</p>
     </div>
   }
 
   <!-- Preview Content -->
   @if (!loading() && viewMode() === 'preview' && previewUrl()) {
-    <div class="preview-container">
-      <!-- Image Preview -->
+    <div class="flex-1 flex items-center justify-center bg-muted/30 overflow-hidden min-h-[400px] viewer-fade-in">
+      <!-- Image -->
       @if (isImage()) {
-        <div class="image-preview">
-          <img [src]="previewUrl()!" [alt]="fileMetadata()!.original_filename" />
+        <div class="p-6 flex items-center justify-center w-full h-full overflow-auto">
+          <img
+            [src]="previewUrl()!"
+            [alt]="fileMetadata()!.original_filename"
+            class="max-w-full max-h-[70vh] object-contain rounded-lg shadow-sm"
+          />
         </div>
       }
-
-      <!-- PDF Preview -->
+      <!-- PDF -->
       @if (isPDF()) {
-        <div class="pdf-preview">
-          <iframe [src]="previewUrl()!" [title]="fileMetadata()!.original_filename"></iframe>
-        </div>
+        <iframe
+          [src]="previewUrl()!"
+          [title]="fileMetadata()!.original_filename"
+          class="w-full h-full border-0 min-h-[600px]"
+        ></iframe>
       }
     </div>
   }
 
-  <!-- Download Only View -->
+  <!-- Download Only -->
   @if (!loading() && viewMode() === 'download' && fileMetadata()) {
-    <div class="download-only-container">
-      <div class="download-only-content">
-        <i class="material-icons large-icon">{{ getFileIcon(fileMetadata()!.mime_type) }}</i>
-        <h3>Preview not available</h3>
-        <p class="preview-message">
-          This file type cannot be previewed in the browser.<br />
-          Click the button below to download the file.
+    <div class="flex-1 flex items-center justify-center py-14 px-6 viewer-fade-in">
+      <div class="flex flex-col items-center max-w-xs w-full text-center">
+
+        <!-- File type icon with extension badge -->
+        <div class="relative mb-6">
+          <div class="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center">
+            <z-icon [zType]="$any(getFileIcon(fileMetadata()!.mime_type))"
+              class="text-muted-foreground/60 !w-7 !h-7" />
+          </div>
+          @if (getFileExtension()) {
+            <span [class]="'absolute -bottom-1 -right-2 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider text-white shadow-sm ' + getExtensionColor()">
+              {{ getFileExtension() }}
+            </span>
+          }
+        </div>
+
+        <!-- Message -->
+        <h4 class="text-sm font-semibold text-foreground mb-1">Preview not available</h4>
+        <p class="text-xs text-muted-foreground mb-6 leading-relaxed max-w-[240px]">
+          @if (previewFailed()) {
+            Couldn't load the preview for this file. Download to view on your device.
+          } @else {
+            This file type can't be previewed in the browser. Download to view on your device.
+          }
         </p>
-        <button
-          type="button"
-          (click)="downloadFile()"
-          class="download-large-button"
-        >
-          <i class="material-icons">file_download</i>
-          Download {{ fileMetadata()!.original_filename }}
+
+        <!-- Download CTA -->
+        <button z-button zType="default" zSize="sm" (click)="downloadFile()" class="w-full mb-8">
+          <z-icon zType="download" zSize="sm" />
+          Download file
         </button>
-        <div class="file-info-details">
-          <div class="info-row">
-            <span class="info-label">File Size:</span>
-            <span class="info-value">{{ formatFileSize(fileMetadata()!.file_size) }}</span>
+
+        <!-- File metadata table -->
+        <div class="w-full rounded-lg border border-border overflow-hidden divide-y divide-border text-left">
+          <div class="flex justify-between items-center px-3.5 py-2.5">
+            <span class="text-[11px] text-muted-foreground">Size</span>
+            <span class="text-[11px] font-medium text-foreground">{{ formatFileSize(fileMetadata()!.file_size) }}</span>
           </div>
-          <div class="info-row">
-            <span class="info-label">File Type:</span>
-            <span class="info-value">{{ fileMetadata()!.mime_type }}</span>
+          <div class="flex justify-between items-center px-3.5 py-2.5">
+            <span class="text-[11px] text-muted-foreground">Type</span>
+            <span class="text-[11px] font-medium text-foreground">{{ getFileExtension() || fileMetadata()!.mime_type }}</span>
           </div>
-          <div class="info-row">
-            <span class="info-label">Category:</span>
-            <span class="info-value">{{ getCategoryLabel(fileMetadata()!.category) }}</span>
+          <div class="flex justify-between items-center px-3.5 py-2.5">
+            <span class="text-[11px] text-muted-foreground">Category</span>
+            <span class="text-[11px] font-medium text-foreground">{{ getCategoryLabel(fileMetadata()!.category) }}</span>
           </div>
-          <div class="info-row">
-            <span class="info-label">Uploaded:</span>
-            <span class="info-value">{{ formatDate(fileMetadata()!.uploaded_at) }}</span>
+          <div class="flex justify-between items-center px-3.5 py-2.5">
+            <span class="text-[11px] text-muted-foreground">Uploaded</span>
+            <span class="text-[11px] font-medium text-foreground">{{ formatDate(fileMetadata()!.uploaded_at) }}</span>
           </div>
         </div>
+
       </div>
     </div>
   }
+
 </div>

@@ -627,7 +627,7 @@
               @if (visibleColumns()['receipt']) {
                 <td>
                   <a
-                    [routerLink]="['/claims', claim.id]"
+                    [routerLink]="['/claims', claim.public_id]"
                     class="inline-flex items-center gap-1 text-sm text-primary hover:underline">
                     <z-icon zType="file-text" class="w-4 h-4" />
                     View
@@ -638,11 +638,11 @@
               <!-- Actions -->
               <td class="!pr-3 text-right">
                 <div class="flex gap-2 flex-nowrap justify-end">
-                  <a [routerLink]="['/claims', claim.id]" z-button zType="outline" zSize="sm">
+                  <a [routerLink]="['/claims', claim.public_id]" z-button zType="outline" zSize="sm">
                     <z-icon zType="eye" class="w-4 h-4" />
                   </a>
                   @if (canEdit(claim)) {
-                    <a [routerLink]="['/claims', claim.id, 'edit']" z-button zType="outline" zSize="sm">
+                    <a [routerLink]="['/claims', claim.public_id, 'edit']" z-button zType="outline" zSize="sm">
                       <z-icon zType="pencil" class="w-4 h-4" />
                     </a>
                   }

@@ -405,8 +405,8 @@ export class ClaimApprovalComponent implements OnInit {
 
     // Determine which API to call based on claim status
     const approval$ = claim.status === 'Pending'
-      ? this.claimService.managerApproval(claim.id, { action: 'approve' })
-      : this.claimService.financeApproval(claim.id, { action: 'approve' });
+      ? this.claimService.managerApproval(claim.public_id ?? claim.id, { action: 'approve' })
+      : this.claimService.financeApproval(claim.public_id ?? claim.id, { action: 'approve' });
 
     const levelLabel = claim.status === 'Pending' ? 'Manager approval' : 'Finance approval';
 
@@ -437,8 +437,8 @@ export class ClaimApprovalComponent implements OnInit {
 
     // Determine which API to call based on claim status
     const rejection$ = claim.status === 'Pending'
-      ? this.claimService.managerApproval(claim.id, request)
-      : this.claimService.financeApproval(claim.id, request);
+      ? this.claimService.managerApproval(claim.public_id ?? claim.id, request)
+      : this.claimService.financeApproval(claim.public_id ?? claim.id, request);
 
     rejection$.subscribe({
       next: (response) => {
@@ -468,7 +468,7 @@ export class ClaimApprovalComponent implements OnInit {
       payment_date: paymentData.payment_date
     };
 
-    this.claimService.financeApproval(claim.id, request).subscribe({
+    this.claimService.financeApproval(claim.public_id ?? claim.id, request).subscribe({
       next: (response) => {
         if (response.success) {
           this.success.set('Payment recorded successfully');

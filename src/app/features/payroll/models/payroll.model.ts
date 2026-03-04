@@ -1,5 +1,6 @@
 export interface Payroll {
   id: number;
+  public_id?: string;
   employee_id: number;
   month: number;
   year: number;

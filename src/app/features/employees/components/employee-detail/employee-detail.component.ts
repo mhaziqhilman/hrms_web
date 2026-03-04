@@ -45,7 +45,7 @@ export class EmployeeDetailComponent implements OnInit {
   loading = signal<boolean>(false);
   loadingYTD = signal<boolean>(false);
   error = signal<string | null>(null);
-  employeeId = signal<number | null>(null);
+  employeeId = signal<string | null>(null);
 
   selectedYear: number = new Date().getFullYear();
   availableYears: number[] = [];
@@ -76,14 +76,14 @@ export class EmployeeDetailComponent implements OnInit {
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-      this.employeeId.set(Number(id));
-      this.loadEmployee(Number(id));
-      this.loadYTD(Number(id), this.selectedYear);
-      this.initializeFileUploadMetadata(Number(id));
+      this.employeeId.set(id);
+      this.loadEmployee(id);
+      this.loadYTD(id, this.selectedYear);
+      this.initializeFileUploadMetadata(id);
     }
   }
 
-  initializeFileUploadMetadata(employeeId: number): void {
+  initializeFileUploadMetadata(employeeId: string): void {
     this.fileUploadMetadata = {
       category: 'employee_document',
       sub_category: 'general',
@@ -92,7 +92,7 @@ export class EmployeeDetailComponent implements OnInit {
     };
   }
 
-  loadEmployee(id: number): void {
+  loadEmployee(id: string): void {
     this.loading.set(true);
     this.error.set(null);
 
@@ -110,7 +110,7 @@ export class EmployeeDetailComponent implements OnInit {
     });
   }
 
-  loadYTD(id: number, year: number): void {
+  loadYTD(id: string, year: number): void {
     this.loadingYTD.set(true);
 
     this.employeeService.getEmployeeYTD(id, year).subscribe({

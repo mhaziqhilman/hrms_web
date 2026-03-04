@@ -40,6 +40,7 @@ export class PolicyViewerComponent implements OnInit {
   canApprove = signal(false);
   canViewStatistics = signal(false);
   hasAcknowledged = signal(false);
+  private currentPolicyId: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -48,13 +49,14 @@ export class PolicyViewerComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
+    const id = this.route.snapshot.paramMap.get('id');
     if (id) {
+      this.currentPolicyId = id;
       this.loadPolicy(id);
     }
   }
 
-  loadPolicy(id: number): void {
+  loadPolicy(id: string): void {
     this.loading.set(true);
     this.error.set(null);
 
@@ -84,7 +86,7 @@ export class PolicyViewerComponent implements OnInit {
     });
   }
 
-  loadStatistics(id: number): void {
+  loadStatistics(id: string | number): void {
     this.loadingStatistics.set(true);
 
     this.policyService.getPolicyStatistics(id).subscribe({
@@ -111,7 +113,7 @@ export class PolicyViewerComponent implements OnInit {
       next: (response) => {
         if (response.success) {
           this.hasAcknowledged.set(true);
-          this.loadPolicy(policyId);
+          if (this.currentPolicyId) this.loadPolicy(this.currentPolicyId);
         }
         this.acknowledging.set(false);
       },
@@ -134,7 +136,7 @@ export class PolicyViewerComponent implements OnInit {
       next: (response) => {
         if (response.success) {
           alert('Policy approved successfully');
-          this.loadPolicy(policyId);
+          if (this.currentPolicyId) this.loadPolicy(this.currentPolicyId);
         }
       },
       error: (err) => {
@@ -152,7 +154,7 @@ export class PolicyViewerComponent implements OnInit {
       next: (response) => {
         if (response.success) {
           alert('Policy activated successfully');
-          this.loadPolicy(policyId);
+          if (this.currentPolicyId) this.loadPolicy(this.currentPolicyId);
         }
       },
       error: (err) => {
@@ -173,7 +175,7 @@ export class PolicyViewerComponent implements OnInit {
       next: (response) => {
         if (response.success) {
           alert('Policy archived successfully');
-          this.loadPolicy(policyId);
+          if (this.currentPolicyId) this.loadPolicy(this.currentPolicyId);
         }
       },
       error: (err) => {

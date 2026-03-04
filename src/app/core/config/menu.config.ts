@@ -130,6 +130,12 @@ export const MENU_GROUPS: SidebarMenuGroup[] = [
         roles: ['super_admin']
       },
       {
+        title: 'Audit Log',
+        icon: 'shield-check',
+        route: '/audit-log',
+        roles: ['super_admin']
+      },
+      {
         title: 'Admin Settings',
         icon: 'settings',
         roles: ['super_admin', 'admin'],

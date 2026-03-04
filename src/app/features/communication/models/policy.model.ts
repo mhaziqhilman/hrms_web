@@ -1,5 +1,6 @@
 export interface Policy {
   id: number;
+  public_id?: string;
   policy_code: string;
   title: string;
   description?: string;
@@ -34,6 +35,7 @@ export interface Policy {
   };
   parent?: {
     id: number;
+    public_id?: string;
     policy_code: string;
     title: string;
     version: string;

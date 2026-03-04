@@ -14,6 +14,7 @@ export interface AnnouncementCategory {
 
 export interface Memo {
   id: number;
+  public_id?: string;
   title: string;
   content: string;
   summary?: string;

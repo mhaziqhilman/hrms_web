@@ -60,32 +60,32 @@ export class PolicyService {
   }
 
   // Get single policy by ID
-  getPolicyById(id: number): Observable<ApiResponse<Policy>> {
+  getPolicyById(id: number | string): Observable<ApiResponse<Policy>> {
     return this.http.get<ApiResponse<Policy>>(`${this.apiUrl}/${id}`);
   }
 
   // Update policy
-  updatePolicy(id: number, data: Partial<PolicyFormData>): Observable<ApiResponse<Policy>> {
+  updatePolicy(id: number | string, data: Partial<PolicyFormData>): Observable<ApiResponse<Policy>> {
     return this.http.put<ApiResponse<Policy>>(`${this.apiUrl}/${id}`, data);
   }
 
   // Delete policy
-  deletePolicy(id: number): Observable<ApiResponse<void>> {
+  deletePolicy(id: number | string): Observable<ApiResponse<void>> {
     return this.http.delete<ApiResponse<void>>(`${this.apiUrl}/${id}`);
   }
 
   // Approve policy (Admin only)
-  approvePolicy(id: number): Observable<ApiResponse<Policy>> {
+  approvePolicy(id: number | string): Observable<ApiResponse<Policy>> {
     return this.http.post<ApiResponse<Policy>>(`${this.apiUrl}/${id}/approve`, {});
   }
 
   // Acknowledge policy
-  acknowledgePolicy(id: number, comments?: string): Observable<ApiResponse<any>> {
+  acknowledgePolicy(id: number | string, comments?: string): Observable<ApiResponse<any>> {
     return this.http.post<ApiResponse<any>>(`${this.apiUrl}/${id}/acknowledge`, { comments });
   }
 
   // Get policy statistics
-  getPolicyStatistics(id: number): Observable<ApiResponse<PolicyStatistics>> {
+  getPolicyStatistics(id: number | string): Observable<ApiResponse<PolicyStatistics>> {
     return this.http.get<ApiResponse<PolicyStatistics>>(`${this.apiUrl}/${id}/statistics`);
   }
 
@@ -95,12 +95,12 @@ export class PolicyService {
   }
 
   // Activate policy
-  activatePolicy(id: number): Observable<ApiResponse<Policy>> {
+  activatePolicy(id: number | string): Observable<ApiResponse<Policy>> {
     return this.updatePolicy(id, { status: 'Active' });
   }
 
   // Archive policy
-  archivePolicy(id: number): Observable<ApiResponse<Policy>> {
+  archivePolicy(id: number | string): Observable<ApiResponse<Policy>> {
     return this.updatePolicy(id, { status: 'Archived' });
   }
 }

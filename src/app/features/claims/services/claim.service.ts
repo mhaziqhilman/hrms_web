@@ -45,27 +45,27 @@ export class ClaimService {
   }
 
   // Get single claim by ID
-  getClaimById(id: number): Observable<ApiResponse<Claim>> {
+  getClaimById(id: number | string): Observable<ApiResponse<Claim>> {
     return this.http.get<ApiResponse<Claim>>(`${this.apiUrl}/${id}`);
   }
 
   // Update claim (only pending claims)
-  updateClaim(id: number, data: UpdateClaimRequest): Observable<ApiResponse<Claim>> {
+  updateClaim(id: number | string, data: UpdateClaimRequest): Observable<ApiResponse<Claim>> {
     return this.http.put<ApiResponse<Claim>>(`${this.apiUrl}/${id}`, data);
   }
 
   // Delete claim
-  deleteClaim(id: number): Observable<ApiResponse<void>> {
+  deleteClaim(id: number | string): Observable<ApiResponse<void>> {
     return this.http.delete<ApiResponse<void>>(`${this.apiUrl}/${id}`);
   }
 
   // Manager approval/rejection
-  managerApproval(id: number, request: ManagerApprovalRequest): Observable<ApiResponse<Claim>> {
+  managerApproval(id: number | string, request: ManagerApprovalRequest): Observable<ApiResponse<Claim>> {
     return this.http.patch<ApiResponse<Claim>>(`${this.apiUrl}/${id}/manager-approval`, request);
   }
 
   // Finance approval/rejection or mark as paid
-  financeApproval(id: number, request: FinanceApprovalRequest): Observable<ApiResponse<Claim>> {
+  financeApproval(id: number | string, request: FinanceApprovalRequest): Observable<ApiResponse<Claim>> {
     return this.http.patch<ApiResponse<Claim>>(`${this.apiUrl}/${id}/finance-approval`, request);
   }
 

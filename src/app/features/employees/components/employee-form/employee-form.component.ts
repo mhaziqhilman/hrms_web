@@ -52,7 +52,7 @@ import { ZardCheckboxComponent } from '@/shared/components/checkbox/checkbox.com
 export class EmployeeFormComponent implements OnInit {
   employeeForm!: FormGroup;
   isEditMode = signal<boolean>(false);
-  employeeId = signal<number | null>(null);
+  employeeId = signal<string | null>(null);
   loading = signal<boolean>(false);
   error = signal<string | null>(null);
   successMessage = signal<string | null>(null);
@@ -85,8 +85,8 @@ export class EmployeeFormComponent implements OnInit {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.isEditMode.set(true);
-      this.employeeId.set(Number(id));
-      this.loadEmployee(Number(id));
+      this.employeeId.set(id);
+      this.loadEmployee(id);
     }
   }
 
@@ -98,7 +98,7 @@ export class EmployeeFormComponent implements OnInit {
           const currentId = this.employeeId();
           this.availableManagers.set(
             response.data.employees
-              .filter(emp => emp.id !== currentId)
+              .filter(emp => emp.public_id !== currentId)
               .map(emp => ({
                 id: emp.id,
                 employee_id: emp.employee_id,
@@ -162,7 +162,7 @@ export class EmployeeFormComponent implements OnInit {
     });
   }
 
-  loadEmployee(id: number): void {
+  loadEmployee(id: string): void {
     this.loading.set(true);
     this.error.set(null);
 

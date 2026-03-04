@@ -49,7 +49,7 @@ export class ClaimFormComponent implements OnInit {
 
   // Edit mode
   isEditMode = signal(false);
-  claimId = signal<number | null>(null);
+  claimId = signal<string | null>(null);
   existingClaim = signal<Claim | null>(null);
 
   // Claim Types
@@ -135,12 +135,12 @@ export class ClaimFormComponent implements OnInit {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.isEditMode.set(true);
-      this.claimId.set(parseInt(id));
-      this.loadExistingClaim(parseInt(id));
+      this.claimId.set(id);
+      this.loadExistingClaim(id);
     }
   }
 
-  loadExistingClaim(id: number): void {
+  loadExistingClaim(id: string): void {
     this.loading.set(true);
     this.claimService.getClaimById(id).subscribe({
       next: (response) => {

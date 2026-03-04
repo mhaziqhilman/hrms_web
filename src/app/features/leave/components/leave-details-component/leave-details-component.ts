@@ -43,11 +43,11 @@ export class LeaveDetailsComponent implements OnInit {
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-      this.loadLeaveDetails(+id);
+      this.loadLeaveDetails(id);
     }
   }
 
-  loadLeaveDetails(id: number): void {
+  loadLeaveDetails(id: string): void {
     this.loading.set(true);
     this.error.set(null);
 

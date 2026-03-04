@@ -1,11 +1,13 @@
 import { Component, Input, Output, EventEmitter, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { toast } from 'ngx-sonner';
 import { FileService, FileMetadata } from '../../../core/services/file.service';
+import { ZardIconComponent } from '@/shared/components/icon/icon.component';
+import { ZardButtonComponent } from '@/shared/components/button/button.component';
 
 @Component({
   selector: 'app-file-viewer',
-  imports: [CommonModule],
+  imports: [ZardIconComponent, ZardButtonComponent],
   templateUrl: './file-viewer.html',
   styleUrl: './file-viewer.css',
 })
@@ -24,6 +26,7 @@ export class FileViewer implements OnInit {
   loading = signal(false);
   error = signal<string | null>(null);
   viewMode = signal<'preview' | 'download'>('preview');
+  previewFailed = signal(false);
 
   constructor(
     private fileService: FileService,
@@ -50,8 +53,7 @@ export class FileViewer implements OnInit {
           this.loading.set(false);
           return;
         }
-        
-        // Handle array case (shouldn't happen for getFileById, but type allows it)
+
         const fileMetadata = Array.isArray(response.data) ? response.data[0] : response.data;
         this.fileMetadata.set(fileMetadata);
         this.loadPreview();
@@ -80,10 +82,11 @@ export class FileViewer implements OnInit {
         this.previewUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(url));
         this.loading.set(false);
       },
-      error: (error) => {
-        this.error.set(error.error?.message || 'Failed to load preview');
+      error: () => {
+        this.previewFailed.set(true);
         this.viewMode.set('download');
         this.loading.set(false);
+        toast.error('Preview blocked — try disabling your ad blocker or browser extensions for this site.', { duration: 6000 });
       }
     });
   }
@@ -96,8 +99,8 @@ export class FileViewer implements OnInit {
       next: () => {
         this.downloaded.emit(file);
       },
-      error: (error) => {
-        this.error.set(error.error?.message || 'Failed to download file');
+      error: (err) => {
+        toast.error(err.error?.message || 'Failed to download file. Try disabling your ad blocker if the issue persists.');
       }
     });
   }
@@ -112,8 +115,8 @@ export class FileViewer implements OnInit {
           this.deleted.emit(file.id);
           this.close();
         },
-        error: (error) => {
-          this.error.set(error.error?.message || 'Failed to delete file');
+        error: (err) => {
+          toast.error(err.error?.message || 'Failed to delete file');
         }
       });
     }
@@ -138,7 +141,7 @@ export class FileViewer implements OnInit {
   formatDate(date: string): string {
     return new Date(date).toLocaleDateString('en-US', {
       year: 'numeric',
-      month: 'long',
+      month: 'short',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
@@ -164,5 +167,34 @@ export class FileViewer implements OnInit {
 
   isPDF(): boolean {
     return this.fileMetadata()?.mime_type === 'application/pdf' || false;
+  }
+
+  getFileExtension(): string {
+    const meta = this.fileMetadata();
+    if (!meta) return '';
+    const ext = meta.file_extension || meta.original_filename.split('.').pop() || '';
+    return ext.replace(/^\./, '').toUpperCase();
+  }
+
+  getExtensionColor(): string {
+    const ext = this.getFileExtension().toLowerCase();
+    const colors: Record<string, string> = {
+      pdf: 'bg-red-500',
+      doc: 'bg-blue-600',
+      docx: 'bg-blue-600',
+      xls: 'bg-emerald-600',
+      xlsx: 'bg-emerald-600',
+      csv: 'bg-emerald-600',
+      jpg: 'bg-violet-500',
+      jpeg: 'bg-violet-500',
+      png: 'bg-violet-500',
+      gif: 'bg-violet-500',
+      webp: 'bg-violet-500',
+      svg: 'bg-violet-500',
+      zip: 'bg-amber-500',
+      rar: 'bg-amber-500',
+      txt: 'bg-slate-500',
+    };
+    return colors[ext] || 'bg-slate-500';
   }
 }

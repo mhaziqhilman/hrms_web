@@ -32,7 +32,7 @@ export class AttendanceDetailComponent implements OnInit {
   attendance = signal<Attendance | null>(null);
   loading = signal(false);
   error = signal<string | null>(null);
-  attendanceId: number | null = null;
+  attendanceId: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -44,7 +44,7 @@ export class AttendanceDetailComponent implements OnInit {
     this.route.params.subscribe(params => {
       const id = params['id'];
       if (id) {
-        this.attendanceId = +id;
+        this.attendanceId = id;
         this.loadAttendanceDetail();
       } else {
         this.error.set('Invalid attendance ID');

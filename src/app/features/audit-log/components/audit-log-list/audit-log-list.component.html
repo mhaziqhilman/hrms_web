@@ -1,0 +1,259 @@
+<div class="max-w-7xl mx-auto">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold">Audit Log</h1>
+      <p class="text-muted-foreground text-sm mt-1">Track all admin actions and data changes across the system</p>
+    </div>
+    <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted text-muted-foreground text-xs font-medium">
+      <z-icon [zType]="$any('shield-check')" class="w-3.5 h-3.5" />
+      {{ pagination().total }} total entries
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="flex items-center gap-3 mb-5 flex-wrap">
+    <!-- Action filter -->
+    <div class="relative">
+      <z-icon zType="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
+      <input type="text"
+        [value]="actionFilter()"
+        (input)="actionFilter.set($any($event.target).value); onFilterChange()"
+        placeholder="Filter by action..."
+        class="pl-9 pr-3 py-2 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring w-52" />
+    </div>
+
+    <!-- Entity type filter -->
+    <select
+      [ngModel]="entityTypeFilter()"
+      (ngModelChange)="entityTypeFilter.set($event); onFilterChange()"
+      class="py-2 px-3 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring">
+      <option value="">All Entity Types</option>
+      @for (type of entityTypes; track type) {
+        <option [value]="type">{{ type }}</option>
+      }
+    </select>
+
+    <!-- Date from -->
+    <input type="date"
+      [ngModel]="dateFrom()"
+      (ngModelChange)="dateFrom.set($event); onFilterChange()"
+      class="py-2 px-3 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring" />
+
+    <!-- Date to -->
+    <input type="date"
+      [ngModel]="dateTo()"
+      (ngModelChange)="dateTo.set($event); onFilterChange()"
+      class="py-2 px-3 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring" />
+
+    @if (hasActiveFilters()) {
+      <button type="button" z-button zType="outline" zSize="sm"
+        class="gap-2 border-none shadow-none px-2"
+        (click)="clearFilters()">
+        Reset
+        <z-icon zType="x" class="w-4 h-4" />
+      </button>
+    }
+  </div>
+
+  <div class="flex gap-5">
+    <!-- Main Table -->
+    <div class="flex-1 min-w-0">
+      <div class="rounded-lg border bg-background">
+        @if (loading()) {
+          <div class="divide-y">
+            @for (i of [1,2,3,4,5,6,7,8,9,10]; track i) {
+              <div class="flex items-center gap-4 px-5 py-3.5">
+                <z-skeleton class="w-6 h-6 rounded-full" />
+                <div class="flex-1 space-y-2">
+                  <z-skeleton class="h-4 w-40" />
+                  <z-skeleton class="h-3 w-64" />
+                </div>
+                <z-skeleton class="h-5 w-20 rounded-full" />
+                <z-skeleton class="h-4 w-24" />
+              </div>
+            }
+          </div>
+        } @else if (logs().length === 0) {
+          <div class="flex flex-col items-center justify-center py-16 text-muted-foreground">
+            <z-icon [zType]="$any('shield')" zSize="xl" class="mb-3 opacity-30" />
+            <p class="font-medium">No audit logs found</p>
+            <p class="text-sm mt-1">
+              @if (hasActiveFilters()) {
+                Try adjusting your filters
+              } @else {
+                Audit events will appear here as users take actions
+              }
+            </p>
+          </div>
+        } @else {
+          <table z-table>
+            <thead>
+              <tr z-table-row>
+                <th z-table-head class="w-[180px]">User</th>
+                <th z-table-head class="w-[160px]">Action</th>
+                <th z-table-head class="w-[110px]">Entity Type</th>
+                <th z-table-head>Entity ID</th>
+                <th z-table-head class="w-[120px]">IP Address</th>
+                <th z-table-head class="w-[130px]">Time</th>
+              </tr>
+            </thead>
+            <tbody z-table-body>
+              @for (log of logs(); track log.id) {
+                <tr z-table-row
+                  class="cursor-pointer transition-colors"
+                  [class.bg-primary/5]="selectedLog()?.id === log.id"
+                  (click)="selectLog(log)">
+                  <!-- User -->
+                  <td z-table-cell>
+                    <div class="min-w-0">
+                      <p class="text-sm font-medium truncate">{{ getUserDisplay(log) }}</p>
+                      @if (log.user?.email) {
+                        <p class="text-xs text-muted-foreground truncate">{{ log.user!.email }}</p>
+                      }
+                    </div>
+                  </td>
+                  <!-- Action -->
+                  <td z-table-cell>
+                    <z-badge [zType]="$any(getActionBadgeType(log.action))">
+                      {{ getActionLabel(log.action) }}
+                    </z-badge>
+                  </td>
+                  <!-- Entity Type -->
+                  <td z-table-cell>
+                    <span class="text-sm text-muted-foreground">{{ log.entity_type || '—' }}</span>
+                  </td>
+                  <!-- Entity ID -->
+                  <td z-table-cell>
+                    <span class="text-xs font-mono text-muted-foreground truncate max-w-[120px] block" [title]="log.entity_id || ''">
+                      {{ log.entity_id ? (log.entity_id.length > 12 ? (log.entity_id | slice:0:8) + '…' : log.entity_id) : '—' }}
+                    </span>
+                  </td>
+                  <!-- IP -->
+                  <td z-table-cell>
+                    <span class="text-xs font-mono text-muted-foreground">{{ log.ip_address || '—' }}</span>
+                  </td>
+                  <!-- Time -->
+                  <td z-table-cell>
+                    <span class="text-sm text-muted-foreground">{{ log.created_at | timeAgo }}</span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+
+          <!-- Pagination -->
+          @if (pagination().totalPages > 1) {
+            <div class="flex items-center justify-between px-5 py-3 border-t">
+              <p class="text-sm text-muted-foreground">
+                {{ (pagination().currentPage - 1) * pagination().limit + 1 }}–{{ pageEnd() }} of {{ pagination().total }}
+              </p>
+              <div class="flex items-center gap-1">
+                <button z-button zType="outline" zSize="sm"
+                  [disabled]="pagination().currentPage <= 1"
+                  (click)="goToPage(pagination().currentPage - 1)">
+                  <z-icon zType="chevron-left" class="w-4 h-4" />
+                </button>
+                @for (p of pages; track p) {
+                  <button z-button zSize="sm"
+                    [zType]="pagination().currentPage === p ? 'default' : 'outline'"
+                    (click)="goToPage(p)">
+                    {{ p }}
+                  </button>
+                }
+                <button z-button zType="outline" zSize="sm"
+                  [disabled]="pagination().currentPage >= pagination().totalPages"
+                  (click)="goToPage(pagination().currentPage + 1)">
+                  <z-icon zType="chevron-right" class="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          }
+        }
+      </div>
+    </div>
+
+    <!-- Detail Panel -->
+    @if (selectedLog()) {
+      <div class="w-[360px] flex-shrink-0 rounded-lg border bg-background overflow-hidden">
+        <!-- Detail Header -->
+        <div class="flex items-center justify-between px-5 py-4 border-b">
+          <h3 class="font-semibold text-sm">Event Detail</h3>
+          <button z-button zType="ghost" zSize="sm" (click)="selectedLog.set(null)">
+            <z-icon zType="x" class="w-4 h-4" />
+          </button>
+        </div>
+
+        <div class="px-5 py-4 space-y-4 overflow-y-auto max-h-[calc(100vh-280px)]">
+          <!-- Action -->
+          <div>
+            <p class="text-xs font-medium text-muted-foreground mb-1.5">Action</p>
+            <z-badge [zType]="$any(getActionBadgeType(selectedLog()!.action))">
+              {{ getActionLabel(selectedLog()!.action) }}
+            </z-badge>
+          </div>
+
+          <z-divider zSpacing="none" />
+
+          <!-- User -->
+          <div>
+            <p class="text-xs font-medium text-muted-foreground mb-1">Performed by</p>
+            <p class="text-sm font-medium">{{ getUserDisplay(selectedLog()!) }}</p>
+            @if (selectedLog()!.user?.email) {
+              <p class="text-xs text-muted-foreground">{{ selectedLog()!.user!.email }}</p>
+            }
+          </div>
+
+          <!-- Entity -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <p class="text-xs font-medium text-muted-foreground mb-1">Entity Type</p>
+              <p class="text-sm">{{ selectedLog()!.entity_type || '—' }}</p>
+            </div>
+            <div>
+              <p class="text-xs font-medium text-muted-foreground mb-1">Entity ID</p>
+              <p class="text-xs font-mono break-all">{{ selectedLog()!.entity_id || '—' }}</p>
+            </div>
+          </div>
+
+          <!-- Metadata -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <p class="text-xs font-medium text-muted-foreground mb-1">IP Address</p>
+              <p class="text-xs font-mono">{{ selectedLog()!.ip_address || '—' }}</p>
+            </div>
+            <div>
+              <p class="text-xs font-medium text-muted-foreground mb-1">Timestamp</p>
+              <p class="text-xs">{{ selectedLog()!.created_at | date:'dd MMM yyyy HH:mm' }}</p>
+            </div>
+          </div>
+
+          @if (selectedLog()!.user_agent) {
+            <div>
+              <p class="text-xs font-medium text-muted-foreground mb-1">User Agent</p>
+              <p class="text-xs text-muted-foreground break-all">{{ selectedLog()!.user_agent }}</p>
+            </div>
+          }
+
+          <z-divider zSpacing="none" />
+
+          <!-- Old Values -->
+          @if (selectedLog()!.old_values) {
+            <div>
+              <p class="text-xs font-medium text-muted-foreground mb-1.5">Before</p>
+              <pre class="text-xs bg-muted/50 rounded-md p-3 overflow-auto max-h-40 font-mono whitespace-pre-wrap">{{ formatJson(selectedLog()!.old_values) }}</pre>
+            </div>
+          }
+
+          <!-- New Values -->
+          @if (selectedLog()!.new_values) {
+            <div>
+              <p class="text-xs font-medium text-muted-foreground mb-1.5">After</p>
+              <pre class="text-xs bg-muted/50 rounded-md p-3 overflow-auto max-h-40 font-mono whitespace-pre-wrap">{{ formatJson(selectedLog()!.new_values) }}</pre>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>

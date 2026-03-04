@@ -265,16 +265,16 @@ export class MemoListComponent implements OnInit {
     });
   }
 
-  viewPost(id: number): void {
-    this.router.navigate(['/communication/memos', id]);
+  viewPost(id: number | string | undefined): void {
+    if (id) this.router.navigate(['/communication/memos', id]);
   }
 
-  editPost(id: number): void {
-    this.router.navigate(['/communication/memos', id, 'edit']);
+  editPost(id: number | string | undefined): void {
+    if (id) this.router.navigate(['/communication/memos', id, 'edit']);
   }
 
   togglePin(memo: Memo): void {
-    this.memoService.togglePin(memo.id).subscribe({
+    this.memoService.togglePin(memo.public_id ?? memo.id).subscribe({
       next: () => {
         this.loadMemos();
         this.loadPinnedMemos();
@@ -285,7 +285,7 @@ export class MemoListComponent implements OnInit {
   }
 
   archiveMemo(memo: Memo): void {
-    this.memoService.archiveMemo(memo.id).subscribe({
+    this.memoService.archiveMemo(memo.public_id ?? memo.id).subscribe({
       next: () => {
         this.loadMemos();
         this.loadPinnedMemos();
@@ -297,7 +297,7 @@ export class MemoListComponent implements OnInit {
 
   deleteMemo(memo: Memo): void {
     if (confirm('Are you sure you want to delete this announcement?')) {
-      this.memoService.deleteMemo(memo.id).subscribe({
+      this.memoService.deleteMemo(memo.public_id ?? memo.id).subscribe({
         next: () => {
           this.loadMemos();
           this.loadPinnedMemos();

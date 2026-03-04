@@ -55,21 +55,21 @@ export class AttendanceService {
   }
 
   // Get single attendance record by ID
-  getAttendanceById(id: number): Observable<ApiResponse<Attendance>> {
+  getAttendanceById(id: number | string): Observable<ApiResponse<Attendance>> {
     return this.http.get<ApiResponse<Attendance>>(`${this.apiUrl}/${id}`).pipe(
       catchError(this.handleError)
     );
   }
 
   // Update attendance record
-  updateAttendance(id: number, data: Partial<Attendance>): Observable<ApiResponse<Attendance>> {
+  updateAttendance(id: number | string, data: Partial<Attendance>): Observable<ApiResponse<Attendance>> {
     return this.http.put<ApiResponse<Attendance>>(`${this.apiUrl}/${id}`, data).pipe(
       catchError(this.handleError)
     );
   }
 
   // Delete attendance record
-  deleteAttendance(id: number): Observable<ApiResponse<void>> {
+  deleteAttendance(id: number | string): Observable<ApiResponse<void>> {
     return this.http.delete<ApiResponse<void>>(`${this.apiUrl}/${id}`).pipe(
       catchError(this.handleError)
     );

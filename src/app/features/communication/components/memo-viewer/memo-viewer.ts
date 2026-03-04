@@ -43,6 +43,7 @@ export class MemoViewerComponent implements OnInit {
   hasAcknowledged = signal(false);
 
   private currentUser: any = null;
+  private currentMemoId: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -52,13 +53,14 @@ export class MemoViewerComponent implements OnInit {
 
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUserValue();
-    const id = Number(this.route.snapshot.paramMap.get('id'));
+    const id = this.route.snapshot.paramMap.get('id');
     if (id) {
+      this.currentMemoId = id;
       this.loadMemo(id);
     }
   }
 
-  loadMemo(id: number): void {
+  loadMemo(id: string): void {
     this.loading.set(true);
     this.error.set(null);
 
@@ -89,7 +91,7 @@ export class MemoViewerComponent implements OnInit {
     });
   }
 
-  loadStatistics(id: number): void {
+  loadStatistics(id: string | number): void {
     this.loadingStatistics.set(true);
 
     this.memoService.getMemoStatistics(id).subscribe({
@@ -117,7 +119,7 @@ export class MemoViewerComponent implements OnInit {
         if (response.success) {
           this.hasAcknowledged.set(true);
           // Reload memo to get updated acknowledgment count
-          this.loadMemo(memoId);
+          if (this.currentMemoId) this.loadMemo(this.currentMemoId);
         }
         this.acknowledging.set(false);
       },
@@ -158,7 +160,7 @@ export class MemoViewerComponent implements OnInit {
       next: (response) => {
         if (response.success) {
           alert('Memo published successfully');
-          this.loadMemo(memoId);
+          if (this.currentMemoId) this.loadMemo(this.currentMemoId);
         }
       },
       error: (err) => {
@@ -179,7 +181,7 @@ export class MemoViewerComponent implements OnInit {
       next: (response) => {
         if (response.success) {
           alert('Memo archived successfully');
-          this.loadMemo(memoId);
+          if (this.currentMemoId) this.loadMemo(this.currentMemoId);
         }
       },
       error: (err) => {

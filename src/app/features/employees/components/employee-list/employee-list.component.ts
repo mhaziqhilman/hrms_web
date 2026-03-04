@@ -91,7 +91,7 @@ export class EmployeeListComponent implements OnInit {
     position: true,
     employmentType: true,
     email: true,
-    nationality: true,
+    nationality: false,
     status: true
   });
 
@@ -339,7 +339,7 @@ export class EmployeeListComponent implements OnInit {
       zCancelText: 'Cancel',
       zOkDestructive: true,
       zOnOk: () => {
-        this.employeeService.deleteEmployee(employee.id, 'Terminated').subscribe({
+        this.employeeService.deleteEmployee(employee.public_id ?? employee.id, 'Terminated').subscribe({
           next: (response) => {
             if (response.success) {
               this.alertDialogService.info({

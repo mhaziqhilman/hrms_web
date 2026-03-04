@@ -42,11 +42,11 @@ export class PayslipViewComponent implements OnInit {
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-      this.loadPayslip(Number(id));
+      this.loadPayslip(id);
     }
   }
 
-  loadPayslip(id: number): void {
+  loadPayslip(id: string): void {
     this.loading.set(true);
     this.error.set(null);
 

@@ -2,7 +2,26 @@
   command = "ng build --configuration production"
   publish = "dist/HRMS_v1/browser"
 
+# HTTPS enforcement
+[[redirects]]
+  from = "http://nextura-hrms.netlify.app/*"
+  to = "https://nextura-hrms.netlify.app/:splat"
+  status = 301
+  force = true
+
+# SPA routing — must come after HTTPS redirect
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+
+# Security headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self' https://nextura-hrms-api.azurewebsites.net https://*.supabase.co; font-src 'self'; object-src 'none'; frame-src 'none';"
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"

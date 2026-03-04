@@ -327,11 +327,11 @@
               </div>
               <ng-template #actionMenu>
                 <div z-menu-content class="w-40">
-                  <a z-menu-item [routerLink]="['/employees', employee.id]" class="gap-2">
+                  <a z-menu-item [routerLink]="['/employees', employee.public_id]" class="gap-2">
                     <z-icon zType="eye" class="w-4 h-4" />
                     View
                   </a>
-                  <a z-menu-item [routerLink]="['/employees', employee.id, 'edit']" class="gap-2">
+                  <a z-menu-item [routerLink]="['/employees', employee.public_id, 'edit']" class="gap-2">
                     <z-icon zType="pencil" class="w-4 h-4" />
                     Edit
                   </a>

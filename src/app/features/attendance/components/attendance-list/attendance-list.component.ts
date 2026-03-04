@@ -209,8 +209,8 @@ export class AttendanceListComponent implements OnInit {
     return (attendance.total_hours || 0) > 9;
   }
 
-  navigateToDetail(id: number): void {
-    this.router.navigate(['/attendance', id]);
+  navigateToDetail(id: number | string | undefined): void {
+    if (id) this.router.navigate(['/attendance', id]);
   }
 
   // Toggle column visibility
@@ -265,15 +265,6 @@ export class AttendanceListComponent implements OnInit {
             } else if (response.data.data && Array.isArray(response.data.data)) {
               data = response.data.data;
             }
-          }
-
-          // Client-side date filtering
-          if (this.selectedDate() && data.length > 0) {
-            const filterDate = new Date(this.selectedDate()).toDateString();
-            data = data.filter(att => {
-              const attDate = new Date(att.clock_in_time).toDateString();
-              return attDate === filterDate;
-            });
           }
 
           this.attendances.set(data);
@@ -387,7 +378,7 @@ export class AttendanceListComponent implements OnInit {
       zCancelText: 'Cancel',
       zOkDestructive: true,
       zOnOk: () => {
-        this.attendanceService.deleteAttendance(attendance.id).subscribe({
+        this.attendanceService.deleteAttendance(attendance.public_id ?? attendance.id).subscribe({
           next: (response) => {
             if (response.success) {
               this.alertDialogService.info({

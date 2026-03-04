@@ -47,7 +47,7 @@ export class LeaveService {
   /**
    * Get single leave application by ID
    */
-  getLeaveById(id: number): Observable<LeaveResponse> {
+  getLeaveById(id: number | string): Observable<LeaveResponse> {
     return this.http.get<LeaveResponse>(
       `${this.apiUrl}${API_CONFIG.endpoints.leaves.detail(id)}`
     );
@@ -66,7 +66,7 @@ export class LeaveService {
   /**
    * Update leave application
    */
-  updateLeave(id: number, request: UpdateLeaveRequest): Observable<LeaveResponse> {
+  updateLeave(id: number | string, request: UpdateLeaveRequest): Observable<LeaveResponse> {
     return this.http.put<LeaveResponse>(
       `${this.apiUrl}${API_CONFIG.endpoints.leaves.detail(id)}`,
       request
@@ -76,7 +76,7 @@ export class LeaveService {
   /**
    * Approve or reject leave application
    */
-  approveRejectLeave(id: number, request: ApproveRejectLeaveRequest): Observable<LeaveResponse> {
+  approveRejectLeave(id: number | string, request: ApproveRejectLeaveRequest): Observable<LeaveResponse> {
     return this.http.patch<LeaveResponse>(
       `${this.apiUrl}${API_CONFIG.endpoints.leaves.approveReject(id)}`,
       request
@@ -86,7 +86,7 @@ export class LeaveService {
   /**
    * Cancel leave application
    */
-  cancelLeave(id: number): Observable<{ success: boolean; message: string }> {
+  cancelLeave(id: number | string): Observable<{ success: boolean; message: string }> {
     return this.http.delete<{ success: boolean; message: string }>(
       `${this.apiUrl}${API_CONFIG.endpoints.leaves.detail(id)}`
     );

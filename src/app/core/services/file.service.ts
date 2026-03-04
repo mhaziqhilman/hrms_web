@@ -7,11 +7,11 @@ export interface FileUploadMetadata {
   category: 'employee_document' | 'claim_receipt' | 'payslip' | 'leave_document' | 'company_document' | 'invoice' | 'other';
   sub_category?: string;
   description?: string;
-  related_to_employee_id?: number;
-  related_to_claim_id?: number;
-  related_to_leave_id?: number;
-  related_to_payroll_id?: number;
-  related_to_invoice_id?: number;
+  related_to_employee_id?: number | string;
+  related_to_claim_id?: number | string;
+  related_to_leave_id?: number | string;
+  related_to_payroll_id?: number | string;
+  related_to_invoice_id?: number | string;
   is_public?: boolean;
 }
 
@@ -34,11 +34,11 @@ export interface FileMetadata {
   sub_category?: string;
   uploaded_by: number;
   company_id?: number;
-  related_to_employee_id?: number;
-  related_to_claim_id?: number;
-  related_to_leave_id?: number;
-  related_to_payroll_id?: number;
-  related_to_invoice_id?: number;
+  related_to_employee_id?: number | string;
+  related_to_claim_id?: number | string;
+  related_to_leave_id?: number | string;
+  related_to_payroll_id?: number | string;
+  related_to_invoice_id?: number | string;
   description?: string;
   tags?: string[];
   is_public: boolean;
@@ -104,9 +104,9 @@ export interface DocumentOverviewStats {
 export interface FileListFilters {
   category?: string;
   uploaded_by?: number;
-  related_to_employee_id?: number;
-  related_to_claim_id?: number;
-  related_to_leave_id?: number;
+  related_to_employee_id?: number | string;
+  related_to_claim_id?: number | string;
+  related_to_leave_id?: number | string;
   search?: string;
   is_verified?: string;
   page?: number;

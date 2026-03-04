@@ -40,7 +40,7 @@ import { ZardSelectItemComponent } from '@/shared/components/select/select-item.
 export class MemoFormComponent implements OnInit {
   form: FormGroup;
   isEditMode = signal(false);
-  memoId: number | null = null;
+  memoId: string | null = null;
   loading = signal(false);
   saving = signal(false);
   error = signal<string | null>(null);
@@ -83,7 +83,7 @@ export class MemoFormComponent implements OnInit {
     const id = this.route.snapshot.paramMap.get('id');
     if (id && id !== 'new') {
       this.isEditMode.set(true);
-      this.memoId = Number(id);
+      this.memoId = id;
       this.loadMemo(this.memoId);
     }
 
@@ -106,7 +106,7 @@ export class MemoFormComponent implements OnInit {
     });
   }
 
-  loadMemo(id: number): void {
+  loadMemo(id: string): void {
     this.loading.set(true);
     this.error.set(null);
 

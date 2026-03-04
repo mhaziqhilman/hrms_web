@@ -2,6 +2,31 @@
   display: block;
 }
 
+/* File Viewer Modal */
+.file-viewer-overlay {
+  animation: overlayFadeIn 0.15s ease-out;
+}
+
+.file-viewer-dialog {
+  animation: dialogSlideUp 0.2s ease-out;
+}
+
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes dialogSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 /* Remove horizontal padding from card body for full-width table */
 :host ::ng-deep .doc-list-card > [data-slot="card-content"] {
   padding-left: 0;
