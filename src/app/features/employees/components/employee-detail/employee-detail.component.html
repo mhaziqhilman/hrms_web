@@ -1,357 +1,602 @@
-<div class="bg-background min-h-screen">
-  <!-- Loading State -->
+<div class="min-h-screen bg-background">
+
+  <!-- ==================== LOADING STATE ==================== -->
   @if (loading()) {
-    <div class="flex items-center justify-center py-20">
-      <z-icon zType="loader-circle" class="w-8 h-8 animate-spin text-primary" />
-    </div>
-  }
-
-  <!-- Error State -->
-  @if (error()) {
-    <div class="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-2 text-red-800 mb-6">
-      <z-icon zType="triangle-alert" class="w-5 h-5" />
-      <span>{{ error() }}</span>
-    </div>
-  }
-
-  <!-- Employee Details -->
-  @if (!loading() && !error() && employee()) {
-    <!-- Header -->
-    <div class="flex items-center justify-between mb-8">
+    <div class="space-y-6 animate-pulse">
       <div class="flex items-center gap-4">
-        <button z-button zType="ghost" zSize="sm" (click)="onBack()" class="p-2">
-          <z-icon zType="arrow-left" class="w-5 h-5" />
+        <z-skeleton class="h-9 w-9 rounded-md" />
+        <z-skeleton class="h-14 w-14 rounded-full" />
+        <div class="space-y-2">
+          <z-skeleton class="h-5 w-48 rounded" />
+          <z-skeleton class="h-4 w-32 rounded" />
+        </div>
+      </div>
+      <div class="flex gap-6 border-b border-border pb-3">
+        @for (i of [1,2,3,4,5,6]; track i) {
+          <z-skeleton class="h-4 w-24 rounded" />
+        }
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+        <div class="lg:col-span-3 space-y-6">
+          <z-skeleton class="h-64 w-full rounded-xl" />
+          <z-skeleton class="h-48 w-full rounded-xl" />
+        </div>
+        <div class="lg:col-span-2 space-y-6">
+          <z-skeleton class="h-48 w-full rounded-xl" />
+          <z-skeleton class="h-40 w-full rounded-xl" />
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ==================== ERROR STATE ==================== -->
+  @if (error()) {
+    <div class="bg-destructive/10 border border-destructive/20 rounded-lg p-4 flex items-center gap-2 text-destructive">
+      <z-icon zType="triangle-alert" class="w-5 h-5 shrink-0" />
+      <span class="text-sm">{{ error() }}</span>
+    </div>
+  }
+
+  <!-- ==================== EMPLOYEE DETAIL ==================== -->
+  @if (!loading() && !error() && employee()) {
+    <div class="space-y-0">
+
+      <!-- ===== TOP BAR ===== -->
+      <div class="flex items-center justify-between mb-6">
+        <!-- Left: Back -->
+        <button z-button zType="ghost" zSize="sm" (click)="onBack()"
+          class="gap-1.5 text-muted-foreground hover:text-foreground">
+          <z-icon zType="arrow-left" zSize="sm" />
+          <span class="text-sm">Back</span>
         </button>
-        <div class="flex items-center gap-4">
-          <z-avatar
-            [zFallback]="employee()!.full_name.charAt(0)"
-            class="w-16 h-16 text-xl" />
-          <div>
-            <h1 class="text-2xl font-bold text-foreground">{{ employee()!.full_name }}</h1>
-            <p class="text-muted-foreground text-sm mt-1">
-              {{ employee()!.position || 'No Position' }} • {{ employee()!.department || 'No Department' }}
-            </p>
-            <div class="flex items-center gap-2 mt-2">
+
+        <!-- Right: Nav + Actions -->
+        <div class="flex items-center gap-2">
+          <!-- Employee navigator -->
+          @if (employeeIds().length > 0) {
+            <div class="flex items-center gap-0.5">
+              <button z-button zType="ghost" zSize="sm"
+                [disabled]="!canNavigate('prev')"
+                (click)="navigateEmployee('prev')"
+                class="h-8 w-8 p-0">
+                <z-icon zType="chevron-left" zSize="sm" />
+              </button>
+              <span class="text-xs text-muted-foreground tabular-nums px-1">
+                {{ currentIndex() + 1 }} of {{ totalEmployees() }}
+              </span>
+              <button z-button zType="ghost" zSize="sm"
+                [disabled]="!canNavigate('next')"
+                (click)="navigateEmployee('next')"
+                class="h-8 w-8 p-0">
+                <z-icon zType="chevron-right" zSize="sm" />
+              </button>
+            </div>
+
+            <div class="w-px h-5 bg-border"></div>
+          }
+
+          <!-- Three-dot menu -->
+          <div z-menu [zMenuTriggerFor]="moreMenu">
+            <button z-button zType="ghost" zSize="sm" class="h-8 w-8 p-0">
+              <z-icon [zType]="$any('ellipsis-vertical')" zSize="sm" />
+            </button>
+          </div>
+          <ng-template #moreMenu>
+            <div z-menu-content class="w-44">
+              <button z-menu-item (click)="onEdit()" class="gap-2">
+                <z-icon zType="pencil" class="w-4 h-4" />
+                Edit Employee
+              </button>
+            </div>
+          </ng-template>
+
+          <!-- Send Email -->
+          <button z-button zSize="sm" (click)="sendEmail()" class="gap-1.5">
+            <z-icon zType="mail" zSize="sm" />
+            Send Email
+          </button>
+        </div>
+      </div>
+
+      <!-- ===== IDENTITY ROW ===== -->
+      <div class="flex items-center gap-4 mb-6">
+        <z-avatar
+          [zSrc]="employee()!.photo_url || ''"
+          [zFallback]="employee()!.full_name.charAt(0)"
+          [zSize]="64"
+          zShape="circle" />
+
+        <div class="flex-1 min-w-0">
+          <!-- Name + badge -->
+          <div class="flex items-center gap-2.5 mb-1">
+            <h1 class="text-xl font-semibold text-foreground tracking-tight truncate">
+              {{ employee()!.full_name }}
+            </h1>
+            @if (employee()!.employment_status === 'Active') {
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                Active
+              </span>
+            } @else {
               <z-badge
-                [zType]="employee()!.employment_status === 'Active' ? 'default' : employee()!.employment_status === 'Resigned' ? 'secondary' : 'destructive'"
-                [zShape]="'pill'">
+                [zType]="employee()!.employment_status === 'Resigned' ? 'secondary' : 'destructive'"
+                zShape="pill">
                 {{ employee()!.employment_status }}
               </z-badge>
-              @if (employee()!.employment_type) {
-                <z-badge zType="secondary" [zShape]="'pill'">
-                  {{ employee()!.employment_type }}
-                </z-badge>
-              }
-            </div>
+            }
+          </div>
+
+          <!-- Quick meta -->
+          <div class="flex items-center gap-3 text-sm text-muted-foreground">
+            <span class="flex items-center gap-1.5">
+              <z-icon [zType]="$any('hash')" zSize="sm" class="opacity-50" />
+              {{ employee()!.employee_id }}
+            </span>
+            <span class="opacity-30">|</span>
+            <span class="flex items-center gap-1.5">
+              <z-icon [zType]="$any('briefcase')" zSize="sm" class="opacity-50" />
+              {{ employee()!.position || 'No position' }}
+            </span>
+            <span class="opacity-30">|</span>
+            <span class="flex items-center gap-1.5">
+              <z-icon [zType]="$any('building-2')" zSize="sm" class="opacity-50" />
+              {{ employee()!.department || 'No department' }}
+            </span>
           </div>
         </div>
       </div>
-      <div class="flex items-center gap-3">
-        <button z-button (click)="onEdit()">
-          <z-icon zType="file-text" class="w-4 h-4 mr-2" />
-          Edit Employee
-        </button>
-      </div>
-    </div>
 
-    <!-- Content Grid -->
-    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-      <!-- Left Column (2/3 width) -->
-      <div class="xl:col-span-2 space-y-6">
-        <!-- Basic Information -->
-        <z-card
-          [zTitle]="'Basic Information'"
-          [zDescription]="'Personal details and identification'"
-          [zHeaderBorder]="true">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-              <label class="block text-xs font-semibold text-muted-foreground mb-1">Employee ID</label>
-              <p class="text-sm text-foreground font-medium">{{ employee()!.employee_id }}</p>
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-muted-foreground mb-1">IC Number</label>
-              <p class="text-sm text-foreground font-medium">{{ employee()!.ic_no || '-' }}</p>
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-muted-foreground mb-1">Passport Number</label>
-              <p class="text-sm text-foreground font-medium">{{ employee()!.passport_no || '-' }}</p>
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-muted-foreground mb-1">Date of Birth</label>
-              <p class="text-sm text-foreground font-medium">{{ employee()!.date_of_birth ? formatDate(employee()!.date_of_birth!) : '-' }}</p>
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-muted-foreground mb-1">Gender</label>
-              <p class="text-sm text-foreground font-medium">{{ employee()!.gender }}</p>
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-muted-foreground mb-1">Marital Status</label>
-              <p class="text-sm text-foreground font-medium">{{ employee()!.marital_status || '-' }}</p>
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-muted-foreground mb-1">Nationality</label>
-              <p class="text-sm text-foreground font-medium">{{ employee()!.nationality || '-' }}</p>
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-muted-foreground mb-1">Race</label>
-              <p class="text-sm text-foreground font-medium">{{ employee()!.race || '-' }}</p>
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-muted-foreground mb-1">Religion</label>
-              <p class="text-sm text-foreground font-medium">{{ employee()!.religion || '-' }}</p>
-            </div>
-          </div>
-        </z-card>
-
-        <!-- Contact Information -->
-        <z-card
-          [zTitle]="'Contact Information'"
-          [zDescription]="'Communication and address details'"
-          [zHeaderBorder]="true">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label class="block text-xs font-semibold text-muted-foreground mb-1">Mobile Number</label>
-              <p class="text-sm text-foreground font-medium">{{ employee()!.mobile || '-' }}</p>
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-muted-foreground mb-1">Email Address</label>
-              <p class="text-sm text-foreground font-medium">{{ employee()!.email || '-' }}</p>
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-muted-foreground mb-1">Emergency Contact</label>
-              <p class="text-sm text-foreground font-medium">{{ employee()!.emergency_contact_name || '-' }}</p>
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-muted-foreground mb-1">Emergency Phone</label>
-              <p class="text-sm text-foreground font-medium">{{ employee()!.emergency_contact_phone || '-' }}</p>
-            </div>
-            <div class="md:col-span-2">
-              <label class="block text-xs font-semibold text-muted-foreground mb-1">Current Address</label>
-              <p class="text-sm text-foreground font-medium">{{ employee()!.current_address || '-' }}</p>
-            </div>
-            <div class="md:col-span-2">
-              <label class="block text-xs font-semibold text-muted-foreground mb-1">Permanent Address</label>
-              <p class="text-sm text-foreground font-medium">{{ employee()!.permanent_address || '-' }}</p>
-            </div>
-          </div>
-        </z-card>
-
-        <!-- Banking Information -->
-        <z-card
-          [zTitle]="'Banking Information'"
-          [zDescription]="'Salary payment details'"
-          [zHeaderBorder]="true">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-              <label class="block text-xs font-semibold text-muted-foreground mb-1">Bank Name</label>
-              <p class="text-sm text-foreground font-medium">{{ employee()!.bank_name || '-' }}</p>
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-muted-foreground mb-1">Account Number</label>
-              <p class="text-sm text-foreground font-medium">{{ employee()!.bank_account_no || '-' }}</p>
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-muted-foreground mb-1">Account Holder Name</label>
-              <p class="text-sm text-foreground font-medium">{{ employee()!.bank_account_holder || '-' }}</p>
-            </div>
-          </div>
-        </z-card>
-
-        <!-- Statutory Information -->
-        <z-card
-          [zTitle]="'Statutory Information'"
-          [zDescription]="'EPF, SOCSO, tax details and relief'"
-          [zHeaderBorder]="true">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label class="block text-xs font-semibold text-muted-foreground mb-1">EPF Number</label>
-              <p class="text-sm text-foreground font-medium">{{ employee()!.epf_no || '-' }}</p>
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-muted-foreground mb-1">SOCSO Number</label>
-              <p class="text-sm text-foreground font-medium">{{ employee()!.socso_no || '-' }}</p>
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-muted-foreground mb-1">Income Tax Number</label>
-              <p class="text-sm text-foreground font-medium">{{ employee()!.tax_no || '-' }}</p>
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-muted-foreground mb-1">Tax Category</label>
-              <p class="text-sm text-foreground font-medium">{{ employee()!.tax_category || '-' }}</p>
-            </div>
-          </div>
-
-          <!-- Tax Relief Details -->
-          <div class="mt-6 pt-6 border-t">
-            <h4 class="text-sm font-semibold text-foreground mb-4">Tax Relief Details</h4>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div>
-                <label class="block text-xs font-semibold text-muted-foreground mb-1">Children (Under 18)</label>
-                <p class="text-sm text-foreground font-medium">{{ employee()!.number_of_children ?? 0 }}</p>
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-muted-foreground mb-1">Children in Higher Education</label>
-                <p class="text-sm text-foreground font-medium">{{ employee()!.children_in_higher_education ?? 0 }}</p>
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-muted-foreground mb-1">Disabled Children</label>
-                <p class="text-sm text-foreground font-medium">{{ employee()!.disabled_children ?? 0 }}</p>
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-muted-foreground mb-1">Employee Disability (OKU)</label>
-                <z-badge [zType]="employee()!.disabled_self ? 'default' : 'secondary'" [zShape]="'pill'">
-                  {{ employee()!.disabled_self ? 'Yes' : 'No' }}
-                </z-badge>
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-muted-foreground mb-1">Spouse Disability (OKU)</label>
-                <z-badge [zType]="employee()!.disabled_spouse ? 'default' : 'secondary'" [zShape]="'pill'">
-                  {{ employee()!.disabled_spouse ? 'Yes' : 'No' }}
-                </z-badge>
-              </div>
-            </div>
-          </div>
-        </z-card>
-
-        <!-- YTD Statutory Summary -->
-        <z-card
-          [zTitle]="'Year-to-Date Statutory Summary'"
-          [zDescription]="'Payroll summary for ' + selectedYear"
-          [zHeaderBorder]="true">
-          <div class="flex justify-end mb-4">
-            <div class="w-32">
-              <z-select
-                [(zValue)]="selectedYear"
-                (zSelectionChange)="onYearChange($event)"
-                [zDisabled]="loadingYTD()"
-                zSize="sm">
-                @for (year of availableYears; track year) {
-                  <z-select-item [zValue]="year">{{ year }}</z-select-item>
-                }
-              </z-select>
-            </div>
-          </div>
-
-          @if (loadingYTD()) {
-            <div class="flex items-center justify-center py-10">
-              <z-icon zType="loader-circle" class="w-6 h-6 animate-spin text-primary mr-2" />
-              <span class="text-sm text-muted-foreground">Loading YTD data...</span>
-            </div>
-          }
-
-          @if (!loadingYTD() && ytdData()) {
-            <!-- YTD Totals -->
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-              <div class="bg-muted/30 rounded-lg p-4">
-                <label class="block text-xs font-semibold text-muted-foreground mb-1">Gross Pay</label>
-                <p class="text-lg font-bold text-foreground">{{ formatCurrency(ytdData()!.totals.gross_pay) }}</p>
-              </div>
-              <div class="bg-muted/30 rounded-lg p-4">
-                <label class="block text-xs font-semibold text-muted-foreground mb-1">EPF (Employee)</label>
-                <p class="text-lg font-bold text-foreground">{{ formatCurrency(ytdData()!.totals.epf_employee) }}</p>
-              </div>
-              <div class="bg-muted/30 rounded-lg p-4">
-                <label class="block text-xs font-semibold text-muted-foreground mb-1">SOCSO (Employee)</label>
-                <p class="text-lg font-bold text-foreground">{{ formatCurrency(ytdData()!.totals.socso_employee) }}</p>
-              </div>
-              <div class="bg-muted/30 rounded-lg p-4">
-                <label class="block text-xs font-semibold text-muted-foreground mb-1">PCB</label>
-                <p class="text-lg font-bold text-foreground">{{ formatCurrency(ytdData()!.totals.pcb) }}</p>
-              </div>
-              <div class="bg-primary/10 rounded-lg p-4">
-                <label class="block text-xs font-semibold text-primary mb-1">Net Pay</label>
-                <p class="text-lg font-bold text-primary">{{ formatCurrency(ytdData()!.totals.net_pay) }}</p>
-              </div>
-            </div>
-
-            <!-- Monthly Breakdown -->
-            <div>
-              <h4 class="text-sm font-semibold text-foreground mb-3">Monthly Breakdown</h4>
-              <div class="overflow-x-auto">
-                <table class="w-full">
-                  <thead class="bg-muted/30 border-b">
-                    <tr>
-                      <th class="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Month</th>
-                      <th class="text-right px-4 py-3 text-xs font-semibold text-muted-foreground">Gross Pay</th>
-                      <th class="text-right px-4 py-3 text-xs font-semibold text-muted-foreground">EPF</th>
-                      <th class="text-right px-4 py-3 text-xs font-semibold text-muted-foreground">SOCSO</th>
-                      <th class="text-right px-4 py-3 text-xs font-semibold text-muted-foreground">PCB</th>
-                      <th class="text-right px-4 py-3 text-xs font-semibold text-muted-foreground">Net Pay</th>
-                    </tr>
-                  </thead>
-                  <tbody class="divide-y">
-                    @for (month of ytdData()!.monthly_breakdown; track month.month_name) {
-                      <tr class="hover:bg-muted/20">
-                        <td class="px-4 py-3 text-sm text-foreground">{{ month.month_name }}</td>
-                        <td class="px-4 py-3 text-sm text-foreground text-right">{{ formatCurrency(month.gross_pay) }}</td>
-                        <td class="px-4 py-3 text-sm text-foreground text-right">{{ formatCurrency(month.epf_employee) }}</td>
-                        <td class="px-4 py-3 text-sm text-foreground text-right">{{ formatCurrency(month.socso_employee) }}</td>
-                        <td class="px-4 py-3 text-sm text-foreground text-right">{{ formatCurrency(month.pcb) }}</td>
-                        <td class="px-4 py-3 text-sm font-semibold text-foreground text-right">{{ formatCurrency(month.net_pay) }}</td>
-                      </tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          }
-
-          @if (!loadingYTD() && !ytdData()) {
-            <div class="flex flex-col items-center justify-center py-10 text-center">
-              <z-icon zType="inbox" class="w-12 h-12 text-muted-foreground mb-3" />
-              <p class="text-sm text-muted-foreground">No YTD data available for {{ selectedYear }}</p>
-            </div>
-          }
-        </z-card>
-
-        <!-- Document Management Section -->
-        <z-card
-          [zTitle]="'Employee Documents'"
-          [zDescription]="'Manage employee files and documents'"
-          [zHeaderBorder]="true">
-          <div class="flex justify-end mb-4">
-            <button z-button zSize="sm" (click)="toggleDocumentUpload()">
-              @if (showDocumentUpload()) {
-                <z-icon zType="x" class="w-4 h-4 mr-2" />
-                Cancel
-              } @else {
-                <z-icon zType="plus" class="w-4 h-4 mr-2" />
-                Upload Document
-              }
+      <!-- ===== TAB NAVIGATION ===== -->
+      <div class="border-b border-border mb-8">
+        <nav class="flex gap-0 -mb-px overflow-x-auto" role="tablist">
+          @for (tab of tabs; track tab.id) {
+            <button
+              type="button"
+              role="tab"
+              [attr.aria-selected]="activeTab() === tab.id"
+              (click)="setActiveTab(tab.id)"
+              class="tab-button relative flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium transition-colors whitespace-nowrap shrink-0"
+              [class.tab-active]="activeTab() === tab.id"
+              [class.tab-inactive]="activeTab() !== tab.id">
+              <z-icon [zType]="$any(tab.icon)" zSize="sm" />
+              <span>{{ tab.label }}</span>
             </button>
+          }
+        </nav>
+      </div>
+
+      <!-- ===== TAB CONTENT ===== -->
+      @switch (activeTab()) {
+
+        <!-- ==================== PERSONAL INFORMATION TAB ==================== -->
+        @case ('personal') {
+          <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+
+            <!-- Left Column -->
+            <div class="lg:col-span-3 space-y-6">
+
+              <!-- Personal Information Card -->
+              <div class="rounded-xl border border-border bg-card">
+                <div class="flex items-center justify-between px-6 py-4 border-b border-border">
+                  <div class="flex items-center gap-2">
+                    <z-icon [zType]="$any('user')" zSize="sm" class="text-muted-foreground" />
+                    <h3 class="text-sm font-semibold text-foreground">Personal Information</h3>
+                  </div>
+                  <button z-button zType="ghost" zSize="sm" (click)="onEdit()" class="gap-1.5 text-muted-foreground">
+                    <z-icon zType="pencil" zSize="sm" />
+                    Edit
+                  </button>
+                </div>
+                <div class="px-6 py-5">
+                  <dl class="grid grid-cols-2 gap-x-8 gap-y-5">
+                    <div>
+                      <dt class="text-xs font-medium text-muted-foreground mb-1">Full Name</dt>
+                      <dd class="text-sm text-foreground">{{ employee()!.full_name }}</dd>
+                    </div>
+                    <div>
+                      <dt class="text-xs font-medium text-muted-foreground mb-1">Gender</dt>
+                      <dd class="text-sm text-foreground">{{ employee()!.gender }}</dd>
+                    </div>
+                    <div>
+                      <dt class="text-xs font-medium text-muted-foreground mb-1">Marital Status</dt>
+                      <dd class="text-sm text-foreground">{{ employee()!.marital_status || '-' }}</dd>
+                    </div>
+                    <div>
+                      <dt class="text-xs font-medium text-muted-foreground mb-1">Religion</dt>
+                      <dd class="text-sm text-foreground">{{ employee()!.religion || '-' }}</dd>
+                    </div>
+                    <div>
+                      <dt class="text-xs font-medium text-muted-foreground mb-1">Nationality</dt>
+                      <dd class="text-sm text-foreground">{{ employee()!.nationality || '-' }}</dd>
+                    </div>
+                    <div>
+                      <dt class="text-xs font-medium text-muted-foreground mb-1">Race</dt>
+                      <dd class="text-sm text-foreground">{{ employee()!.race || '-' }}</dd>
+                    </div>
+                    <div>
+                      <dt class="text-xs font-medium text-muted-foreground mb-1">Date of Birth</dt>
+                      <dd class="text-sm text-foreground">
+                        {{ employee()!.date_of_birth ? formatDate(employee()!.date_of_birth!) : '-' }}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt class="text-xs font-medium text-muted-foreground mb-1">Age</dt>
+                      <dd class="text-sm text-foreground">
+                        {{ employee()!.date_of_birth ? calculateAge(employee()!.date_of_birth!) : '-' }}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt class="text-xs font-medium text-muted-foreground mb-1">IC Number</dt>
+                      <dd class="text-sm text-foreground">{{ employee()!.ic_no || '-' }}</dd>
+                    </div>
+                    <div>
+                      <dt class="text-xs font-medium text-muted-foreground mb-1">Passport Number</dt>
+                      <dd class="text-sm text-foreground">{{ employee()!.passport_no || '-' }}</dd>
+                    </div>
+                  </dl>
+                </div>
+              </div>
+
+              <!-- Address Information Card -->
+              <div class="rounded-xl border border-border bg-card">
+                <div class="flex items-center justify-between px-6 py-4 border-b border-border">
+                  <div class="flex items-center gap-2">
+                    <z-icon [zType]="$any('map-pin')" zSize="sm" class="text-muted-foreground" />
+                    <h3 class="text-sm font-semibold text-foreground">Address Information</h3>
+                  </div>
+                  <button z-button zType="ghost" zSize="sm" (click)="onEdit()" class="gap-1.5 text-muted-foreground">
+                    <z-icon zType="pencil" zSize="sm" />
+                    Edit
+                  </button>
+                </div>
+                <div class="px-6 py-5 space-y-5">
+                  <!-- Residential Address -->
+                  <div>
+                    <dt class="text-xs font-medium text-muted-foreground mb-1">Residential Address</dt>
+                    <dd class="text-sm text-foreground">{{ employee()!.current_address || '-' }}</dd>
+                    @if (employee()!.current_address) {
+                      <a [href]="'https://www.google.com/maps/search/?api=1&query=' + employee()!.current_address"
+                        target="_blank" rel="noopener"
+                        class="inline-flex items-center gap-1 text-xs text-primary hover:underline mt-1.5">
+                        View on Map
+                        <z-icon [zType]="$any('chevron-right')" zSize="sm" />
+                      </a>
+                    }
+                  </div>
+
+                  <z-divider zSpacing="none" />
+
+                  <!-- Permanent Address -->
+                  <div>
+                    <dt class="text-xs font-medium text-muted-foreground mb-1">Permanent Address</dt>
+                    <dd class="text-sm text-foreground">{{ employee()!.permanent_address || '-' }}</dd>
+                    @if (employee()!.permanent_address) {
+                      <a [href]="'https://www.google.com/maps/search/?api=1&query=' + employee()!.permanent_address"
+                        target="_blank" rel="noopener"
+                        class="inline-flex items-center gap-1 text-xs text-primary hover:underline mt-1.5">
+                        View on Map
+                        <z-icon [zType]="$any('chevron-right')" zSize="sm" />
+                      </a>
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="lg:col-span-2 space-y-6">
+
+              <!-- Contact Information Card -->
+              <div class="rounded-xl border border-border bg-card">
+                <div class="flex items-center gap-2 px-6 py-4 border-b border-border">
+                  <z-icon [zType]="$any('phone')" zSize="sm" class="text-muted-foreground" />
+                  <h3 class="text-sm font-semibold text-foreground">Contact Information</h3>
+                </div>
+                <div class="px-6 py-5 space-y-4">
+                  <p class="text-xs font-semibold text-foreground uppercase tracking-wider">Personal Contact</p>
+                  <div class="grid grid-cols-2 gap-4">
+                    <div>
+                      <dt class="text-xs font-medium text-muted-foreground mb-0.5">Phone Number</dt>
+                      @if (employee()!.mobile) {
+                        <a [href]="'tel:' + employee()!.mobile" class="text-sm text-primary hover:underline">
+                          {{ employee()!.mobile }}
+                        </a>
+                      } @else {
+                        <dd class="text-sm text-muted-foreground">-</dd>
+                      }
+                    </div>
+                    <div>
+                      <dt class="text-xs font-medium text-muted-foreground mb-0.5">Email</dt>
+                      @if (employee()!.email) {
+                        <a [href]="'mailto:' + employee()!.email" class="text-sm text-primary hover:underline break-all">
+                          {{ employee()!.email }}
+                        </a>
+                      } @else {
+                        <dd class="text-sm text-muted-foreground">-</dd>
+                      }
+                    </div>
+                  </div>
+
+                  <z-divider zSpacing="sm" />
+
+                  <p class="text-xs font-semibold text-foreground uppercase tracking-wider">Emergency Contact</p>
+                  @if (employee()!.emergency_contact_name || employee()!.emergency_contact_phone) {
+                    <div class="grid grid-cols-2 gap-4">
+                      <div>
+                        <dt class="text-xs font-medium text-muted-foreground mb-0.5">Name</dt>
+                        <dd class="text-sm text-foreground">{{ employee()!.emergency_contact_name || '-' }}</dd>
+                      </div>
+                      <div>
+                        <dt class="text-xs font-medium text-muted-foreground mb-0.5">Phone</dt>
+                        @if (employee()!.emergency_contact_phone) {
+                          <a [href]="'tel:' + employee()!.emergency_contact_phone" class="text-sm text-primary hover:underline">
+                            {{ employee()!.emergency_contact_phone }}
+                          </a>
+                        } @else {
+                          <dd class="text-sm text-muted-foreground">-</dd>
+                        }
+                      </div>
+                    </div>
+                  } @else {
+                    <p class="text-sm text-muted-foreground">Not Provided</p>
+                  }
+                </div>
+              </div>
+
+              <!-- Employment Overview Card -->
+              <div class="rounded-xl border border-border bg-card">
+                <div class="flex items-center gap-2 px-6 py-4 border-b border-border">
+                  <z-icon [zType]="$any('briefcase')" zSize="sm" class="text-muted-foreground" />
+                  <h3 class="text-sm font-semibold text-foreground">Employment Overview</h3>
+                </div>
+                <div class="px-6 py-5">
+                  <dl class="grid grid-cols-2 gap-x-6 gap-y-4">
+                    <div>
+                      <dt class="text-xs font-medium text-muted-foreground mb-0.5">Date Started</dt>
+                      <dd class="text-sm text-foreground">{{ formatDate(employee()!.join_date) }}</dd>
+                      <dd class="text-xs text-muted-foreground">{{ calculateTenure(employee()!.join_date) }}</dd>
+                    </div>
+                    <div>
+                      <dt class="text-xs font-medium text-muted-foreground mb-0.5">Job Role</dt>
+                      <dd class="text-sm text-foreground">{{ employee()!.position || '-' }}</dd>
+                    </div>
+                    <div>
+                      <dt class="text-xs font-medium text-muted-foreground mb-0.5">Department</dt>
+                      <dd class="text-sm text-foreground">{{ employee()!.department || '-' }}</dd>
+                    </div>
+                    <div>
+                      <dt class="text-xs font-medium text-muted-foreground mb-0.5">Employment Status</dt>
+                      <dd class="text-sm text-foreground">{{ employee()!.employment_type || '-' }}</dd>
+                    </div>
+                  </dl>
+                  <button (click)="setActiveTab('contract')"
+                    class="inline-flex items-center gap-1 text-xs text-primary hover:underline mt-4 cursor-pointer">
+                    View contract
+                    <z-icon [zType]="$any('chevron-right')" zSize="sm" />
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
+        }
 
-          <!-- Success Message -->
-          @if (uploadSuccess()) {
-            <div class="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-2 text-green-800 mb-4">
-              <z-icon zType="circle-check" class="w-5 h-5" />
-              <span class="text-sm">{{ uploadSuccess() }}</span>
+        <!-- ==================== CONTRACT TAB ==================== -->
+        @case ('contract') {
+          <div class="max-w-3xl">
+            <div class="rounded-xl border border-border bg-card">
+              <div class="flex items-center justify-between px-6 py-4 border-b border-border">
+                <div class="flex items-center gap-2">
+                  <z-icon zType="file-text" zSize="sm" class="text-muted-foreground" />
+                  <h3 class="text-sm font-semibold text-foreground">Contract Details</h3>
+                </div>
+                <button z-button zType="ghost" zSize="sm" (click)="onEdit()" class="gap-1.5 text-muted-foreground">
+                  <z-icon zType="pencil" zSize="sm" />
+                  Edit
+                </button>
+              </div>
+              <div class="px-6 py-5">
+                <dl class="grid grid-cols-2 gap-x-8 gap-y-5">
+                  <div>
+                    <dt class="text-xs font-medium text-muted-foreground mb-1">Employment Type</dt>
+                    <dd class="text-sm text-foreground">{{ employee()!.employment_type || '-' }}</dd>
+                  </div>
+                  <div>
+                    <dt class="text-xs font-medium text-muted-foreground mb-1">Employment Status</dt>
+                    <dd>
+                      @if (employee()!.employment_status === 'Active') {
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                          Active
+                        </span>
+                      } @else {
+                        <z-badge
+                          [zType]="employee()!.employment_status === 'Resigned' ? 'secondary' : 'destructive'"
+                          zShape="pill">
+                          {{ employee()!.employment_status }}
+                        </z-badge>
+                      }
+                    </dd>
+                  </div>
+                  <div>
+                    <dt class="text-xs font-medium text-muted-foreground mb-1">Join Date</dt>
+                    <dd class="text-sm text-foreground">{{ formatDate(employee()!.join_date) }}</dd>
+                  </div>
+                  <div>
+                    <dt class="text-xs font-medium text-muted-foreground mb-1">Confirmation Date</dt>
+                    <dd class="text-sm text-foreground">
+                      {{ employee()!.confirmation_date ? formatDate(employee()!.confirmation_date!) : '-' }}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt class="text-xs font-medium text-muted-foreground mb-1">Work Location</dt>
+                    <dd class="text-sm text-foreground">{{ employee()!.work_location || '-' }}</dd>
+                  </div>
+                  <div>
+                    <dt class="text-xs font-medium text-muted-foreground mb-1">Reporting Manager</dt>
+                    @if (employee()!.manager) {
+                      <dd class="text-sm text-foreground">{{ employee()!.manager!.full_name }}</dd>
+                      <dd class="text-xs text-muted-foreground">{{ employee()!.manager!.position }} ({{ employee()!.manager!.employee_id }})</dd>
+                    } @else {
+                      <dd class="text-sm text-muted-foreground">-</dd>
+                    }
+                  </div>
+                  <div class="col-span-2 pt-2 border-t border-border">
+                    <dt class="text-xs font-medium text-muted-foreground mb-1">Basic Salary</dt>
+                    <dd class="text-lg font-semibold text-foreground">{{ formatCurrency(employee()!.basic_salary) }}</dd>
+                  </div>
+                </dl>
+              </div>
             </div>
-          }
+          </div>
+        }
 
-          <!-- Document Upload Form -->
-          @if (showDocumentUpload()) {
-            <div class="mb-6 p-4 bg-muted/30 rounded-lg">
-              <app-file-upload
-                [acceptedTypes]="'.pdf,.doc,.docx,.jpg,.jpeg,.png,.xls,.xlsx'"
-                [multiple]="true"
-                [maxFiles]="10"
-                [showPreview]="true"
-                [autoUpload]="false"
-                [metadata]="fileUploadMetadata"
-                (filesSelected)="onDocumentFilesSelected($event)"
-                (uploadComplete)="onDocumentUploadComplete($event)"
-                (uploadError)="onDocumentUploadError($event)">
-              </app-file-upload>
-              <p class="text-xs text-muted-foreground mt-2 flex items-center gap-1">
-                <z-icon zType="info" class="w-3 h-3" />
-                Upload employee documents such as resume, certificates, contracts, identification, etc.
-              </p>
+        <!-- ==================== PAYROLL TAB ==================== -->
+        @case ('payroll') {
+          <div class="space-y-6">
+            <div class="rounded-xl border border-border bg-card">
+              <div class="flex items-center justify-between px-6 py-4 border-b border-border">
+                <div class="flex items-center gap-2">
+                  <z-icon [zType]="$any('wallet')" zSize="sm" class="text-muted-foreground" />
+                  <h3 class="text-sm font-semibold text-foreground">Year-to-Date Summary</h3>
+                </div>
+                <div class="w-28">
+                  <z-select
+                    [(zValue)]="selectedYear"
+                    (zSelectionChange)="onYearChange($event)"
+                    [zDisabled]="loadingYTD()"
+                    zSize="sm">
+                    @for (year of availableYears; track year) {
+                      <z-select-item [zValue]="year">{{ year }}</z-select-item>
+                    }
+                  </z-select>
+                </div>
+              </div>
+              <div class="px-6 py-5">
+                @if (loadingYTD()) {
+                  <div class="flex items-center justify-center py-10">
+                    <z-icon zType="loader-circle" class="w-5 h-5 animate-spin text-primary mr-2" />
+                    <span class="text-sm text-muted-foreground">Loading...</span>
+                  </div>
+                }
+
+                @if (!loadingYTD() && ytdData()) {
+                  <!-- YTD Totals -->
+                  <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-8">
+                    <div class="rounded-lg bg-muted/40 p-4">
+                      <dt class="text-xs font-medium text-muted-foreground mb-1">Gross Pay</dt>
+                      <dd class="text-base font-semibold text-foreground">{{ formatCurrency(ytdData()!.totals.gross_pay) }}</dd>
+                    </div>
+                    <div class="rounded-lg bg-muted/40 p-4">
+                      <dt class="text-xs font-medium text-muted-foreground mb-1">EPF (Employee)</dt>
+                      <dd class="text-base font-semibold text-foreground">{{ formatCurrency(ytdData()!.totals.epf_employee) }}</dd>
+                    </div>
+                    <div class="rounded-lg bg-muted/40 p-4">
+                      <dt class="text-xs font-medium text-muted-foreground mb-1">SOCSO (Employee)</dt>
+                      <dd class="text-base font-semibold text-foreground">{{ formatCurrency(ytdData()!.totals.socso_employee) }}</dd>
+                    </div>
+                    <div class="rounded-lg bg-muted/40 p-4">
+                      <dt class="text-xs font-medium text-muted-foreground mb-1">PCB</dt>
+                      <dd class="text-base font-semibold text-foreground">{{ formatCurrency(ytdData()!.totals.pcb) }}</dd>
+                    </div>
+                    <div class="rounded-lg bg-primary/5 border border-primary/10 p-4">
+                      <dt class="text-xs font-medium text-primary mb-1">Net Pay</dt>
+                      <dd class="text-base font-semibold text-primary">{{ formatCurrency(ytdData()!.totals.net_pay) }}</dd>
+                    </div>
+                  </div>
+
+                  <!-- Monthly Breakdown -->
+                  <div>
+                    <h4 class="text-sm font-semibold text-foreground mb-3">Monthly Breakdown</h4>
+                    <div class="overflow-x-auto rounded-lg border border-border">
+                      <table class="w-full text-sm">
+                        <thead>
+                          <tr class="bg-muted/30">
+                            <th class="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Month</th>
+                            <th class="text-right px-4 py-2.5 text-xs font-medium text-muted-foreground">Gross Pay</th>
+                            <th class="text-right px-4 py-2.5 text-xs font-medium text-muted-foreground">EPF</th>
+                            <th class="text-right px-4 py-2.5 text-xs font-medium text-muted-foreground">SOCSO</th>
+                            <th class="text-right px-4 py-2.5 text-xs font-medium text-muted-foreground">PCB</th>
+                            <th class="text-right px-4 py-2.5 text-xs font-medium text-muted-foreground">Net Pay</th>
+                          </tr>
+                        </thead>
+                        <tbody class="divide-y divide-border">
+                          @for (month of ytdData()!.monthly_breakdown; track month.month_name) {
+                            <tr class="hover:bg-muted/20 transition-colors">
+                              <td class="px-4 py-2.5 text-foreground">{{ month.month_name }}</td>
+                              <td class="px-4 py-2.5 text-foreground text-right tabular-nums">{{ formatCurrency(month.gross_pay) }}</td>
+                              <td class="px-4 py-2.5 text-foreground text-right tabular-nums">{{ formatCurrency(month.epf_employee) }}</td>
+                              <td class="px-4 py-2.5 text-foreground text-right tabular-nums">{{ formatCurrency(month.socso_employee) }}</td>
+                              <td class="px-4 py-2.5 text-foreground text-right tabular-nums">{{ formatCurrency(month.pcb) }}</td>
+                              <td class="px-4 py-2.5 text-foreground text-right tabular-nums font-medium">{{ formatCurrency(month.net_pay) }}</td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                }
+
+                @if (!loadingYTD() && !ytdData()) {
+                  <div class="flex flex-col items-center justify-center py-12 text-center">
+                    <z-icon [zType]="$any('inbox')" class="w-10 h-10 text-muted-foreground/40 mb-3" />
+                    <p class="text-sm text-muted-foreground">No payroll data available for {{ selectedYear }}</p>
+                  </div>
+                }
+              </div>
             </div>
-          }
+          </div>
+        }
 
-          <!-- Document List -->
-          <div>
+        <!-- ==================== DOCUMENT TAB ==================== -->
+        @case ('document') {
+          <div class="space-y-4">
+            <!-- Upload controls -->
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <z-icon [zType]="$any('folder-open')" zSize="sm" class="text-muted-foreground" />
+                <h3 class="text-sm font-semibold text-foreground">Employee Documents</h3>
+              </div>
+              <button z-button zType="outline" zSize="sm" (click)="toggleDocumentUpload()" class="gap-1.5">
+                @if (showDocumentUpload()) {
+                  <z-icon zType="x" zSize="sm" />
+                  Cancel
+                } @else {
+                  <z-icon zType="plus" zSize="sm" />
+                  Upload Document
+                }
+              </button>
+            </div>
+
+            <!-- Success Message -->
+            @if (uploadSuccess()) {
+              <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3 flex items-center gap-2 text-emerald-700">
+                <z-icon [zType]="$any('circle-check')" class="w-4 h-4" />
+                <span class="text-sm">{{ uploadSuccess() }}</span>
+              </div>
+            }
+
+            <!-- Upload area -->
+            @if (showDocumentUpload()) {
+              <div class="rounded-xl border border-dashed border-border bg-muted/20 p-6">
+                <app-file-upload
+                  [acceptedTypes]="'.pdf,.doc,.docx,.jpg,.jpeg,.png,.xls,.xlsx'"
+                  [multiple]="true"
+                  [maxFiles]="10"
+                  [showPreview]="true"
+                  [autoUpload]="false"
+                  [metadata]="fileUploadMetadata"
+                  (filesSelected)="onDocumentFilesSelected($event)"
+                  (uploadComplete)="onDocumentUploadComplete($event)"
+                  (uploadError)="onDocumentUploadError($event)">
+                </app-file-upload>
+                <p class="text-xs text-muted-foreground mt-3 flex items-center gap-1">
+                  <z-icon [zType]="$any('info')" class="w-3.5 h-3.5" />
+                  Upload employee documents such as resume, certificates, contracts, identification, etc.
+                </p>
+              </div>
+            }
+
+            <!-- Document List -->
             <app-file-list
               [category]="'employee_document'"
               [relatedToEmployeeId]="employeeId()!"
@@ -359,83 +604,117 @@
               [showActions]="true">
             </app-file-list>
           </div>
-        </z-card>
-      </div>
+        }
 
-      <!-- Right Column (1/3 width) -->
-      <div class="xl:col-span-1 space-y-6">
-        <!-- Employment Information -->
-        <z-card
-          [zTitle]="'Employment Details'"
-          [zDescription]="'Position and work information'"
-          [zHeaderBorder]="true">
-          <div class="space-y-4">
-            <div>
-              <label class="block text-xs font-semibold text-muted-foreground mb-1">Position</label>
-              <p class="text-sm text-foreground font-medium">{{ employee()!.position || '-' }}</p>
-            </div>
-            <z-divider />
-            <div>
-              <label class="block text-xs font-semibold text-muted-foreground mb-1">Department</label>
-              <p class="text-sm text-foreground font-medium">{{ employee()!.department || '-' }}</p>
-            </div>
-            <z-divider />
-            <div>
-              <label class="block text-xs font-semibold text-muted-foreground mb-1">Reporting Manager</label>
-              @if (employee()!.manager) {
-                <p class="text-sm text-foreground font-medium">{{ employee()!.manager!.full_name }} ({{ employee()!.manager!.employee_id }})</p>
-                @if (employee()!.manager!.position) {
-                  <p class="text-xs text-muted-foreground">{{ employee()!.manager!.position }}</p>
-                }
-              } @else {
-                <p class="text-sm text-muted-foreground">-</p>
-              }
-            </div>
-            <z-divider />
-            <div>
-              <label class="block text-xs font-semibold text-muted-foreground mb-1">Employment Type</label>
-              <p class="text-sm text-foreground font-medium">{{ employee()!.employment_type || '-' }}</p>
-            </div>
-            <z-divider />
-            <div>
-              <label class="block text-xs font-semibold text-muted-foreground mb-1">Work Location</label>
-              <p class="text-sm text-foreground font-medium">{{ employee()!.work_location || '-' }}</p>
-            </div>
-            <z-divider />
-            <div>
-              <label class="block text-xs font-semibold text-muted-foreground mb-1">Employment Status</label>
-              <z-badge
-                [zType]="employee()!.employment_status === 'Active' ? 'default' : employee()!.employment_status === 'Resigned' ? 'secondary' : 'destructive'"
-                [zShape]="'pill'">
-                {{ employee()!.employment_status }}
-              </z-badge>
+        <!-- ==================== STATUTORY TAB ==================== -->
+        @case ('statutory') {
+          <div class="max-w-3xl">
+            <div class="rounded-xl border border-border bg-card">
+              <div class="flex items-center justify-between px-6 py-4 border-b border-border">
+                <div class="flex items-center gap-2">
+                  <z-icon [zType]="$any('shield')" zSize="sm" class="text-muted-foreground" />
+                  <h3 class="text-sm font-semibold text-foreground">Statutory Information</h3>
+                </div>
+                <button z-button zType="ghost" zSize="sm" (click)="onEdit()" class="gap-1.5 text-muted-foreground">
+                  <z-icon zType="pencil" zSize="sm" />
+                  Edit
+                </button>
+              </div>
+              <div class="px-6 py-5">
+                <!-- Statutory Numbers -->
+                <dl class="grid grid-cols-2 gap-x-8 gap-y-5">
+                  <div>
+                    <dt class="text-xs font-medium text-muted-foreground mb-1">EPF Number</dt>
+                    <dd class="text-sm text-foreground">{{ employee()!.epf_no || '-' }}</dd>
+                  </div>
+                  <div>
+                    <dt class="text-xs font-medium text-muted-foreground mb-1">SOCSO Number</dt>
+                    <dd class="text-sm text-foreground">{{ employee()!.socso_no || '-' }}</dd>
+                  </div>
+                  <div>
+                    <dt class="text-xs font-medium text-muted-foreground mb-1">Income Tax Number</dt>
+                    <dd class="text-sm text-foreground">{{ employee()!.tax_no || '-' }}</dd>
+                  </div>
+                  <div>
+                    <dt class="text-xs font-medium text-muted-foreground mb-1">Tax Category</dt>
+                    <dd class="text-sm text-foreground">{{ employee()!.tax_category || '-' }}</dd>
+                  </div>
+                </dl>
+
+                <!-- Tax Relief Details -->
+                <div class="mt-6 pt-6 border-t border-border">
+                  <h4 class="text-xs font-semibold text-foreground uppercase tracking-wider mb-4">Tax Relief Details</h4>
+                  <dl class="grid grid-cols-3 gap-x-8 gap-y-5">
+                    <div>
+                      <dt class="text-xs font-medium text-muted-foreground mb-1">Children (Under 18)</dt>
+                      <dd class="text-sm text-foreground">{{ employee()!.number_of_children ?? 0 }}</dd>
+                    </div>
+                    <div>
+                      <dt class="text-xs font-medium text-muted-foreground mb-1">Children in Higher Ed</dt>
+                      <dd class="text-sm text-foreground">{{ employee()!.children_in_higher_education ?? 0 }}</dd>
+                    </div>
+                    <div>
+                      <dt class="text-xs font-medium text-muted-foreground mb-1">Disabled Children</dt>
+                      <dd class="text-sm text-foreground">{{ employee()!.disabled_children ?? 0 }}</dd>
+                    </div>
+                    <div>
+                      <dt class="text-xs font-medium text-muted-foreground mb-1">Employee Disability (OKU)</dt>
+                      <dd>
+                        <z-badge [zType]="employee()!.disabled_self ? 'default' : 'secondary'" zShape="pill">
+                          {{ employee()!.disabled_self ? 'Yes' : 'No' }}
+                        </z-badge>
+                      </dd>
+                    </div>
+                    <div>
+                      <dt class="text-xs font-medium text-muted-foreground mb-1">Spouse Disability (OKU)</dt>
+                      <dd>
+                        <z-badge [zType]="employee()!.disabled_spouse ? 'default' : 'secondary'" zShape="pill">
+                          {{ employee()!.disabled_spouse ? 'Yes' : 'No' }}
+                        </z-badge>
+                      </dd>
+                    </div>
+                  </dl>
+                </div>
+              </div>
             </div>
           </div>
-        </z-card>
+        }
 
-        <!-- Salary & Dates -->
-        <z-card
-          [zTitle]="'Salary & Dates'"
-          [zDescription]="'Compensation and timeline'"
-          [zHeaderBorder]="true">
-          <div class="space-y-4">
-            <div>
-              <label class="block text-xs font-semibold text-muted-foreground mb-1">Basic Salary</label>
-              <p class="text-xl font-bold text-primary">{{ formatCurrency(employee()!.basic_salary) }}</p>
-            </div>
-            <z-divider />
-            <div>
-              <label class="block text-xs font-semibold text-muted-foreground mb-1">Join Date</label>
-              <p class="text-sm text-foreground font-medium">{{ formatDate(employee()!.join_date) }}</p>
-            </div>
-            <z-divider />
-            <div>
-              <label class="block text-xs font-semibold text-muted-foreground mb-1">Confirmation Date</label>
-              <p class="text-sm text-foreground font-medium">{{ employee()!.confirmation_date ? formatDate(employee()!.confirmation_date!) : '-' }}</p>
+        <!-- ==================== BANKING TAB ==================== -->
+        @case ('banking') {
+          <div class="max-w-3xl">
+            <div class="rounded-xl border border-border bg-card">
+              <div class="flex items-center justify-between px-6 py-4 border-b border-border">
+                <div class="flex items-center gap-2">
+                  <z-icon zType="landmark" zSize="sm" class="text-muted-foreground" />
+                  <h3 class="text-sm font-semibold text-foreground">Banking Information</h3>
+                </div>
+                <button z-button zType="ghost" zSize="sm" (click)="onEdit()" class="gap-1.5 text-muted-foreground">
+                  <z-icon zType="pencil" zSize="sm" />
+                  Edit
+                </button>
+              </div>
+              <div class="px-6 py-5">
+                <dl class="grid grid-cols-1 sm:grid-cols-3 gap-x-8 gap-y-5">
+                  <div>
+                    <dt class="text-xs font-medium text-muted-foreground mb-1">Bank Name</dt>
+                    <dd class="text-sm text-foreground">{{ employee()!.bank_name || '-' }}</dd>
+                  </div>
+                  <div>
+                    <dt class="text-xs font-medium text-muted-foreground mb-1">Account Number</dt>
+                    <dd class="text-sm text-foreground font-mono">{{ employee()!.bank_account_no || '-' }}</dd>
+                  </div>
+                  <div>
+                    <dt class="text-xs font-medium text-muted-foreground mb-1">Account Holder Name</dt>
+                    <dd class="text-sm text-foreground">{{ employee()!.bank_account_holder || '-' }}</dd>
+                  </div>
+                </dl>
+              </div>
             </div>
           </div>
-        </z-card>
-      </div>
+        }
+      }
+
     </div>
   }
 </div>
