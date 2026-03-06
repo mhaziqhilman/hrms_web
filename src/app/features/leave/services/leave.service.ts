@@ -104,7 +104,7 @@ export class LeaveService {
   /**
    * Get leave balance for an employee
    */
-  getLeaveBalance(employee_id: number, year?: number): Observable<LeaveBalanceResponse> {
+  getLeaveBalance(employee_id: number | string, year?: number): Observable<LeaveBalanceResponse> {
     let httpParams = new HttpParams();
     if (year) {
       httpParams = httpParams.set('year', year.toString());

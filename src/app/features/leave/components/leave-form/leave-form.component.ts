@@ -89,7 +89,7 @@ export class LeaveFormComponent implements OnInit {
 
     if (this.isStaff()) {
       // Staff users: auto-set their own employee_id, skip loading all employees
-      const employeeId = currentUser?.employee?.id;
+      const employeeId = currentUser?.employee?.public_id;
       if (employeeId) {
         this.leaveForm.patchValue({ employee_id: employeeId });
         this.loadLeaveBalance(employeeId);
@@ -227,11 +227,11 @@ export class LeaveFormComponent implements OnInit {
 
   onEmployeeChange(employeeId: any): void {
     if (employeeId) {
-      this.loadLeaveBalance(Number(employeeId));
+      this.loadLeaveBalance(employeeId);
     }
   }
 
-  loadLeaveBalance(employeeId: number): void {
+  loadLeaveBalance(employeeId: number | string): void {
     const currentYear = new Date().getFullYear();
 
     this.leaveService.getLeaveBalance(employeeId, currentYear).subscribe({

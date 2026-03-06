@@ -63,6 +63,7 @@ export interface UserListResponse {
 
 export interface UnlinkedEmployee {
   id: number;
+  public_id: string;
   employee_id: string;
   full_name: string;
   position: string;
@@ -110,7 +111,7 @@ export class UserManagementService {
     );
   }
 
-  linkUserToEmployee(userId: number, employeeId: number): Observable<ApiResponse<UserRecord>> {
+  linkUserToEmployee(userId: number, employeeId: number | string): Observable<ApiResponse<UserRecord>> {
     return this.http.put<ApiResponse<UserRecord>>(
       `${this.apiUrl}${API_CONFIG.endpoints.users.linkEmployee(userId)}`,
       { employee_id: employeeId }

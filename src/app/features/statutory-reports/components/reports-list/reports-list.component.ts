@@ -61,7 +61,7 @@ export class ReportsListComponent implements OnInit {
 
   // EA Form specific
   eaEmployees = signal<EAEmployee[]>([]);
-  selectedEmployeeId = signal<number | null>(null);
+  selectedEmployeeId = signal<string | null>(null);
 
   // Report data
   reportData = signal<any>(null);
@@ -272,7 +272,7 @@ export class ReportsListComponent implements OnInit {
       case 'ea':
         if (!employeeId) return;
         download$ = this.reportsService.downloadEAFormPDF(employeeId, year);
-        const employee = this.eaEmployees().find(e => e.id === employeeId);
+        const employee = this.eaEmployees().find(e => e.public_id === employeeId);
         filename = `EA_Form_${employee?.employee_id || employeeId}_${year}.pdf`;
         break;
 
@@ -334,7 +334,7 @@ export class ReportsListComponent implements OnInit {
 
     this.loading.set(true);
 
-    const employee = this.eaEmployees().find(e => e.id === employeeId);
+    const employee = this.eaEmployees().find(e => e.public_id === employeeId);
     const filename = `EA_Form_${employee?.employee_id || employeeId}_${year}.xlsx`;
 
     const toastId = toast.loading('Preparing download...');
@@ -415,7 +415,7 @@ export class ReportsListComponent implements OnInit {
     this.onMonthChange();
   }
 
-  onEmployeeSelect(value: number): void {
+  onEmployeeSelect(value: string): void {
     this.selectedEmployeeId.set(value);
   }
 

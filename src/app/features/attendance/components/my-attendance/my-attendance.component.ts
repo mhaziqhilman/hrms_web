@@ -50,7 +50,7 @@ export class MyAttendanceComponent implements OnInit, OnDestroy {
   success = signal<string | null>(null);
 
   // Employee
-  employeeId = signal<number | null>(null);
+  employeeId = signal<string | null>(null);
 
   // History state
   attendances = signal<Attendance[]>([]);
@@ -84,7 +84,7 @@ export class MyAttendanceComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     const user = this.authService.getCurrentUserValue();
-    this.employeeId.set(user?.employee?.id ?? null);
+    this.employeeId.set(user?.employee?.public_id ?? null);
 
     // Start real-time clock
     this.updateClock();

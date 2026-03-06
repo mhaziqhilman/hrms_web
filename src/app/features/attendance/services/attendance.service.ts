@@ -76,7 +76,7 @@ export class AttendanceService {
   }
 
   // Get attendance summary for an employee
-  getAttendanceSummary(employeeId: number, month?: number, year?: number): Observable<ApiResponse<AttendanceSummary>> {
+  getAttendanceSummary(employeeId: number | string, month?: number, year?: number): Observable<ApiResponse<AttendanceSummary>> {
     let httpParams = new HttpParams();
     if (month) httpParams = httpParams.set('month', month.toString());
     if (year) httpParams = httpParams.set('year', year.toString());
@@ -87,7 +87,7 @@ export class AttendanceService {
   }
 
   // Get today's attendance for an employee
-  getTodayAttendance(employeeId: number): Observable<PaginatedResponse<Attendance>> {
+  getTodayAttendance(employeeId: number | string): Observable<PaginatedResponse<Attendance>> {
     const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
 
     let httpParams = new HttpParams()

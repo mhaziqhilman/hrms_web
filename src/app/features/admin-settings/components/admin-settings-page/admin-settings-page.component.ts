@@ -123,7 +123,7 @@ export class AdminSettingsPageComponent implements OnInit {
   entitlementForm: Partial<UpdateLeaveEntitlementRequest> = {};
   showAddEntitlementDialog = signal(false);
   addEntitlementForm: Partial<CreateLeaveEntitlementRequest> = {};
-  activeEmployees = signal<{ id: number; employee_id: string; full_name: string }[]>([]);
+  activeEmployees = signal<{ id: number; public_id: string; employee_id: string; full_name: string }[]>([]);
   activeLeaveTypesForEntitlement = signal<LeaveTypeConfig[]>([]);
   initializingYear = signal(false);
 
@@ -743,7 +743,7 @@ export class AdminSettingsPageComponent implements OnInit {
       next: (res: any) => {
         if (res.success && res.data?.employees) {
           this.activeEmployees.set(res.data.employees.map((e: any) => ({
-            id: e.id, employee_id: e.employee_id, full_name: e.full_name
+            id: e.id, public_id: e.public_id, employee_id: e.employee_id, full_name: e.full_name
           })));
         }
       }

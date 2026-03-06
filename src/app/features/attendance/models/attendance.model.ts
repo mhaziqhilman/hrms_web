@@ -62,7 +62,7 @@ export interface AttendanceSummary {
 }
 
 export interface ClockInRequest {
-  employee_id: number;
+  employee_id: number | string;
   type?: 'Office' | 'WFH';
   location_lat?: number;
   location_long?: number;
@@ -70,14 +70,14 @@ export interface ClockInRequest {
 }
 
 export interface ClockOutRequest {
-  employee_id: number;
+  employee_id: number | string;
   location_lat?: number;
   location_long?: number;
   location_address?: string;
 }
 
 export interface WFHApplicationRequest {
-  employee_id: number;
+  employee_id: number | string;
   date: string;
   reason: string;
 }
@@ -85,7 +85,7 @@ export interface WFHApplicationRequest {
 export interface AttendanceQueryParams {
   page?: number;
   limit?: number;
-  employee_id?: number;
+  employee_id?: number | string;
   type?: 'Office' | 'WFH';
   start_date?: string;
   end_date?: string;

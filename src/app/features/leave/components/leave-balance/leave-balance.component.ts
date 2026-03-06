@@ -41,7 +41,7 @@ export class LeaveBalanceComponent implements OnInit {
   isStaff = signal(false);
 
   employees = signal<Employee[]>([]);
-  selectedEmployeeId = signal<number | null>(null);
+  selectedEmployeeId = signal<string | null>(null);
   selectedYear = signal<number>(new Date().getFullYear());
 
   years: number[] = [];
@@ -64,7 +64,7 @@ export class LeaveBalanceComponent implements OnInit {
 
     if (this.isStaff()) {
       // Staff: load only their own balance
-      const employeeId = currentUser?.employee?.id;
+      const employeeId = currentUser?.employee?.public_id;
       if (employeeId) {
         this.selectedEmployeeId.set(employeeId);
         this.loadLeaveBalance();
@@ -83,7 +83,7 @@ export class LeaveBalanceComponent implements OnInit {
 
           // Auto-select first employee
           if (response.data.employees.length > 0) {
-            this.selectedEmployeeId.set(response.data.employees[0].id);
+            this.selectedEmployeeId.set(response.data.employees[0].public_id ?? null);
             this.loadLeaveBalance();
           }
         }

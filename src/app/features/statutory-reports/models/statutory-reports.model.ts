@@ -12,6 +12,7 @@ export interface AvailablePeriodsResponse {
 // Employee for EA form selection
 export interface EAEmployee {
   id: number;
+  public_id: string;
   employee_id: string;
   full_name: string;
   ic_no: string;

@@ -29,8 +29,8 @@
               zPlaceholder="Select employee"
               [(ngModel)]="selectedEmployeeId"
               (zValueChange)="onEmployeeChange()">
-              @for (emp of employees(); track emp.id) {
-                <z-select-item [zValue]="emp.id">
+              @for (emp of employees(); track emp.public_id) {
+                <z-select-item [zValue]="emp.public_id">
                   {{ emp.full_name }} ({{ emp.employee_id }})
                 </z-select-item>
               }

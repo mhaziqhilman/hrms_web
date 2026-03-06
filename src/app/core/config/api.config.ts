@@ -68,24 +68,24 @@ export const API_CONFIG = {
       base: '/leaves',
       detail: (id: number | string) => `/leaves/${id}`,
       approveReject: (id: number | string) => `/leaves/${id}/approve-reject`,
-      balance: (employee_id: number) => `/leaves/balance/${employee_id}`
+      balance: (employee_id: number | string) => `/leaves/balance/${employee_id}`
     },
     attendance: {
       base: '/attendance',
       clockIn: '/attendance/clock-in',
       clockOut: '/attendance/clock-out',
       detail: (id: number | string) => `/attendance/${id}`,
-      summary: (employee_id: number) => `/attendance/summary/${employee_id}`,
+      summary: (employee_id: number | string) => `/attendance/summary/${employee_id}`,
       wfh: '/attendance/wfh',
       wfhApproveReject: (id: number) => `/attendance/wfh/${id}/approve-reject`
     },
     statutoryReports: {
       periods: '/statutory-reports/periods',
       eaEmployees: (year: number) => `/statutory-reports/ea/${year}/employees`,
-      ea: (employeeId: number, year: number) => `/statutory-reports/ea/${employeeId}/${year}`,
-      eaPdf: (employeeId: number, year: number) => `/statutory-reports/ea/${employeeId}/${year}/pdf`,
-      eaExcel: (employeeId: number, year: number) => `/statutory-reports/ea/${employeeId}/${year}/excel`,
-      eaSendEmail: (employeeId: number, year: number) => `/statutory-reports/ea/${employeeId}/${year}/send-email`,
+      ea: (employeeId: number | string, year: number) => `/statutory-reports/ea/${employeeId}/${year}`,
+      eaPdf: (employeeId: number | string, year: number) => `/statutory-reports/ea/${employeeId}/${year}/pdf`,
+      eaExcel: (employeeId: number | string, year: number) => `/statutory-reports/ea/${employeeId}/${year}/excel`,
+      eaSendEmail: (employeeId: number | string, year: number) => `/statutory-reports/ea/${employeeId}/${year}/send-email`,
       epf: (year: number, month: number) => `/statutory-reports/epf/${year}/${month}`,
       epfPdf: (year: number, month: number) => `/statutory-reports/epf/${year}/${month}/pdf`,
       socso: (year: number, month: number) => `/statutory-reports/socso/${year}/${month}`,

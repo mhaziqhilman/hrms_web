@@ -51,7 +51,7 @@ export class ClockInOutComponent implements OnInit, OnDestroy {
   success = signal<string | null>(null);
 
   // Employee - from auth service
-  employeeId = signal<number | null>(null);
+  employeeId = signal<string | null>(null);
 
   constructor(
     private attendanceService: AttendanceService,
@@ -60,7 +60,7 @@ export class ClockInOutComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     const user = this.authService.getCurrentUserValue();
-    this.employeeId.set(user?.employee?.id ?? null);
+    this.employeeId.set(user?.employee?.public_id ?? null);
 
     // Start real-time clock
     this.updateClock();

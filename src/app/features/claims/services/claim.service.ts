@@ -70,7 +70,7 @@ export class ClaimService {
   }
 
   // Get claims summary for an employee
-  getClaimsSummary(employeeId: number, month?: number, year?: number): Observable<ApiResponse<ClaimSummary>> {
+  getClaimsSummary(employeeId: number | string, month?: number, year?: number): Observable<ApiResponse<ClaimSummary>> {
     let httpParams = new HttpParams();
     if (month) httpParams = httpParams.set('month', month.toString());
     if (year) httpParams = httpParams.set('year', year.toString());

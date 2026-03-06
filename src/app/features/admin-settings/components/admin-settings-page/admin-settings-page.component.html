@@ -537,8 +537,8 @@
                     <label z-form-label [zRequired]="true">Employee</label>
                     <z-form-control>
                       <z-select [(ngModel)]="addEntitlementForm.employee_id" zPlaceholder="Select employee">
-                        @for (emp of activeEmployees(); track emp.id) {
-                          <z-select-item [zValue]="emp.id">{{ emp.full_name }} ({{ emp.employee_id }})</z-select-item>
+                        @for (emp of activeEmployees(); track emp.public_id) {
+                          <z-select-item [zValue]="emp.public_id">{{ emp.full_name }} ({{ emp.employee_id }})</z-select-item>
                         }
                       </z-select>
                     </z-form-control>

@@ -52,7 +52,7 @@ export class WfhApplicationComponent implements OnInit {
   selectedStatus = signal<'Pending' | 'Approved' | 'Rejected' | ''>('');
 
   // Employee - from auth service
-  employeeId = signal<number | null>(null);
+  employeeId = signal<string | null>(null);
 
   constructor(
     private fb: FormBuilder,
@@ -67,7 +67,7 @@ export class WfhApplicationComponent implements OnInit {
 
   ngOnInit(): void {
     const user = this.authService.getCurrentUserValue();
-    this.employeeId.set(user?.employee?.id ?? null);
+    this.employeeId.set(user?.employee?.public_id ?? null);
 
     this.initializeForm();
     this.loadWFHApplications();

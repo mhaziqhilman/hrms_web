@@ -42,7 +42,7 @@ export class StatutoryReportsService {
   /**
    * Get EA Form data for an employee
    */
-  getEAForm(employeeId: number, year: number): Observable<EAFormResponse> {
+  getEAForm(employeeId: number | string, year: number): Observable<EAFormResponse> {
     return this.http.get<EAFormResponse>(
       `${this.apiUrl}${API_CONFIG.endpoints.statutoryReports.ea(employeeId, year)}`
     );
@@ -51,7 +51,7 @@ export class StatutoryReportsService {
   /**
    * Download EA Form as PDF
    */
-  downloadEAFormPDF(employeeId: number, year: number): Observable<Blob> {
+  downloadEAFormPDF(employeeId: number | string, year: number): Observable<Blob> {
     return this.http.get(
       `${this.apiUrl}${API_CONFIG.endpoints.statutoryReports.eaPdf(employeeId, year)}`,
       { responseType: 'blob' }
@@ -61,7 +61,7 @@ export class StatutoryReportsService {
   /**
    * Download EA Form as Excel (LHDN C.P.8A template)
    */
-  downloadEAFormExcel(employeeId: number, year: number): Observable<Blob> {
+  downloadEAFormExcel(employeeId: number | string, year: number): Observable<Blob> {
     return this.http.get(
       `${this.apiUrl}${API_CONFIG.endpoints.statutoryReports.eaExcel(employeeId, year)}`,
       { responseType: 'blob' }
@@ -71,7 +71,7 @@ export class StatutoryReportsService {
   /**
    * Send EA Form via email with PDF attachment
    */
-  sendEAFormEmail(employeeId: number, year: number): Observable<{ success: boolean; message: string }> {
+  sendEAFormEmail(employeeId: number | string, year: number): Observable<{ success: boolean; message: string }> {
     return this.http.post<{ success: boolean; message: string }>(
       `${this.apiUrl}${API_CONFIG.endpoints.statutoryReports.eaSendEmail(employeeId, year)}`,
       {}

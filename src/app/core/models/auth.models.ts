@@ -35,6 +35,7 @@ export interface UserCompany {
 
 export interface Employee {
   id: number;
+  public_id: string;
   user_id: number;
   employee_id: string;
   full_name: string;

@@ -262,7 +262,7 @@ export class UserListComponent implements OnInit {
     );
   }
 
-  linkEmployee(employeeId: number): void {
+  linkEmployee(employeeId: number | string): void {
     const userId = this.linkingUserId();
     if (!userId) return;
 
