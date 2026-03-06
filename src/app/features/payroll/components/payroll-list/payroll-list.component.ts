@@ -59,7 +59,7 @@ export class PayrollListComponent implements OnInit {
   error = signal<string | null>(null);
 
   // Selection
-  selectedPayrolls = signal<Set<number>>(new Set());
+  selectedPayrolls = signal<Set<string>>(new Set());
   selectAll = false;  // Changed from signal to regular property for ngModel compatibility
   bulkProcessing = signal(false);
 
@@ -353,7 +353,7 @@ export class PayrollListComponent implements OnInit {
       zOkText: 'Submit',
       zCancelText: 'Cancel',
       zOnOk: () => {
-        this.payrollService.submitForApproval(payroll.id).subscribe({
+        this.payrollService.submitForApproval(payroll.public_id!).subscribe({
           next: (response) => {
             if (response.success) {
               this.alertDialogService.info({
@@ -385,7 +385,7 @@ export class PayrollListComponent implements OnInit {
       zOkText: 'Approve',
       zCancelText: 'Cancel',
       zOnOk: () => {
-        this.payrollService.approvePayroll(payroll.id).subscribe({
+        this.payrollService.approvePayroll(payroll.public_id!).subscribe({
           next: (response) => {
             if (response.success) {
               this.alertDialogService.info({
@@ -417,7 +417,7 @@ export class PayrollListComponent implements OnInit {
       zOkText: 'Mark as Paid',
       zCancelText: 'Cancel',
       zOnOk: () => {
-        this.payrollService.markAsPaid(payroll.id).subscribe({
+        this.payrollService.markAsPaid(payroll.public_id!).subscribe({
           next: (response) => {
             if (response.success) {
               this.alertDialogService.info({
@@ -450,7 +450,7 @@ export class PayrollListComponent implements OnInit {
       zCancelText: 'Go Back',
       zOkDestructive: true,
       zOnOk: () => {
-        this.payrollService.cancelPayroll(payroll.id).subscribe({
+        this.payrollService.cancelPayroll(payroll.public_id!).subscribe({
           next: (response) => {
             if (response.success) {
               this.alertDialogService.info({
@@ -507,7 +507,7 @@ export class PayrollListComponent implements OnInit {
       zCancelText: 'Go Back',
       zOkDestructive: true,
       zOnOk: () => {
-        this.payrollService.permanentDeletePayroll(payroll.id).subscribe({
+        this.payrollService.permanentDeletePayroll(payroll.public_id!).subscribe({
           next: (response) => {
             if (response.success) {
               this.alertDialogService.info({
@@ -536,7 +536,7 @@ export class PayrollListComponent implements OnInit {
   toggleSelectAll(): void {
     if (this.selectAll) {
       // Select all payrolls on current page
-      const newSelected = new Set(this.payrolls().map(p => p.id));
+      const newSelected = new Set(this.payrolls().map(p => p.public_id!));
       this.selectedPayrolls.set(newSelected);
     } else {
       // Deselect all
@@ -545,7 +545,7 @@ export class PayrollListComponent implements OnInit {
     }
   }
 
-  togglePayrollSelection(payrollId: number): void {
+  togglePayrollSelection(payrollId: string): void {
     const selected = new Set(this.selectedPayrolls());
 
     if (selected.has(payrollId)) {
@@ -560,7 +560,7 @@ export class PayrollListComponent implements OnInit {
     this.selectAll = selected.size === this.payrolls().length && this.payrolls().length > 0;
   }
 
-  isPayrollSelected(payrollId: number): boolean {
+  isPayrollSelected(payrollId: string): boolean {
     return this.selectedPayrolls().has(payrollId);
   }
 
@@ -610,7 +610,7 @@ export class PayrollListComponent implements OnInit {
 
   getAvailableBulkActions(): { submit: boolean; approve: boolean; markPaid: boolean; cancel: boolean; delete: boolean } {
     const selectedIds = this.selectedPayrolls();
-    const selectedPayrollObjects = this.payrolls().filter(p => selectedIds.has(p.id));
+    const selectedPayrollObjects = this.payrolls().filter(p => selectedIds.has(p.public_id!));
     const statuses = new Set(selectedPayrollObjects.map(p => p.status));
 
     return {

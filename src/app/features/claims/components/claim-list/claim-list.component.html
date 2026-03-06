@@ -647,7 +647,7 @@
                     </a>
                   }
                   @if (canDelete(claim)) {
-                    <button (click)="deleteClaim(claim.id)" z-button zType="outline" zSize="sm" class="text-destructive hover:text-destructive">
+                    <button (click)="deleteClaim(claim.public_id!)" z-button zType="outline" zSize="sm" class="text-destructive hover:text-destructive">
                       <z-icon zType="trash" class="w-4 h-4" />
                     </button>
                   }

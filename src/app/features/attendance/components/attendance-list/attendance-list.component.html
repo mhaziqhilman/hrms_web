@@ -390,7 +390,7 @@
                   <!-- Actions (visible on hover) -->
                   <td class="!pr-5" (click)="$event.stopPropagation()">
                     <div class="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <a [routerLink]="['/attendance', attendance.id]"
+                      <a [routerLink]="['/attendance', attendance.public_id]"
                         z-button zType="ghost" zSize="sm" class="px-1.5 h-7"
                         (click)="$event.stopPropagation()">
                         <z-icon zType="eye" class="w-3.5 h-3.5" />

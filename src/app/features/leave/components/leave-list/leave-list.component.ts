@@ -219,7 +219,7 @@ export class LeaveListComponent implements OnInit {
       zOkText: 'Approve',
       zCancelText: 'Cancel',
       zOnOk: () => {
-        this.leaveService.approveRejectLeave(leave.public_id ?? leave.id, {
+        this.leaveService.approveRejectLeave(leave.public_id!, {
           action: 'approve'
         }).subscribe({
           next: (response) => {
@@ -257,7 +257,7 @@ export class LeaveListComponent implements OnInit {
         const reason = prompt('Please provide a reason for rejection:');
         if (!reason) return;
 
-        this.leaveService.approveRejectLeave(leave.public_id ?? leave.id, {
+        this.leaveService.approveRejectLeave(leave.public_id!, {
           action: 'reject',
           rejection_reason: reason
         }).subscribe({
@@ -292,7 +292,7 @@ export class LeaveListComponent implements OnInit {
       zCancelText: 'Close',
       zOkDestructive: true,
       zOnOk: () => {
-        this.leaveService.cancelLeave(leave.public_id ?? leave.id).subscribe({
+        this.leaveService.cancelLeave(leave.public_id!).subscribe({
           next: (response) => {
             if (response.success) {
               this.alertDialogService.info({

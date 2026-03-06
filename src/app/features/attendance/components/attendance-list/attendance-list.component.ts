@@ -378,7 +378,7 @@ export class AttendanceListComponent implements OnInit {
       zCancelText: 'Cancel',
       zOkDestructive: true,
       zOnOk: () => {
-        this.attendanceService.deleteAttendance(attendance.public_id ?? attendance.id).subscribe({
+        this.attendanceService.deleteAttendance(attendance.public_id!).subscribe({
           next: (response) => {
             if (response.success) {
               this.alertDialogService.info({

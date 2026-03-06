@@ -281,8 +281,8 @@ export class AuthService {
   /**
    * Handle OAuth callback — called by OAuthCallbackComponent
    */
-  handleOAuthCallback(token: string, user: User): void {
-    this.setSession(token, user);
+  handleOAuthCallback(token: string, user: User, refreshToken?: string): void {
+    this.setSession(token, user, refreshToken);
   }
 
   /**

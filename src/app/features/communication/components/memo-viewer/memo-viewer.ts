@@ -109,7 +109,7 @@ export class MemoViewerComponent implements OnInit {
   }
 
   acknowledgeMemo(): void {
-    const memoId = this.memo()?.id;
+    const memoId = this.memo()?.public_id;
     if (!memoId) return;
 
     this.acknowledging.set(true);
@@ -132,7 +132,7 @@ export class MemoViewerComponent implements OnInit {
   }
 
   deleteMemo(): void {
-    const memoId = this.memo()?.id;
+    const memoId = this.memo()?.public_id;
     if (!memoId) return;
 
     const confirmed = confirm('Are you sure you want to delete this memo? This action cannot be undone.');
@@ -153,7 +153,7 @@ export class MemoViewerComponent implements OnInit {
   }
 
   publishMemo(): void {
-    const memoId = this.memo()?.id;
+    const memoId = this.memo()?.public_id;
     if (!memoId) return;
 
     this.memoService.publishMemo(memoId).subscribe({
@@ -171,7 +171,7 @@ export class MemoViewerComponent implements OnInit {
   }
 
   archiveMemo(): void {
-    const memoId = this.memo()?.id;
+    const memoId = this.memo()?.public_id;
     if (!memoId) return;
 
     const confirmed = confirm('Are you sure you want to archive this memo?');

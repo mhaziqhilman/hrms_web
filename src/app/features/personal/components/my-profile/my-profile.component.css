@@ -1,0 +1,26 @@
+:host {
+  display: block;
+}
+
+/* Tab button styles */
+.tab-button {
+  border-bottom: 2px solid transparent;
+}
+
+.tab-active {
+  color: var(--foreground);
+  border-bottom-color: hsl(var(--primary));
+}
+
+.tab-inactive {
+  color: var(--muted-foreground);
+}
+
+.tab-inactive:hover {
+  color: var(--foreground);
+}
+
+/* Tabular numbers for consistent alignment */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}

@@ -150,35 +150,35 @@ export class PayrollService {
     );
   }
 
-  bulkSubmitForApproval(payrollIds: number[]): Observable<BulkActionResponse> {
+  bulkSubmitForApproval(payrollIds: string[]): Observable<BulkActionResponse> {
     return this.http.post<BulkActionResponse>(
       `${this.apiUrl}${API_CONFIG.endpoints.payroll.bulkSubmit}`,
       { payroll_ids: payrollIds }
     );
   }
 
-  bulkApprovePayrolls(payrollIds: number[]): Observable<BulkActionResponse> {
+  bulkApprovePayrolls(payrollIds: string[]): Observable<BulkActionResponse> {
     return this.http.post<BulkActionResponse>(
       `${this.apiUrl}${API_CONFIG.endpoints.payroll.bulkApprove}`,
       { payroll_ids: payrollIds }
     );
   }
 
-  bulkMarkAsPaid(payrollIds: number[]): Observable<BulkActionResponse> {
+  bulkMarkAsPaid(payrollIds: string[]): Observable<BulkActionResponse> {
     return this.http.post<BulkActionResponse>(
       `${this.apiUrl}${API_CONFIG.endpoints.payroll.bulkMarkPaid}`,
       { payroll_ids: payrollIds }
     );
   }
 
-  bulkCancelPayrolls(payrollIds: number[]): Observable<BulkActionResponse> {
+  bulkCancelPayrolls(payrollIds: string[]): Observable<BulkActionResponse> {
     return this.http.post<BulkActionResponse>(
       `${this.apiUrl}${API_CONFIG.endpoints.payroll.bulkCancel}`,
       { payroll_ids: payrollIds }
     );
   }
 
-  bulkPermanentDelete(payrollIds: number[]): Observable<BulkActionResponse> {
+  bulkPermanentDelete(payrollIds: string[]): Observable<BulkActionResponse> {
     return this.http.post<BulkActionResponse>(
       `${this.apiUrl}${API_CONFIG.endpoints.payroll.bulkDelete}`,
       { payroll_ids: payrollIds }

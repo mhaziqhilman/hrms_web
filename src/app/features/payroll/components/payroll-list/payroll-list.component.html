@@ -486,8 +486,8 @@
           <tr *ngFor="let payroll of payrolls()">
             <!-- Checkbox -->
             <td class="!pl-3 text-center">
-              <span z-checkbox [ngModel]="isPayrollSelected(payroll.id)"
-                (ngModelChange)="togglePayrollSelection(payroll.id)"
+              <span z-checkbox [ngModel]="isPayrollSelected(payroll.public_id!)"
+                (ngModelChange)="togglePayrollSelection(payroll.public_id!)"
                 class="border-primary/30"></span>
             </td>
 

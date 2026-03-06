@@ -128,8 +128,8 @@
                     z-button
                     zType="outline"
                     zSize="sm"
-                    [disabled]="processingLeaveId() === leave.id"
-                    (click)="openRejectModal(leave.id)"
+                    [disabled]="processingLeaveId() === leave.public_id"
+                    (click)="openRejectModal(leave.public_id!)"
                     class="gap-1 border-red-500 text-red-600 hover:bg-red-50">
                     <z-icon zType="x" class="w-3 h-3" />
                   </button>
@@ -138,10 +138,10 @@
                   <button
                     z-button
                     zSize="sm"
-                    [disabled]="processingLeaveId() === leave.id"
-                    (click)="approveLeave(leave.id)"
+                    [disabled]="processingLeaveId() === leave.public_id"
+                    (click)="approveLeave(leave.public_id!)"
                     class="gap-1 bg-green-600 hover:bg-green-700 text-white">
-                    @if (processingLeaveId() === leave.id) {
+                    @if (processingLeaveId() === leave.public_id) {
                       <z-icon zType="loader-circle" class="w-3 h-3 animate-spin" />
                     } @else {
                       <z-icon zType="check" class="w-3 h-3" />

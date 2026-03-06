@@ -104,7 +104,7 @@ export class PolicyViewerComponent implements OnInit {
   }
 
   acknowledgePolicy(): void {
-    const policyId = this.policy()?.id;
+    const policyId = this.policy()?.public_id;
     if (!policyId) return;
 
     this.acknowledging.set(true);
@@ -126,7 +126,7 @@ export class PolicyViewerComponent implements OnInit {
   }
 
   approvePolicy(): void {
-    const policyId = this.policy()?.id;
+    const policyId = this.policy()?.public_id;
     if (!policyId) return;
 
     const confirmed = confirm('Are you sure you want to approve this policy? This will make it active.');
@@ -147,7 +147,7 @@ export class PolicyViewerComponent implements OnInit {
   }
 
   activatePolicy(): void {
-    const policyId = this.policy()?.id;
+    const policyId = this.policy()?.public_id;
     if (!policyId) return;
 
     this.policyService.activatePolicy(policyId).subscribe({
@@ -165,7 +165,7 @@ export class PolicyViewerComponent implements OnInit {
   }
 
   archivePolicy(): void {
-    const policyId = this.policy()?.id;
+    const policyId = this.policy()?.public_id;
     if (!policyId) return;
 
     const confirmed = confirm('Are you sure you want to archive this policy?');
@@ -186,7 +186,7 @@ export class PolicyViewerComponent implements OnInit {
   }
 
   deletePolicy(): void {
-    const policyId = this.policy()?.id;
+    const policyId = this.policy()?.public_id;
     if (!policyId) return;
 
     const confirmed = confirm('Are you sure you want to delete this policy? This action cannot be undone.');

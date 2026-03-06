@@ -12,12 +12,20 @@ import { ZardButtonComponent } from '@/shared/components/button/button.component
 import { ZardIconComponent } from '@/shared/components/icon/icon.component';
 import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-dialog.service';
 import { ZardInputDirective } from '@/shared/components/input/input.directive';
-import { ZardTabComponent, ZardTabGroupComponent } from '@/shared/components/tabs/tabs.component';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { ZardProgressBarComponent } from '@/shared/components/progress-bar/progress-bar.component';
 import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component';
 import { ZardDividerComponent } from '@/shared/components/divider/divider.component';
 import { ZardEmptyComponent } from '@/shared/components/empty/empty.component';
+import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
+
+export type ProfileTabId = 'personal' | 'employment' | 'contact' | 'payslips' | 'documents' | 'statutory';
+
+export interface ProfileTabDef {
+  id: ProfileTabId;
+  label: string;
+  icon: string;
+}
 
 @Component({
   selector: 'app-my-profile',
@@ -30,16 +38,16 @@ import { ZardEmptyComponent } from '@/shared/components/empty/empty.component';
     ZardButtonComponent,
     ZardIconComponent,
     ZardInputDirective,
-    ZardTabComponent,
-    ZardTabGroupComponent,
     ZardBadgeComponent,
     ZardProgressBarComponent,
     ZardAvatarComponent,
     ZardDividerComponent,
     ZardEmptyComponent,
+    ZardSkeletonComponent,
     MyPayslipsComponent
   ],
-  templateUrl: './my-profile.component.html'
+  templateUrl: './my-profile.component.html',
+  styleUrls: ['./my-profile.component.css']
 })
 export class MyProfileComponent implements OnInit {
   private personalService = inject(PersonalService);
@@ -51,6 +59,17 @@ export class MyProfileComponent implements OnInit {
   saving = signal(false);
   editMode = signal(false);
   profile = signal<EmployeeProfile | null>(null);
+
+  // Tab management
+  activeTab = signal<ProfileTabId>('personal');
+  tabs: ProfileTabDef[] = [
+    { id: 'personal', label: 'Personal Information', icon: 'user' },
+    { id: 'employment', label: 'Employment', icon: 'briefcase' },
+    { id: 'contact', label: 'Contact', icon: 'phone' },
+    { id: 'payslips', label: 'Payslips', icon: 'wallet' },
+    { id: 'documents', label: 'Documents', icon: 'folder-open' },
+    { id: 'statutory', label: 'Statutory', icon: 'shield' },
+  ];
 
   // Documents state
   documents = signal<EmployeeDocument[]>([]);
@@ -122,13 +141,20 @@ export class MyProfileComponent implements OnInit {
     this.loadProfile();
   }
 
+  // --- Tab management ---
+
+  setActiveTab(tabId: ProfileTabId): void {
+    this.activeTab.set(tabId);
+  }
+
+  // --- Data loading ---
+
   loadProfile(): void {
     this.loading.set(true);
 
     this.personalService.getMyProfile().subscribe({
       next: (response) => {
         if (response.success && response.data) {
-          // Only accept absolute URLs for photo_url — reject raw storage paths
           if (response.data.photo_url && !response.data.photo_url.startsWith('http')) {
             response.data.photo_url = null;
           }
@@ -147,6 +173,8 @@ export class MyProfileComponent implements OnInit {
       }
     });
   }
+
+  // --- Edit mode ---
 
   toggleEditMode(): void {
     if (this.editMode()) {
@@ -196,20 +224,52 @@ export class MyProfileComponent implements OnInit {
     });
   }
 
+  // --- Formatting helpers ---
+
   formatDate(dateStr: string | null): string {
     if (!dateStr) return '-';
     return new Date(dateStr).toLocaleDateString('en-MY', {
       day: '2-digit',
-      month: 'short',
+      month: 'long',
       year: 'numeric'
     });
   }
 
   formatCurrency(amount: number): string {
-    return `RM ${amount.toLocaleString('en-MY', { minimumFractionDigits: 2 })}`;
+    return new Intl.NumberFormat('en-MY', {
+      style: 'currency',
+      currency: 'MYR'
+    }).format(amount);
   }
 
-  // Document methods
+  calculateAge(dob: string): number {
+    const today = new Date();
+    const birth = new Date(dob);
+    let age = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+    return age;
+  }
+
+  calculateTenure(joinDate: string): string {
+    const now = new Date();
+    const start = new Date(joinDate);
+    let years = now.getFullYear() - start.getFullYear();
+    let months = now.getMonth() - start.getMonth();
+    if (months < 0) {
+      years--;
+      months += 12;
+    }
+    if (now.getDate() < start.getDate() && months > 0) {
+      months--;
+    }
+    if (years === 0) return `${months} month${months !== 1 ? 's' : ''}`;
+    if (months === 0) return `${years} year${years !== 1 ? 's' : ''}`;
+    return `${years} yr ${months} mo`;
+  }
+
+  // --- Document methods ---
+
   loadDocuments(): void {
     this.loadingDocuments.set(true);
     this.personalService.getMyDocuments({

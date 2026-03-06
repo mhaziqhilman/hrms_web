@@ -1,8 +1,8 @@
 # HR Management System (HRMS) - Project Tasks
 
-> **Last Updated:** February 10, 2026
-> **Overall Project Completion:** 90-95%
-> **Status:** Production-ready - All HR modules operational, admin settings complete, statutory reports & analytics done
+> **Last Updated:** March 5, 2026
+> **Overall Project Completion:** 97%+
+> **Status:** Production-deployed & hardened - All HR modules operational, OAuth login, notifications, document management, feedback system, security hardening complete
 > **Database:** Supabase PostgreSQL (migrated from MySQL)
 > **Deployment:** Frontend → Netlify | Backend → Azure App Service | Storage → Supabase Storage
 
@@ -10,22 +10,25 @@
 
 ## Executive Summary
 
-The HRMS project has achieved **comprehensive implementation** of core HR functionality with approximately **90-95% completion** of Phase 1 requirements. The project demonstrates solid architecture with Angular 21 frontend and Node.js/Express backend on Supabase PostgreSQL, with working implementations of all critical modules including statutory reporting and analytics.
+The HRMS project has achieved **near-complete implementation** with approximately **97%+ completion** of Phase 1 requirements. The project demonstrates solid architecture with Angular 21 frontend and Node.js/Express backend on Supabase PostgreSQL, with production deployment and security hardening done.
 
 **Key Highlights:**
-- 10 out of 12 major modules are 85-100% complete
-- All core HR operations (Employee, Payroll, Leave, Attendance, Claims) are fully functional
+- 11 out of 12 major modules are 95-100% complete
+- All core HR operations (Employee, Payroll, Leave, Attendance, Claims) fully functional
 - Sophisticated Malaysian statutory calculations AND reports implemented (EA, EPF, SOCSO, PCB)
-- Comprehensive RBAC and authentication system operational
+- OAuth login (Google + GitHub) with social buttons on login/register
+- Real-time notification system with 60s polling and in-app dropdown
+- Document management module with admin overview and verification workflow
+- Feedback system with FAB widget, screenshot upload, admin management
+- **Security hardening complete:** IDOR protection (public_id UUIDs), token blacklist, refresh token rotation, CSP/HTTPS/Helmet headers, audit logging
 - Full analytics module with chart visualizations and Excel/PDF export
-- Personal pages (profile, payslips, change password) implemented
-- System settings module implemented
-- Production infrastructure ready (Supabase PostgreSQL, Supabase Storage, Netlify + Azure)
+- Production deployed and operational (Supabase PostgreSQL, Supabase Storage, Netlify + Azure)
 
 **Remaining Gaps:**
 - E-Invoice module (80% incomplete) - Only config exists, deferred
+- MFA implementation (2FA toggle exists in UI, backend not wired)
 - End-to-end verification and testing of all modules
-- Security/performance testing before production go-live
+- Performance testing with production-like data
 
 ---
 
@@ -60,6 +63,15 @@ The HRMS project has achieved **comprehensive implementation** of core HR functi
 - [x] Implement Email Verification (verify-email, resend-verification) <!-- id: 56 -->
 - [x] Implement Multi-Company Support (user_companies, company switch) <!-- id: 57 -->
 - [x] Production Deployment (Azure App Service + Netlify + Supabase) <!-- id: 58 -->
+- [x] Implement Notification API (CRUD, unread count, mark read, triggers in leave/claim/attendance/memo/invitation) <!-- id: 63 -->
+- [x] Implement OAuth Login (Google + GitHub via Passport.js, findOrCreateOAuthUser, JWT redirect) <!-- id: 64 -->
+- [x] Implement Feedback API (CRUD, screenshot upload, admin stats, status workflow) <!-- id: 65 -->
+- [x] Security Hardening: IDOR protection with public_id UUIDs on 7 models <!-- id: 66 -->
+- [x] Security Hardening: Token blacklist (SHA-256, 15-min cleanup) <!-- id: 67 -->
+- [x] Security Hardening: Refresh token rotation (7d expiry, one-time-use) <!-- id: 68 -->
+- [x] Security Hardening: CSP/HTTPS/Helmet headers (app.js + netlify.toml) <!-- id: 69 -->
+- [x] Security Hardening: Audit log system (fire-and-forget, integrated into leave/claim/payroll/employee) <!-- id: 70 -->
+- [x] Implement Document Management API (overview, verification, search/filter, company_id scoping) <!-- id: 71 -->
 
 ### Frontend Development (Angular 21)
 - [x] Setup Tailwind CSS & SCSS <!-- id: 4 -->
@@ -80,6 +92,12 @@ The HRMS project has achieved **comprehensive implementation** of core HR functi
 - [x] Implement User Management Module <!-- id: 53 -->
 - [x] Implement Onboarding Flow (onboarding-choice, company-setup-wizard, wait-for-invitation, verify-email) <!-- id: 59 -->
 - [x] Implement Company Switcher in sidebar <!-- id: 60 -->
+- [x] Implement Document Management Module (overview page, filterable table, verification toggle) <!-- id: 61 -->
+- [x] Implement Notification UI (dropdown in top nav, unread badge, /notifications page, 60s polling) <!-- id: 62 -->
+- [x] Implement OAuth Callback & Social Buttons (login + register pages, OAuthCallbackComponent) <!-- id: 72 -->
+- [x] Implement Feedback Widget & Admin Page (FAB + modal, admin list with detail panel, status management) <!-- id: 73 -->
+- [x] Implement Audit Log Page (super_admin, /audit-log route, sidebar under Administration) <!-- id: 74 -->
+- [x] Security: Frontend updated all routes to use public_id instead of integer IDs <!-- id: 75 -->
 
 ---
 
@@ -98,15 +116,20 @@ The HRMS project has achieved **comprehensive implementation** of core HR functi
 - ✅ Email verification flow (`/auth/verify-email`, `/auth/resend-verification`)
 - ✅ First-time user onboarding (onboarding-choice, company-setup-wizard, wait-for-invitation)
 - ✅ Invitation system (invite by email, token-based accept, role assignment)
+- ✅ OAuth login: Google + GitHub (Passport.js strategies, social buttons on login/register)
+- ✅ Token blacklist on logout (SHA-256 hashed, 15-min cleanup)
+- ✅ Refresh token rotation (7d expiry, one-time-use, silent 401 refresh via interceptor)
 - ❌ FR-AUTH-003: Multi-Factor Authentication (MFA) - **NOT IMPLEMENTED** (2FA toggle exists in settings UI)
 
 **Files:**
-- Frontend: `src/app/features/auth/` (login, register, forgot-password, reset-password)
+- Frontend: `src/app/features/auth/` (login, register, forgot-password, reset-password, oauth-callback)
 - Frontend: Onboarding pages (onboarding-choice, company-setup-wizard, wait-for-invitation, verify-email)
 - Backend: `authController.js`, `auth.routes.js`, `invitationController.js`, `invitation.routes.js`
-- Middleware: `authMiddleware.js`, `rbacMiddleware.js`
+- Backend: `oauthController.js`, `src/config/passport.js` (Google + GitHub strategies)
+- Middleware: `authMiddleware.js` (token blacklist check), `rbacMiddleware.js`
+- Utils: `src/utils/tokenBlacklist.js`
 
-**Status:** Core authentication complete including email verification and onboarding. MFA remains as future enhancement.
+**Status:** Comprehensive auth with email/password + OAuth (Google/GitHub) + refresh tokens + token blacklist. MFA remains as future enhancement.
 
 ---
 
@@ -427,6 +450,75 @@ The HRMS project has achieved **comprehensive implementation** of core HR functi
 
 ---
 
+### ✅ Module 13: Document Management - **100% COMPLETE**
+
+**Implementation:**
+- ✅ Document overview page with stat cards, category breakdown, recent activity
+- ✅ Filterable document table with search, sort, verification status filter
+- ✅ Admin document verification toggle (`PATCH /api/files/:id/verify`)
+- ✅ Admin overview stats endpoint (`GET /api/files/overview`)
+- ✅ Multi-tenant scoping via `company_id` on File model
+- ✅ Uploader info included in file listings
+
+**Files:**
+- Frontend: `src/app/features/documents/` module, route `/documents`
+- Backend: Enhanced `fileController.js` with overview + verify endpoints
+- Sidebar: Under HR Management (admin-only)
+
+---
+
+### ✅ Module 14: Notifications - **100% COMPLETE**
+
+**Implementation:**
+- ✅ Notification model (`notifications` table) with type, title, message, metadata, is_read
+- ✅ Full CRUD API: list, unread count, mark read, mark all read, delete
+- ✅ 11 notification types: leave/claim/wfh approved/rejected, announcement, team join, policy published
+- ✅ Triggers integrated into: leaveController, claimController, attendanceController, memoController, invitationController
+- ✅ Frontend: Signal-based NotificationService with 60s polling
+- ✅ Bell icon dropdown in top nav with unread count badge
+- ✅ Full `/notifications` page with TimeAgoPipe
+
+**Files:**
+- Frontend: `NotificationService`, notification dropdown in top nav, `/notifications` page
+- Backend: `notificationController.js`, `notificationService.js`, `notification.routes.js`, `Notification.js`
+
+---
+
+### ✅ Module 15: Feedback System - **100% COMPLETE**
+
+**Implementation:**
+- ✅ Feedback model (`feedbacks` table) with category, rating, description, screenshot_url, page_url, admin_notes
+- ✅ Categories: bug, feature_request, ui_ux, performance, general
+- ✅ Status workflow: new → in_review → resolved → closed
+- ✅ Screenshot upload via Supabase Storage (`feedback/screenshots/`)
+- ✅ Auto-captured page_url for context
+- ✅ Global scope: all feedback visible to super_admin regardless of company
+- ✅ FAB widget (fixed bottom-right) on all authenticated pages
+- ✅ Admin list page with filterable table, detail panel, status management
+
+**Files:**
+- Frontend: `src/app/shared/components/feedback-widget/` (FAB + modal), `src/app/features/feedback/` (admin page)
+- Backend: `feedbackController.js`, `feedback.routes.js`, `Feedback.js`
+- Route: `/feedback` (super_admin only), sidebar under Administration
+
+---
+
+### ✅ Module 16: Security Hardening & Audit Log - **100% COMPLETE**
+
+**Implementation (7 fixes):**
+- ✅ **FIX 1 - IDOR Protection:** `public_id` UUID column on 7 models (Payroll, Claim, Leave, Attendance, Employee, Memo, Policy). Controllers look up by public_id; frontend uses public_id in all routes.
+- ✅ **FIX 2 - Token Blacklist:** SHA-256 hashed tokens in memory Map with 15-min cleanup. Checked in auth middleware; logout adds token.
+- ✅ **FIX 3 - Refresh Tokens:** 7-day expiry, one-time-use rotation, stored in DB. Frontend interceptor silently refreshes on 401.
+- ✅ **FIX 4+5+6 - CSP/HTTPS/Helmet:** Enhanced Helmet config (CSP, HSTS, CORP, COOP, COEP, Referrer-Policy, Permissions-Policy) + HTTP→HTTPS redirect. `netlify.toml` security headers.
+- ✅ **FIX 7 - Audit Log:** AuditLog model (`audit_logs` table), non-blocking fire-and-forget `auditService.js`. Integrated into leave/claim/payroll/employee controllers. Admin page at `/audit-log` (super_admin only).
+
+**Files:**
+- Backend: `tokenBlacklist.js`, `auditService.js`, `AuditLog.js`, migration script `database/seeds/add-public-ids.js`
+- Frontend: `src/app/features/audit-log/` page
+- Route: `/audit-log` (super_admin), sidebar under Administration
+
+---
+
 ## Completion Summary by Module
 
 | Module | Completion % | Status | Critical Gaps |
@@ -443,7 +535,11 @@ The HRMS project has achieved **comprehensive implementation** of core HR functi
 | 10. File Management | 95% | ✅ Complete | Access control verification |
 | 11. Personal Pages | 85% | ✅ Mostly Complete | Documents, profile photo verification |
 | 12. System Settings | 95% | ✅ Complete | Fully configured |
-| **OVERALL PROJECT** | **90-95%** | ✅ **Production-Ready** | e-Invoice (deferred), E2E testing |
+| 13. Document Management | 100% | ✅ Complete | None |
+| 14. Notifications | 100% | ✅ Complete | None |
+| 15. Feedback System | 100% | ✅ Complete | None |
+| 16. Security Hardening & Audit | 100% | ✅ Complete | None |
+| **OVERALL PROJECT** | **97%+** | ✅ **Production-Deployed & Hardened** | e-Invoice (deferred), MFA, E2E testing |
 
 ---
 
@@ -696,8 +792,9 @@ The HRMS project has achieved **comprehensive implementation** of core HR functi
 
 ---
 
-### Phase 6: Security Enhancement - **MEDIUM PRIORITY** 🔒
+### Phase 6: Security Enhancement - **MOSTLY COMPLETE** 🔒
 **PRD Reference:** Section 3.1.3 - Multi-Factor Authentication
+**Status:** Security hardening done (IDOR, token blacklist, refresh tokens, CSP/Helmet, audit log). Only MFA remains.
 
 - [ ] **FR-AUTH-003: Multi-Factor Authentication (MFA)** <!-- id: 28 -->
   - [ ] Backend: OTP generation library (speakeasy)
@@ -909,28 +1006,28 @@ The HRMS project has achieved **comprehensive implementation** of core HR functi
 ## Project Statistics
 
 ### Codebase Metrics
-- **Frontend Components:** 69 Angular components (standalone)
-- **Feature Modules:** 15 lazy-loaded modules
-- **Shared Components:** 25+ reusable ZardUI components
-- **Frontend Services:** 16 services (3 core + 13 feature-specific)
-- **Backend Controllers:** 14 controllers
-- **Backend Services:** 9 services
-- **Backend Routes:** 15 API route groups (60+ endpoints)
-- **Database Tables:** 18 Sequelize models (PostgreSQL)
-- **Key Libraries:** Chart.js, PDFKit, SheetJS, Quill, Supabase
+- **Frontend Components:** 75+ Angular components (standalone)
+- **Feature Modules:** 19 lazy-loaded modules
+- **Shared Components:** 30+ reusable ZardUI components (incl. feedback widget)
+- **Frontend Services:** 20+ services (3 core + 17 feature-specific)
+- **Backend Controllers:** 18 controllers
+- **Backend Services:** 12 services (incl. auditService, notificationService, supabaseStorageService)
+- **Backend Routes:** 19 API route groups (80+ endpoints)
+- **Database Tables:** 22+ Sequelize models (PostgreSQL) — added notifications, feedbacks, audit_logs, user_companies
+- **Key Libraries:** Chart.js, PDFKit, SheetJS, Quill, Supabase, Passport.js, Helmet
 
 ### Team & Effort
-- **Modules Completed:** 11 out of 12 at 85%+ completion
-- **Backend Completion:** ~95%
-- **Frontend Completion:** ~90%
-- **Remaining Effort:** E2E testing & verification, then e-Invoice when needed
+- **Modules Completed:** 15 out of 16 at 85%+ completion (e-Invoice deferred)
+- **Backend Completion:** ~98%
+- **Frontend Completion:** ~97%
+- **Remaining Effort:** MFA, E2E testing & verification, then e-Invoice when needed
 
 ---
 
 ## Production Readiness Assessment
 
 ### Ready for Production ✅
-- Authentication & Authorization
+- Authentication & Authorization (email/password + OAuth Google/GitHub)
 - Employee Management
 - Payroll System (including statutory reports)
 - Leave Management
@@ -940,14 +1037,18 @@ The HRMS project has achieved **comprehensive implementation** of core HR functi
 - Dashboard & Analytics
 - File Management (Supabase Storage)
 - Personal Pages (profile, payslips, change password)
+- Document Management (admin overview, verification workflow)
+- Notifications (bell dropdown, full page, 11 trigger types)
+- Feedback System (FAB widget, admin management)
+- Security Hardening (IDOR, token blacklist, refresh tokens, CSP/Helmet, audit log)
 
 ### Needs Verification Before Production ⚠️
-- System Settings (admin-level configuration scope)
 - File access control (role-based permissions)
 - Statutory report format accuracy (against official Malaysian formats)
 
 ### NOT Ready for Production / Deferred ❌
 - Finance & e-Invoice Module (deferred - 80% incomplete)
+- MFA (2FA toggle in UI, backend not wired yet)
 
 ### Critical Pre-Production Requirements
 1. ~~Implement statutory reports~~ ✅ DONE
@@ -1003,17 +1104,22 @@ The HRMS project has achieved **comprehensive implementation** of core HR functi
 2. ~~**Priority 2:** Enhanced reporting and analytics~~ ✅ DONE
 3. ~~**Priority 3:** Personal pages~~ ✅ MOSTLY DONE
 4. ~~**Priority 4:** Deploy to production~~ ✅ DONE (Azure + Netlify + Supabase)
-5. ~~**Priority 5:** Admin system settings~~ ✅ DONE (payroll rates, leave policies, email templates, public holidays)
-6. **Priority 1 (NOW):** Verify and polish all implemented modules end-to-end
-7. **Priority 2:** E-Invoice module (when LHDN compliance required)
-8. **Priority 3:** Security testing and MFA implementation
+5. ~~**Priority 5:** Admin system settings~~ ✅ DONE
+6. ~~**Priority 6:** Document management, notifications, feedback~~ ✅ DONE
+7. ~~**Priority 7:** OAuth login (Google + GitHub)~~ ✅ DONE
+8. ~~**Priority 8:** Security hardening (IDOR, tokens, CSP, audit log)~~ ✅ DONE
+9. **Priority 1 (NOW):** End-to-end testing & verification of all modules
+10. **Priority 2:** MFA implementation (speakeasy OTP, QR code setup)
+11. **Priority 3:** E-Invoice module (when LHDN compliance required)
+12. **Priority 4:** Performance testing with production-like data
 
 ### Known Limitations
 - No mobile app (web responsive only)
-- No real-time notifications (polling-based)
+- ~~No real-time notifications (polling-based)~~ ✅ Notification system DONE (60s polling, bell dropdown, /notifications page)
 - ~~No multi-tenancy support~~ ✅ Multi-company support DONE (user_companies table, company switcher, `/api/company/switch`)
 - ~~No advanced HR analytics~~ ✅ Analytics module DONE (4 chart types, Excel/PDF export)
 - No offline mode for attendance
+- No WebSocket/SSE for true real-time push (currently 60s polling)
 
 ### Success Metrics for v1.0 Release
 - [ ] All Phase 1 PRD features implemented (90%+)
@@ -1027,20 +1133,17 @@ The HRMS project has achieved **comprehensive implementation** of core HR functi
 
 ---
 
-**Document Version:** 4.2
-**Last Comprehensive Update:** February 13, 2026
-**Previous Major Updates:** February 13 (v4.1), February 10 (v4.0), February 5 (v3.0)
+**Document Version:** 5.0
+**Last Comprehensive Update:** March 5, 2026
+**Previous Major Updates:** February 13 (v4.2), February 10 (v4.0), February 5 (v3.0)
+**Key Changes in v5.0:**
+- Added 4 new modules: Document Management (13), Notifications (14), Feedback System (15), Security Hardening & Audit (16)
+- Added OAuth login (Google + GitHub) to Module 1
+- Added security hardening details: IDOR (public_id), token blacklist, refresh tokens, CSP/Helmet, audit log
+- Updated codebase metrics: 75+ components, 22+ tables, 19 route groups, 80+ endpoints
+- Revised overall completion from 90-95% → 97%+
+- Updated module count from 12 → 16
 **Key Changes in v4.2:**
-- Marked Admin System Settings (Phase 4) as COMPLETED — payroll rates, leave policies, email templates, public holidays all done
-- Updated Module 12 from 70% → 95%
-- Revised overall completion from 85-90% → 90-95%
-**Key Changes in v4.1:**
-- Added completed: Production Deployment, Multi-Company, Email Verification, Onboarding, Invitations
-- Updated database table count 17 → 18, removed stale Known Limitations
-**Key Changes in v4.0:**
-- Updated database from MySQL → PostgreSQL (Supabase) throughout
-- Marked Statutory Reports, Analytics, Personal Pages phases as completed
-- Updated codebase metrics (69 components, 18 tables, 15 route groups)
-- Revised overall completion from 65-70% → 85-90%
-**Next Review:** After admin settings completion
+- Marked Admin System Settings (Phase 4) as COMPLETED
+**Next Review:** After MFA implementation or E2E testing
 **Maintained By:** Development Team

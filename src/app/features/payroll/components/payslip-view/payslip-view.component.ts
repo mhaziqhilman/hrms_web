@@ -27,6 +27,7 @@ import { ZardCardComponent } from '@/shared/components/card/card.component';
 })
 export class PayslipViewComponent implements OnInit {
   payslip = signal<Payslip | null>(null);
+  payrollPublicId = signal<string | null>(null);
   loading = signal(false);
   error = signal<string | null>(null);
   downloading = signal(false);
@@ -42,6 +43,7 @@ export class PayslipViewComponent implements OnInit {
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
+      this.payrollPublicId.set(id);
       this.loadPayslip(id);
     }
   }
@@ -270,7 +272,7 @@ ${PAYSLIP_PRINT_CSS}
 
       toast.loading('Sending payslip email...', { id: toastId });
 
-      this.payrollService.sendPayslipEmail(payslip.payroll_id, pdfBlob, fileName).subscribe({
+      this.payrollService.sendPayslipEmail(this.payrollPublicId()!, pdfBlob, fileName).subscribe({
         next: (response) => {
           this.sendingEmail.set(false);
           if (response.success) {

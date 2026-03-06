@@ -19,6 +19,9 @@ export interface Payroll {
   pcb_deduction: number;
   unpaid_leave_deduction: number;
   other_deductions: number;
+  prior_ytd_gross: number;
+  prior_ytd_epf: number;
+  prior_ytd_pcb: number;
   total_deductions: number;
   net_salary: number;
   pay_period_start: string;
@@ -100,6 +103,9 @@ export interface CalculatePayrollRequest {
   commission?: number;
   unpaid_leave_deduction?: number;
   other_deductions?: number;
+  prior_ytd_gross?: number;
+  prior_ytd_epf?: number;
+  prior_ytd_pcb?: number;
   payment_date?: string;
   notes?: string;
 }
@@ -111,6 +117,9 @@ export interface UpdatePayrollRequest {
   commission?: number;
   unpaid_leave_deduction?: number;
   other_deductions?: number;
+  prior_ytd_gross?: number;
+  prior_ytd_epf?: number;
+  prior_ytd_pcb?: number;
   payment_date?: string;
   notes?: string;
   status?: PayrollStatus;

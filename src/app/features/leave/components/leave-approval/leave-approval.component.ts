@@ -37,7 +37,7 @@ export class LeaveApprovalComponent implements OnInit {
   pendingLeaves = signal<Leave[]>([]);
   loading = signal(false);
   error = signal<string | null>(null);
-  processingLeaveId = signal<number | null>(null);
+  processingLeaveId = signal<string | null>(null);
 
   // Filters
   searchTerm = signal('');
@@ -78,7 +78,7 @@ export class LeaveApprovalComponent implements OnInit {
 
   // Rejection reason for modal
   rejectionReason = signal('');
-  rejectingLeaveId = signal<number | null>(null);
+  rejectingLeaveId = signal<string | null>(null);
 
   constructor(
     private leaveService: LeaveService,
@@ -114,7 +114,7 @@ export class LeaveApprovalComponent implements OnInit {
     });
   }
 
-  approveLeave(leaveId: number): void {
+  approveLeave(leaveId: string): void {
     if (!confirm('Are you sure you want to approve this leave application?')) {
       return;
     }
@@ -125,7 +125,7 @@ export class LeaveApprovalComponent implements OnInit {
       next: (response) => {
         if (response.success) {
           // Remove from pending list
-          this.pendingLeaves.update(leaves => leaves.filter(l => l.id !== leaveId));
+          this.pendingLeaves.update(leaves => leaves.filter(l => l.public_id !== leaveId));
           alert('Leave application approved successfully!');
         }
         this.processingLeaveId.set(null);
@@ -138,7 +138,7 @@ export class LeaveApprovalComponent implements OnInit {
     });
   }
 
-  openRejectModal(leaveId: number): void {
+  openRejectModal(leaveId: string): void {
     this.rejectingLeaveId.set(leaveId);
     this.rejectionReason.set('');
   }
@@ -166,7 +166,7 @@ export class LeaveApprovalComponent implements OnInit {
       next: (response) => {
         if (response.success) {
           // Remove from pending list
-          this.pendingLeaves.update(leaves => leaves.filter(l => l.id !== leaveId));
+          this.pendingLeaves.update(leaves => leaves.filter(l => l.public_id !== leaveId));
           this.closeRejectModal();
           alert('Leave application rejected successfully!');
         }

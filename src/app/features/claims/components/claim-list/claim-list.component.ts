@@ -468,7 +468,7 @@ export class ClaimListComponent implements OnInit {
     return `RM ${numAmount.toFixed(2)}`;
   }
 
-  deleteClaim(id: number): void {
+  deleteClaim(id: number | string): void {
     this.alertDialogService.confirm({
       zTitle: 'Delete Claim',
       zDescription: 'Are you sure you want to delete this claim? This action cannot be undone.',

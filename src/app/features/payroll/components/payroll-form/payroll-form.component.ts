@@ -111,6 +111,9 @@ export class PayrollFormComponent implements OnInit {
       commission: [0, [Validators.min(0)]],
       unpaid_leave_deduction: [0, [Validators.min(0)]],
       other_deductions: [0, [Validators.min(0)]],
+      prior_ytd_gross: [0, [Validators.min(0)]],
+      prior_ytd_epf: [0, [Validators.min(0)]],
+      prior_ytd_pcb: [0, [Validators.min(0)]],
       payment_date: [null, Validators.required],
       notes: ['']
     });
@@ -163,6 +166,9 @@ export class PayrollFormComponent implements OnInit {
             commission: payroll.commission || 0,
             unpaid_leave_deduction: payroll.unpaid_leave_deduction || 0,
             other_deductions: payroll.other_deductions || 0,
+            prior_ytd_gross: payroll.prior_ytd_gross || 0,
+            prior_ytd_epf: payroll.prior_ytd_epf || 0,
+            prior_ytd_pcb: payroll.prior_ytd_pcb || 0,
             payment_date: paymentDate,
             notes: payroll.notes || ''
           });
@@ -251,6 +257,9 @@ export class PayrollFormComponent implements OnInit {
       commission: Number(raw.commission || 0),
       unpaid_leave_deduction: Number(raw.unpaid_leave_deduction || 0),
       other_deductions: Number(raw.other_deductions || 0),
+      prior_ytd_gross: Number(raw.prior_ytd_gross || 0),
+      prior_ytd_epf: Number(raw.prior_ytd_epf || 0),
+      prior_ytd_pcb: Number(raw.prior_ytd_pcb || 0),
       payment_date: raw.payment_date instanceof Date
         ? raw.payment_date.toISOString()
         : raw.payment_date,

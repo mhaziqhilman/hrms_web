@@ -84,6 +84,7 @@ export class OAuthCallbackComponent implements OnInit {
     }
 
     const token = params['token'];
+    const refreshToken = params['refreshToken'];
     const userJson = params['user'];
 
     if (!token || !userJson) {
@@ -94,7 +95,7 @@ export class OAuthCallbackComponent implements OnInit {
 
     try {
       const user: User = JSON.parse(decodeURIComponent(userJson));
-      this.authService.handleOAuthCallback(token, user);
+      this.authService.handleOAuthCallback(token, user, refreshToken);
 
       // Check if user needs onboarding (no company)
       if (!user.company_id && user.role !== 'super_admin') {

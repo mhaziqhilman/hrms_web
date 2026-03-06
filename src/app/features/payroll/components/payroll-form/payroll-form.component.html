@@ -319,6 +319,70 @@
       </z-card>
     </div>
 
+    <!-- Prior Employment YTD -->
+    <z-card class="mb-6">
+      <h3 class="text-xl font-semibold text-foreground mb-4">Prior Employment YTD</h3>
+      <p class="text-sm text-muted-foreground mb-6">
+        For employees who joined mid-year from another company. Enter their previous employer's YTD data (from CP22A or previous payslips) to ensure accurate PCB calculation.
+      </p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <!-- Prior YTD Gross -->
+        <z-form-field>
+          <label z-form-label for="prior_ytd_gross">Prior YTD Gross Income</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">RM</span>
+            <input
+              z-input
+              type="number"
+              id="prior_ytd_gross"
+              formControlName="prior_ytd_gross"
+              placeholder="0.00"
+              step="0.01"
+              min="0"
+              class="pl-12"
+            />
+          </div>
+        </z-form-field>
+
+        <!-- Prior YTD EPF -->
+        <z-form-field>
+          <label z-form-label for="prior_ytd_epf">Prior YTD EPF (Employee)</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">RM</span>
+            <input
+              z-input
+              type="number"
+              id="prior_ytd_epf"
+              formControlName="prior_ytd_epf"
+              placeholder="0.00"
+              step="0.01"
+              min="0"
+              class="pl-12"
+            />
+          </div>
+        </z-form-field>
+
+        <!-- Prior YTD PCB -->
+        <z-form-field>
+          <label z-form-label for="prior_ytd_pcb">Prior YTD PCB (Tax Deducted)</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">RM</span>
+            <input
+              z-input
+              type="number"
+              id="prior_ytd_pcb"
+              formControlName="prior_ytd_pcb"
+              placeholder="0.00"
+              step="0.01"
+              min="0"
+              class="pl-12"
+            />
+          </div>
+        </z-form-field>
+      </div>
+    </z-card>
+
     <!-- Calculation Summary -->
     <z-card class="mb-6 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
       <h3 class="text-xl font-semibold text-foreground mb-6">Calculation Summary</h3>
