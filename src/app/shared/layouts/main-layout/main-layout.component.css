@@ -16,10 +16,6 @@
   scrollbar-color: #8294ad70 #0b1723;
 }
 
-header {
-  height: var(--header-height);
-}
-
 /* Ensure sidebar navigation uses full height with proper flex layout */
 nav {
   display: flex;
@@ -41,18 +37,3 @@ nav {
   border-top: 1px solid hsl(var(--border));
 }
 
-/* Fix z-content wrapper to allow proper flex layout */
-:host ::ng-deep z-content {
-  display: flex !important;
-  flex-direction: column !important;
-  height: 100% !important;
-  overflow: hidden !important;
-}
-
-:host ::ng-deep z-content > main {
-  display: flex !important;
-  flex-direction: column !important;
-  flex: 1 !important;
-  min-height: 0 !important;
-  overflow: hidden !important;
-}

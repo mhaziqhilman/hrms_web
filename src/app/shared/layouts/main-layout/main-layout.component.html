@@ -1,7 +1,8 @@
-<z-layout class="h-screen">
+<z-layout class="min-h-screen bg-sidebar">
   <!-- Sidebar -->
   <z-sidebar [zWidth]="250" [zCollapsedWidth]="70" [zCollapsible]="true" [zCollapsed]="sidebarCollapsed()"
-    (zCollapsedChange)="onSidebarCollapsedChange($event)" class="p-0! h-screen">
+    (zCollapsedChange)="onSidebarCollapsedChange($event)" [zTrigger]="noTrigger" class="p-0! sticky top-0 h-screen border-r-0!">
+    <ng-template #noTrigger></ng-template>
     <nav class="flex h-full flex-col">
       <!-- Company Switcher -->
       <div [class]="'flex-shrink-0 border-b ' + (sidebarCollapsed() ? 'p-2' : 'p-3')">
@@ -312,7 +313,7 @@
       </div>
 
       <!-- Fixed Bottom User Profile Section -->
-      <div [class]="'flex-shrink-0 border-t ' + (sidebarCollapsed() ? 'p-1' : 'p-4')">
+      <div [class]="'flex-shrink-0 border-t ' + (sidebarCollapsed() ? 'p-4' : 'p-2')">
         <div z-menu [zMenuTriggerFor]="userMenu" zPlacement="rightBottom" [class]="
             'hover:bg-accent flex cursor-pointer items-center rounded-md ' +
             (sidebarCollapsed() ? 'justify-center p-0' : 'gap-2 p-2')
@@ -349,11 +350,11 @@
     </nav>
   </z-sidebar>
 
-  <!-- Main Content Area -->
-  <z-content class="!p-0 flex flex-col !overflow-hidden">
-    <!-- Fixed Header -->
-    <header class="flex-shrink-0 border-b bg-background">
-      <div class="relative flex w-full h-full items-center px-4 lg:gap-4 justify-between">
+  <!-- SidebarInset -->
+  <main class="relative flex flex-1 flex-col bg-background md:m-2 md:ml-0 md:rounded-xl md:shadow">
+    <!-- Sticky Header -->
+    <header class="sticky top-0 z-50 flex items-center px-4 shrink-0 h-16 gap-2 border-b bg-background/80 backdrop-blur-md transition-[width,height] ease-linear md:rounded-t-xl">
+      <div class="relative flex w-full h-full items-center lg:gap-4 justify-between">
         <!-- Left: Sidebar Toggle & Breadcrumb -->
         <div class="flex items-center gap-2 lg:gap-4 z-10">
           <a type="button" z-button zType="ghost" zSize="sm" (click)="toggleSidebar()">
@@ -515,13 +516,13 @@
     </header>
 
     <!-- Page Content -->
-    <div class="flex-1 overflow-y-auto overflow-x-hidden p-8">
+    <div class="p-8">
       <router-outlet></router-outlet>
     </div>
 
     <!-- Footer -->
-    <z-footer class="flex-shrink-0 border-t bg-background">
-      <div class="flex items-center justify-between h-14 px-6 text-sm text-muted-foreground">
+    <footer class="flex items-center px-6 border-t border-border shrink-0">
+      <div class="flex items-center justify-between w-full h-14 text-sm text-muted-foreground">
         <div>
           <span class="font-semibold">2025 ©</span>
           <a href="#" class="hover:text-primary ml-1">HRMS</a>
@@ -530,8 +531,8 @@
           <span>Built with ZardUI & Tailwind CSS</span>
         </div>
       </div>
-    </z-footer>
-  </z-content>
+    </footer>
+  </main>
 </z-layout>
 
 <!-- Feedback Widget (FAB) -->
