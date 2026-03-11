@@ -11,6 +11,7 @@ import { ZardIconComponent } from '@/shared/components/icon/icon.component';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { ZardTableComponent } from '@/shared/components/table/table.component';
+import { AppDatePipe, AppDateTimePipe } from '@/shared/pipes/app-date.pipe';
 
 @Component({
   selector: 'app-memo-viewer',
@@ -22,7 +23,9 @@ import { ZardTableComponent } from '@/shared/components/table/table.component';
     ZardIconComponent,
     ZardCardComponent,
     ZardBadgeComponent,
-    ZardTableComponent
+    ZardTableComponent,
+    AppDatePipe,
+    AppDateTimePipe
   ],
   templateUrl: './memo-viewer.html',
   styleUrl: './memo-viewer.css',

@@ -26,6 +26,7 @@ import {
   DocumentOverviewStats,
   FileUploadMetadata
 } from '@/core/services/file.service';
+import { DisplayService } from '@/core/services/display.service';
 
 @Component({
   selector: 'app-document-overview',
@@ -52,6 +53,7 @@ import {
 export class DocumentOverviewComponent implements OnInit, OnDestroy {
   private fileService = inject(FileService);
   private alertDialogService = inject(ZardAlertDialogService);
+  private displayService = inject(DisplayService);
 
   // Loading states
   loading = signal(true);
@@ -407,11 +409,7 @@ export class DocumentOverviewComponent implements OnInit, OnDestroy {
   }
 
   formatDate(dateStr: string): string {
-    return new Date(dateStr).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    });
+    return this.displayService.formatDate(dateStr);
   }
 
   getExtensionLabel(ext: string): string {

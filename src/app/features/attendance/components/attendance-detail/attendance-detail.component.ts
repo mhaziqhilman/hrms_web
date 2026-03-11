@@ -1,7 +1,8 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AttendanceService } from '../../services/attendance.service';
+import { DisplayService } from '@/core/services/display.service';
 import { Attendance } from '../../models/attendance.model';
 
 // ZardUI Components
@@ -29,6 +30,8 @@ import { ZardDividerComponent } from '@/shared/components/divider/divider.compon
   styleUrl: './attendance-detail.component.css'
 })
 export class AttendanceDetailComponent implements OnInit {
+  private displayService = inject(DisplayService);
+
   attendance = signal<Attendance | null>(null);
   loading = signal(false);
   error = signal<string | null>(null);
@@ -137,25 +140,11 @@ export class AttendanceDetailComponent implements OnInit {
   }
 
   formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-MY', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+    return this.displayService.formatDate(dateString);
   }
 
   formatTime(dateString: string | null | undefined): string {
-    if (!dateString) return '--:--';
-
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('en-MY', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: true
-    });
+    return this.displayService.formatTime(dateString);
   }
 
   formatHours(hours: number | null | undefined): string {

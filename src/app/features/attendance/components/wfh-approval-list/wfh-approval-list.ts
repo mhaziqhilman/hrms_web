@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AttendanceService } from '../../services/attendance.service';
+import { DisplayService } from '@/core/services/display.service';
 import { WFHApplication } from '../../models/attendance.model';
 
 // ZardUI Components
@@ -61,6 +62,7 @@ export class WfhApprovalListComponent implements OnInit {
   rejectionReason = signal<string>('');
 
   private alertDialogService = inject(ZardAlertDialogService);
+  private displayService = inject(DisplayService);
 
   constructor(private attendanceService: AttendanceService) {}
 
@@ -207,26 +209,11 @@ export class WfhApprovalListComponent implements OnInit {
   }
 
   formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-MY', {
-      weekday: 'short',
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
+    return this.displayService.formatDate(dateString);
   }
 
   formatDateTime(dateString: string | null | undefined): string {
-    if (!dateString) return '--';
-
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-MY', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    return this.displayService.formatDateTime(dateString);
   }
 
   isPastDate(dateString: string): boolean {

@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ClaimService } from '../../services/claim.service';
 import { AuthService } from '@/core/services/auth.service';
+import { DisplayService } from '@/core/services/display.service';
 import { Claim, ClaimAnalytics, ClaimQueryParams } from '../../models/claim.model';
 
 // ZardUI Components
@@ -42,6 +43,7 @@ export class ClaimListComponent implements OnInit {
   private claimService = inject(ClaimService);
   private alertDialogService = inject(ZardAlertDialogService);
   private authService = inject(AuthService);
+  private displayService = inject(DisplayService);
 
   claims = signal<Claim[]>([]);
   allData: Claim[] = [];
@@ -437,27 +439,11 @@ export class ClaimListComponent implements OnInit {
   }
 
   formatDate(dateString: string | null | undefined): string {
-    if (!dateString) return '--';
-
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-MY', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
+    return this.displayService.formatDate(dateString);
   }
 
   formatDateTime(dateString: string | null | undefined): string {
-    if (!dateString) return '--';
-
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-MY', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    return this.displayService.formatDateTime(dateString);
   }
 
   formatCurrency(amount: number | string | null | undefined): string {

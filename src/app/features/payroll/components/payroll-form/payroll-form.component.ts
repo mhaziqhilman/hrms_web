@@ -88,8 +88,14 @@ export class PayrollFormComponent implements OnInit {
     if (id) {
       this.isEditMode.set(true);
       this.payrollId.set(id);
+      this.payrollForm.get('employee_id')?.disable();
       this.loadPayrollData(id);
     }
+
+    // Listen to employee selection changes to auto-fill basic salary
+    this.payrollForm.get('employee_id')?.valueChanges.subscribe((value) => {
+      this.onEmployeeChange(value);
+    });
 
     // Subscribe to form value changes for auto-calculation
     this.payrollForm.valueChanges.subscribe(() => {
@@ -189,7 +195,7 @@ export class PayrollFormComponent implements OnInit {
   }
 
   onEmployeeChange(employeeId: any): void {
-    const employee = this.employees().find(e => e.id === Number(employeeId));
+    const employee = this.employees().find(e => (e as any).public_id === employeeId);
 
     if (employee && !this.isEditMode()) {
       // Auto-fill basic salary for new payroll
@@ -247,7 +253,7 @@ export class PayrollFormComponent implements OnInit {
 
     // Ensure correct types for express-validator v7
     const formData: any = {
-      employee_id: Number(raw.employee_id),
+      employee_id: raw.employee_id,
       month: Number(raw.month),
       year: Number(raw.year),
       basic_salary: Number(raw.basic_salary || 0),

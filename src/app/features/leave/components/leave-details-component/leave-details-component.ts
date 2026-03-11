@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
@@ -8,6 +8,7 @@ import { ZardIconComponent } from '@/shared/components/icon/icon.component';
 import { FileList } from '@/shared/components/file-list/file-list';
 import { Leave, LeaveStatus } from '../../models/leave.model';
 import { LeaveService } from '../../services/leave.service';
+import { DisplayService } from '@/core/services/display.service';
 import type { ZardIcon } from '@/shared/components/icon/icons';
 
 @Component({
@@ -26,6 +27,8 @@ import type { ZardIcon } from '@/shared/components/icon/icons';
   styleUrl: './leave-details-component.css',
 })
 export class LeaveDetailsComponent implements OnInit {
+  private displayService = inject(DisplayService);
+
   leave = signal<Leave | null>(null);
 
   LeaveStatus = LeaveStatus;
@@ -97,22 +100,11 @@ export class LeaveDetailsComponent implements OnInit {
   }
 
   formatDate(date: string): string {
-    return new Date(date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+    return this.displayService.formatDate(date);
   }
 
   formatDateTime(date: string | undefined): string {
-    if (!date) return 'N/A';
-    return new Date(date).toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    return this.displayService.formatDateTime(date);
   }
 
   goBack(): void {

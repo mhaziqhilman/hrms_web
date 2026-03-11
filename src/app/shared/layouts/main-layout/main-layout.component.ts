@@ -6,12 +6,14 @@ import { AuthService } from '@/core/services/auth.service';
 import { CompanyService } from '@/core/services/company.service';
 import { ThemeService } from '@/core/services/theme';
 import { UserProfileService } from '@/core/services/user-profile.service';
+import { DisplayService } from '@/core/services/display.service';
 import { User, Company, UserCompany } from '@/core/models/auth.models';
 import { SidebarMenuGroup } from '@/core/models/sidebar.models';
 import { MENU_GROUPS } from '@/core/config/menu.config';
 import { CommandPaletteService } from '@/shared/components/command-palette/command-palette.service';
 import { NotificationService } from '@/core/services/notification.service';
 import { Notification as AppNotification, NotificationType } from '@/core/models/notification.models';
+import { SettingsService } from '@/features/settings/services/settings.service';
 import { TimeAgoPipe } from '@/shared/pipes/time-ago.pipe';
 
 // ZardUI Component Imports
@@ -54,6 +56,8 @@ export class MainLayoutComponent implements OnInit {
   private viewContainerRef = inject(ViewContainerRef);
   userProfileService = inject(UserProfileService);
   notificationService = inject(NotificationService);
+  private displayService = inject(DisplayService);
+  private settingsService = inject(SettingsService);
 
   notificationMenuOpen = false;
   currentUser: User | null = null;
@@ -138,6 +142,20 @@ export class MainLayoutComponent implements OnInit {
 
     // Refresh user data from API to ensure localStorage is up-to-date
     this.authService.getCurrentUser().subscribe();
+
+    // Load display settings for date/time formatting across the app
+    this.settingsService.getSettings().subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.displayService.update({
+            date_format: res.data.date_format,
+            time_format: res.data.time_format,
+            timezone: res.data.timezone,
+            language: res.data.language
+          });
+        }
+      }
+    });
   }
 
   private loadCompanyMemberships(): void {

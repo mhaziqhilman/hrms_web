@@ -17,6 +17,7 @@ import { ZardFormLabelComponent } from '@/shared/components/form/form-label.comp
 import { ZardInputDirective } from '@/shared/components/input/input.directive';
 import { ZardTooltipDirective } from '@/shared/components/tooltip/tooltip';
 import { ZardTableComponent } from '@/shared/components/table/table.component';
+import { AppDatePipe } from '@/shared/pipes/app-date.pipe';
 
 @Component({
   selector: 'app-policy-list',
@@ -35,7 +36,8 @@ import { ZardTableComponent } from '@/shared/components/table/table.component';
     ZardFormLabelComponent,
     ZardInputDirective,
     ZardTooltipDirective,
-    ZardTableComponent
+    ZardTableComponent,
+    AppDatePipe
   ],
   templateUrl: './policy-list.html',
   styleUrl: './policy-list.css',

@@ -65,7 +65,7 @@
 
             @if (isClockedIn) {
               <div class="text-white/75 mb-5">
-                Clocked in at: {{ clockInTime | date:'hh:mm a' }}
+                Clocked in at: {{ clockInTime | appTime }}
               </div>
             }
 
@@ -98,7 +98,7 @@
                 {{ currentTime | date:'HH:mm' }}
               </h1>
               <div class="text-white/75 text-lg mt-2">
-                {{ currentTime | date:'EEEE, d MMMM yyyy' }}
+                {{ currentTime | appDate }}
               </div>
             </div>
           </div>

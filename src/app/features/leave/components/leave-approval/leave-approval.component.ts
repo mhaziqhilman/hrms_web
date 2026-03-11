@@ -1,10 +1,11 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LeaveService } from '../../services/leave.service';
 import { Leave, LeaveStatus } from '../../models/leave.model';
 import { AuthService } from '../../../../core/services/auth.service';
+import { DisplayService } from '@/core/services/display.service';
 
 // ZardUI Components
 import { ZardCardComponent } from '@/shared/components/card/card.component';
@@ -75,6 +76,8 @@ export class LeaveApprovalComponent implements OnInit {
 
     return leaves;
   });
+
+  private displayService = inject(DisplayService);
 
   // Rejection reason for modal
   rejectionReason = signal('');
@@ -189,12 +192,7 @@ export class LeaveApprovalComponent implements OnInit {
   }
 
   formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
+    return this.displayService.formatDate(dateString);
   }
 
   getLeaveTypeColor(leaveTypeName: string): 'default' | 'secondary' | 'destructive' | 'outline' {

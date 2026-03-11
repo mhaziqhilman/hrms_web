@@ -109,14 +109,14 @@
           <z-icon zType="calendar" class="w-5 h-5 text-muted-foreground mt-0.5" />
           <div>
             <div class="font-semibold text-sm text-muted-foreground">Published</div>
-            <div class="text-foreground">{{ memo()?.published_at | date:'MMM dd, yyyy h:mm a' }}</div>
+            <div class="text-foreground">{{ memo()?.published_at | appDateTime }}</div>
           </div>
         </div>
         <div class="flex items-start gap-3" *ngIf="memo()?.expires_at">
           <z-icon zType="clock" class="w-5 h-5 text-muted-foreground mt-0.5" />
           <div>
             <div class="font-semibold text-sm text-muted-foreground">Expires</div>
-            <div class="text-foreground">{{ memo()?.expires_at | date:'MMM dd, yyyy' }}</div>
+            <div class="text-foreground">{{ memo()?.expires_at | appDate }}</div>
           </div>
         </div>
         <div class="flex items-start gap-3">
@@ -229,10 +229,10 @@
             <tbody>
               <tr *ngFor="let receipt of statistics()?.read_receipts">
                 <td class="font-medium">{{ receipt.employee?.full_name || 'Unknown' }}</td>
-                <td>{{ receipt.read_at | date:'MMM dd, yyyy h:mm a' }}</td>
+                <td>{{ receipt.read_at | appDateTime }}</td>
                 <td *ngIf="memo()?.requires_acknowledgment">
                   <z-badge zType="default" *ngIf="receipt.acknowledged_at">
-                    {{ receipt.acknowledged_at | date:'MMM dd, yyyy h:mm a' }}
+                    {{ receipt.acknowledged_at | appDateTime }}
                   </z-badge>
                   <z-badge zType="secondary" *ngIf="!receipt.acknowledged_at">
                     Not Acknowledged

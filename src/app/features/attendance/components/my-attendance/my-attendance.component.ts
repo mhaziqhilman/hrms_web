@@ -1,8 +1,9 @@
-import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AttendanceService } from '../../services/attendance.service';
 import { AuthService } from '@/core/services/auth.service';
+import { DisplayService } from '@/core/services/display.service';
 import { Attendance, WFHApplication } from '../../models/attendance.model';
 
 // ZardUI Components
@@ -76,6 +77,8 @@ export class MyAttendanceComponent implements OnInit, OnDestroy {
   wfhError = signal<string | null>(null);
   wfhSuccess = signal<string | null>(null);
 
+  private displayService = inject(DisplayService);
+
   constructor(
     private fb: FormBuilder,
     private attendanceService: AttendanceService,
@@ -147,11 +150,7 @@ export class MyAttendanceComponent implements OnInit, OnDestroy {
   }
 
   formatTime(dateString: string | null): string {
-    if (!dateString) return '--:--';
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('en-MY', {
-      hour: '2-digit', minute: '2-digit', hour12: true
-    });
+    return this.displayService.formatTime(dateString);
   }
 
   formatHours(hours: number): string {
@@ -450,10 +449,7 @@ export class MyAttendanceComponent implements OnInit, OnDestroy {
   }
 
   formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-MY', {
-      weekday: 'short', day: 'numeric', month: 'short'
-    });
+    return this.displayService.formatDate(dateString);
   }
 
   getAttendanceStatusBadgeType(a: Attendance): 'default' | 'secondary' | 'destructive' | 'outline' {

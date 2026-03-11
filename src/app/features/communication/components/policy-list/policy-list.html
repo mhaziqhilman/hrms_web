@@ -193,7 +193,7 @@
             <!-- Effective From -->
             <td>
               <span *ngIf="policy.effective_from">
-                {{ policy.effective_from | date:'MMM dd, yyyy' }}
+                {{ policy.effective_from | appDate }}
               </span>
               <span *ngIf="!policy.effective_from" class="text-muted-foreground">-</span>
             </td>

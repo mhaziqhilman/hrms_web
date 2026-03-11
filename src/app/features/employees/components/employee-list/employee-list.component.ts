@@ -11,6 +11,7 @@ import {
 } from '../../models/employee.model';
 import { InvitationService } from '../../../../core/services/invitation.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { DisplayService } from '@/core/services/display.service';
 
 // ZardUI Components
 import { ZardCardComponent } from '@/shared/components/card/card.component';
@@ -55,6 +56,7 @@ export class EmployeeListComponent implements OnInit {
   private dialogService = inject(ZardDialogService);
   private invitationService = inject(InvitationService);
   private authService = inject(AuthService);
+  private displayService = inject(DisplayService);
   private viewContainerRef = inject(ViewContainerRef);
 
   employees = signal<Employee[]>([]);
@@ -216,11 +218,7 @@ export class EmployeeListComponent implements OnInit {
   }
 
   formatDate(dateString: string): string {
-    return new Date(dateString).toLocaleDateString('en-MY', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
+    return this.displayService.formatDate(dateString);
   }
 
   // Sorting methods

@@ -1,4 +1,4 @@
-<div class="max-w-7xl mx-auto">
+<div>
   <!-- Header -->
   <div class="flex items-center justify-between mb-6">
     <div>
@@ -91,8 +91,8 @@
 
   <div class="flex gap-5">
     <!-- Main Table -->
-    <div class="flex-1 min-w-0">
-      <div class="rounded-lg border bg-background">
+    <div class="flex-1 min-w-0 overflow-hidden">
+      <div class="rounded-lg border bg-background overflow-x-auto">
         @if (loading()) {
           <!-- Skeleton Loading -->
           <div class="divide-y">

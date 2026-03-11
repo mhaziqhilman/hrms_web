@@ -8,7 +8,9 @@ import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { ZardDividerComponent } from '@/shared/components/divider/divider.component';
 import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
 import { ZardTableImports } from '@/shared/components/table/table.imports';
+import { ZardMenuImports } from '@/shared/components/menu/menu.imports';
 import { TimeAgoPipe } from '@/shared/pipes/time-ago.pipe';
+import { AppDateTimePipe } from '@/shared/pipes/app-date.pipe';
 
 import { AuditLogService } from '../../services/audit-log.service';
 import { AuditLog, AuditLogFilters } from '../../models/audit-log.model';
@@ -25,7 +27,9 @@ import { AuditLog, AuditLogFilters } from '../../models/audit-log.model';
     ZardDividerComponent,
     ZardSkeletonComponent,
     ZardTableImports,
-    TimeAgoPipe
+    ZardMenuImports,
+    TimeAgoPipe,
+    AppDateTimePipe
   ],
   templateUrl: './audit-log-list.component.html'
 })
@@ -84,6 +88,22 @@ export class AuditLogListComponent implements OnInit {
   onFilterChange(): void {
     clearTimeout(this.searchTimeout);
     this.searchTimeout = setTimeout(() => this.loadLogs(1), 300);
+  }
+
+  onSearch(term: string): void {
+    this.actionFilter.set(term);
+    this.onFilterChange();
+  }
+
+  onEntityTypeFilter(type: string): void {
+    this.entityTypeFilter.set(type);
+    this.onFilterChange();
+  }
+
+  getDateLabel(): string {
+    if (this.dateFrom() && this.dateTo()) return `${this.dateFrom()} – ${this.dateTo()}`;
+    if (this.dateFrom()) return `From ${this.dateFrom()}`;
+    return `Until ${this.dateTo()}`;
   }
 
   clearFilters(): void {

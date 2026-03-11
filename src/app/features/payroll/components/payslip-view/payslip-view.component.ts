@@ -1,8 +1,9 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PayrollService } from '../../services/payroll.service';
 import { Payslip, MONTH_NAMES } from '../../models/payroll.model';
+import { DisplayService } from '@/core/services/display.service';
 import { toast } from 'ngx-sonner';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
@@ -34,6 +35,7 @@ export class PayslipViewComponent implements OnInit {
   sendingEmail = signal(false);
 
   MONTH_NAMES = MONTH_NAMES;
+  private displayService = inject(DisplayService);
 
   constructor(
     private payrollService: PayrollService,
@@ -196,12 +198,7 @@ ${PAYSLIP_PRINT_CSS}
   }
 
   formatDate(date: string | Date): string {
-    if (!date) return 'N/A';
-    return new Date(date).toLocaleDateString('en-MY', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+    return this.displayService.formatDate(date);
   }
 
   getInitials(name: string): string {

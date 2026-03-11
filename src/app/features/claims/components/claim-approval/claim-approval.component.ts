@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 import { ClaimService } from '../../services/claim.service';
 import { Claim, ClaimQueryParams } from '../../models/claim.model';
 import { AuthService } from '@/core/services/auth.service';
+import { DisplayService } from '@/core/services/display.service';
 
 // ZardUI Components
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
@@ -43,6 +44,7 @@ export class ClaimApprovalComponent implements OnInit {
   private alertDialogService = inject(ZardAlertDialogService);
   private viewContainerRef = inject(ViewContainerRef);
   private authService = inject(AuthService);
+  private displayService = inject(DisplayService);
 
   claims = signal<Claim[]>([]);
   loading = signal(false);
@@ -547,26 +549,11 @@ export class ClaimApprovalComponent implements OnInit {
   }
 
   formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-MY', {
-      weekday: 'short',
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
+    return this.displayService.formatDate(dateString);
   }
 
   formatDateTime(dateString: string | null | undefined): string {
-    if (!dateString) return '--';
-
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-MY', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    return this.displayService.formatDateTime(dateString);
   }
 
   getPageNumbers(): number[] {

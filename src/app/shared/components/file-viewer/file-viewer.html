@@ -67,27 +67,23 @@
     </div>
   }
 
-  <!-- Preview Content -->
-  @if (!loading() && viewMode() === 'preview' && previewUrl()) {
+  <!-- Preview Content (Image) -->
+  @if (!loading() && viewMode() === 'preview' && previewUrl() && isImage()) {
     <div class="flex-1 flex items-center justify-center bg-muted/30 overflow-hidden min-h-[400px] viewer-fade-in">
-      <!-- Image -->
-      @if (isImage()) {
-        <div class="p-6 flex items-center justify-center w-full h-full overflow-auto">
-          <img
-            [src]="previewUrl()!"
-            [alt]="fileMetadata()!.original_filename"
-            class="max-w-full max-h-[70vh] object-contain rounded-lg shadow-sm"
-          />
-        </div>
-      }
-      <!-- PDF -->
-      @if (isPDF()) {
-        <iframe
+      <div class="p-6 flex items-center justify-center w-full h-full overflow-auto">
+        <img
           [src]="previewUrl()!"
-          [title]="fileMetadata()!.original_filename"
-          class="w-full h-full border-0 min-h-[600px]"
-        ></iframe>
-      }
+          [alt]="fileMetadata()!.original_filename"
+          class="max-w-full max-h-[70vh] object-contain rounded-lg shadow-sm"
+        />
+      </div>
+    </div>
+  }
+
+  <!-- Preview Content (PDF via canvas) -->
+  @if (!loading() && viewMode() === 'preview' && pdfLoaded()) {
+    <div class="bg-muted/30 overflow-y-auto overflow-x-hidden viewer-fade-in" style="max-height: calc(85vh - 80px);">
+      <div #pdfContainer class="pdf-canvas-container p-2 flex flex-col items-center"></div>
     </div>
   }
 

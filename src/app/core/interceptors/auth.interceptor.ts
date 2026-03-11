@@ -22,12 +22,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(authReq).pipe(
     catchError(error => {
-      // Only attempt refresh on 401 errors, and skip the refresh-token endpoint itself
-      // to avoid infinite loops
-      const isRefreshEndpoint = req.url.includes(API_CONFIG.endpoints.auth.refreshToken);
+      // Skip refresh logic for all auth endpoints (login, register, etc.)
+      // to avoid intercepting legitimate auth failures
+      const isAuthEndpoint = req.url.includes('/auth/');
       const hasRefreshToken = !!localStorage.getItem(REFRESH_TOKEN_KEY);
 
-      if (error.status === 401 && !isRefreshEndpoint && hasRefreshToken) {
+      if (error.status === 401 && !isAuthEndpoint && hasRefreshToken) {
         // Attempt silent refresh
         return authService.refreshTokenRequest().pipe(
           switchMap(response => {
@@ -48,7 +48,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         );
       }
 
-      if (error.status === 401) {
+      if (error.status === 401 && !isAuthEndpoint) {
         clearAndRedirect(router);
       }
 

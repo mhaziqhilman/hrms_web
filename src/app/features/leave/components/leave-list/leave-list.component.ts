@@ -4,6 +4,7 @@ import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LeaveService } from '../../services/leave.service';
 import { AuthService } from '@/core/services/auth.service';
+import { DisplayService } from '@/core/services/display.service';
 import { Leave, LeaveStatus, LEAVE_STATUS_COLORS, LEAVE_STATUS_ICONS } from '../../models/leave.model';
 
 // ZardUI Components
@@ -45,6 +46,7 @@ export class LeaveListComponent implements OnInit {
   private router = inject(Router);
   private alertDialogService = inject(ZardAlertDialogService);
   private authService = inject(AuthService);
+  private displayService = inject(DisplayService);
 
   leaves = signal<Leave[]>([]);
   loading = signal(false);
@@ -384,12 +386,7 @@ export class LeaveListComponent implements OnInit {
   }
 
   formatDate(date: string | Date): string {
-    if (!date) return 'N/A';
-    return new Date(date).toLocaleDateString('en-MY', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
+    return this.displayService.formatDate(date);
   }
 
   getDuration(leave: Leave): string {

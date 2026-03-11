@@ -732,6 +732,24 @@
                       }
                     </z-select>
                   </div>
+
+                  <z-divider />
+
+                  <!-- Live Preview -->
+                  <div class="grid gap-2">
+                    <label class="text-sm font-medium">Preview</label>
+                    <div class="rounded-lg border border-border bg-muted/30 p-4">
+                      <div class="flex items-center justify-between">
+                        <span class="text-sm text-muted-foreground">Date</span>
+                        <span class="text-sm font-medium font-mono">{{ getDatePreview() }}</span>
+                      </div>
+                      <z-divider zSpacing="sm" />
+                      <div class="flex items-center justify-between">
+                        <span class="text-sm text-muted-foreground">Time</span>
+                        <span class="text-sm font-medium font-mono">{{ getTimePreview() }}</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 <div zCardFooter class="flex justify-end pt-6">
                   <button z-button (click)="saveDisplay()" [disabled]="saving()">

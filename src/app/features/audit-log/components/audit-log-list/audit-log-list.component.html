@@ -12,48 +12,77 @@
   </div>
 
   <!-- Filters -->
-  <div class="flex items-center gap-3 mb-5 flex-wrap">
-    <!-- Action filter -->
-    <div class="relative">
-      <z-icon zType="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
-      <input type="text"
-        [value]="actionFilter()"
-        (input)="actionFilter.set($any($event.target).value); onFilterChange()"
-        placeholder="Filter by action..."
-        class="pl-9 pr-3 py-2 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring w-52" />
-    </div>
+  <div class="flex items-center gap-3 mb-6 flex-wrap justify-between">
+    <div class="flex items-center gap-3 flex-1 flex-wrap">
+      <!-- Search -->
+      <div class="relative flex-1 min-w-[180px] max-w-md">
+        <z-icon zType="search"
+          class="absolute left-1.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+        <input type="text"
+          [value]="actionFilter()"
+          (input)="onSearch($any($event.target).value)"
+          placeholder="Search by action..."
+          class="w-full pl-8 pr-2 py-2 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent" />
+      </div>
 
-    <!-- Entity type filter -->
-    <select
-      [ngModel]="entityTypeFilter()"
-      (ngModelChange)="entityTypeFilter.set($event); onFilterChange()"
-      class="py-2 px-3 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring">
-      <option value="">All Entity Types</option>
-      @for (type of entityTypes; track type) {
-        <option [value]="type">{{ type }}</option>
+      <!-- Entity Type Filter -->
+      <div z-menu [zMenuTriggerFor]="entityTypeMenu">
+        <button z-button zType="outline"
+          [class]="entityTypeFilter()
+            ? 'gap-2 border border-solid px-2 bg-primary/5 text-primary border-primary'
+            : 'gap-2 border border-dashed px-2'">
+          <z-icon [zType]="entityTypeFilter() ? $any('circle-check') : $any('circle-plus')" class="w-4 h-4" />
+          {{ entityTypeFilter() || 'Entity Type' }}
+        </button>
+      </div>
+      <ng-template #entityTypeMenu>
+        <div z-menu-content class="w-48">
+          <button type="button" z-menu-item (click)="onEntityTypeFilter('')">All Entity Types</button>
+          @for (type of entityTypes; track type) {
+            <button type="button" z-menu-item (click)="onEntityTypeFilter(type)">{{ type }}</button>
+          }
+        </div>
+      </ng-template>
+
+      <!-- Date Range Filter -->
+      <div z-menu [zMenuTriggerFor]="dateMenu">
+        <button z-button zType="outline"
+          [class]="dateFrom() || dateTo()
+            ? 'gap-2 border border-solid px-2 bg-primary/5 text-primary border-primary'
+            : 'gap-2 border border-dashed px-2'">
+          <z-icon [zType]="dateFrom() || dateTo() ? $any('circle-check') : $any('circle-plus')" class="w-4 h-4" />
+          {{ dateFrom() || dateTo() ? getDateLabel() : 'Date Range' }}
+        </button>
+      </div>
+      <ng-template #dateMenu>
+        <div z-menu-content class="w-64 p-3 space-y-3">
+          <div>
+            <label class="text-xs font-medium text-muted-foreground mb-1 block">From</label>
+            <input type="date"
+              [ngModel]="dateFrom()"
+              (ngModelChange)="dateFrom.set($event); onFilterChange()"
+              class="w-full py-1.5 px-2 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring" />
+          </div>
+          <div>
+            <label class="text-xs font-medium text-muted-foreground mb-1 block">To</label>
+            <input type="date"
+              [ngModel]="dateTo()"
+              (ngModelChange)="dateTo.set($event); onFilterChange()"
+              class="w-full py-1.5 px-2 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring" />
+          </div>
+        </div>
+      </ng-template>
+
+      <!-- Reset -->
+      @if (hasActiveFilters()) {
+        <button type="button" z-button zType="outline"
+          class="gap-2 border-none shadow-none px-2"
+          (click)="clearFilters()">
+          Reset
+          <z-icon zType="x" class="w-4 h-4" />
+        </button>
       }
-    </select>
-
-    <!-- Date from -->
-    <input type="date"
-      [ngModel]="dateFrom()"
-      (ngModelChange)="dateFrom.set($event); onFilterChange()"
-      class="py-2 px-3 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring" />
-
-    <!-- Date to -->
-    <input type="date"
-      [ngModel]="dateTo()"
-      (ngModelChange)="dateTo.set($event); onFilterChange()"
-      class="py-2 px-3 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring" />
-
-    @if (hasActiveFilters()) {
-      <button type="button" z-button zType="outline" zSize="sm"
-        class="gap-2 border-none shadow-none px-2"
-        (click)="clearFilters()">
-        Reset
-        <z-icon zType="x" class="w-4 h-4" />
-      </button>
-    }
+    </div>
   </div>
 
   <div class="flex gap-5">
@@ -224,7 +253,7 @@
             </div>
             <div>
               <p class="text-xs font-medium text-muted-foreground mb-1">Timestamp</p>
-              <p class="text-xs">{{ selectedLog()!.created_at | date:'dd MMM yyyy HH:mm' }}</p>
+              <p class="text-xs">{{ selectedLog()!.created_at | appDateTime }}</p>
             </div>
           </div>
 

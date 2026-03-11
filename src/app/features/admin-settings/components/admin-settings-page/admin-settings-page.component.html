@@ -417,8 +417,8 @@
                   <table class="w-full">
                     <thead>
                       <tr class="border-b bg-muted/50">
+                        <th class="w-8 px-2 py-3"></th>
                         <th class="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Employee</th>
-                        <th class="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Leave Type</th>
                         <th class="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Total</th>
                         <th class="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Used</th>
                         <th class="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Pending</th>
@@ -428,23 +428,59 @@
                       </tr>
                     </thead>
                     <tbody>
-                      @for (ent of entitlements(); track ent.id) {
-                        <tr class="border-b last:border-0 hover:bg-muted/30">
-                          <td class="px-4 py-3 text-sm font-medium">{{ ent.employee?.full_name }}</td>
-                          <td class="px-4 py-3 text-sm">{{ ent.leave_type?.name }}</td>
-                          <td class="px-4 py-3 text-sm text-right">{{ ent.total_days }}</td>
-                          <td class="px-4 py-3 text-sm text-right">{{ ent.used_days }}</td>
-                          <td class="px-4 py-3 text-sm text-right">{{ ent.pending_days }}</td>
-                          <td class="px-4 py-3 text-sm text-right font-semibold">{{ ent.balance_days }}</td>
-                          <td class="px-4 py-3 text-sm text-right">{{ ent.carry_forward_days }}</td>
-                          <td class="px-4 py-3 text-sm text-right">
-                            <button z-button zType="ghost" zSize="sm" (click)="openEditEntitlementDialog(ent)">
-                              <z-icon zType="pencil" class="h-4 w-4" />
-                            </button>
-                            <button z-button zType="ghost" zSize="sm" (click)="deleteEntitlement(ent)"
-                              [disabled]="ent.used_days > 0 || ent.pending_days > 0">
-                              <z-icon zType="trash" class="h-4 w-4 text-red-500" />
-                            </button>
+                      @for (group of groupedEntitlements(); track group.employeeId) {
+                        <!-- Employee parent row -->
+                        <tr class="border-b hover:bg-muted/30 cursor-pointer select-none"
+                            (click)="toggleEmployeeExpand(group.employeeId)">
+                          <td class="px-2 py-3 text-center">
+                            <z-icon zType="chevron-right"
+                              class="h-4 w-4 text-muted-foreground chevron-icon"
+                              [class.rotated]="isEmployeeExpanded(group.employeeId)" />
+                          </td>
+                          <td class="px-4 py-3 text-sm font-semibold">{{ group.employeeName }}</td>
+                          <td class="px-4 py-3 text-sm text-right font-medium">{{ group.totalDays.toFixed(2) }}</td>
+                          <td class="px-4 py-3 text-sm text-right">{{ group.totalUsed.toFixed(2) }}</td>
+                          <td class="px-4 py-3 text-sm text-right">{{ group.totalPending.toFixed(2) }}</td>
+                          <td class="px-4 py-3 text-sm text-right font-semibold">{{ group.totalBalance.toFixed(2) }}</td>
+                          <td class="px-4 py-3 text-sm text-right">{{ group.totalCarryFwd.toFixed(2) }}</td>
+                          <td class="px-4 py-3 text-sm text-right text-muted-foreground">
+                            {{ group.entitlements.length }} types
+                          </td>
+                        </tr>
+
+                        <!-- Expanded child rows (animated) -->
+                        <tr class="border-0">
+                          <td colspan="8" class="p-0 border-0">
+                            <div class="entitlement-expand-wrapper" [class.expanded]="isEmployeeExpanded(group.employeeId)">
+                              <div class="entitlement-expand-inner">
+                                <table class="w-full">
+                                  <tbody>
+                                    @for (ent of group.entitlements; track ent.id) {
+                                      <tr class="border-b last:border-0 bg-muted/20 hover:bg-muted/40">
+                                        <td class="w-8 px-2 py-2"></td>
+                                        <td class="px-4 py-2 text-sm pl-8">
+                                          <span class="text-muted-foreground">{{ ent.leave_type?.name }}</span>
+                                        </td>
+                                        <td class="px-4 py-2 text-sm text-right">{{ ent.total_days }}</td>
+                                        <td class="px-4 py-2 text-sm text-right">{{ ent.used_days }}</td>
+                                        <td class="px-4 py-2 text-sm text-right">{{ ent.pending_days }}</td>
+                                        <td class="px-4 py-2 text-sm text-right font-medium">{{ ent.balance_days }}</td>
+                                        <td class="px-4 py-2 text-sm text-right">{{ ent.carry_forward_days }}</td>
+                                        <td class="px-4 py-2 text-sm text-right">
+                                          <button z-button zType="ghost" zSize="sm" (click)="openEditEntitlementDialog(ent); $event.stopPropagation()">
+                                            <z-icon zType="pencil" class="h-4 w-4" />
+                                          </button>
+                                          <button z-button zType="ghost" zSize="sm" (click)="deleteEntitlement(ent); $event.stopPropagation()"
+                                            [disabled]="ent.used_days > 0 || ent.pending_days > 0">
+                                            <z-icon zType="trash" class="h-4 w-4 text-red-500" />
+                                          </button>
+                                        </td>
+                                      </tr>
+                                    }
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
                           </td>
                         </tr>
                       } @empty {

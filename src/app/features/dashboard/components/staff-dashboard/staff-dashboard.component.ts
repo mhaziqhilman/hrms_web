@@ -9,6 +9,7 @@ import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { ZardDividerComponent } from '@/shared/components/divider/divider.component';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { ZardEmptyComponent } from '@/shared/components/empty/empty.component';
+import { AppDatePipe, AppTimePipe } from '@/shared/pipes/app-date.pipe';
 
 import { AuthService } from '@/core/services/auth.service';
 import { DashboardService, StaffDashboardData } from '../../services/dashboard.service';
@@ -23,7 +24,9 @@ import { DashboardService, StaffDashboardData } from '../../services/dashboard.s
     ZardIconComponent,
     ZardBadgeComponent,
     ZardDividerComponent,
-    ZardEmptyComponent
+    ZardEmptyComponent,
+    AppDatePipe,
+    AppTimePipe
   ],
   templateUrl: './staff-dashboard.component.html',
   styleUrls: ['./staff-dashboard.component.css']

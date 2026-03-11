@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { AttendanceService } from '../../services/attendance.service';
 import { AuthService } from '@/core/services/auth.service';
 import { Attendance, AttendanceQueryParams } from '../../models/attendance.model';
+import { DisplayService } from '@/core/services/display.service';
 
 // ZardUI Components
 import { ZardCardComponent } from '@/shared/components/card/card.component';
@@ -45,6 +46,7 @@ export class AttendanceListComponent implements OnInit {
   private alertDialogService = inject(ZardAlertDialogService);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private displayService = inject(DisplayService);
 
   attendances = signal<Attendance[]>([]);
   loading = signal(false);
@@ -344,23 +346,11 @@ export class AttendanceListComponent implements OnInit {
   }
 
   formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-MY', {
-      weekday: 'short',
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
+    return this.displayService.formatDate(dateString);
   }
 
   formatTime(dateString: string | null | undefined): string {
-    if (!dateString) return '--:--';
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('en-MY', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    });
+    return this.displayService.formatTime(dateString);
   }
 
   formatHours(hours: number | null | undefined): string {

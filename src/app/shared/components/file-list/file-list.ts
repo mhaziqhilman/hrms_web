@@ -1,8 +1,9 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FileService, FileMetadata } from '../../../core/services/file.service';
 import { FileViewer } from '../file-viewer/file-viewer';
 import { ZardIconComponent } from '../icon/icon.component';
+import { DisplayService } from '@/core/services/display.service';
 
 @Component({
   selector: 'app-file-list',
@@ -19,6 +20,8 @@ export class FileList implements OnInit, OnDestroy {
   @Input() showFilters: boolean = true;
   @Input() maxDisplay?: number;
   @Input() displayMode: 'grid' | 'compact' = 'grid';
+
+  private displayService = inject(DisplayService);
 
   @Output() fileDeleted = new EventEmitter<number>();
   @Output() fileDownloaded = new EventEmitter<FileMetadata>();
@@ -219,13 +222,7 @@ export class FileList implements OnInit, OnDestroy {
   }
 
   formatDate(date: string): string {
-    return new Date(date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    return this.displayService.formatDate(date);
   }
 
   getCategoryLabel(category: string): string {

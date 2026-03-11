@@ -53,8 +53,6 @@
               id="employee"
               formControlName="employee_id"
               placeholder="Select Employee"
-              (ngModelChange)="onEmployeeChange($event)"
-              [disabled]="isEditMode()"
             >
               <z-select-item zValue="">Select Employee</z-select-item>
               <z-select-item *ngFor="let emp of employees()" [zValue]="emp.public_id">

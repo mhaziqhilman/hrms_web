@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, inject, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
@@ -30,6 +30,9 @@ import { ZardIconComponent } from '@/shared/components/icon/icon.component';
   styleUrls: ['./register.component.css']
 })
 export class RegisterComponent implements OnInit, OnDestroy {
+  private cdr = inject(ChangeDetectorRef);
+  private zone = inject(NgZone);
+
   registerForm!: FormGroup;
   loading = false;
   errorMessage = '';
@@ -159,16 +162,22 @@ export class RegisterComponent implements OnInit, OnDestroy {
 
     this.authService.register({ email, password, fullName }).subscribe({
       next: (response) => {
-        this.loading = false;
-        console.log('Registration successful:', response);
+        this.zone.run(() => {
+          this.loading = false;
+          console.log('Registration successful:', response);
 
-        // Navigate to email verification pending page
-        this.router.navigate(['/auth/verify-email-pending']);
+          // Navigate to email verification pending page
+          this.router.navigate(['/auth/verify-email-pending']);
+          this.cdr.detectChanges();
+        });
       },
       error: (error) => {
-        this.loading = false;
-        this.errorMessage = error.message || 'Registration failed. Please try again.';
-        console.error('Registration error:', error);
+        this.zone.run(() => {
+          this.loading = false;
+          this.errorMessage = error.message || 'Registration failed. Please try again.';
+          console.error('Registration error:', error);
+          this.cdr.detectChanges();
+        });
       }
     });
   }

@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -7,6 +7,7 @@ import { Employee, EmployeeYTD } from '../../models/employee.model';
 import { FileUpload } from '../../../../shared/components/file-upload/file-upload';
 import { FileList as FileListComponent } from '../../../../shared/components/file-list/file-list';
 import { FileService, FileUploadMetadata } from '../../../../core/services/file.service';
+import { DisplayService } from '@/core/services/display.service';
 
 // ZardUI Components
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
@@ -78,6 +79,8 @@ export class EmployeeDetailComponent implements OnInit {
   // YTD
   selectedYear: number = new Date().getFullYear();
   availableYears: number[] = [];
+
+  private displayService = inject(DisplayService);
 
   // Document management
   showDocumentUpload = signal<boolean>(false);
@@ -236,11 +239,7 @@ export class EmployeeDetailComponent implements OnInit {
   }
 
   formatDate(dateString: string): string {
-    return new Date(dateString).toLocaleDateString('en-MY', {
-      year: 'numeric',
-      month: 'long',
-      day: '2-digit'
-    });
+    return this.displayService.formatDate(dateString);
   }
 
   calculateAge(dob: string): number {

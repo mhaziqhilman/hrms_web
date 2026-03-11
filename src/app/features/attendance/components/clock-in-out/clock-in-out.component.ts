@@ -1,9 +1,10 @@
-import { Component, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AttendanceService } from '../../services/attendance.service';
 import { AuthService } from '@/core/services/auth.service';
+import { DisplayService } from '@/core/services/display.service';
 import { Attendance } from '../../models/attendance.model';
 
 // ZardUI Components
@@ -52,6 +53,8 @@ export class ClockInOutComponent implements OnInit, OnDestroy {
 
   // Employee - from auth service
   employeeId = signal<string | null>(null);
+
+  private displayService = inject(DisplayService);
 
   constructor(
     private attendanceService: AttendanceService,
@@ -411,15 +414,7 @@ export class ClockInOutComponent implements OnInit, OnDestroy {
   }
 
   formatTime(dateString: string | null): string {
-    if (!dateString) return '--:--';
-
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('en-MY', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: true
-    });
+    return this.displayService.formatTime(dateString);
   }
 
   formatHours(hours: number): string {

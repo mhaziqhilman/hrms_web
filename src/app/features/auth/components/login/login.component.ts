@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, inject, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
@@ -32,6 +32,9 @@ import { ZardIconComponent } from '@/shared/components/icon/icon.component';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent implements OnInit, OnDestroy {
+  private cdr = inject(ChangeDetectorRef);
+  private zone = inject(NgZone);
+
   loginForm!: FormGroup;
   loading = false;
   errorMessage = '';
@@ -124,21 +127,27 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     this.authService.login({ email, password }).subscribe({
       next: (response) => {
-        this.loading = false;
+        this.zone.run(() => {
+          this.loading = false;
 
-        // Check for pending invitation token from accept-invitation page
-        const pendingToken = localStorage.getItem('pending_invitation_token');
-        if (pendingToken) {
-          this.acceptPendingInvitation(pendingToken);
-          return;
-        }
+          // Check for pending invitation token from accept-invitation page
+          const pendingToken = localStorage.getItem('pending_invitation_token');
+          if (pendingToken) {
+            this.acceptPendingInvitation(pendingToken);
+            return;
+          }
 
-        // Navigate to return URL or dashboard
-        this.router.navigate([this.returnUrl]);
+          // Navigate to return URL or dashboard
+          this.router.navigate([this.returnUrl]);
+          this.cdr.detectChanges();
+        });
       },
       error: (error) => {
-        this.loading = false;
-        this.errorMessage = error.message || 'Login failed. Please check your credentials.';
+        this.zone.run(() => {
+          this.loading = false;
+          this.errorMessage = error.message || 'Login failed. Please check your credentials.';
+          this.cdr.detectChanges();
+        });
       }
     });
   }

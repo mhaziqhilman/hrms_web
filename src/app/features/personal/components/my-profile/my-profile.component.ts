@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { PersonalService } from '../../services/personal.service';
+import { DisplayService } from '@/core/services/display.service';
 import { EmployeeProfile, EmployeeDocument, UpdateProfileRequest } from '../../models/personal.model';
 import { MyPayslipsComponent } from '../my-payslips/my-payslips.component';
 
@@ -52,6 +53,7 @@ export interface ProfileTabDef {
 export class MyProfileComponent implements OnInit {
   private personalService = inject(PersonalService);
   private alertDialogService = inject(ZardAlertDialogService);
+  private displayService = inject(DisplayService);
 
   // State
   loading = signal(false);
@@ -227,12 +229,7 @@ export class MyProfileComponent implements OnInit {
   // --- Formatting helpers ---
 
   formatDate(dateStr: string | null): string {
-    if (!dateStr) return '-';
-    return new Date(dateStr).toLocaleDateString('en-MY', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric'
-    });
+    return this.displayService.formatDate(dateStr);
   }
 
   formatCurrency(amount: number): string {

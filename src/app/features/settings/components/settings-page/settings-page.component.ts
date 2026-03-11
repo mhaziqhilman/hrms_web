@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { SettingsService } from '../../services/settings.service';
 import { PersonalService } from '@/features/personal/services/personal.service';
 import { ThemeService, ThemePreference, BorderRadiusPreset } from '@/core/services/theme';
+import { DisplayService } from '@/core/services/display.service';
 import { MyPayslip, YTDSummary } from '@/features/personal/models/personal.model';
 import {
   UserSettings,
@@ -58,6 +59,7 @@ export class SettingsPageComponent implements OnInit {
   private settingsService = inject(SettingsService);
   private personalService = inject(PersonalService);
   private themeService = inject(ThemeService);
+  private displayService = inject(DisplayService);
   private alertDialogService = inject(ZardAlertDialogService);
   private dialogService = inject(ZardDialogService);
   private userProfileService = inject(UserProfileService);
@@ -212,11 +214,17 @@ export class SettingsPageComponent implements OnInit {
           this.sidebarCollapsed = this.themeService.sidebarCollapsed();
           this.compactMode = this.themeService.compactMode();
           this.selectedBorderRadius = this.themeService.borderRadius();
-          // Populate display form
+          // Populate display form and sync DisplayService
           this.selectedLanguage = s.language;
           this.selectedTimezone = s.timezone;
           this.selectedDateFormat = s.date_format;
           this.selectedTimeFormat = s.time_format;
+          this.displayService.update({
+            date_format: s.date_format,
+            time_format: s.time_format,
+            timezone: s.timezone,
+            language: s.language
+          });
           // Populate notification form
           this.emailNotifications = s.email_notifications;
           this.pushNotifications = s.push_notifications;
@@ -324,6 +332,30 @@ export class SettingsPageComponent implements OnInit {
     this.selectedTimeFormat = value as '12h' | '24h';
   }
 
+  getDatePreview(): string {
+    const now = new Date();
+    const options: Intl.DateTimeFormatOptions = { timeZone: this.selectedTimezone, day: '2-digit', month: '2-digit', year: 'numeric' };
+    const parts = new Intl.DateTimeFormat('en-GB', options).formatToParts(now);
+    const day = parts.find(p => p.type === 'day')?.value ?? '';
+    const month = parts.find(p => p.type === 'month')?.value ?? '';
+    const year = parts.find(p => p.type === 'year')?.value ?? '';
+    switch (this.selectedDateFormat) {
+      case 'MM/DD/YYYY': return `${month}/${day}/${year}`;
+      case 'YYYY-MM-DD': return `${year}-${month}-${day}`;
+      default: return `${day}/${month}/${year}`;
+    }
+  }
+
+  getTimePreview(): string {
+    const now = new Date();
+    return new Intl.DateTimeFormat('en-US', {
+      timeZone: this.selectedTimezone,
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: this.selectedTimeFormat === '12h'
+    }).format(now);
+  }
+
   saveDisplay(): void {
     this.saving.set(true);
     const data: DisplaySettings = {
@@ -335,6 +367,7 @@ export class SettingsPageComponent implements OnInit {
     this.settingsService.updateDisplay(data).subscribe({
       next: (response) => {
         if (response.success) {
+          this.displayService.update(data);
           this.alertDialogService.info({
             zTitle: 'Success',
             zDescription: 'Display settings updated successfully',

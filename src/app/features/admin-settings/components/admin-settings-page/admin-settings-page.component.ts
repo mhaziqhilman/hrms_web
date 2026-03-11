@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -126,6 +126,37 @@ export class AdminSettingsPageComponent implements OnInit {
   activeEmployees = signal<{ id: number; public_id: string; employee_id: string; full_name: string }[]>([]);
   activeLeaveTypesForEntitlement = signal<LeaveTypeConfig[]>([]);
   initializingYear = signal(false);
+  expandedEmployees = signal<Set<number>>(new Set());
+
+  groupedEntitlements = computed(() => {
+    const entitlements = this.entitlements();
+    const grouped = new Map<number, { employeeId: number; employeeName: string; entitlements: LeaveEntitlement[]; totalBalance: number; totalUsed: number; totalDays: number; totalPending: number; totalCarryFwd: number }>();
+
+    for (const ent of entitlements) {
+      const empId = ent.employee_id;
+      if (!grouped.has(empId)) {
+        grouped.set(empId, {
+          employeeId: empId,
+          employeeName: ent.employee?.full_name || 'Unknown',
+          entitlements: [],
+          totalBalance: 0,
+          totalUsed: 0,
+          totalDays: 0,
+          totalPending: 0,
+          totalCarryFwd: 0
+        });
+      }
+      const group = grouped.get(empId)!;
+      group.entitlements.push(ent);
+      group.totalBalance += Number(ent.balance_days) || 0;
+      group.totalUsed += Number(ent.used_days) || 0;
+      group.totalDays += Number(ent.total_days) || 0;
+      group.totalPending += Number(ent.pending_days) || 0;
+      group.totalCarryFwd += Number(ent.carry_forward_days) || 0;
+    }
+
+    return Array.from(grouped.values());
+  });
 
   // ─── Email Configuration ─────────────────────────────────
   emailConfig = signal<EmailConfigItem | null>(null);
@@ -682,6 +713,22 @@ export class AdminSettingsPageComponent implements OnInit {
         });
       }
     });
+  }
+
+  toggleEmployeeExpand(employeeId: number): void {
+    this.expandedEmployees.update(set => {
+      const newSet = new Set(set);
+      if (newSet.has(employeeId)) {
+        newSet.delete(employeeId);
+      } else {
+        newSet.add(employeeId);
+      }
+      return newSet;
+    });
+  }
+
+  isEmployeeExpanded(employeeId: number): boolean {
+    return this.expandedEmployees().has(employeeId);
   }
 
   openEditEntitlementDialog(ent: LeaveEntitlement): void {

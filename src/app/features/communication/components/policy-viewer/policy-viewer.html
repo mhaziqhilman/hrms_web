@@ -139,21 +139,21 @@
           <z-icon zType="calendar" class="w-5 h-5 text-muted-foreground mt-0.5" />
           <div>
             <div class="font-semibold text-sm text-muted-foreground">Effective From</div>
-            <div class="text-foreground">{{ policy()?.effective_from | date:'MMM dd, yyyy' }}</div>
+            <div class="text-foreground">{{ policy()?.effective_from | appDate }}</div>
           </div>
         </div>
         <div class="flex items-start gap-3" *ngIf="policy()?.review_date">
           <z-icon zType="calendar-plus" class="w-5 h-5 text-muted-foreground mt-0.5" />
           <div>
             <div class="font-semibold text-sm text-muted-foreground">Review Date</div>
-            <div class="text-foreground">{{ policy()?.review_date | date:'MMM dd, yyyy' }}</div>
+            <div class="text-foreground">{{ policy()?.review_date | appDate }}</div>
           </div>
         </div>
         <div class="flex items-start gap-3" *ngIf="policy()?.expires_at">
           <z-icon zType="clock" class="w-5 h-5 text-muted-foreground mt-0.5" />
           <div>
             <div class="font-semibold text-sm text-muted-foreground">Expires</div>
-            <div class="text-foreground">{{ policy()?.expires_at | date:'MMM dd, yyyy' }}</div>
+            <div class="text-foreground">{{ policy()?.expires_at | appDate }}</div>
           </div>
         </div>
         <div class="flex items-start gap-3" *ngIf="policy()?.approved_by && policy()?.approver">
@@ -167,7 +167,7 @@
           <z-icon zType="calendar" class="w-5 h-5 text-muted-foreground mt-0.5" />
           <div>
             <div class="font-semibold text-sm text-muted-foreground">Approved On</div>
-            <div class="text-foreground">{{ policy()?.approved_at | date:'MMM dd, yyyy' }}</div>
+            <div class="text-foreground">{{ policy()?.approved_at | appDate }}</div>
           </div>
         </div>
       </div>
@@ -304,10 +304,10 @@
             <tbody>
               <tr *ngFor="let ack of statistics()?.acknowledgments">
                 <td class="font-medium">{{ ack.employee?.full_name || 'Unknown' }}</td>
-                <td>{{ ack.viewed_at | date:'MMM dd, yyyy h:mm a' }}</td>
+                <td>{{ ack.viewed_at | appDateTime }}</td>
                 <td>
                   <z-badge zType="default" *ngIf="ack.acknowledged_at">
-                    {{ ack.acknowledged_at | date:'MMM dd, yyyy h:mm a' }}
+                    {{ ack.acknowledged_at | appDateTime }}
                   </z-badge>
                   <z-badge zType="secondary" *ngIf="!ack.acknowledged_at">
                     Not Acknowledged
@@ -341,7 +341,7 @@
           <div class="font-semibold text-foreground mb-2">{{ version.title }}</div>
           <div class="flex items-center gap-2 text-sm text-muted-foreground mb-3">
             <z-icon zType="calendar" class="w-4 h-4" />
-            <span>{{ version.created_at | date:'MMM dd, yyyy' }}</span>
+            <span>{{ version.created_at | appDate }}</span>
           </div>
           <a
             [routerLink]="['/communication/policies', version.public_id]"

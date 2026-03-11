@@ -10,6 +10,7 @@ import {
 } from '../../services/user-management.service';
 import { CompanyService } from '@/core/services/company.service';
 import { AuthService } from '@/core/services/auth.service';
+import { DisplayService } from '@/core/services/display.service';
 import { Company } from '@/core/models/auth.models';
 
 // ZardUI Components
@@ -48,6 +49,7 @@ export class UserListComponent implements OnInit {
   private companyService = inject(CompanyService);
   private authService = inject(AuthService);
   private alertDialogService = inject(ZardAlertDialogService);
+  private displayService = inject(DisplayService);
 
   // Role-based UI
   isSuperAdmin = computed(() => this.authService.currentUserSignal()?.role === 'super_admin');
@@ -359,14 +361,7 @@ export class UserListComponent implements OnInit {
   }
 
   formatDate(dateStr: string | null): string {
-    if (!dateStr) return 'Never';
-    return new Date(dateStr).toLocaleDateString('en-MY', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    return this.displayService.formatDate(dateStr);
   }
 
   getUserInitial(user: UserRecord): string {

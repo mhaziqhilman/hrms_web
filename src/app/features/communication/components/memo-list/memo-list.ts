@@ -7,6 +7,7 @@ import { AnnouncementCategoryService } from '../../services/announcement-categor
 import { AuthService } from '@/core/services/auth.service';
 import { UserProfileService } from '@/core/services/user-profile.service';
 import { Memo, MemoFilters, MemoFormData, AnnouncementCategory } from '../../models/memo.model';
+import { DisplayService } from '@/core/services/display.service';
 
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { ZardIconComponent } from '@/shared/components/icon/icon.component';
@@ -52,6 +53,7 @@ export class MemoListComponent implements OnInit {
   private userProfileService = inject(UserProfileService);
   private router = inject(Router);
   private fb = inject(FormBuilder);
+  private displayService = inject(DisplayService);
 
   // Data
   memos = signal<Memo[]>([]);
@@ -429,25 +431,11 @@ export class MemoListComponent implements OnInit {
   }
 
   formatDate(dateStr?: string): string {
-    if (!dateStr) return '';
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: '2-digit',
-      year: 'numeric'
-    });
+    return this.displayService.formatDate(dateStr);
   }
 
   formatDateTime(dateStr?: string): string {
-    if (!dateStr) return '';
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    });
+    return this.displayService.formatDateTime(dateStr);
   }
 
   canEditMemo(memo: Memo): boolean {
