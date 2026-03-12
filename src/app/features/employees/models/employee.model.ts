@@ -59,6 +59,9 @@ export interface Employee {
   // Profile
   photo_url?: string;
 
+  // Connected user
+  user?: { avatar_url?: string };
+
   // Timestamps
   created_at?: string;
   updated_at?: string;

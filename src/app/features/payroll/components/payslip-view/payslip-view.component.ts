@@ -206,6 +206,13 @@ ${PAYSLIP_PRINT_CSS}
     return name.split(' ').filter(w => w.length > 0).map(w => w[0]).join('').toUpperCase().slice(0, 3);
   }
 
+  getDividerGradient(): string {
+    const p = this.payslip();
+    const primary = p?.company?.primary_color || '#6b21a8';
+    const secondary = p?.company?.secondary_color || '#0891b2';
+    return `linear-gradient(to right, ${primary}, ${secondary})`;
+  }
+
   totalContributions(): number {
     const p = this.payslip();
     if (!p) return 0;
@@ -309,7 +316,7 @@ body { font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', R
 .header-right .period { font-size: 13px; }
 .header-right .period strong { font-weight: 700; }
 .header-right .issued { font-size: 12px; color: #555; margin-top: 2px; }
-.divider-solid { border: none; border-top: 2px solid #c0392b; margin: 16px 0; }
+.divider-solid { height: 2px; margin: 16px 0; }
 .divider-dashed { border: none; border-top: 1.5px dashed #bbb; margin: 20px 0; }
 .employee-info { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 40px; margin: 20px 0; }
 .info-row { display: flex; align-items: baseline; }

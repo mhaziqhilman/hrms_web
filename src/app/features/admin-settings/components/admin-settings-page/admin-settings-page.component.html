@@ -71,6 +71,36 @@
 
                 <z-divider />
 
+                <!-- Brand Colors -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <z-form-field>
+                    <label z-form-label>Primary Color</label>
+                    <z-form-control>
+                      <div class="flex items-center gap-3">
+                        <input type="color" [(ngModel)]="companyForm.primary_color" class="h-10 w-14 rounded border cursor-pointer" />
+                        <input z-input [(ngModel)]="companyForm.primary_color" placeholder="#6b21a8" class="w-28 font-mono text-sm" maxlength="7" />
+                      </div>
+                    </z-form-control>
+                    <z-form-message>Used on payslips and documents (left side of gradient).</z-form-message>
+                  </z-form-field>
+                  <z-form-field>
+                    <label z-form-label>Secondary Color</label>
+                    <z-form-control>
+                      <div class="flex items-center gap-3">
+                        <input type="color" [(ngModel)]="companyForm.secondary_color" class="h-10 w-14 rounded border cursor-pointer" />
+                        <input z-input [(ngModel)]="companyForm.secondary_color" placeholder="#0891b2" class="w-28 font-mono text-sm" maxlength="7" />
+                      </div>
+                    </z-form-control>
+                    <z-form-message>Used on payslips and documents (right side of gradient).</z-form-message>
+                  </z-form-field>
+                </div>
+                <div class="mt-1 mb-2">
+                  <span class="text-xs text-muted-foreground">Preview:</span>
+                  <div class="h-2 rounded-full mt-1" [style.background]="'linear-gradient(to right, ' + (companyForm.primary_color || '#6b21a8') + ', ' + (companyForm.secondary_color || '#0891b2') + ')'"></div>
+                </div>
+
+                <z-divider />
+
                 <!-- Name & Registration -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <z-form-field>
@@ -160,14 +190,33 @@
                   <z-form-message>Company website URL.</z-form-message>
                 </z-form-field>
 
-                <z-divider />
+              </div>
+              <div zCardFooter class="flex justify-end pt-6">
+                <button z-button (click)="saveCompany()" [disabled]="saving()">
+                  @if (saving()) {
+                    <z-icon zType="loader-2" class="h-4 w-4 animate-spin mr-2" />
+                  }
+                  Save Changes
+                </button>
+              </div>
+            </z-card>
+          </div>
+        }
 
-                <!-- Statutory Information -->
+        <!-- ═══════════════════ STATUTORY INFO ═══════════════════ -->
+        @if (activeSection() === 'statutory-info') {
+          <div class="space-y-6">
+            <z-card>
+              <div zCardHeader class="grid gap-2 pb-4">
+                <h3 zCardTitle class="font-semibold">Statutory Information</h3>
+                <p zCardDescription class="text-sm font-light">Used for EA Forms (LHDN), EPF Borang A, SOCSO, and other statutory reports.</p>
+              </div>
+              <div zCardContent class="space-y-4">
+                <!-- LHDN -->
                 <div>
-                  <h4 class="text-sm font-semibold text-foreground mb-1">Statutory Information</h4>
-                  <p class="text-xs text-muted-foreground mb-4">Used for EA Forms (LHDN), EPF Borang A, SOCSO, and other statutory reports.</p>
+                  <h4 class="text-sm font-semibold text-foreground mb-1">LHDN (Inland Revenue)</h4>
+                  <p class="text-xs text-muted-foreground mb-3">Lembaga Hasil Dalam Negeri Malaysia employer details.</p>
                 </div>
-
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <z-form-field>
                     <label z-form-label>LHDN E-File No.</label>
@@ -185,6 +234,13 @@
                   </z-form-field>
                 </div>
 
+                <z-divider />
+
+                <!-- EPF & SOCSO -->
+                <div>
+                  <h4 class="text-sm font-semibold text-foreground mb-1">EPF & SOCSO</h4>
+                  <p class="text-xs text-muted-foreground mb-3">Employer registration numbers for statutory contributions.</p>
+                </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <z-form-field>
                     <label z-form-label>Employer EPF No.</label>
@@ -202,6 +258,13 @@
                   </z-form-field>
                 </div>
 
+                <z-divider />
+
+                <!-- Signatory & Contact -->
+                <div>
+                  <h4 class="text-sm font-semibold text-foreground mb-1">Signatory & Contact</h4>
+                  <p class="text-xs text-muted-foreground mb-3">Authorised officer details for statutory form submissions.</p>
+                </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <z-form-field>
                     <label z-form-label>Signatory Name</label>

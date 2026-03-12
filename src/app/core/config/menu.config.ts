@@ -5,21 +5,9 @@ export const MENU_GROUPS: SidebarMenuGroup[] = [
     label: 'Dashboards',
     items: [
       {
-        title: 'Admin Dashboard',
+        title: 'My Dashboard',
         icon: 'layout-dashboard',
-        route: '/dashboard/admin',
-        roles: ['super_admin', 'admin']
-      },
-      {
-        title: 'Manager Dashboard',
-        icon: 'users',
-        route: '/dashboard/manager',
-        roles: ['super_admin', 'manager']
-      },
-      {
-        title: 'Staff Dashboard',
-        icon: 'circle-user',
-        route: '/dashboard/staff'
+        route: '/dashboard'
       }
     ]
   },
@@ -144,6 +132,11 @@ export const MENU_GROUPS: SidebarMenuGroup[] = [
             title: 'Company Profile',
             icon: 'building',
             route: '/admin-settings/company'
+          },
+          {
+            title: 'Statutory Info',
+            icon: 'landmark',
+            route: '/admin-settings/statutory-info'
           },
           {
             title: 'Leave Types',

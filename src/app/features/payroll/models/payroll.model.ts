@@ -131,6 +131,8 @@ export interface Payslip {
     name: string;
     registration_no: string;
     logo_url: string | null;
+    primary_color: string | null;
+    secondary_color: string | null;
   };
   employee: {
     id: number;

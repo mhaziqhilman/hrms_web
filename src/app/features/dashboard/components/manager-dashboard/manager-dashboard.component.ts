@@ -9,8 +9,10 @@ import { ZardIconComponent } from '@/shared/components/icon/icon.component';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { ZardDividerComponent } from '@/shared/components/divider/divider.component';
 import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component';
+import { ZardTabGroupComponent, ZardTabComponent } from '@/shared/components/tabs/tabs.component';
 
 import { DashboardService, ManagerDashboardData } from '../../services/dashboard.service';
+import { StaffDashboardComponent } from '../staff-dashboard/staff-dashboard.component';
 
 @Component({
   selector: 'app-manager-dashboard',
@@ -22,7 +24,10 @@ import { DashboardService, ManagerDashboardData } from '../../services/dashboard
     ZardIconComponent,
     ZardBadgeComponent,
     ZardDividerComponent,
-    ZardAvatarComponent
+    ZardAvatarComponent,
+    ZardTabGroupComponent,
+    ZardTabComponent,
+    StaffDashboardComponent
   ],
   templateUrl: './manager-dashboard.component.html',
   styleUrls: ['./manager-dashboard.component.css']

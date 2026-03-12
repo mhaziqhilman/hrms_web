@@ -91,9 +91,9 @@
 
 /* ── Dividers ── */
 .divider-solid {
-  border: none;
-  border-top: 2px solid #c0392b;
+  height: 2px;
   margin: 16px 0;
+  background: linear-gradient(to right, #6b21a8, #0891b2);
 }
 
 .divider-dashed {

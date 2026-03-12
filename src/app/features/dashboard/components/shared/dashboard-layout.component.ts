@@ -50,19 +50,9 @@ export class DashboardLayoutComponent implements OnInit {
       label: 'Dashboards',
       items: [
         {
-          title: 'Admin Dashboard',
+          title: 'My Dashboard',
           icon: 'layout-dashboard',
-          route: '/dashboard/admin'
-        },
-        {
-          title: 'Manager Dashboard',
-          icon: 'users',
-          route: '/dashboard/manager'
-        },
-        {
-          title: 'Staff Dashboard',
-          icon: 'circle-user',
-          route: '/dashboard/staff'
+          route: '/dashboard'
         }
       ]
     },

@@ -187,6 +187,7 @@ export class EmployeeDetailComponent implements OnInit {
     const newIdx = direction === 'prev' ? idx - 1 : idx + 1;
     if (newIdx >= 0 && newIdx < ids.length) {
       const newId = ids[newIdx];
+      this.loading.set(true);
       this.currentIndex.set(newIdx);
       this.employeeId.set(newId);
       this.activeTab.set('personal');

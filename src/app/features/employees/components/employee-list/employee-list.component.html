@@ -280,7 +280,7 @@
           @if (visibleColumns()['name']) {
           <td class="!pl-3">
             <a [routerLink]="['/employees', employee.public_id]" class="flex items-center gap-3 no-underline group">
-              <z-avatar [zFallback]="employee.full_name.charAt(0)" class="w-10 h-10" />
+              <z-avatar [zSrc]="employee.photo_url || employee.user?.avatar_url || undefined" [zFallback]="employee.full_name.charAt(0)" class="w-10 h-10" />
               <span class="font-medium text-foreground group-hover:text-primary transition-colors">{{employee.full_name}}</span>
             </a>
           </td>

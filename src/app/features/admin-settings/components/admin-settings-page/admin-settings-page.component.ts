@@ -27,7 +27,7 @@ import { ZardFormMessageComponent } from '@/shared/components/form/form-message.
 import { ZardDatePickerComponent } from '@/shared/components/date-picker/date-picker.component';
 import { ZardIcon } from '@/shared/components/icon/icons';
 
-type SectionType = 'company' | 'leave-types' | 'claim-types' | 'holidays' | 'payroll-config' | 'email-templates' | 'email-config' | 'leave-entitlements';
+type SectionType = 'company' | 'statutory-info' | 'leave-types' | 'claim-types' | 'holidays' | 'payroll-config' | 'email-templates' | 'email-config' | 'leave-entitlements';
 
 @Component({
   selector: 'app-admin-settings-page',
@@ -62,6 +62,7 @@ export class AdminSettingsPageComponent implements OnInit {
 
   navItems: { id: SectionType; label: string; icon: ZardIcon }[] = [
     { id: 'company', label: 'Company Profile', icon: 'building' },
+    { id: 'statutory-info', label: 'Statutory Info', icon: 'landmark' },
     { id: 'leave-types', label: 'Leave Types', icon: 'calendar' },
     { id: 'leave-entitlements', label: 'Leave Entitlements', icon: 'calendar-check' as ZardIcon },
     { id: 'claim-types', label: 'Claim Types', icon: 'file-text' },
@@ -207,6 +208,7 @@ export class AdminSettingsPageComponent implements OnInit {
     this.loading.set(true);
     switch (section) {
       case 'company': this.loadCompany(); break;
+      case 'statutory-info': this.loadCompany(); break;
       case 'leave-types': this.loadLeaveTypes(); break;
       case 'claim-types': this.loadClaimTypes(); break;
       case 'holidays': this.loadHolidays(); break;

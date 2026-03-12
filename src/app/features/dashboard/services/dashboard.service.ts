@@ -57,6 +57,10 @@ export interface AdminDashboardData {
   }[];
   currentMonth: number;
   currentYear: number;
+  employeeByType: { type: string; count: number }[];
+  genderDiversity: { gender: string; count: number }[];
+  departmentDistribution: { department: string; count: number }[];
+  lastUpdated: string;
 }
 
 // Manager Dashboard Types

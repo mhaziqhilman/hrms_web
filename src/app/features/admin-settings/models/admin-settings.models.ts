@@ -89,6 +89,8 @@ export interface CompanyProfile {
   phone?: string;
   website?: string;
   logo_url?: string;
+  primary_color?: string;
+  secondary_color?: string;
   owner_id: number;
   // Statutory fields
   e_file_no?: string;

@@ -1,5 +1,8 @@
+<z-tab-group>
+  <z-tab label="Manager Dashboard">
+    <div class="pt-6">
 <div class="mb-8">
-  <h1 class="text-2xl font-bold text-foreground mb-2">Manager Dashboard</h1>
+  <h1 class="text-2xl font-bold text-foreground mb-1">Manager Dashboard</h1>
   <p class="text-muted-foreground">Manage your team's attendance, leave requests, and claims.</p>
 </div>
 
@@ -392,3 +395,12 @@
     </z-card>
   </div>
 }
+    </div>
+  </z-tab>
+
+  <z-tab label="My Dashboard">
+    <div class="pt-6">
+      <app-staff-dashboard />
+    </div>
+  </z-tab>
+</z-tab-group>

@@ -12,6 +12,7 @@ export interface UserEmployee {
   employment_status: string;
   email?: string;
   mobile?: string;
+  photo_url?: string | null;
 }
 
 export interface UserCompanyInfo {
@@ -30,6 +31,7 @@ export interface UserRecord {
   created_at: string;
   updated_at: string;
   company_id: number | null;
+  avatar_url?: string | null;
   employee: UserEmployee | null;
   company: UserCompanyInfo | null;
 }

@@ -101,7 +101,7 @@
       <!-- ===== IDENTITY ROW ===== -->
       <div class="flex items-center gap-4 mb-6">
         <z-avatar
-          [zSrc]="employee()!.photo_url || ''"
+          [zSrc]="employee()!.photo_url || employee()!.user?.avatar_url || undefined"
           [zFallback]="employee()!.full_name.charAt(0)"
           [zSize]="64"
           zShape="circle" />
