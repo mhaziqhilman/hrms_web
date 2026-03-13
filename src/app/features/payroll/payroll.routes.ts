@@ -1,8 +1,10 @@
 import { Routes } from '@angular/router';
+import { roleGuard } from '@/core/guards/auth.guard';
 
 export const PAYROLL_ROUTES: Routes = [
   {
     path: '',
+    canActivate: [roleGuard(['super_admin', 'admin'])],
     loadComponent: () =>
       import('./components/payroll-list/payroll-list.component').then(
         (m) => m.PayrollListComponent
@@ -11,6 +13,7 @@ export const PAYROLL_ROUTES: Routes = [
   },
   {
     path: 'calculate',
+    canActivate: [roleGuard(['super_admin', 'admin'])],
     loadComponent: () =>
       import('./components/payroll-form/payroll-form.component').then(
         (m) => m.PayrollFormComponent
@@ -19,6 +22,7 @@ export const PAYROLL_ROUTES: Routes = [
   },
   {
     path: ':id/edit',
+    canActivate: [roleGuard(['super_admin', 'admin'])],
     loadComponent: () =>
       import('./components/payroll-form/payroll-form.component').then(
         (m) => m.PayrollFormComponent
@@ -27,6 +31,7 @@ export const PAYROLL_ROUTES: Routes = [
   },
   {
     path: ':id',
+    canActivate: [roleGuard(['super_admin', 'admin'])],
     loadComponent: () =>
       import('./components/payslip-view/payslip-view.component').then(
         (m) => m.PayslipViewComponent

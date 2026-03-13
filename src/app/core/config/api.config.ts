@@ -44,7 +44,8 @@ export const API_CONFIG = {
       statistics: '/employees/statistics',
       ytd: (id: number | string) => `/employees/${id}/ytd`,
       detail: (id: number | string) => `/employees/${id}`,
-      me: '/employees/me'
+      me: '/employees/me',
+      myTeam: '/employees/my-team'
     },
     payroll: {
       base: '/payroll',
@@ -66,6 +67,7 @@ export const API_CONFIG = {
     },
     leaves: {
       base: '/leaves',
+      calendar: '/leaves/calendar',
       detail: (id: number | string) => `/leaves/${id}`,
       approveReject: (id: number | string) => `/leaves/${id}/approve-reject`,
       balance: (employee_id: number | string) => `/leaves/balance/${employee_id}`

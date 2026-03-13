@@ -131,6 +131,26 @@ export interface EmployeeDocumentsResponse {
   };
 }
 
+export interface TeamMember {
+  id: number;
+  public_id: string;
+  employee_id: string;
+  full_name: string;
+  email: string | null;
+  mobile: string | null;
+  position: string | null;
+  department: string | null;
+  employment_type: string;
+  employment_status: string;
+  join_date: string;
+  photo_url: string | null;
+}
+
+export interface TeamMembersResponse {
+  success: boolean;
+  data: TeamMember[];
+}
+
 // API Response types
 export interface EmployeeProfileResponse {
   success: boolean;

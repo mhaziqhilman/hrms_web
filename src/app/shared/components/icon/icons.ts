@@ -154,6 +154,7 @@ import {
   FileType2,
   FileArchive,
   TicketCheck,
+  TextAlignJustify,
 } from 'lucide-angular';
 
 const DarkMode: LucideIconData = [
@@ -322,6 +323,7 @@ export const ZARD_ICONS = {
   'file-type': FileType2,
   'file-archive': FileArchive,
   'trash-2': Trash2,
+  'text-align-justify': TextAlignJustify,
 } as const satisfies Record<string, LucideIconData>;
 
 export declare type ZardIcon = keyof typeof ZARD_ICONS | LucideIconData;

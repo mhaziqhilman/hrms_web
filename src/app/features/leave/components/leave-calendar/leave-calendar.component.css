@@ -1,0 +1,19 @@
+.calendar-cell {
+  transition: background-color 0.15s ease;
+}
+
+.calendar-cell:hover {
+  z-index: 1;
+}
+
+/* Smooth transition for the toggle switch */
+.calendar-cell .absolute {
+  pointer-events: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  :host {
+    display: block;
+  }
+}

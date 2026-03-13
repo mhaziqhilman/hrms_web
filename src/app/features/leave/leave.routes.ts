@@ -4,6 +4,11 @@ import { roleGuard } from '@/core/guards/auth.guard';
 export const LEAVE_ROUTES: Routes = [
   {
     path: '',
+    redirectTo: 'list',
+    pathMatch: 'full'
+  },
+  {
+    path: 'list',
     loadComponent: () =>
       import('./components/leave-list/leave-list.component').then(
         (m) => m.LeaveListComponent
@@ -17,6 +22,14 @@ export const LEAVE_ROUTES: Routes = [
         (m) => m.LeaveFormComponent
       ),
     data: { title: 'Apply Leave' }
+  },
+  {
+    path: 'calendar',
+    loadComponent: () =>
+      import('./components/leave-calendar/leave-calendar.component').then(
+        (m) => m.LeaveCalendarComponent
+      ),
+    data: { title: 'Leave Calendar' }
   },
   {
     path: 'balance',

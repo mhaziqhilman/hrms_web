@@ -9,7 +9,8 @@ import {
   ChangePasswordRequest,
   ChangePasswordResponse,
   MyPayslipsResponse,
-  EmployeeDocumentsResponse
+  EmployeeDocumentsResponse,
+  TeamMembersResponse
 } from '../models/personal.model';
 
 @Injectable({
@@ -98,6 +99,15 @@ export class PersonalService {
     return this.http.get(
       `${this.apiUrl}${API_CONFIG.endpoints.files.download(fileId)}`,
       { responseType: 'blob' }
+    );
+  }
+
+  /**
+   * Get my team (direct reports or same-department members)
+   */
+  getMyTeam(): Observable<TeamMembersResponse> {
+    return this.http.get<TeamMembersResponse>(
+      `${this.apiUrl}${API_CONFIG.endpoints.employees.myTeam}`
     );
   }
 

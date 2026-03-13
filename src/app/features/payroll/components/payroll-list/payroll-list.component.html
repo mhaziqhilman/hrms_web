@@ -53,47 +53,47 @@
   <!-- Analytics Summary Cards -->
   @if (payrollAnalytics(); as data) {
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      <z-card class="p-4">
-        <div class="flex items-center gap-3">
-          <div class="p-2 rounded-lg bg-blue-100 dark:bg-blue-900">
+      <z-card class="rounded-2xl border border-gray-200 dark:border-gray-700 h-full py-5 shadow-none">
+        <div class="flex items-center gap-4">
+          <div class="flex items-center justify-center w-12 h-12 rounded-full flex-shrink-0 bg-blue-100 dark:bg-blue-900/20">
             <z-icon zType="dollar-sign" class="w-5 h-5 text-blue-600" />
           </div>
           <div>
-            <p class="text-sm text-muted-foreground">Total Gross</p>
             <p class="text-xl font-bold">{{ formatCurrency(data.summary.total_gross) }}</p>
+            <p class="text-xs text-muted-foreground">Total Gross</p>
           </div>
         </div>
       </z-card>
-      <z-card class="p-4">
-        <div class="flex items-center gap-3">
-          <div class="p-2 rounded-lg bg-green-100 dark:bg-green-900">
+      <z-card class="rounded-2xl border border-gray-200 dark:border-gray-700 h-full py-5 shadow-none">
+        <div class="flex items-center gap-4">
+          <div class="flex items-center justify-center w-12 h-12 rounded-full flex-shrink-0 bg-green-100 dark:bg-green-900/20">
             <z-icon zType="wallet" class="w-5 h-5 text-green-600" />
           </div>
           <div>
-            <p class="text-sm text-muted-foreground">Total Net</p>
             <p class="text-xl font-bold">{{ formatCurrency(data.summary.total_net) }}</p>
+            <p class="text-xs text-muted-foreground">Total Net</p>
           </div>
         </div>
       </z-card>
-      <z-card class="p-4">
-        <div class="flex items-center gap-3">
-          <div class="p-2 rounded-lg bg-purple-100 dark:bg-purple-900">
+      <z-card class="rounded-2xl border border-gray-200 dark:border-gray-700 h-full py-5 shadow-none">
+        <div class="flex items-center gap-4">
+          <div class="flex items-center justify-center w-12 h-12 rounded-full flex-shrink-0 bg-purple-100 dark:bg-purple-900/20">
             <z-icon zType="building" class="w-5 h-5 text-purple-600" />
           </div>
           <div>
-            <p class="text-sm text-muted-foreground">Total EPF</p>
             <p class="text-xl font-bold">{{ formatCurrency(data.summary.total_epf) }}</p>
+            <p class="text-xs text-muted-foreground">Total EPF</p>
           </div>
         </div>
       </z-card>
-      <z-card class="p-4">
-        <div class="flex items-center gap-3">
-          <div class="p-2 rounded-lg bg-orange-100 dark:bg-orange-900">
+      <z-card class="rounded-2xl border border-gray-200 dark:border-gray-700 h-full py-5 shadow-none">
+        <div class="flex items-center gap-4">
+          <div class="flex items-center justify-center w-12 h-12 rounded-full flex-shrink-0 bg-orange-100 dark:bg-orange-900/20">
             <z-icon zType="users" class="w-5 h-5 text-orange-600" />
           </div>
           <div>
-            <p class="text-sm text-muted-foreground">Employees</p>
             <p class="text-xl font-bold">{{ data.summary.employee_count }}</p>
+            <p class="text-xs text-muted-foreground">Employees</p>
           </div>
         </div>
       </z-card>
@@ -101,101 +101,14 @@
   }
 
   <!-- Status Tabs -->
-  <div class="mb-6">
-    <div class="border-b border-border">
-      <nav class="flex gap-1 overflow-auto scroll nav-tab-scroll -mb-px" aria-label="Tabs" role="tablist">
-        <!-- All Request Tab -->
-        <button type="button" role="tab" (click)="onTabChange({index: 0, label: 'All Request'})"
-          [attr.aria-selected]="activeTab() === 'All'" [class]="activeTab() === 'All'
-            ? 'border-b-2 border-b-primary text-primary text-sm'
-            : 'border-b-2 border-transparent text-muted-foreground hover:text-foreground text-sm'"
-          class="hover:bg-transparent rounded-none flex-shrink-0 whitespace-nowrap py-2 px-2 font-medium text-sm transition-colors flex items-center gap-2">
-          <z-icon zType="layers" class="w-4 h-4" />
-          All Request
-          <span
-            [class]="activeTab() === 'All' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'"
-            class="ml-1 py-0.5 px-2.5 rounded-full text-xs font-semibold min-w-[28px] text-center">
-            {{ statusCounts()['All'] }}
-          </span>
-        </button>
-
-        <!-- Draft Tab -->
-        <button type="button" role="tab" (click)="onTabChange({index: 1, label: 'Draft'})"
-          [attr.aria-selected]="activeTab() === PayrollStatus.DRAFT" [class]="activeTab() === PayrollStatus.DRAFT
-            ? 'border-b-2 border-b-primary text-primary'
-            : 'border-b-2 border-transparent text-muted-foreground hover:text-foreground'"
-          class="hover:bg-transparent rounded-none flex-shrink-0 whitespace-nowrap py-2 px-2 font-medium text-sm transition-colors flex items-center gap-2">
-          <z-icon zType="file-text" class="w-4 h-4" />
-          Draft
-          <span
-            [class]="activeTab() === PayrollStatus.DRAFT ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'"
-            class="ml-1 py-0.5 px-2.5 rounded-full text-xs font-semibold min-w-[28px] text-center">
-            {{ statusCounts()['Draft'] }}
-          </span>
-        </button>
-
-        <!-- Pending Approval Tab -->
-        <button type="button" role="tab" (click)="onTabChange({index: 2, label: 'Pending Approval'})"
-          [attr.aria-selected]="activeTab() === PayrollStatus.PENDING" [class]="activeTab() === PayrollStatus.PENDING
-            ? 'border-b-2 border-b-primary text-primary'
-            : 'border-b-2 border-transparent text-muted-foreground hover:text-foreground'"
-          class="hover:bg-transparent rounded-none flex-shrink-0 whitespace-nowrap py-2 px-2 font-medium text-sm transition-colors flex items-center gap-2">
-          <z-icon zType="clock" class="w-4 h-4" />
-          Pending Approval
-          <span
-            [class]="activeTab() === PayrollStatus.PENDING ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'"
-            class="ml-1 py-0.5 px-2.5 rounded-full text-xs font-semibold min-w-[28px] text-center">
-            {{ statusCounts()['Pending'] }}
-          </span>
-        </button>
-
-        <!-- Approved Tab -->
-        <button type="button" role="tab" (click)="onTabChange({index: 3, label: 'Approved'})"
-          [attr.aria-selected]="activeTab() === PayrollStatus.APPROVED" [class]="activeTab() === PayrollStatus.APPROVED
-            ? 'border-b-2 border-b-primary text-primary'
-            : 'border-b-2 border-transparent text-muted-foreground hover:text-foreground'"
-          class="hover:bg-transparent rounded-none flex-shrink-0 whitespace-nowrap py-2 px-2 font-medium text-sm transition-colors flex items-center gap-2">
-          <z-icon zType="check-circle" class="w-4 h-4" />
-          Approved
-          <span
-            [class]="activeTab() === PayrollStatus.APPROVED ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'"
-            class="ml-1 py-0.5 px-2.5 rounded-full text-xs font-semibold min-w-[28px] text-center">
-            {{ statusCounts()['Approved'] }}
-          </span>
-        </button>
-
-        <!-- Paid Tab -->
-        <button type="button" role="tab" (click)="onTabChange({index: 4, label: 'Paid'})"
-          [attr.aria-selected]="activeTab() === PayrollStatus.PAID" [class]="activeTab() === PayrollStatus.PAID
-            ? 'border-b-2 border-b-primary text-primary'
-            : 'border-b-2 border-transparent text-muted-foreground hover:text-foreground'"
-          class="hover:bg-transparent rounded-none flex-shrink-0 whitespace-nowrap py-2 px-2 font-medium text-sm transition-colors flex items-center gap-2">
-          <z-icon zType="dollar-sign" class="w-4 h-4" />
-          Paid
-          <span
-            [class]="activeTab() === PayrollStatus.PAID ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'"
-            class="ml-1 py-0.5 px-2.5 rounded-full text-xs font-semibold min-w-[28px] text-center">
-            {{ statusCounts()['Paid'] }}
-          </span>
-        </button>
-
-        <!-- Cancelled Tab -->
-        <button type="button" role="tab" (click)="onTabChange({index: 5, label: 'Cancelled'})"
-          [attr.aria-selected]="activeTab() === PayrollStatus.CANCELLED" [class]="activeTab() === PayrollStatus.CANCELLED
-            ? 'border-b-2 border-b-primary text-primary'
-            : 'border-b-2 border-transparent text-muted-foreground hover:text-foreground'"
-          class="hover:bg-transparent rounded-none flex-shrink-0 whitespace-nowrap py-2 px-2 font-medium text-sm transition-colors flex items-center gap-2">
-          <z-icon zType="circle-x" class="w-4 h-4" />
-          Cancelled
-          <span
-            [class]="activeTab() === PayrollStatus.CANCELLED ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'"
-            class="ml-1 py-0.5 px-2.5 rounded-full text-xs font-semibold min-w-[28px] text-center">
-            {{ statusCounts()['Cancelled'] }}
-          </span>
-        </button>
-      </nav>
-    </div>
-  </div>
+  <z-tab-group (zTabChange)="onTabChange($event)" [zShowArrow]="false" class="mb-6">
+    <z-tab label="All Request" icon="layers" [badge]="statusCounts()['All']" badgeClass="bg-primary text-primary-foreground"></z-tab>
+    <z-tab label="Draft" icon="file-text" [badge]="statusCounts()['Draft']" badgeClass="bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200"></z-tab>
+    <z-tab label="Pending Approval" icon="clock" [badge]="statusCounts()['Pending']" badgeClass="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"></z-tab>
+    <z-tab label="Approved" icon="check-circle" [badge]="statusCounts()['Approved']" badgeClass="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"></z-tab>
+    <z-tab label="Paid" icon="dollar-sign" [badge]="statusCounts()['Paid']" badgeClass="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"></z-tab>
+    <z-tab label="Cancelled" icon="circle-x" [badge]="statusCounts()['Cancelled']" badgeClass="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"></z-tab>
+  </z-tab-group>
 
   <!-- Bulk Actions Bar - Context-Aware -->
   <div *ngIf="getSelectedCount() > 0"
@@ -536,9 +449,10 @@
             @if (visibleColumns()['status']) {
             <!-- Status -->
             <td>
-              <z-badge [zType]="getStatusBadgeVariant(payroll.status)">
+              <span [class]="getStatusBadgeClass(payroll.status)"
+                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold">
                 {{ payroll.status }}
-              </z-badge>
+              </span>
             </td>
             }
 

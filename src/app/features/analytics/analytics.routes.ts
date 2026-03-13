@@ -1,12 +1,10 @@
 import { Routes } from '@angular/router';
-import { authGuard } from '@/core/guards/auth.guard';
-// import { roleGuard } from '@/core/guards/role.guard';
+import { roleGuard } from '@/core/guards/auth.guard';
 
 export const analyticsRoutes: Routes = [
   {
     path: '',
-    canActivate: [authGuard],
-    data: { roles: ['admin', 'manager'] },
+    canActivate: [roleGuard(['super_admin', 'admin'])],
     loadComponent: () =>
       import('./components/analytics-dashboard/analytics-dashboard.component').then(
         (m) => m.AnalyticsDashboardComponent

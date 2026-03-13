@@ -1,17 +1,17 @@
-<div class="file-list-container">
+<div class="w-full">
   <!-- Header with Filters -->
   @if (showFilters) {
-    <div class="file-list-header">
-      <div class="filters-section">
+    <div class="rounded-xl border border-border bg-card p-5 mb-6">
+      <div class="flex flex-wrap items-end gap-4 mb-4">
         <!-- Category Filter -->
         @if (!category) {
-          <div class="filter-group">
-            <label for="category-filter">Category:</label>
+          <div class="flex flex-col gap-1.5">
+            <label for="category-filter" class="text-xs font-medium text-muted-foreground">Category</label>
             <select
               id="category-filter"
               [value]="selectedCategory()"
               (change)="onCategoryChange($any($event.target).value)"
-              class="filter-select"
+              class="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1"
             >
               @for (cat of categories; track cat.value) {
                 <option [value]="cat.value">{{ cat.label }}</option>
@@ -21,92 +21,79 @@
         }
 
         <!-- Search -->
-        <div class="filter-group search-group">
-          <label for="search-input">Search:</label>
-          <input
-            id="search-input"
-            type="text"
-            placeholder="Search files..."
-            (input)="onSearch($event)"
-            class="search-input"
-          />
+        <div class="flex flex-col gap-1.5 flex-1 min-w-[200px]">
+          <label for="search-input" class="text-xs font-medium text-muted-foreground">Search</label>
+          <div class="relative">
+            <z-icon [zType]="$any('search')" zSize="sm" class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/50" />
+            <input
+              id="search-input"
+              type="text"
+              placeholder="Search files..."
+              (input)="onSearch($event)"
+              class="h-9 w-full rounded-md border border-input bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1"
+            />
+          </div>
         </div>
 
         <!-- Sort -->
-        <div class="filter-group">
-          <label>Sort by:</label>
-          <div class="sort-buttons">
-            <button
-              type="button"
-              [class.active]="sortBy() === 'date'"
-              (click)="onSortChange('date')"
-              class="sort-btn"
-            >
-              Date
-              @if (sortBy() === 'date') {
-                <i class="material-icons">{{ sortOrder() === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</i>
-              }
-            </button>
-            <button
-              type="button"
-              [class.active]="sortBy() === 'name'"
-              (click)="onSortChange('name')"
-              class="sort-btn"
-            >
-              Name
-              @if (sortBy() === 'name') {
-                <i class="material-icons">{{ sortOrder() === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</i>
-              }
-            </button>
-            <button
-              type="button"
-              [class.active]="sortBy() === 'size'"
-              (click)="onSortChange('size')"
-              class="sort-btn"
-            >
-              Size
-              @if (sortBy() === 'size') {
-                <i class="material-icons">{{ sortOrder() === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</i>
-              }
-            </button>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-medium text-muted-foreground">Sort by</label>
+          <div class="flex gap-1">
+            @for (s of sortOptions; track s.value) {
+              <button
+                type="button"
+                (click)="onSortChange(s.value)"
+                class="h-9 px-3 rounded-md text-xs font-medium transition-colors"
+                [class]="sortBy() === s.value
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'"
+              >
+                {{ s.label }}
+                @if (sortBy() === s.value) {
+                  <z-icon [zType]="$any(sortOrder() === 'asc' ? 'arrow-up' : 'arrow-down')" zSize="sm" class="ml-0.5 inline-block" />
+                }
+              </button>
+            }
           </div>
         </div>
       </div>
 
       <!-- Results Summary -->
-      <div class="results-summary">
-        @if (!loading()) {
-          <span>{{ totalItems() }} file(s) found</span>
-        }
-      </div>
+      @if (!loading()) {
+        <div class="pt-3 border-t border-border">
+          <span class="text-xs text-muted-foreground">{{ totalItems() }} file(s) found</span>
+        </div>
+      }
     </div>
   }
 
   <!-- Error Message -->
   @if (error()) {
-    <div class="error-banner">
-      <i class="material-icons">error</i>
-      <span>{{ error() }}</span>
-      <button type="button" (click)="error.set(null)" class="close-btn">
-        <i class="material-icons">close</i>
+    <div class="flex items-center gap-3 p-3.5 mb-5 rounded-lg border border-destructive/30 bg-destructive/10 text-destructive">
+      <z-icon [zType]="$any('circle-x')" class="w-4 h-4 shrink-0" />
+      <span class="flex-1 text-sm">{{ error() }}</span>
+      <button type="button" (click)="error.set(null)" class="p-1 rounded hover:bg-destructive/10 transition-colors cursor-pointer">
+        <z-icon zType="x" zSize="sm" />
       </button>
     </div>
   }
 
   <!-- Loading State -->
   @if (loading()) {
-    <div class="loading-state">
-      <div class="spinner-large"></div>
-      <p>Loading files...</p>
+    <div class="flex flex-col items-center justify-center py-20">
+      <z-icon zType="loader-circle" class="w-8 h-8 animate-spin text-primary mb-3" />
+      <p class="text-sm text-muted-foreground">Loading files...</p>
     </div>
   }
 
   <!-- Empty State -->
   @if (!loading() && files().length === 0) {
-    <div class="empty-state">
-      <i class="material-icons">folder_open</i>
-      <h3>No files found</h3>
-      <p>
+    <div class="flex flex-col items-center justify-center py-16 rounded-xl border-2 border-dashed border-border bg-muted/30">
+      <div class="w-14 h-14 rounded-full bg-muted flex items-center justify-center mb-4">
+        <z-icon [zType]="$any('folder-open')" class="w-7 h-7 text-muted-foreground/60" />
+      </div>
+      <h3 class="text-sm font-semibold text-foreground mb-1">No files found</h3>
+      <p class="text-xs text-muted-foreground max-w-[300px] text-center">
         @if (searchTerm() || selectedCategory() !== 'all') {
           Try adjusting your filters or search term
         } @else {
@@ -120,12 +107,12 @@
   @if (!loading() && files().length > 0) {
     @if (displayMode === 'compact') {
       <!-- Compact List View -->
-      <div class="space-y-3">
+      <div class="space-y-2">
         @for (file of files(); track file.id) {
-          <div class="flex items-center gap-4 p-4 bg-background border border-border rounded-lg hover:border-primary/50 transition-colors bg-card text-card-foreground gap-6 rounded-xl border shadow-sm p-4">
+          <div class="flex items-center gap-4 p-3.5 rounded-lg border border-border bg-card hover:border-primary/30 transition-colors group">
             <!-- File Icon -->
-            <div class="flex-shrink-0 w-12 h-12 flex items-center justify-center bg-red-50 rounded-lg">
-              <z-icon zType="file-text" class="w-6 h-6 text-red-500" />
+            <div class="shrink-0 w-10 h-10 flex items-center justify-center rounded-lg bg-primary/10">
+              <z-icon [zType]="$any(getZardFileIcon(file.mime_type))" class="w-5 h-5 text-primary" />
             </div>
 
             <!-- File Info -->
@@ -138,11 +125,11 @@
 
             <!-- Actions -->
             @if (showActions) {
-              <div class="flex items-center gap-2">
+              <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button
                   type="button"
                   (click)="previewFile(file)"
-                  class="p-2 hover:bg-muted rounded-md transition-colors"
+                  class="p-2 rounded-md hover:bg-muted transition-colors cursor-pointer"
                   [title]="canPreview(file.mime_type) ? 'Preview' : 'View'"
                 >
                   <z-icon zType="eye" class="w-4 h-4 text-muted-foreground" />
@@ -150,10 +137,10 @@
                 <button
                   type="button"
                   (click)="downloadFile(file)"
-                  class="p-2 hover:bg-muted rounded-md transition-colors"
+                  class="p-2 rounded-md hover:bg-muted transition-colors cursor-pointer"
                   title="Download"
                 >
-                  <z-icon zType="arrow-up" class="w-4 h-4 text-muted-foreground rotate-180" />
+                  <z-icon [zType]="$any('download')" class="w-4 h-4 text-muted-foreground" />
                 </button>
               </div>
             }
@@ -162,74 +149,80 @@
       </div>
     } @else {
       <!-- Grid View -->
-      <div class="files-grid">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         @for (file of files(); track file.id) {
-          <div class="file-card">
+          <div class="group flex flex-col rounded-xl border border-border bg-card overflow-hidden transition-all hover:shadow-md hover:border-primary/20 file-card-animate">
             <!-- File Preview/Icon -->
-            <div class="file-preview">
+            <div class="h-40 flex items-center justify-center bg-muted/40 border-b border-border overflow-hidden relative">
               @if (file.mime_type.startsWith('image/')) {
                 @if (getImagePreviewUrl(file.id); as previewUrl) {
                   <img
                     [src]="previewUrl"
                     [alt]="file.original_filename"
+                    class="w-full h-full object-cover"
                   />
                 } @else {
-                  <div class="preview-loading">
-                    <i class="material-icons">image</i>
-                  </div>
+                  <z-icon [zType]="$any('image')" class="w-10 h-10 text-muted-foreground/30" />
                 }
               } @else {
-                <i class="material-icons file-icon">{{ getFileIcon(file.mime_type) }}</i>
+                <div class="flex flex-col items-center gap-2">
+                  <div class="w-14 h-14 rounded-xl bg-background/80 flex items-center justify-center shadow-sm border border-border/50">
+                    <z-icon [zType]="$any(getZardFileIcon(file.mime_type))" class="w-7 h-7 text-muted-foreground" />
+                  </div>
+                  <span class="text-[10px] font-medium text-muted-foreground/60 uppercase tracking-wider">
+                    {{ getFileExtension(file.original_filename) }}
+                  </span>
+                </div>
               }
             </div>
 
             <!-- File Info -->
-            <div class="file-info">
-              <h4 class="file-name" [title]="file.original_filename">
+            <div class="p-4 flex-1">
+              <h4 class="text-sm font-semibold text-foreground truncate mb-1.5" [title]="file.original_filename">
                 {{ file.original_filename }}
               </h4>
-              <div class="file-meta">
-                <span class="file-size">{{ formatFileSize(file.file_size) }}</span>
-                <span class="separator">•</span>
-                <span class="file-category">{{ getCategoryLabel(file.category) }}</span>
+              <div class="flex items-center gap-1.5 text-xs text-muted-foreground mb-1.5">
+                <span class="font-medium">{{ formatFileSize(file.file_size) }}</span>
+                <span class="text-border">&#8226;</span>
+                <span class="px-1.5 py-0.5 rounded bg-primary/10 text-primary text-[10px] font-medium">
+                  {{ getCategoryLabel(file.category) }}
+                </span>
               </div>
-              <div class="file-date">
-                <i class="material-icons">schedule</i>
+              <div class="flex items-center gap-1 text-[11px] text-muted-foreground/70">
+                <z-icon [zType]="$any('clock')" zSize="sm" class="w-3 h-3" />
                 {{ formatDate(file.uploaded_at) }}
               </div>
               @if (file.description) {
-                <p class="file-description">{{ file.description }}</p>
+                <p class="mt-2 text-xs text-muted-foreground line-clamp-2 leading-relaxed">{{ file.description }}</p>
               }
             </div>
 
             <!-- Actions -->
             @if (showActions) {
-              <div class="file-actions">
+              <div class="flex gap-1 p-3 pt-0">
                 <button
                   type="button"
                   (click)="previewFile(file)"
-                  class="action-btn preview-btn"
-                  [title]="canPreview(file.mime_type) ? 'Preview' : 'Download'"
+                  class="flex-1 flex items-center justify-center gap-1.5 h-8 rounded-md text-xs font-medium border border-border bg-background text-muted-foreground hover:bg-primary/5 hover:text-primary hover:border-primary/30 transition-colors cursor-pointer"
                 >
-                  <i class="material-icons">
-                    {{ canPreview(file.mime_type) ? 'visibility' : 'download' }}
-                  </i>
+                  <z-icon zType="eye" zSize="sm" />
+                  {{ canPreview(file.mime_type) ? 'Preview' : 'View' }}
                 </button>
                 <button
                   type="button"
                   (click)="downloadFile(file)"
-                  class="action-btn download-btn"
-                  title="Download"
+                  class="flex-1 flex items-center justify-center gap-1.5 h-8 rounded-md text-xs font-medium border border-border bg-background text-muted-foreground hover:bg-emerald-500/5 hover:text-emerald-600 hover:border-emerald-500/30 transition-colors cursor-pointer"
                 >
-                  <i class="material-icons">file_download</i>
+                  <z-icon [zType]="$any('download')" zSize="sm" />
+                  Download
                 </button>
                 <button
                   type="button"
                   (click)="deleteFile(file)"
-                  class="action-btn delete-btn"
+                  class="h-8 w-8 flex items-center justify-center rounded-md border border-border bg-background text-muted-foreground hover:bg-destructive/5 hover:text-destructive hover:border-destructive/30 transition-colors cursor-pointer"
                   title="Delete"
                 >
-                  <i class="material-icons">delete</i>
+                  <z-icon zType="trash-2" zSize="sm" />
                 </button>
               </div>
             }
@@ -238,28 +231,29 @@
       </div>
     }
 
-
     <!-- Pagination -->
     @if (totalPages() > 1 && !maxDisplay) {
-      <div class="pagination">
+      <div class="flex justify-center items-center gap-1.5 mt-8">
         <button
           type="button"
           [disabled]="currentPage() === 1"
           (click)="onPageChange(currentPage() - 1)"
-          class="page-btn"
+          class="h-8 w-8 flex items-center justify-center rounded-md border border-border bg-card text-muted-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
         >
-          <i class="material-icons">chevron_left</i>
+          <z-icon [zType]="$any('chevron-left')" zSize="sm" />
         </button>
 
-        @for (page of paginationPages; track page) {
+        @for (page of paginationPages; track $index) {
           @if (page === -1) {
-            <span class="page-ellipsis">...</span>
+            <span class="px-1.5 text-xs text-muted-foreground">...</span>
           } @else {
             <button
               type="button"
-              [class.active]="currentPage() === page"
               (click)="onPageChange(page)"
-              class="page-btn"
+              class="h-8 min-w-[32px] px-2.5 flex items-center justify-center rounded-md text-xs font-medium transition-colors cursor-pointer"
+              [class]="currentPage() === page
+                ? 'bg-primary text-primary-foreground'
+                : 'border border-border bg-card text-muted-foreground hover:bg-muted'"
             >
               {{ page }}
             </button>
@@ -270,9 +264,9 @@
           type="button"
           [disabled]="currentPage() === totalPages()"
           (click)="onPageChange(currentPage() + 1)"
-          class="page-btn"
+          class="h-8 w-8 flex items-center justify-center rounded-md border border-border bg-card text-muted-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
         >
-          <i class="material-icons">chevron_right</i>
+          <z-icon [zType]="$any('chevron-right')" zSize="sm" />
         </button>
       </div>
     }

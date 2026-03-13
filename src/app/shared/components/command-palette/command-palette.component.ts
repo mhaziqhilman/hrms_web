@@ -12,7 +12,7 @@ import { ZardIconComponent } from '@/shared/components/icon/icon.component';
 import { AuthService } from '@/core/services/auth.service';
 import { ThemeService } from '@/core/services/theme';
 import { CompanyService } from '@/core/services/company.service';
-import { MENU_GROUPS } from '@/core/config/menu.config';
+import { getMenuGroupsForRole } from '@/core/config/menu.config';
 import { SidebarMenuGroup, SidebarMenuItem } from '@/core/models/sidebar.models';
 import { CommandPaletteService } from './command-palette.service';
 
@@ -118,7 +118,8 @@ export class CommandPaletteComponent implements OnInit, AfterViewInit {
     const suggestions: CommandItem[] = [];
     const suggestionRoutes = this.getSuggestionRoutes(userRole);
 
-    for (const group of MENU_GROUPS) {
+    const menuGroups = getMenuGroupsForRole(userRole);
+    for (const group of menuGroups) {
       if (!isVisible(group.roles)) continue;
       this.flattenItems(group.items, group.roles).forEach(item => {
         if (isVisible(item.roles) && item.route && suggestionRoutes.includes(item.route)) {
@@ -163,7 +164,7 @@ export class CommandPaletteComponent implements OnInit, AfterViewInit {
     this.commandGroups.push({ label: 'Quick Actions', items: quickActions, showOnDefault: true });
 
     // --- Navigation groups (shown when searching) ---
-    for (const group of MENU_GROUPS) {
+    for (const group of menuGroups) {
       if (!isVisible(group.roles)) continue;
 
       const items = this.flattenItems(group.items, group.roles)

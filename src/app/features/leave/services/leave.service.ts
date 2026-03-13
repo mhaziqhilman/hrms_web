@@ -11,7 +11,8 @@ import {
   ApplyLeaveRequest,
   UpdateLeaveRequest,
   ApproveRejectLeaveRequest,
-  LeaveBalanceResponse
+  LeaveBalanceResponse,
+  LeaveCalendarResponse
 } from '../models/leave.model';
 import { ApiResponse } from '../../../core/models/auth.models';
 
@@ -89,6 +90,20 @@ export class LeaveService {
   cancelLeave(id: number | string): Observable<{ success: boolean; message: string }> {
     return this.http.delete<{ success: boolean; message: string }>(
       `${this.apiUrl}${API_CONFIG.endpoints.leaves.detail(id)}`
+    );
+  }
+
+  /**
+   * Get team leave calendar data for a given month
+   */
+  getLeaveCalendar(year: number, month: number): Observable<LeaveCalendarResponse> {
+    const params = new HttpParams()
+      .set('year', year.toString())
+      .set('month', month.toString());
+
+    return this.http.get<LeaveCalendarResponse>(
+      `${this.apiUrl}${API_CONFIG.endpoints.leaves.calendar}`,
+      { params }
     );
   }
 

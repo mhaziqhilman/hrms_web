@@ -146,30 +146,12 @@
         </div>
       </div>
 
-      <!-- ===== TAB NAVIGATION ===== -->
-      <div class="border-b border-border mb-8">
-        <nav class="flex gap-0 -mb-px overflow-x-auto" role="tablist">
-          @for (tab of tabs; track tab.id) {
-            <button
-              type="button"
-              role="tab"
-              [attr.aria-selected]="activeTab() === tab.id"
-              (click)="setActiveTab(tab.id)"
-              class="tab-button relative flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium transition-colors whitespace-nowrap shrink-0"
-              [class.tab-active]="activeTab() === tab.id"
-              [class.tab-inactive]="activeTab() !== tab.id">
-              <z-icon [zType]="$any(tab.icon)" zSize="sm" />
-              <span>{{ tab.label }}</span>
-            </button>
-          }
-        </nav>
-      </div>
-
-      <!-- ===== TAB CONTENT ===== -->
-      @switch (activeTab()) {
+      <!-- ===== TABS ===== -->
+      <z-tab-group #tabGroup (zTabChange)="onTabChange($event)" [zShowArrow]="false" class="mb-8">
 
         <!-- ==================== PERSONAL INFORMATION TAB ==================== -->
-        @case ('personal') {
+        <z-tab label="Personal Information" icon="user">
+          <div class="pt-6">
           <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
 
             <!-- Left Column -->
@@ -369,7 +351,7 @@
                       <dd class="text-sm text-foreground">{{ employee()!.employment_type || '-' }}</dd>
                     </div>
                   </dl>
-                  <button (click)="setActiveTab('contract')"
+                  <button (click)="selectTab('contract')"
                     class="inline-flex items-center gap-1 text-xs text-primary hover:underline mt-4 cursor-pointer">
                     View contract
                     <z-icon [zType]="$any('chevron-right')" zSize="sm" />
@@ -378,10 +360,12 @@
               </div>
             </div>
           </div>
-        }
+          </div>
+        </z-tab>
 
         <!-- ==================== CONTRACT TAB ==================== -->
-        @case ('contract') {
+        <z-tab label="Contract" icon="file-text">
+          <div class="pt-6">
           <div class="max-w-3xl">
             <div class="rounded-xl border border-border bg-card">
               <div class="flex items-center justify-between px-6 py-4 border-b border-border">
@@ -448,10 +432,12 @@
               </div>
             </div>
           </div>
-        }
+          </div>
+        </z-tab>
 
         <!-- ==================== PAYROLL TAB ==================== -->
-        @case ('payroll') {
+        <z-tab label="Payroll" icon="wallet">
+          <div class="pt-6">
           <div class="space-y-6">
             <div class="rounded-xl border border-border bg-card">
               <div class="flex items-center justify-between px-6 py-4 border-b border-border">
@@ -545,31 +531,33 @@
               </div>
             </div>
           </div>
-        }
+          </div>
+        </z-tab>
 
         <!-- ==================== DOCUMENT TAB ==================== -->
-        @case ('document') {
-          <div class="space-y-4">
-            <!-- Upload controls -->
+        <z-tab label="Document" icon="folder-open">
+          <div class="pt-6 space-y-5">
+
+            <!-- Header row -->
             <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <z-icon [zType]="$any('folder-open')" zSize="sm" class="text-muted-foreground" />
-                <h3 class="text-sm font-semibold text-foreground">Employee Documents</h3>
+              <div>
+                <h3 class="text-base font-semibold text-foreground">Employee Documents</h3>
+                <p class="text-xs text-muted-foreground mt-0.5">Manage and organize employee files</p>
               </div>
-              <button z-button zType="outline" zSize="sm" (click)="toggleDocumentUpload()" class="gap-1.5">
+              <button z-button [zType]="showDocumentUpload() ? 'outline' : 'default'" zSize="sm" (click)="toggleDocumentUpload()" class="gap-1.5">
                 @if (showDocumentUpload()) {
                   <z-icon zType="x" zSize="sm" />
                   Cancel
                 } @else {
                   <z-icon zType="plus" zSize="sm" />
-                  Upload Document
+                  Upload
                 }
               </button>
             </div>
 
             <!-- Success Message -->
             @if (uploadSuccess()) {
-              <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3 flex items-center gap-2 text-emerald-700">
+              <div class="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-3 flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
                 <z-icon [zType]="$any('circle-check')" class="w-4 h-4" />
                 <span class="text-sm">{{ uploadSuccess() }}</span>
               </div>
@@ -577,7 +565,7 @@
 
             <!-- Upload area -->
             @if (showDocumentUpload()) {
-              <div class="rounded-xl border border-dashed border-border bg-muted/20 p-6">
+              <div class="rounded-xl border border-dashed border-primary/30 bg-primary/5 p-6">
                 <app-file-upload
                   [acceptedTypes]="'.pdf,.doc,.docx,.jpg,.jpeg,.png,.xls,.xlsx'"
                   [multiple]="true"
@@ -591,7 +579,7 @@
                 </app-file-upload>
                 <p class="text-xs text-muted-foreground mt-3 flex items-center gap-1">
                   <z-icon [zType]="$any('info')" class="w-3.5 h-3.5" />
-                  Upload employee documents such as resume, certificates, contracts, identification, etc.
+                  Accepted: PDF, DOC, DOCX, JPG, PNG, XLS, XLSX (max 10 files)
                 </p>
               </div>
             }
@@ -604,10 +592,11 @@
               [showActions]="true">
             </app-file-list>
           </div>
-        }
+        </z-tab>
 
         <!-- ==================== STATUTORY TAB ==================== -->
-        @case ('statutory') {
+        <z-tab label="Statutory" icon="shield">
+          <div class="pt-6">
           <div class="max-w-3xl">
             <div class="rounded-xl border border-border bg-card">
               <div class="flex items-center justify-between px-6 py-4 border-b border-border">
@@ -678,10 +667,12 @@
               </div>
             </div>
           </div>
-        }
+          </div>
+        </z-tab>
 
         <!-- ==================== BANKING TAB ==================== -->
-        @case ('banking') {
+        <z-tab label="Banking" icon="landmark">
+          <div class="pt-6">
           <div class="max-w-3xl">
             <div class="rounded-xl border border-border bg-card">
               <div class="flex items-center justify-between px-6 py-4 border-b border-border">
@@ -712,8 +703,10 @@
               </div>
             </div>
           </div>
-        }
-      }
+          </div>
+        </z-tab>
+
+      </z-tab-group>
 
     </div>
   }

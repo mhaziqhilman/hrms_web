@@ -45,7 +45,8 @@ import { InviteUserDialogComponent } from './dialogs/invite-user-dialog.componen
     ZardTableImports,
     ZardTooltipModule,
     ZardCheckboxComponent,
-    ZardDividerComponent
+    ZardDividerComponent,
+    ZardCardComponent
   ],
   templateUrl: './employee-list.component.html',
   styleUrls: ['./employee-list.component.css']
@@ -86,6 +87,9 @@ export class EmployeeListComponent implements OnInit {
   // Selection
   selectedEmployees = signal<Set<number>>(new Set());
   selectAll = false;
+
+  // View mode: table or card
+  viewMode = signal<'table' | 'card'>('table');
 
   // Column visibility
   visibleColumns = signal<{[key: string]: boolean}>({

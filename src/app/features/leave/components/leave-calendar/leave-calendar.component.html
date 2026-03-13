@@ -1,0 +1,377 @@
+<div class="bg-background min-h-screen">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-foreground">Leave Management</h1>
+      <p class="text-muted-foreground">Track team leave status at a glance</p>
+    </div>
+    <div class="flex gap-2">
+      <button z-button zType="outline" routerLink="/leave/balance" class="gap-2">
+        <z-icon zType="activity" class="w-4 h-4" />
+        View Balance
+      </button>
+      <button z-button routerLink="/leave/apply" class="gap-2">
+        <z-icon zType="plus" class="w-4 h-4" />
+        Apply Leave
+      </button>
+    </div>
+  </div>
+
+  <!-- View Toggle -->
+  <div class="flex items-center gap-1 mb-6 bg-muted rounded-lg p-1 w-fit">
+    <button
+      routerLink="/leave/list"
+      class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors text-muted-foreground hover:text-foreground">
+      <z-icon zType="list" class="w-4 h-4" />
+      List
+    </button>
+    <button
+      class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors bg-background text-foreground shadow-sm">
+      <z-icon zType="calendar-check" class="w-4 h-4" />
+      Calendar
+    </button>
+  </div>
+
+  <!-- Main Content: 70/30 Split -->
+  <div class="flex gap-6 items-start">
+
+    <!-- Calendar Section (70%) -->
+    <div class="flex-1 min-w-0" style="flex-basis: 70%;">
+      <z-card>
+        <div class="p-0">
+          <!-- Calendar Header -->
+          <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-3">
+              <h2 class="text-xl font-bold text-foreground">
+                {{ monthName() }} {{ currentYear() }}
+              </h2>
+              <div class="flex items-center gap-1">
+                <button
+                  z-button zType="outline" zSize="sm"
+                  class="h-8 w-8 p-0"
+                  (click)="previousMonth()">
+                  <z-icon zType="chevron-left" class="w-4 h-4" />
+                </button>
+                <button
+                  z-button zType="outline" zSize="sm"
+                  class="h-8 w-8 p-0"
+                  (click)="nextMonth()">
+                  <z-icon zType="chevron-right" class="w-4 h-4" />
+                </button>
+              </div>
+              <button
+                z-button zType="outline" zSize="sm"
+                (click)="goToToday()"
+                class="text-xs">
+                Today
+              </button>
+            </div>
+
+            <!-- Toggle -->
+            <div class="flex items-center gap-4">
+              <button
+                class="flex items-center gap-2 text-sm cursor-pointer border-0 bg-transparent"
+                (click)="toggleShowAllEvents()">
+                <div
+                  class="w-9 h-5 rounded-full transition-colors relative"
+                  [class]="showAllEvents() ? 'bg-primary' : 'bg-muted'">
+                  <div
+                    class="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-transform"
+                    [style.left]="showAllEvents() ? '18px' : '2px'">
+                  </div>
+                </div>
+                <span class="text-muted-foreground">Show All Events</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Legend -->
+          @if (legendItems().length > 0) {
+            <div class="flex items-center gap-4 mb-4 flex-wrap">
+              @for (item of legendItems(); track item.label) {
+                <div class="flex items-center gap-1.5">
+                  <div
+                    class="w-2.5 h-2.5 rounded-full"
+                    [style.background-color]="item.color">
+                  </div>
+                  <span class="text-xs text-muted-foreground">{{ item.label }}</span>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Loading Overlay -->
+          @if (loading()) {
+            <div class="flex items-center justify-center py-20">
+              <div class="flex items-center gap-3 text-muted-foreground">
+                <div class="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                <span>Loading calendar...</span>
+              </div>
+            </div>
+          }
+
+          @if (!loading()) {
+            <!-- Week Day Headers -->
+            <div class="grid grid-cols-7 mb-1">
+              @for (day of weekDays; track day) {
+                <div
+                  class="text-center text-xs font-semibold py-2 uppercase tracking-wider"
+                  [class]="(day === 'Sat' || day === 'Sun')
+                    ? 'text-muted-foreground/50'
+                    : 'text-muted-foreground'">
+                  {{ day }}
+                </div>
+              }
+            </div>
+
+            <!-- Calendar Grid -->
+            <div class="grid grid-cols-7 border-t border-l border-border">
+              @for (day of calendarDays(); track $index) {
+                <div
+                  class="calendar-cell border-r border-b border-border min-h-[100px] p-1.5 cursor-pointer transition-all relative"
+                  [class.bg-muted/30]="!day.isCurrentMonth"
+                  [class.bg-primary/5]="selectedDay()?.date?.getTime() === day.date.getTime() && day.isCurrentMonth"
+                  [class.hover:bg-accent/50]="day.isCurrentMonth"
+                  [class.opacity-40]="!day.isCurrentMonth"
+                  [class.bg-destructive/5]="day.holidays.length > 0 && day.isCurrentMonth"
+                  (click)="selectDay(day)">
+
+                  <!-- Day Number -->
+                  <div class="flex items-center justify-between mb-1">
+                    <span
+                      class="text-sm font-medium w-7 h-7 flex items-center justify-center rounded-full"
+                      [class.bg-primary]="day.isToday"
+                      [class.text-primary-foreground]="day.isToday"
+                      [class.text-foreground]="!day.isToday && day.isCurrentMonth && !day.isWeekend"
+                      [class.text-muted-foreground]="!day.isCurrentMonth || day.isWeekend">
+                      {{ day.day }}
+                    </span>
+                  </div>
+
+                  <!-- Holiday indicator -->
+                  @if (day.holidays.length > 0 && day.isCurrentMonth) {
+                    <div class="text-[10px] font-medium text-purple-600 dark:text-purple-400 truncate px-0.5 mb-0.5">
+                      {{ day.holidays[0].name }}
+                    </div>
+                  }
+
+                  <!-- Event dots / mini list -->
+                  @if (day.isCurrentMonth && showAllEvents()) {
+                    @if (day.leaves.length > 0) {
+                      <div class="space-y-0.5">
+                        @for (leave of day.leaves.slice(0, 2); track leave.id) {
+                          <div
+                            class="text-[10px] leading-tight px-1 py-0.5 rounded truncate font-medium"
+                            [style.background-color]="getLeaveTypeColor(leave.leave_type?.name || '') + '20'"
+                            [style.color]="getLeaveTypeColor(leave.leave_type?.name || '')">
+                            {{ (leave.employee?.full_name?.split(' ') || [''])[0] }}
+                          </div>
+                        }
+                        @if (day.leaves.length > 2) {
+                          <div class="text-[10px] text-muted-foreground font-medium px-1">
+                            +{{ day.leaves.length - 2 }} more
+                          </div>
+                        }
+                      </div>
+                    }
+                  } @else if (day.isCurrentMonth) {
+                    <!-- Dot view when toggle is off -->
+                    <div class="flex items-center gap-0.5 flex-wrap mt-1">
+                      @for (holiday of day.holidays; track holiday.id) {
+                        <div class="w-2 h-2 rounded-full bg-purple-500"></div>
+                      }
+                      @for (leave of day.leaves.slice(0, getMaxDotsToShow()); track leave.id) {
+                        <div
+                          class="w-2 h-2 rounded-full"
+                          [style.background-color]="getLeaveTypeColor(leave.leave_type?.name || '')">
+                        </div>
+                      }
+                      @if (getExtraCount(day) > 0) {
+                        <span class="text-[9px] text-muted-foreground font-medium ml-0.5">
+                          +{{ getExtraCount(day) }}
+                        </span>
+                      }
+                    </div>
+                  }
+
+                  <!-- Bottom summary badges (for days with many events) -->
+                  @if (day.isCurrentMonth && day.leaves.length > 0 && !showAllEvents()) {
+                    <div class="absolute bottom-1 left-1 right-1 flex gap-1">
+                      @if (day.leaves.length > 0) {
+                        <div class="flex items-center gap-0.5 text-[9px] bg-primary/10 text-primary rounded px-1 py-0.5">
+                          <span>{{ day.leaves.length }}</span>
+                          <z-icon zType="users" class="w-2.5 h-2.5" />
+                        </div>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </z-card>
+    </div>
+
+    <!-- Day Detail Panel (30%) -->
+    <div class="sticky top-6" style="flex-basis: 30%; min-width: 300px;">
+      @if (selectedDay(); as day) {
+        <z-card>
+          <div class="p-0">
+            <!-- Panel Header -->
+            <div class="flex items-center justify-between mb-1">
+              <h3 class="text-lg font-bold text-foreground">
+                {{ formatShortDate(day.date) }}
+              </h3>
+              @if (day.leaves.length > 0 || day.holidays.length > 0) {
+                <span class="text-xs text-muted-foreground">
+                  {{ day.leaves.length + day.holidays.length }} event{{ (day.leaves.length + day.holidays.length) > 1 ? 's' : '' }}
+                </span>
+              }
+            </div>
+            <p class="text-xs text-muted-foreground mb-4">{{ formatDayLabel(day.date) }}</p>
+
+            <!-- Public Holidays -->
+            @for (holiday of day.holidays; track holiday.id) {
+              <div class="flex items-center justify-between py-3 border-b border-border last:border-0">
+                <div class="flex items-center gap-3 min-w-0">
+                  <div class="w-9 h-9 rounded-full bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center flex-shrink-0">
+                    <z-icon [zType]="$any('star')" zSize="sm" class="text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <div class="min-w-0">
+                    <p class="text-sm font-medium text-foreground truncate">{{ holiday.name }}</p>
+                    <p class="text-xs text-muted-foreground">Public Holiday</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ml-2 bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300">
+                  <div class="w-1.5 h-1.5 rounded-full bg-purple-500"></div>
+                  Holiday
+                </div>
+              </div>
+            }
+
+            <!-- Leave Entries -->
+            @for (leave of day.leaves; track leave.id) {
+              <div
+                class="flex items-center justify-between py-3 border-b border-border last:border-0 cursor-pointer hover:bg-accent/30 -mx-6 px-6 transition-colors"
+                [routerLink]="['/leave', leave.public_id]">
+                <div class="flex items-center gap-3 min-w-0">
+                  <!-- Avatar -->
+                  @if (leave.employee?.photo_url) {
+                    <img
+                      [src]="leave.employee!.photo_url"
+                      [alt]="leave.employee!.full_name"
+                      class="w-9 h-9 rounded-full object-cover flex-shrink-0" />
+                  } @else {
+                    <div
+                      class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-white text-sm font-semibold"
+                      [style.background-color]="getLeaveTypeColor(leave.leave_type?.name || '')">
+                      {{ getInitials(leave.employee?.full_name || '') }}
+                    </div>
+                  }
+                  <div class="min-w-0">
+                    <p class="text-sm font-medium text-foreground truncate">{{ leave.employee?.full_name }}</p>
+                    <div class="flex items-center gap-1.5 mt-0.5">
+                      <!-- Leave Type Badge -->
+                      <div
+                        class="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium"
+                        [style.background-color]="getLeaveTypeColor(leave.leave_type?.name || '') + '15'"
+                        [style.color]="getLeaveTypeColor(leave.leave_type?.name || '')">
+                        <div class="w-1 h-1 rounded-full"
+                          [style.background-color]="getLeaveTypeColor(leave.leave_type?.name || '')"></div>
+                        {{ stripLeave(leave.leave_type?.name || '') }}
+                      </div>
+                      <!-- Status Badge -->
+                      <div
+                        class="px-1.5 py-0.5 rounded-full text-[10px] font-medium"
+                        [class]="leave.status === 'Approved'
+                          ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
+                          : leave.status === 'Pending'
+                            ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'
+                            : leave.status === 'Rejected'
+                              ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300'
+                              : 'bg-muted text-muted-foreground'">
+                        {{ leave.status }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+
+            <!-- Empty state -->
+            @if (day.leaves.length === 0 && day.holidays.length === 0) {
+              <div class="text-center py-8">
+                <div class="w-12 h-12 mx-auto rounded-full bg-muted flex items-center justify-center mb-3">
+                  <z-icon [zType]="$any('calendar-check')" class="w-5 h-5 text-muted-foreground" />
+                </div>
+                <p class="text-sm font-medium text-foreground">No events</p>
+                <p class="text-xs text-muted-foreground mt-0.5">Everyone is at work!</p>
+              </div>
+            }
+          </div>
+        </z-card>
+      } @else {
+        <!-- No Day Selected -->
+        <z-card>
+          <div class="p-0">
+            <!-- Monthly Summary Header -->
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-bold text-foreground">Summary</h3>
+              <span class="text-xs text-muted-foreground">{{ monthName() }} {{ currentYear() }}</span>
+            </div>
+
+            <div class="border-t border-border -mx-6 mb-4"></div>
+
+            <!-- Stats rows -->
+            <div class="flex items-center justify-between py-3 border-b border-border">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center">
+                  <z-icon [zType]="$any('check-circle')" zSize="sm" class="text-emerald-600 dark:text-emerald-400" />
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-foreground">Approved</p>
+                  <p class="text-xs text-muted-foreground">This month</p>
+                </div>
+              </div>
+              <span class="text-lg font-bold text-emerald-600 dark:text-emerald-400">{{ getMonthlyApprovedCount() }}</span>
+            </div>
+
+            <div class="flex items-center justify-between py-3 border-b border-border">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-full bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center">
+                  <z-icon [zType]="$any('clock')" zSize="sm" class="text-amber-600 dark:text-amber-400" />
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-foreground">Pending</p>
+                  <p class="text-xs text-muted-foreground">Awaiting approval</p>
+                </div>
+              </div>
+              <span class="text-lg font-bold text-amber-600 dark:text-amber-400">{{ getMonthlyPendingCount() }}</span>
+            </div>
+
+            <div class="flex items-center justify-between py-3">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-full bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center">
+                  <z-icon [zType]="$any('star')" zSize="sm" class="text-purple-600 dark:text-purple-400" />
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-foreground">Holidays</p>
+                  <p class="text-xs text-muted-foreground">Public holidays</p>
+                </div>
+              </div>
+              <span class="text-lg font-bold text-purple-600 dark:text-purple-400">{{ holidays().length }}</span>
+            </div>
+
+            <!-- Hint -->
+            <div class="border-t border-border -mx-6 mt-2 pt-4 px-6">
+              <p class="text-xs text-muted-foreground text-center">
+                Click on a date to view details
+              </p>
+            </div>
+          </div>
+        </z-card>
+      }
+    </div>
+  </div>
+</div>

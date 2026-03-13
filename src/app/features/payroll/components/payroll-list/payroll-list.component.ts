@@ -315,18 +315,14 @@ export class PayrollListComponent implements OnInit {
   }
 
   getStatusBadgeClass(status: PayrollStatus): string {
-    return `badge bg-${PAYROLL_STATUS_COLORS[status]}`;
-  }
-
-  getStatusBadgeVariant(status: PayrollStatus): 'default' | 'secondary' | 'destructive' | 'outline' {
-    const variantMap: Record<PayrollStatus, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-      [PayrollStatus.DRAFT]: 'secondary',
-      [PayrollStatus.PENDING]: 'outline',
-      [PayrollStatus.APPROVED]: 'default',
-      [PayrollStatus.PAID]: 'default',
-      [PayrollStatus.CANCELLED]: 'destructive'
+    const classMap: Record<PayrollStatus, string> = {
+      [PayrollStatus.DRAFT]: 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200',
+      [PayrollStatus.PENDING]: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+      [PayrollStatus.APPROVED]: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+      [PayrollStatus.PAID]: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+      [PayrollStatus.CANCELLED]: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
     };
-    return variantMap[status] || 'default';
+    return classMap[status] || '';
   }
 
   getMonthName(month: number): string {

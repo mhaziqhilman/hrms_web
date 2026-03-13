@@ -9,7 +9,7 @@ import { UserProfileService } from '@/core/services/user-profile.service';
 import { DisplayService } from '@/core/services/display.service';
 import { User, Company, UserCompany } from '@/core/models/auth.models';
 import { SidebarMenuGroup } from '@/core/models/sidebar.models';
-import { MENU_GROUPS } from '@/core/config/menu.config';
+import { getMenuGroupsForRole } from '@/core/config/menu.config';
 import { CommandPaletteService } from '@/shared/components/command-palette/command-palette.service';
 import { NotificationService } from '@/core/services/notification.service';
 import { Notification as AppNotification, NotificationType } from '@/core/models/notification.models';
@@ -85,7 +85,7 @@ export class MainLayoutComponent implements OnInit {
     return this.themeService.sidebarCollapsed;
   }
 
-  menuGroups: SidebarMenuGroup[] = MENU_GROUPS;
+  menuGroups: SidebarMenuGroup[] = [];
 
   constructor(
     private authService: AuthService,
@@ -109,6 +109,9 @@ export class MainLayoutComponent implements OnInit {
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
       this.isSuperAdmin = user?.role === 'super_admin';
+
+      // Build role-specific sidebar menu
+      this.menuGroups = getMenuGroupsForRole(user?.role || 'staff');
 
       // Set currentCompany from user's company association
       this.currentCompany = user?.company ?? null;
@@ -295,13 +298,6 @@ export class MainLayoutComponent implements OnInit {
     return this.expandedMenuItems.has(title);
   }
 
-  getDisplayTitle(title: string): string {
-    if (this.currentUser?.role === 'staff' && title.startsWith('My ')) {
-      return title.substring(3);
-    }
-    return title;
-  }
-
   isGroupVisible(group: SidebarMenuGroup): boolean {
     if (!group.roles || group.roles.length === 0) return true;
     return !!this.currentUser && group.roles.includes(this.currentUser.role);
@@ -335,7 +331,8 @@ export class MainLayoutComponent implements OnInit {
         url += `/${routeURL}`;
         const menuLabel = this.findLabelByUrl(url);
         const routeTitle = child.snapshot.data['title'] as string | undefined;
-        const label = menuLabel || (this.isUuid(routeURL) && routeTitle ? routeTitle : this.formatLabel(routeURL));
+        const hasUuid = routeURL.split('/').some((seg) => this.isUuid(seg));
+        const label = menuLabel || (hasUuid && routeTitle ? routeTitle : this.formatLabel(routeURL));
         breadcrumbs.push({ label, url });
       }
 
@@ -366,6 +363,14 @@ export class MainLayoutComponent implements OnInit {
 
   private formatLabel(text: string): string {
     return text.charAt(0).toUpperCase() + text.slice(1);
+  }
+
+  navigateToProfile() {
+    this.router.navigate(['/personal/profile']);
+  }
+
+  navigateToSettings() {
+    this.router.navigate(['/settings/account']);
   }
 
   logout() {

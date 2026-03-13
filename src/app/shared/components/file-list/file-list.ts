@@ -60,6 +60,12 @@ export class FileList implements OnInit, OnDestroy {
     { value: 'other', label: 'Other' }
   ];
 
+  sortOptions: { value: 'date' | 'name' | 'size'; label: string }[] = [
+    { value: 'date', label: 'Date' },
+    { value: 'name', label: 'Name' },
+    { value: 'size', label: 'Size' },
+  ];
+
   constructor(private fileService: FileService) {}
 
   ngOnInit(): void {
@@ -232,6 +238,21 @@ export class FileList implements OnInit, OnDestroy {
 
   getImagePreviewUrl(fileId: number): string | undefined {
     return this.imagePreviewUrls().get(fileId);
+  }
+
+  getZardFileIcon(mimeType: string): string {
+    if (mimeType.startsWith('image/')) return 'image';
+    if (mimeType.includes('pdf')) return 'file-text';
+    if (mimeType.includes('word') || mimeType.includes('document')) return 'file-text';
+    if (mimeType.includes('sheet') || mimeType.includes('excel') || mimeType.includes('csv')) return 'file-spreadsheet';
+    if (mimeType.includes('presentation') || mimeType.includes('powerpoint')) return 'file-text';
+    if (mimeType.includes('zip') || mimeType.includes('rar') || mimeType.includes('archive')) return 'file-archive';
+    return 'file';
+  }
+
+  getFileExtension(filename: string): string {
+    const ext = filename.split('.').pop();
+    return ext ? ext.toUpperCase() : '';
   }
 
   get paginationPages(): number[] {

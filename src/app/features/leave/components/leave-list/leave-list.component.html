@@ -1,6 +1,6 @@
 <div class="bg-background min-h-screen">
   <!-- Header -->
-  <div class="flex items-center justify-between mb-8">
+  <div class="flex items-center justify-between mb-6">
     <div>
       <h1 class="text-2xl font-bold text-foreground">Leave Management</h1>
       <p class="text-muted-foreground">View and track all leave applications</p>
@@ -21,6 +21,21 @@
         Apply Leave
       </button>
     </div>
+  </div>
+
+  <!-- View Toggle -->
+  <div class="flex items-center gap-1 mb-6 bg-muted rounded-lg p-1 w-fit">
+    <button
+      class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors bg-background text-foreground shadow-sm">
+      <z-icon zType="list" class="w-4 h-4" />
+      List
+    </button>
+    <button
+      routerLink="/leave/calendar"
+      class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors text-muted-foreground hover:text-foreground">
+      <z-icon zType="calendar-check" class="w-4 h-4" />
+      Calendar
+    </button>
   </div>
 
   <!-- No Profile State -->

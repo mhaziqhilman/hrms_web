@@ -50,6 +50,9 @@ export type zAlign = 'center' | 'start' | 'end';
 })
 export class ZardTabComponent {
   readonly label = input.required<string>();
+  readonly icon = input<string>();
+  readonly badge = input<string | number>();
+  readonly badgeClass = input<string>();
   readonly contentTemplate = viewChild.required<TemplateRef<unknown>>('content');
 }
 
@@ -123,7 +126,21 @@ export class ZardTabComponent {
               (click)="setActiveTab(index)"
               [class]="buttonClassesSignal()[index]"
             >
+              @if (tab.icon()) {
+                <z-icon [zType]="$any(tab.icon())" zSize="sm" class="mr-0.35" />
+              }
               {{ tab.label() }}
+              @if (tab.badge() !== undefined && tab.badge() !== null) {
+                <span
+                  [class]="tab.badgeClass()
+                    ? tab.badgeClass()
+                    : (activeTabIndex() === index
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-secondary text-secondary-foreground')"
+                  class="ml-1 py-0.5 px-2 rounded-full text-xs font-semibold min-w-[24px] text-center">
+                  {{ tab.badge() }}
+                </span>
+              }
             </button>
           }
         </nav>

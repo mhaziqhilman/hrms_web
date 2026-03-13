@@ -3,8 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { PersonalService } from '../../services/personal.service';
+import { AuthService } from '@/core/services/auth.service';
 import { DisplayService } from '@/core/services/display.service';
-import { EmployeeProfile, EmployeeDocument, UpdateProfileRequest } from '../../models/personal.model';
+import { EmployeeProfile, EmployeeDocument, TeamMember, UpdateProfileRequest } from '../../models/personal.model';
 import { MyPayslipsComponent } from '../my-payslips/my-payslips.component';
 
 // ZardUI Components
@@ -20,7 +21,7 @@ import { ZardDividerComponent } from '@/shared/components/divider/divider.compon
 import { ZardEmptyComponent } from '@/shared/components/empty/empty.component';
 import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
 
-export type ProfileTabId = 'personal' | 'employment' | 'contact' | 'payslips' | 'documents' | 'statutory';
+export type ProfileTabId = 'personal' | 'employment' | 'contact' | 'payslips' | 'documents' | 'statutory' | 'my-team';
 
 export interface ProfileTabDef {
   id: ProfileTabId;
@@ -52,6 +53,7 @@ export interface ProfileTabDef {
 })
 export class MyProfileComponent implements OnInit {
   private personalService = inject(PersonalService);
+  private authService = inject(AuthService);
   private alertDialogService = inject(ZardAlertDialogService);
   private displayService = inject(DisplayService);
 
@@ -64,14 +66,13 @@ export class MyProfileComponent implements OnInit {
 
   // Tab management
   activeTab = signal<ProfileTabId>('personal');
-  tabs: ProfileTabDef[] = [
-    { id: 'personal', label: 'Personal Information', icon: 'user' },
-    { id: 'employment', label: 'Employment', icon: 'briefcase' },
-    { id: 'contact', label: 'Contact', icon: 'phone' },
-    { id: 'payslips', label: 'Payslips', icon: 'wallet' },
-    { id: 'documents', label: 'Documents', icon: 'folder-open' },
-    { id: 'statutory', label: 'Statutory', icon: 'shield' },
-  ];
+  tabs: ProfileTabDef[] = [];
+
+  // My Team state (manager only)
+  isManager = signal(false);
+  teamMembers = signal<TeamMember[]>([]);
+  loadingTeam = signal(false);
+  teamSearch = '';
 
   // Documents state
   documents = signal<EmployeeDocument[]>([]);
@@ -140,6 +141,27 @@ export class MyProfileComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    // Build tabs based on role
+    const role = this.authService.getCurrentUserValue()?.role;
+    const isManagerRole = role === 'manager' || role === 'admin' || role === 'super_admin';
+    this.isManager.set(isManagerRole);
+
+    this.tabs = [
+      ...(isManagerRole ? [{ id: 'my-team' as ProfileTabId, label: 'My Team', icon: 'users' }] : []),
+      { id: 'personal', label: 'Personal Information', icon: 'user' },
+      { id: 'employment', label: 'Employment', icon: 'briefcase' },
+      { id: 'contact', label: 'Contact', icon: 'phone' },
+      { id: 'payslips', label: 'Payslips', icon: 'wallet' },
+      { id: 'documents', label: 'Documents', icon: 'folder-open' },
+      { id: 'statutory', label: 'Statutory', icon: 'shield' },
+    ];
+
+    // Default to My Team tab for managers
+    if (isManagerRole) {
+      this.activeTab.set('my-team');
+      this.loadTeam();
+    }
+
     this.loadProfile();
   }
 
@@ -263,6 +285,40 @@ export class MyProfileComponent implements OnInit {
     if (years === 0) return `${months} month${months !== 1 ? 's' : ''}`;
     if (months === 0) return `${years} year${years !== 1 ? 's' : ''}`;
     return `${years} yr ${months} mo`;
+  }
+
+  // --- Team methods ---
+
+  loadTeam(): void {
+    this.loadingTeam.set(true);
+    this.personalService.getMyTeam().subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.teamMembers.set(response.data);
+        }
+        this.loadingTeam.set(false);
+      },
+      error: () => {
+        this.loadingTeam.set(false);
+      }
+    });
+  }
+
+  filteredTeamMembers(): TeamMember[] {
+    const search = this.teamSearch.toLowerCase().trim();
+    if (!search) return this.teamMembers();
+    return this.teamMembers().filter(m =>
+      m.full_name.toLowerCase().includes(search) ||
+      (m.employee_id && m.employee_id.toLowerCase().includes(search)) ||
+      (m.position && m.position.toLowerCase().includes(search)) ||
+      (m.department && m.department.toLowerCase().includes(search))
+    );
+  }
+
+  getTeamMemberInitials(name: string): string {
+    const parts = name.split(' ').filter(Boolean);
+    if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    return parts[0][0].toUpperCase();
   }
 
   // --- Document methods ---

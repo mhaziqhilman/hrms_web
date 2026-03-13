@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -20,14 +20,9 @@ import { ZardSelectItemComponent } from '@/shared/components/select/select-item.
 import { ZardMenuImports } from '@/shared/components/menu/menu.imports';
 import { ZardTooltipModule } from '@/shared/components/tooltip/tooltip';
 import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
+import { ZardTabGroupComponent, ZardTabComponent } from '@/shared/components/tabs/tabs.component';
 
 export type TabId = 'personal' | 'contract' | 'payroll' | 'document' | 'statutory' | 'banking';
-
-export interface TabDef {
-  id: TabId;
-  label: string;
-  icon: string;
-}
 
 @Component({
   selector: 'app-employee-detail',
@@ -47,12 +42,16 @@ export interface TabDef {
     ZardSelectItemComponent,
     ZardMenuImports,
     ZardTooltipModule,
-    ZardSkeletonComponent
+    ZardSkeletonComponent,
+    ZardTabGroupComponent,
+    ZardTabComponent
   ],
   templateUrl: './employee-detail.component.html',
   styleUrls: ['./employee-detail.component.css']
 })
 export class EmployeeDetailComponent implements OnInit {
+  @ViewChild('tabGroup') tabGroup!: ZardTabGroupComponent;
+
   employee = signal<Employee | null>(null);
   ytdData = signal<EmployeeYTD | null>(null);
   loading = signal<boolean>(false);
@@ -62,14 +61,7 @@ export class EmployeeDetailComponent implements OnInit {
 
   // Tab management
   activeTab = signal<TabId>('personal');
-  tabs: TabDef[] = [
-    { id: 'personal', label: 'Personal Information', icon: 'user' },
-    { id: 'contract', label: 'Contract', icon: 'file-text' },
-    { id: 'payroll', label: 'Payroll', icon: 'wallet' },
-    { id: 'document', label: 'Document', icon: 'folder-open' },
-    { id: 'statutory', label: 'Statutory', icon: 'shield' },
-    { id: 'banking', label: 'Banking', icon: 'landmark' },
-  ];
+  private tabIds: TabId[] = ['personal', 'contract', 'payroll', 'document', 'statutory', 'banking'];
 
   // Employee navigation
   employeeIds = signal<string[]>([]);
@@ -175,8 +167,15 @@ export class EmployeeDetailComponent implements OnInit {
 
   // --- Tab management ---
 
-  setActiveTab(tabId: TabId): void {
-    this.activeTab.set(tabId);
+  onTabChange(event: { index: number; label: string }): void {
+    this.activeTab.set(this.tabIds[event.index]);
+  }
+
+  selectTab(tabId: TabId): void {
+    const index = this.tabIds.indexOf(tabId);
+    if (index >= 0 && this.tabGroup) {
+      this.tabGroup.selectTabByIndex(index);
+    }
   }
 
   // --- Employee navigation ---
@@ -191,6 +190,7 @@ export class EmployeeDetailComponent implements OnInit {
       this.currentIndex.set(newIdx);
       this.employeeId.set(newId);
       this.activeTab.set('personal');
+      if (this.tabGroup) this.tabGroup.selectTabByIndex(0);
       this.loadEmployee(newId);
       this.loadYTD(newId, this.selectedYear);
       this.initializeFileUploadMetadata(newId);

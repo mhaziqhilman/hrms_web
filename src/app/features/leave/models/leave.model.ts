@@ -27,6 +27,7 @@ export interface LeaveEmployee {
   full_name: string;
   department: string;
   position: string;
+  photo_url?: string;
   reporting_manager_id?: number;
 }
 
@@ -199,6 +200,47 @@ export interface LeaveBalanceResponse {
     }>;
   };
 }
+
+export interface PublicHoliday {
+  id: number;
+  company_id: number;
+  name: string;
+  date: string;
+  description?: string;
+  is_recurring: boolean;
+}
+
+export interface LeaveCalendarResponse {
+  success: boolean;
+  data: {
+    year: number;
+    month: number;
+    leaves: Leave[];
+    holidays: PublicHoliday[];
+  };
+}
+
+export interface CalendarDay {
+  date: Date;
+  day: number;
+  isCurrentMonth: boolean;
+  isToday: boolean;
+  isWeekend: boolean;
+  leaves: Leave[];
+  holidays: PublicHoliday[];
+}
+
+export const LEAVE_TYPE_COLORS: Record<string, string> = {
+  'Annual Leave': '#10b981',
+  'Medical Leave': '#f59e0b',
+  'Hospitalization Leave': '#ef4444',
+  'Unpaid Leave': '#6b7280',
+  'Emergency Leave': '#f97316',
+  'Maternity Leave': '#ec4899',
+  'Paternity Leave': '#8b5cf6',
+  'Study Leave': '#3b82f6',
+  'Replacement Leave': '#14b8a6'
+};
 
 export const LEAVE_STATUS_COLORS: Record<LeaveStatus, string> = {
   [LeaveStatus.PENDING]: 'warning',

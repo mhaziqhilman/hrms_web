@@ -1,6 +1,9 @@
 import { SidebarMenuGroup } from '@/core/models/sidebar.models';
 
-export const MENU_GROUPS: SidebarMenuGroup[] = [
+/**
+ * Admin / Super Admin menu layout
+ */
+const ADMIN_MENU: SidebarMenuGroup[] = [
   {
     label: 'Dashboards',
     items: [
@@ -13,7 +16,7 @@ export const MENU_GROUPS: SidebarMenuGroup[] = [
   },
   {
     label: 'HR Management',
-    roles: ['super_admin', 'admin', 'manager'],
+    roles: ['super_admin', 'admin'],
     items: [
       {
         title: 'Employees',
@@ -86,24 +89,6 @@ export const MENU_GROUPS: SidebarMenuGroup[] = [
         title: 'Announcements',
         icon: 'megaphone',
         route: '/communication'
-      },
-      {
-        title: 'My Leave',
-        icon: 'calendar',
-        route: '/leave',
-        roles: ['staff']
-      },
-      {
-        title: 'My Attendance',
-        icon: 'clock',
-        route: '/attendance/my',
-        roles: ['staff']
-      },
-      {
-        title: 'My Claims',
-        icon: 'file-text',
-        route: '/claims',
-        roles: ['staff']
       }
     ]
   },
@@ -210,3 +195,201 @@ export const MENU_GROUPS: SidebarMenuGroup[] = [
     ]
   }
 ];
+
+/**
+ * Manager menu layout — approvals only, no HR admin features.
+ * Team viewing is via "My Team" tab on Profile page.
+ */
+const MANAGER_MENU: SidebarMenuGroup[] = [
+  {
+    label: 'Dashboards',
+    items: [
+      {
+        title: 'My Dashboard',
+        icon: 'layout-dashboard',
+        route: '/dashboard'
+      }
+    ]
+  },
+  {
+    label: 'Team Oversight',
+    items: [
+      {
+        title: 'Leave',
+        icon: 'calendar',
+        route: '/leave'
+      },
+      {
+        title: 'Claim Approvals',
+        icon: 'file-text',
+        route: '/claims'
+      },
+      {
+        title: 'Attendance',
+        icon: 'clock',
+        children: [
+          {
+            title: 'Attendance List',
+            icon: 'list',
+            route: '/attendance'
+          },
+          {
+            title: 'WFH Approvals',
+            icon: 'house',
+            route: '/attendance/wfh'
+          }
+        ]
+      }
+    ]
+  },
+  {
+    label: 'Personal',
+    items: [
+      {
+        title: 'Profile',
+        icon: 'user-circle',
+        route: '/personal/profile'
+      },
+      {
+        title: 'Notifications',
+        icon: 'bell',
+        route: '/notifications'
+      },
+      {
+        title: 'Announcements',
+        icon: 'megaphone',
+        route: '/communication'
+      }
+    ]
+  },
+  {
+    label: 'Systems',
+    items: [
+      {
+        title: 'Settings',
+        icon: 'settings',
+        children: [
+          {
+            title: 'Account',
+            icon: 'circle-user',
+            route: '/settings/account'
+          },
+          {
+            title: 'Appearance',
+            icon: 'sun-moon',
+            route: '/settings/appearance'
+          },
+          {
+            title: 'Notifications',
+            icon: 'bell',
+            route: '/settings/notifications'
+          },
+          {
+            title: 'Display',
+            icon: 'monitor',
+            route: '/settings/display'
+          }
+        ]
+      }
+    ]
+  }
+];
+
+/**
+ * Staff menu layout — personal-focused, no management features.
+ */
+const STAFF_MENU: SidebarMenuGroup[] = [
+  {
+    label: 'Dashboards',
+    items: [
+      {
+        title: 'My Dashboard',
+        icon: 'layout-dashboard',
+        route: '/dashboard'
+      }
+    ]
+  },
+  {
+    label: 'Personal',
+    items: [
+      {
+        title: 'Profile',
+        icon: 'user-circle',
+        route: '/personal/profile'
+      },
+      {
+        title: 'Leave',
+        icon: 'calendar',
+        route: '/leave'
+      },
+      {
+        title: 'Attendance',
+        icon: 'clock',
+        route: '/attendance/my'
+      },
+      {
+        title: 'Claims',
+        icon: 'file-text',
+        route: '/claims'
+      },
+      {
+        title: 'Notifications',
+        icon: 'bell',
+        route: '/notifications'
+      },
+      {
+        title: 'Announcements',
+        icon: 'megaphone',
+        route: '/communication'
+      }
+    ]
+  },
+  {
+    label: 'Systems',
+    items: [
+      {
+        title: 'Settings',
+        icon: 'settings',
+        children: [
+          {
+            title: 'Account',
+            icon: 'circle-user',
+            route: '/settings/account'
+          },
+          {
+            title: 'Appearance',
+            icon: 'sun-moon',
+            route: '/settings/appearance'
+          },
+          {
+            title: 'Notifications',
+            icon: 'bell',
+            route: '/settings/notifications'
+          },
+          {
+            title: 'Display',
+            icon: 'monitor',
+            route: '/settings/display'
+          }
+        ]
+      }
+    ]
+  }
+];
+
+/**
+ * Returns the menu groups for a given user role.
+ */
+export function getMenuGroupsForRole(role: string): SidebarMenuGroup[] {
+  switch (role) {
+    case 'manager':
+      return MANAGER_MENU;
+    case 'staff':
+      return STAFF_MENU;
+    default:
+      return ADMIN_MENU;
+  }
+}
+
+/** @deprecated Use getMenuGroupsForRole() instead */
+export const MENU_GROUPS: SidebarMenuGroup[] = ADMIN_MENU;
