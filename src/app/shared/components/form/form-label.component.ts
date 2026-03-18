@@ -12,7 +12,7 @@ import { CommonModule } from '@angular/common';
     }
   `,
   host: {
-    class: 'text-sm font-semibold text-foreground leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
+    class: 'text-sm font-semibold text-foreground leading-none pb-1.5 block peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
   }
 })
 export class ZardFormLabelComponent {

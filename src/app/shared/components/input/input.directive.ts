@@ -19,7 +19,7 @@ export class ZardInputDirective {
   readonly value = model<string>('');
 
   classes = computed(() => {
-    const baseClasses = 'flex w-full rounded-md border bg-background px-3 py-2 text-foreground ring-offset-background transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50';
+    const baseClasses = 'flex w-full rounded-md border bg-background px-3 py-2 text-foreground transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50';
 
     // Size classes
     const sizeClasses = {

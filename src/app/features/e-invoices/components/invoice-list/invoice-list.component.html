@@ -1,0 +1,478 @@
+<div class="max-w-8xl mx-auto">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
+    <div>
+      <h2 class="text-2xl font-bold text-foreground">e-Invoices</h2>
+      <p class="text-muted-foreground mt-1">Manage invoices and LHDN MyInvois submissions</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <span class="text-sm text-muted-foreground flex items-center gap-1.5">
+        <z-icon [zType]="$any('calendar')" zSize="sm" />
+        {{ getTodayDate() }}
+      </span>
+      <button z-button (click)="navigateToCreate()">
+        <z-icon [zType]="$any('plus')" zSize="sm" class="mr-1.5" />
+        Create Invoice
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (loading()) {
+  <div class="flex flex-col items-center justify-center py-12">
+    <z-icon zType="loader-circle" class="w-12 h-12 text-primary animate-spin" />
+    <p class="text-muted-foreground mt-4">Loading invoices...</p>
+  </div>
+  }
+
+  <!-- Error State -->
+  @if (error()) {
+  <z-card class="mb-6 border-destructive">
+    <div class="flex items-center gap-2 text-destructive">
+      <z-icon zType="triangle-alert" class="w-5 h-5" />
+      <span>{{ error() }}</span>
+      <button z-button zType="outline" zSize="sm" class="ml-auto" (click)="loadInvoices()">
+        <z-icon zType="refresh-cw" class="mr-2" /> Retry
+      </button>
+    </div>
+  </z-card>
+  }
+
+  @if (!loading() && !error()) {
+
+  <!-- Analytics Cards -->
+  @if (analytics(); as a) {
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <z-card class="rounded-2xl border border-gray-200 dark:border-gray-700 h-full py-5 shadow-none">
+      <div class="flex items-center gap-4">
+        <div class="flex items-center justify-center w-12 h-12 rounded-full flex-shrink-0 bg-blue-100 dark:bg-blue-900/20">
+          <z-icon [zType]="$any('file-text')" class="w-5 h-5 text-blue-600" />
+        </div>
+        <div>
+          <p class="text-xl font-bold">{{ getTotalCount() }}</p>
+          <p class="text-xs text-muted-foreground">Total Invoices</p>
+        </div>
+      </div>
+    </z-card>
+    <z-card class="rounded-2xl border border-gray-200 dark:border-gray-700 h-full py-5 shadow-none">
+      <div class="flex items-center gap-4">
+        <div class="flex items-center justify-center w-12 h-12 rounded-full flex-shrink-0 bg-amber-100 dark:bg-amber-900/20">
+          <z-icon [zType]="$any('clock')" class="w-5 h-5 text-amber-600" />
+        </div>
+        <div>
+          <p class="text-xl font-bold">{{ (a.statusCounts['Draft'] || 0) + (a.statusCounts['Pending'] || 0) }}</p>
+          <p class="text-xs text-muted-foreground">Pending Approval</p>
+        </div>
+      </div>
+    </z-card>
+    <z-card class="rounded-2xl border border-gray-200 dark:border-gray-700 h-full py-5 shadow-none">
+      <div class="flex items-center gap-4">
+        <div class="flex items-center justify-center w-12 h-12 rounded-full flex-shrink-0 bg-green-100 dark:bg-green-900/20">
+          <z-icon [zType]="$any('check-circle')" class="w-5 h-5 text-green-600" />
+        </div>
+        <div>
+          <p class="text-xl font-bold">{{ a.statusCounts['Valid'] || 0 }}</p>
+          <p class="text-xs text-muted-foreground">LHDN Validated</p>
+        </div>
+      </div>
+    </z-card>
+    <z-card class="rounded-2xl border border-gray-200 dark:border-gray-700 h-full py-5 shadow-none">
+      <div class="flex items-center gap-4">
+        <div class="flex items-center justify-center w-12 h-12 rounded-full flex-shrink-0 bg-purple-100 dark:bg-purple-900/20">
+          <z-icon [zType]="$any('dollar-sign')" class="w-5 h-5 text-purple-600" />
+        </div>
+        <div>
+          <p class="text-xl font-bold">{{ formatCurrency(a.totals.total_outstanding) }}</p>
+          <p class="text-xs text-muted-foreground">Outstanding (RM)</p>
+        </div>
+      </div>
+    </z-card>
+  </div>
+  }
+
+  <!-- Status Tabs -->
+  <z-tab-group (zTabChange)="onTabChange($event)" [zShowArrow]="false" class="mb-6">
+    <z-tab label="All Invoices" icon="layers" [badge]="getTotalCount()" badgeClass="bg-primary text-primary-foreground"></z-tab>
+    <z-tab label="Draft" icon="file-text" [badge]="analytics()?.statusCounts?.['Draft'] || 0" badgeClass="bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200"></z-tab>
+    <z-tab label="Pending" icon="clock" [badge]="analytics()?.statusCounts?.['Pending'] || 0" badgeClass="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"></z-tab>
+    <z-tab label="Submitted" icon="send" [badge]="analytics()?.statusCounts?.['Submitted'] || 0" badgeClass="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"></z-tab>
+    <z-tab label="Valid" icon="check-circle" [badge]="analytics()?.statusCounts?.['Valid'] || 0" badgeClass="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"></z-tab>
+    <z-tab label="Invalid" icon="circle-x" [badge]="analytics()?.statusCounts?.['Invalid'] || 0" badgeClass="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"></z-tab>
+    <z-tab label="Cancelled" icon="ban" [badge]="analytics()?.statusCounts?.['Cancelled'] || 0" badgeClass="bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300"></z-tab>
+  </z-tab-group>
+
+  <!-- Bulk Actions Bar -->
+  @if (selectedInvoices.size > 0) {
+  <div class="mb-4 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 backdrop-blur-sm border-l-4 border-primary shadow-sm">
+    <div class="flex items-center justify-between px-6 py-3 gap-4">
+      <div class="flex items-center gap-3">
+        <div class="flex items-center justify-center w-8 h-8 rounded-full bg-primary/20">
+          <z-icon zType="check-circle" class="w-4 h-4 text-primary" />
+        </div>
+        <div class="flex flex-col">
+          <span class="text-sm font-semibold text-foreground">{{ selectedInvoices.size }} Selected</span>
+          <span class="text-xs text-muted-foreground">Bulk actions available</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button z-button zSize="sm" (click)="onBulkSubmit()">
+          <z-icon [zType]="$any('send')" zSize="sm" class="mr-1.5" />
+          Submit to LHDN
+        </button>
+        <div class="w-px h-6 bg-border mx-1"></div>
+        <button z-button zType="ghost" zSize="sm" (click)="selectedInvoices.clear(); allSelected = false">
+          <z-icon [zType]="$any('x')" zSize="sm" class="mr-1" />
+          Clear
+        </button>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- Filters -->
+  <div class="flex items-center gap-3 mb-6 flex-wrap justify-between">
+    <div class="flex items-center gap-3 flex-1 flex-wrap">
+      <!-- Search Bar -->
+      <div class="relative flex-1 min-w-[180px] max-w-md">
+        <z-icon zType="search" class="absolute left-1.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="onSearch()"
+          placeholder="Search by invoice number, buyer..."
+          class="w-full pl-8 pr-2 py-2 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+        />
+      </div>
+
+      <!-- Type Filter -->
+      <div z-menu [zMenuTriggerFor]="typeMenu">
+        <button z-button zType="outline" [class]="typeFilter
+            ? 'gap-2 border border-solid px-2 bg-primary/5 text-primary border-primary'
+            : 'gap-2 border border-dashed px-2'">
+          <z-icon [zType]="typeFilter ? 'circle-check' : 'circle-plus'" class="w-4 h-4" />
+          {{ typeFilter ? getTypeLabel(typeFilter) : 'Type' }}
+        </button>
+      </div>
+      <ng-template #typeMenu>
+        <div z-menu-content class="w-48">
+          <button type="button" z-menu-item (click)="onTypeFilter('')">All Types</button>
+          <button type="button" z-menu-item (click)="onTypeFilter('01')">Invoice</button>
+          <button type="button" z-menu-item (click)="onTypeFilter('02')">Credit Note</button>
+          <button type="button" z-menu-item (click)="onTypeFilter('03')">Debit Note</button>
+          <button type="button" z-menu-item (click)="onTypeFilter('04')">Refund Note</button>
+        </div>
+      </ng-template>
+
+      <!-- Date From Filter -->
+      <div z-menu [zMenuTriggerFor]="dateFromMenu">
+        <button z-button zType="outline" [class]="dateFrom
+            ? 'gap-2 border border-solid px-2 bg-primary/5 text-primary border-primary'
+            : 'gap-2 border border-dashed px-2'">
+          <z-icon [zType]="dateFrom ? 'circle-check' : 'circle-plus'" class="w-4 h-4" />
+          {{ dateFrom ? 'From: ' + dateFrom : 'Date From' }}
+        </button>
+      </div>
+      <ng-template #dateFromMenu>
+        <div z-menu-content class="p-3">
+          <input type="date"
+            class="px-3 py-2 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+            [(ngModel)]="dateFrom"
+            (change)="onDateFilter()" />
+        </div>
+      </ng-template>
+
+      <!-- Date To Filter -->
+      <div z-menu [zMenuTriggerFor]="dateToMenu">
+        <button z-button zType="outline" [class]="dateTo
+            ? 'gap-2 border border-solid px-2 bg-primary/5 text-primary border-primary'
+            : 'gap-2 border border-dashed px-2'">
+          <z-icon [zType]="dateTo ? 'circle-check' : 'circle-plus'" class="w-4 h-4" />
+          {{ dateTo ? 'To: ' + dateTo : 'Date To' }}
+        </button>
+      </div>
+      <ng-template #dateToMenu>
+        <div z-menu-content class="p-3">
+          <input type="date"
+            class="px-3 py-2 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+            [(ngModel)]="dateTo"
+            (change)="onDateFilter()" />
+        </div>
+      </ng-template>
+
+      <!-- Clear Filters -->
+      @if (hasActiveFilters()) {
+      <button type="button" z-button zType="outline" class="gap-2 border-none shadow-none px-2" (click)="resetFilters()">
+        Reset
+        <z-icon zType="x" class="w-4 h-4" />
+      </button>
+      }
+    </div>
+
+    <!-- Column Toggle - Right Side -->
+    <div z-menu [zMenuTriggerFor]="columnMenu">
+      <button z-button zType="outline" class="gap-2 px-2">
+        <z-icon zType="eye" class="w-4 h-4" />
+        View
+      </button>
+    </div>
+  </div>
+
+  <!-- Column Menu Template -->
+  <ng-template #columnMenu>
+    <div z-menu-content class="w-56">
+      <div class="px-2 py-1.5 text-sm font-semibold text-foreground">Toggle columns</div>
+      <div class="h-px bg-border my-1"></div>
+      <button type="button" z-menu-item (click)="toggleColumn('invoiceNumber')" class="flex items-center justify-between">
+        <span>Invoice #</span>
+        @if (visibleColumns['invoiceNumber']) { <z-icon zType="check" class="w-4 h-4" /> }
+      </button>
+      <button type="button" z-menu-item (click)="toggleColumn('date')" class="flex items-center justify-between">
+        <span>Date</span>
+        @if (visibleColumns['date']) { <z-icon zType="check" class="w-4 h-4" /> }
+      </button>
+      <button type="button" z-menu-item (click)="toggleColumn('type')" class="flex items-center justify-between">
+        <span>Type</span>
+        @if (visibleColumns['type']) { <z-icon zType="check" class="w-4 h-4" /> }
+      </button>
+      <button type="button" z-menu-item (click)="toggleColumn('party')" class="flex items-center justify-between">
+        <span>Supplier / Buyer</span>
+        @if (visibleColumns['party']) { <z-icon zType="check" class="w-4 h-4" /> }
+      </button>
+      <button type="button" z-menu-item (click)="toggleColumn('amount')" class="flex items-center justify-between">
+        <span>Amount</span>
+        @if (visibleColumns['amount']) { <z-icon zType="check" class="w-4 h-4" /> }
+      </button>
+      <button type="button" z-menu-item (click)="toggleColumn('status')" class="flex items-center justify-between">
+        <span>Status</span>
+        @if (visibleColumns['status']) { <z-icon zType="check" class="w-4 h-4" /> }
+      </button>
+    </div>
+  </ng-template>
+
+  <!-- Invoice Table -->
+  <div>
+    @if (tableLoading()) {
+    <div class="flex flex-col items-center justify-center py-12">
+      <z-icon zType="loader-circle" class="w-12 h-12 text-primary animate-spin" />
+      <p class="text-muted-foreground mt-4">Loading...</p>
+    </div>
+    } @else if (invoices().length === 0) {
+    <div class="flex flex-col items-center justify-center py-16 px-4 text-center">
+      <z-icon [zType]="$any('file-text')" class="w-16 h-16 text-muted-foreground/50 mb-4" />
+      <h4 class="text-lg font-semibold text-foreground mb-2">No Invoices Found</h4>
+      <p class="text-muted-foreground mb-6">
+        @if (hasActiveFilters()) {
+          No invoices match your current filters.
+        } @else {
+          Create your first invoice to get started.
+        }
+      </p>
+      @if (hasActiveFilters()) {
+      <button z-button zType="outline" (click)="resetFilters()">Clear Filters</button>
+      } @else {
+      <button z-button (click)="navigateToCreate()">
+        <z-icon [zType]="$any('plus')" zSize="sm" class="mr-1.5" />
+        Create Invoice
+      </button>
+      }
+    </div>
+    } @else {
+    <div class="invoice-table-container rounded-lg border">
+      <table z-table class="invoice-table">
+        <thead>
+          <tr>
+            <th class="!pl-3 w-10 th-text-center">
+              <span z-checkbox class="border-primary/30" [(ngModel)]="allSelected" (ngModelChange)="toggleSelectAll()"></span>
+            </th>
+            @if (visibleColumns['invoiceNumber']) {
+            <th class="!pl-3">
+              <button (click)="onSort('invoice_number')" class="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer" [class.text-primary]="sortColumn === 'invoice_number'">
+                <span>Invoice #</span>
+                <z-icon [zType]="$any(getSortIcon('invoice_number'))" class="w-4 h-4" />
+              </button>
+            </th>
+            }
+            @if (visibleColumns['date']) {
+            <th>
+              <button (click)="onSort('invoice_date')" class="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer" [class.text-primary]="sortColumn === 'invoice_date'">
+                <span>Date</span>
+                <z-icon [zType]="$any(getSortIcon('invoice_date'))" class="w-4 h-4" />
+              </button>
+            </th>
+            }
+            @if (visibleColumns['type']) {
+            <th>
+              <span>Type</span>
+            </th>
+            }
+            @if (visibleColumns['party']) {
+            <th>
+              <span>Supplier / Buyer</span>
+            </th>
+            }
+            @if (visibleColumns['amount']) {
+            <th>
+              <button (click)="onSort('total_amount')" class="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer" [class.text-primary]="sortColumn === 'total_amount'">
+                <span>Amount</span>
+                <z-icon [zType]="$any(getSortIcon('total_amount'))" class="w-4 h-4" />
+              </button>
+            </th>
+            }
+            @if (visibleColumns['status']) {
+            <th>
+              <button (click)="onSort('status')" class="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer" [class.text-primary]="sortColumn === 'status'">
+                <span>Status</span>
+                <z-icon [zType]="$any(getSortIcon('status'))" class="w-4 h-4" />
+              </button>
+            </th>
+            }
+            <th class="!pr-3">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (invoice of invoices(); track invoice.public_id) {
+          <tr>
+            <!-- Checkbox -->
+            <td class="!pl-3 text-center">
+              <span z-checkbox [ngModel]="isSelected(invoice.public_id)" (ngModelChange)="toggleSelect(invoice.public_id)" class="border-primary/30"></span>
+            </td>
+
+            @if (visibleColumns['invoiceNumber']) {
+            <!-- Invoice # -->
+            <td class="!pl-3">
+              <div class="flex flex-col">
+                <span class="font-medium text-foreground">{{ invoice.invoice_number }}</span>
+                @if (invoice.is_self_billed) {
+                <span class="text-sm text-muted-foreground">Self-Billed</span>
+                }
+              </div>
+            </td>
+            }
+
+            @if (visibleColumns['date']) {
+            <!-- Date -->
+            <td class="text-sm text-muted-foreground">{{ formatDate(invoice.invoice_date) }}</td>
+            }
+
+            @if (visibleColumns['type']) {
+            <!-- Type -->
+            <td>
+              <span class="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                {{ getTypeLabel(invoice.invoice_type) }}
+              </span>
+            </td>
+            }
+
+            @if (visibleColumns['party']) {
+            <!-- Supplier / Buyer -->
+            <td>
+              <div class="flex flex-col">
+                <span class="font-medium text-foreground">{{ invoice.is_self_billed ? invoice.supplier_name : invoice.buyer_name }}</span>
+                <span class="text-sm text-muted-foreground">{{ invoice.is_self_billed ? 'Supplier' : 'Buyer' }}</span>
+              </div>
+            </td>
+            }
+
+            @if (visibleColumns['amount']) {
+            <!-- Amount -->
+            <td>
+              <div class="flex flex-col">
+                <span class="font-semibold text-green-600">RM {{ formatCurrency(invoice.total_amount) }}</span>
+                @if (+invoice.balance_due > 0 && +invoice.amount_paid > 0) {
+                <span class="text-xs text-muted-foreground">Due: RM {{ formatCurrency(invoice.balance_due) }}</span>
+                }
+              </div>
+            </td>
+            }
+
+            @if (visibleColumns['status']) {
+            <!-- Status -->
+            <td>
+              <span [class]="getStatusColor(invoice.status)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold">
+                {{ invoice.status }}
+              </span>
+            </td>
+            }
+
+            <!-- Actions -->
+            <td class="!pr-3 text-right">
+              <div class="flex gap-2 flex-nowrap">
+                <!-- View -->
+                <button z-button zType="outline" zSize="sm" [zTooltip]="'View'" (click)="navigateToDetail(invoice.public_id)">
+                  <z-icon zType="eye" class="w-4 h-4" />
+                </button>
+
+                <!-- Edit -->
+                @if (invoice.status === 'Draft' || invoice.status === 'Invalid') {
+                <button z-button zType="outline" zSize="sm" [zTooltip]="'Edit'" (click)="navigateToEdit(invoice.public_id)">
+                  <z-icon zType="pencil" class="w-4 h-4" />
+                </button>
+                }
+
+                <!-- Approve -->
+                @if (invoice.status === 'Draft') {
+                <button z-button zType="outline" zSize="sm" [zTooltip]="'Approve'" class="text-green-600 hover:text-green-700" (click)="onApprove(invoice)">
+                  <z-icon zType="circle-check" class="w-4 h-4" />
+                </button>
+                }
+
+                <!-- Submit to LHDN -->
+                @if (invoice.status === 'Pending') {
+                <button z-button zType="outline" zSize="sm" [zTooltip]="'Submit to LHDN'" class="text-blue-600 hover:text-blue-700" (click)="onSubmitToLhdn(invoice)">
+                  <z-icon [zType]="$any('send')" class="w-4 h-4" />
+                </button>
+                }
+
+                <!-- Delete -->
+                @if (invoice.status === 'Draft') {
+                <button z-button zType="outline" zSize="sm" [zTooltip]="'Delete'" class="text-red-600 hover:text-red-700" (click)="onDelete(invoice)">
+                  <z-icon zType="trash" class="w-4 h-4" />
+                </button>
+                }
+              </div>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Results Summary -->
+    @if (pagination().totalItems > 0) {
+    <div class="p-2 rounded-md">
+      <span class="text-sm text-muted-foreground">
+        Showing {{ (pagination().page - 1) * pagination().limit + 1 }} to
+        {{ mathMin(pagination().page * pagination().limit, pagination().totalItems) }} of {{ pagination().totalItems }} records
+      </span>
+    </div>
+    }
+
+    <!-- Pagination -->
+    @if (pagination().totalPages > 1) {
+    <div class="px-6 py-4 border-t border-border">
+      <nav class="flex justify-center" aria-label="Invoice pagination">
+        <div class="flex items-center gap-2">
+          <button z-button zType="outline" zSize="sm" (click)="onPageChange(pagination().page - 1)"
+            [disabled]="pagination().page === 1" class="flex items-center gap-1">
+            <z-icon [zType]="$any('chevron-left')" class="w-4 h-4" />
+            Previous
+          </button>
+          @for (p of getPageNumbers(); track p) {
+          <button z-button [zType]="p === pagination().page ? 'default' : 'outline'" zSize="sm" (click)="onPageChange(p)">
+            {{ p }}
+          </button>
+          }
+          <button z-button zType="outline" zSize="sm" (click)="onPageChange(pagination().page + 1)"
+            [disabled]="pagination().page === pagination().totalPages" class="flex items-center gap-1">
+            Next
+            <z-icon [zType]="$any('chevron-right')" class="w-4 h-4" />
+          </button>
+        </div>
+      </nav>
+    </div>
+    }
+    }
+  </div>
+
+  }
+</div>

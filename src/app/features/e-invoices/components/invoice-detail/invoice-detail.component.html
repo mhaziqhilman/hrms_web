@@ -1,0 +1,548 @@
+@if (loading()) {
+<div class="flex items-center justify-center py-20">
+  <z-icon zType="loader-circle" class="text-primary text-4xl animate-spin" />
+</div>
+}
+
+@if (!loading() && invoice(); as inv) {
+
+<!-- ====== PRINT PREVIEW MODE ====== -->
+@if (printPreview()) {
+<div class="print-overlay" (click)="printPreview.set(false)">
+  <div class="print-toolbar no-print">
+    <div class="flex items-center gap-3">
+      <button z-button zType="ghost" zSize="sm" (click)="printPreview.set(false)">
+        <z-icon [zType]="$any('x')" zSize="sm" class="mr-1" /> Close
+      </button>
+      <z-divider zOrientation="vertical" class="h-6" />
+      <span class="text-sm text-muted-foreground">Preview</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <button z-button zType="outline" zSize="sm" (click)="onPrint($event)">
+        <z-icon [zType]="$any('printer')" zSize="sm" class="mr-1.5" /> Print
+      </button>
+      <button z-button zSize="sm" (click)="onDownloadPdf()">
+        <z-icon [zType]="$any('download')" zSize="sm" class="mr-1.5" /> Download PDF
+      </button>
+    </div>
+  </div>
+
+  <div class="print-page" (click)="$event.stopPropagation()">
+    <ng-container *ngTemplateOutlet="invoiceDocument; context: { $implicit: inv, print: true }" />
+  </div>
+</div>
+}
+
+<!-- ====== NORMAL DETAIL VIEW ====== -->
+<div [class.hidden]="printPreview()">
+
+  <!-- Breadcrumb -->
+  <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+    <a class="hover:text-foreground cursor-pointer transition-colors" (click)="navigateBack()">Invoice List</a>
+    <z-icon [zType]="$any('chevron-right')" zSize="sm" />
+    <span class="text-foreground">Invoice details</span>
+  </div>
+
+  <!-- Header -->
+  <div class="mb-6">
+    <div class="flex items-center justify-between gap-4 mb-1">
+      <div class="flex items-center gap-3">
+        <h1 class="text-2xl font-bold text-foreground">{{ inv.invoice_number }}</h1>
+        <span class="text-xs font-medium px-2.5 py-1 rounded-full {{ getStatusColor(inv.status) }}">
+          {{ inv.status }}
+        </span>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-2 flex-shrink-0">
+        <button z-button zType="outline" class="rounded-lg" (click)="printPreview.set(true)">
+          <z-icon [zType]="$any('file-text')" zSize="sm" class="mr-0" /> Export
+        </button>
+        @if (canSubmit()) {
+        <button z-button zType="outline" class="rounded-lg" [disabled]="submitting()" (click)="onSubmitToLhdn()">
+          @if (submitting()) {
+          <z-icon zType="loader-circle" zSize="sm" class="animate-spin mr-0" />
+          } @else {
+          <z-icon [zType]="$any('send')" zSize="sm" class="mr-0" />
+          }
+          Send Invoice
+        </button>
+        }
+        @if (canEdit()) {
+        <button z-button zType="outline" class="rounded-lg" (click)="navigateToEdit()">
+          <z-icon [zType]="$any('pencil')" zSize="sm" class="mr-0" /> Edit Invoice
+        </button>
+        }
+        @if (canApprove()) {
+        <button z-button class="rounded-lg" (click)="onApprove()">
+          <z-icon [zType]="$any('check')" zSize="sm" class="mr-0" /> Approve
+        </button>
+        }
+        @if (canCheckStatus()) {
+        <button z-button zType="outline" class="rounded-lg" [disabled]="checkingStatus()" (click)="onCheckStatus()">
+          @if (checkingStatus()) {
+          <z-icon zType="loader-circle" zSize="sm" class="animate-spin mr-0" />
+          } @else {
+          <z-icon [zType]="$any('refresh-cw')" zSize="sm" class="mr-0" />
+          }
+          Check Status
+        </button>
+        }
+        @if (canRecordPayment()) {
+        <button z-button zType="outline" class="rounded-lg" (click)="showPaymentForm.set(true)">
+          <z-icon [zType]="$any('credit-card')" zSize="sm" class="mr-0" /> Payment
+        </button>
+        }
+
+        <!-- More menu -->
+        <div z-menu [zMenuTriggerFor]="moreMenu">
+          <button z-button zType="outline" class="rounded-lg">
+            More <z-icon [zType]="$any('chevron-down')" zSize="sm" class="ml-0" />
+          </button>
+          <ng-template #moreMenu>
+            <div z-menu-content>
+              <button z-menu-item (click)="onDownloadPdf()">
+                <z-icon [zType]="$any('download')" zSize="sm" class="mr-2" /> Download PDF
+              </button>
+              <button z-menu-item (click)="onPrint($event)">
+                <z-icon [zType]="$any('printer')" zSize="sm" class="mr-2" /> Print
+              </button>
+              @if (canCancel()) {
+              <z-divider zSpacing="sm" />
+              <button z-menu-item class="text-red-600" (click)="showCancelForm.set(true)">
+                <z-icon [zType]="$any('ban')" zSize="sm" class="mr-2" /> Cancel Invoice
+              </button>
+              }
+              @if (canDelete()) {
+              <button z-menu-item class="text-red-600" (click)="onDelete()">
+                <z-icon [zType]="$any('trash-2')" zSize="sm" class="mr-2" /> Delete Invoice
+              </button>
+              }
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+    <div class="flex items-center gap-2 text-sm text-muted-foreground mt-1">
+      <span class="font-semibold text-foreground">{{ formatCurrency(inv.total_amount) }}</span>
+      <span>{{ inv.currency }}</span>
+      @if (+inv.amount_paid >= +inv.total_amount && +inv.total_amount > 0) {
+      <span class="text-muted-foreground">·</span>
+      <span>Paid at {{ formatDate(getLastPaymentDate(inv)) }}</span>
+      } @else if (+inv.amount_paid > 0) {
+      <span class="text-muted-foreground">·</span>
+      <span>Partially paid</span>
+      }
+    </div>
+  </div>
+
+  <!-- LHDN Status Panel -->
+  @if (inv.lhdn_uuid || inv.status === 'Invalid') {
+  <z-card class="mb-6">
+    <h3 class="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+      <z-icon [zType]="$any('shield-check')" zSize="sm" />
+      LHDN MyInvois Status
+    </h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+      @if (inv.lhdn_uuid) {
+      <div>
+        <span class="text-muted-foreground">UUID:</span>
+        <span class="ml-2 font-mono text-xs">{{ inv.lhdn_uuid }}</span>
+      </div>
+      }
+      @if (inv.lhdn_submission_uid) {
+      <div>
+        <span class="text-muted-foreground">Submission UID:</span>
+        <span class="ml-2 font-mono text-xs">{{ inv.lhdn_submission_uid }}</span>
+      </div>
+      }
+      @if (inv.lhdn_submitted_at) {
+      <div>
+        <span class="text-muted-foreground">Submitted:</span>
+        <span class="ml-2">{{ formatDateTime(inv.lhdn_submitted_at) }}</span>
+      </div>
+      }
+      @if (inv.lhdn_validated_at) {
+      <div>
+        <span class="text-muted-foreground">Validated:</span>
+        <span class="ml-2">{{ formatDateTime(inv.lhdn_validated_at) }}</span>
+      </div>
+      }
+    </div>
+
+    @if (inv.lhdn_validation_errors && inv.lhdn_validation_errors.length > 0) {
+    <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+      <h4 class="text-sm font-semibold text-red-700 mb-2">Validation Errors</h4>
+      @for (err of inv.lhdn_validation_errors; track $index) {
+      <div class="text-sm text-red-600 mb-1">
+        @if (err.code) { <span class="font-mono text-xs">[{{ err.code }}]</span> }
+        {{ err.message }}
+        @if (err.target) { <span class="text-red-400">({{ err.target }})</span> }
+      </div>
+      }
+    </div>
+    }
+
+    @if (inv.lhdn_qr_url) {
+    <div class="mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+      <span class="text-sm text-emerald-700 font-medium">Verification URL: </span>
+      <span class="text-xs font-mono text-emerald-600 break-all">{{ inv.lhdn_qr_url }}</span>
+    </div>
+    }
+  </z-card>
+  }
+
+  <!-- Cancel Form -->
+  @if (showCancelForm()) {
+  <z-card class="mb-6 border-red-200">
+    <h3 class="text-sm font-semibold text-red-700 mb-3">Cancel Invoice</h3>
+    <p class="text-sm text-muted-foreground mb-3">This will notify LHDN and cannot be undone. A cancellation reason is
+      required.</p>
+    <textarea class="w-full px-3 py-2 text-sm border border-input rounded-md bg-background mb-3" rows="3"
+      [(ngModel)]="cancelReason" placeholder="Enter cancellation reason..."></textarea>
+    <div class="flex gap-2">
+      <button z-button zType="destructive" zSize="sm" [disabled]="!cancelReason.trim()" (click)="onCancel()">
+        Confirm Cancellation
+      </button>
+      <button z-button zType="outline" zSize="sm" (click)="showCancelForm.set(false); cancelReason = ''">
+        Cancel
+      </button>
+    </div>
+  </z-card>
+  }
+
+  <!-- Payment Form -->
+  @if (showPaymentForm()) {
+  <z-card class="mb-6">
+    <h3 class="text-sm font-semibold text-foreground mb-4">Record Payment</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+      <div>
+        <label class="text-sm font-medium text-foreground block mb-1">Date *</label>
+        <input type="date" class="w-full px-3 py-2 text-sm border border-input rounded-md bg-background"
+          [(ngModel)]="paymentDate" />
+      </div>
+      <div>
+        <label class="text-sm font-medium text-foreground block mb-1">Amount *</label>
+        <input type="number" class="w-full px-3 py-2 text-sm border border-input rounded-md bg-background"
+          [(ngModel)]="paymentAmount" min="0.01" [max]="inv.balance_due" step="0.01" />
+      </div>
+      <div>
+        <label class="text-sm font-medium text-foreground block mb-1">Method *</label>
+        <select class="w-full px-3 py-2 text-sm border border-input rounded-md bg-background"
+          [(ngModel)]="paymentMethod">
+          @for (m of PAYMENT_METHODS; track m) {
+          <option [value]="m">{{ m }}</option>
+          }
+        </select>
+      </div>
+      <div>
+        <label class="text-sm font-medium text-foreground block mb-1">Reference #</label>
+        <input type="text" class="w-full px-3 py-2 text-sm border border-input rounded-md bg-background"
+          [(ngModel)]="paymentRef" placeholder="Transaction reference" />
+      </div>
+      <div class="md:col-span-2">
+        <label class="text-sm font-medium text-foreground block mb-1">Notes</label>
+        <input type="text" class="w-full px-3 py-2 text-sm border border-input rounded-md bg-background"
+          [(ngModel)]="paymentNotes" placeholder="Optional notes" />
+      </div>
+    </div>
+    <div class="flex gap-2">
+      <button z-button zSize="sm" [disabled]="savingPayment() || paymentAmount <= 0" (click)="onRecordPayment()">
+        @if (savingPayment()) {
+        <z-icon zType="loader-circle" zSize="sm" class="animate-spin mr-1.5" />
+        }
+        Save Payment
+      </button>
+      <button z-button zType="outline" zSize="sm" (click)="showPaymentForm.set(false); resetPaymentForm()">
+        Cancel
+      </button>
+    </div>
+  </z-card>
+  }
+
+  <!-- ====== TWO-COLUMN LAYOUT ====== -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+
+    <!-- Left Column: Invoice Document -->
+    <div class="lg:col-span-2">
+      <z-card class="invoice-document-card">
+        <ng-container *ngTemplateOutlet="invoiceDocument; context: { $implicit: inv, print: false }" />
+      </z-card>
+
+      <!-- Payment History (below document) -->
+      @if (inv.payments && inv.payments.length > 0) {
+      <z-card class="mt-6">
+        <h3 class="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+          <z-icon [zType]="$any('credit-card')" zSize="sm" />
+          Payment History
+        </h3>
+        <div class="overflow-x-auto">
+          <table z-table>
+            <thead z-table-header>
+              <tr z-table-row>
+                <th z-table-head>Date</th>
+                <th z-table-head class="text-right">Amount</th>
+                <th z-table-head>Method</th>
+                <th z-table-head>Reference</th>
+                <th z-table-head>Recorded By</th>
+                <th z-table-head class="w-10"></th>
+              </tr>
+            </thead>
+            <tbody z-table-body>
+              @for (payment of inv.payments; track payment.id) {
+              <tr z-table-row>
+                <td z-table-cell>{{ formatDate(payment.payment_date) }}</td>
+                <td z-table-cell class="text-right font-medium">{{ inv.currency }} {{ formatCurrency(payment.amount) }}
+                </td>
+                <td z-table-cell>{{ payment.payment_method }}</td>
+                <td z-table-cell class="text-muted-foreground">{{ payment.reference_number || '-' }}</td>
+                <td z-table-cell class="text-muted-foreground">{{ payment.recorder?.email }}</td>
+                <td z-table-cell>
+                  <button z-button zType="ghost" zSize="sm" class="h-7 w-7 p-0 text-red-500"
+                    (click)="onDeletePayment(payment)">
+                    <z-icon [zType]="$any('trash-2')" zSize="sm" />
+                  </button>
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </z-card>
+      }
+    </div>
+
+    <!-- Right Column: Notes + Activity Log (no cards, flat layout) -->
+    <div class="lg:col-span-1">
+
+      <!-- Notes -->
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-base font-bold text-foreground">Notes</h3>
+        @if (canEdit()) {
+        <button z-button zType="ghost" zSize="sm" class="text-primary text-xs gap-1" (click)="navigateToEdit()">
+          <z-icon [zType]="$any('pencil')" zSize="sm" /> Edit Notes
+        </button>
+        }
+      </div>
+      @if (inv.notes) {
+      <div class="text-sm text-foreground border border-border rounded-lg p-3 min-h-[80px]">
+        {{ inv.notes }}
+      </div>
+      } @else {
+      <div class="text-sm text-muted-foreground/50 border border-border rounded-lg p-3 min-h-[80px] italic">
+        No notes added.
+      </div>
+      }
+
+      <!-- Log -->
+      <h3 class="text-base font-bold text-foreground mt-8 mb-4">Log</h3>
+      <div class="space-y-0">
+        @for (event of activityLog(); track $index) {
+        <div class="flex gap-3 relative pb-6 last:pb-0">
+          <!-- Timeline line -->
+          @if (!$last) {
+          <div class="absolute left-[15px] top-[34px] bottom-0 w-px bg-border"></div>
+          }
+          <!-- Icon -->
+          <div class="flex-shrink-0 w-[30px] h-[30px] rounded-full flex items-center justify-center"
+            [ngClass]="event.iconBg">
+            <z-icon [zType]="$any(event.icon)" zSize="sm" [ngClass]="event.iconColor" />
+          </div>
+          <!-- Content -->
+          <div class="flex-1 min-w-0 pt-0.5">
+            <p class="text-sm text-foreground">
+              {{ event.title }}
+              @if (event.actor) { <span class="font-bold">{{ event.actor }}</span> }
+            </p>
+            <p class="text-xs text-muted-foreground mt-0.5">{{ event.timestamp }}</p>
+          </div>
+        </div>
+        }
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- ====== INVOICE DOCUMENT TEMPLATE (shared between preview & detail) ====== -->
+<ng-template #invoiceDocument let-inv let-print="print">
+  <!-- Document Header / Title -->
+  <div class="mb-6">
+    <h2 class="text-lg font-semibold text-foreground">
+      {{ getTypeLabel(inv.invoice_type) }}
+      @if (inv.payment_terms) { · {{ inv.payment_terms }} }
+    </h2>
+  </div>
+
+  <!-- Parties + Invoice Metadata -->
+  <div class="grid grid-cols-2 gap-x-8 gap-y-4 mb-6">
+    <!-- Left: Billed To -->
+    <div>
+      <div class="mb-4">
+        <span class="text-xs text-muted-foreground block mb-1">Billed to</span>
+        <span class="text-sm">{{ inv.buyer_email || inv.buyer_name }}</span>
+      </div>
+      <div class="">
+        <span class="text-xs text-muted-foreground block mb-1">Billing details</span>
+        <div class="space-y-1">
+          <span class="text-sm font-medium">{{ inv.buyer_name }}</span>
+          @if (inv.buyer_tin) { <p class="text-xs text-muted-foreground">TIN: {{ inv.buyer_tin }}</p> }
+          @if (inv.buyer_brn) { <p class="text-xs text-muted-foreground">BRN: {{ inv.buyer_brn }}</p> }
+          @if (inv.buyer_address) { <p class="text-xs text-muted-foreground">{{ inv.buyer_address }}</p> }
+          @if (inv.buyer_phone) { <p class="text-xs text-muted-foreground">Tel: {{ inv.buyer_phone }}</p> }
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Invoice Info -->
+    <div class="space-y-2.5">
+      <div class="flex justify-between text-sm">
+        <span class="text-muted-foreground">Invoice Number</span>
+        <span class="font-medium">{{ inv.invoice_number }}</span>
+      </div>
+      @if (inv.payment_terms) {
+      <div class="flex justify-between text-sm">
+        <span class="text-muted-foreground">Subject</span>
+        <span>{{ inv.payment_terms }}</span>
+      </div>
+      }
+      <div class="flex justify-between text-sm">
+        <span class="text-muted-foreground">Currency</span>
+        <span>{{ inv.currency }}{{ inv.exchange_rate && inv.exchange_rate !== 1 ? ' (Rate: ' + inv.exchange_rate + ')' :
+          '' }}</span>
+      </div>
+      <div class="flex justify-between text-sm">
+        <span class="text-muted-foreground">Issued</span>
+        <span>{{ formatDateLong(inv.invoice_date) }}</span>
+      </div>
+      <div class="flex justify-between text-sm">
+        <span class="text-muted-foreground">Due date</span>
+        <span>{{ inv.due_date ? formatDateLong(inv.due_date) : '-' }}</span>
+      </div>
+      <div class="flex justify-between text-sm">
+        <span class="text-muted-foreground">Notes</span>
+        <span>{{ inv.notes || '-' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supplier info (From) -->
+  <div class="mb-6 space-y-1">
+    <span class="text-xs text-muted-foreground block mb-1">{{ inv.is_self_billed ? 'Supplier (Employee)' : 'From'
+      }}</span>
+    <span class="text-sm font-medium">{{ inv.supplier_name }}</span>
+    @if (inv.supplier_tin) { <p class="text-xs text-muted-foreground">TIN: {{ inv.supplier_tin }}</p> }
+    @if (inv.supplier_brn) { <p class="text-xs text-muted-foreground">BRN: {{ inv.supplier_brn }}</p> }
+    @if (inv.supplier_sst_no) { <p class="text-xs text-muted-foreground">SST: {{ inv.supplier_sst_no }}</p> }
+    @if (inv.supplier_address) { <p class="text-xs text-muted-foreground">{{ inv.supplier_address }}</p> }
+    @if (inv.supplier_phone) { <p class="text-xs text-muted-foreground">Tel: {{ inv.supplier_phone }}</p> }
+    @if (inv.supplier_email) { <p class="text-xs text-muted-foreground">{{ inv.supplier_email }}</p> }
+  </div>
+
+  <z-divider zSpacing="sm" />
+
+  <!-- Line Items Table -->
+  @if (inv.items && inv.items.length > 0) {
+  <div class="overflow-x-auto mt-4">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b">
+          <th class="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider py-3 pr-4">Product
+          </th>
+          <th class="text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider py-3 px-4">Qty
+          </th>
+          <th class="text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider py-3 px-4">Unit
+            Price</th>
+          <th class="text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider py-3 pl-4">Amount
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of inv.items; track item.id || $index) {
+        <tr class="border-b border-border/50">
+          <td class="py-3 pr-4">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded bg-muted/50 flex items-center justify-center flex-shrink-0">
+                <z-icon [zType]="$any('package')" zSize="sm" class="text-muted-foreground" />
+              </div>
+              <div>
+                <span class="font-medium text-foreground">{{ item.description }}</span>
+                @if (item.classification_code) {
+                <p class="text-xs text-muted-foreground">Code: {{ item.classification_code }}</p>
+                }
+                @if (item.tax_type !== 'Exempt') {
+                <p class="text-xs text-muted-foreground">{{ item.tax_type }} {{ item.tax_rate }}%</p>
+                }
+              </div>
+            </div>
+          </td>
+          <td class="py-3 px-4 text-center">{{ item.quantity }}</td>
+          <td class="py-3 px-4 text-right">{{ formatCurrency(item.unit_price) }} {{ inv.currency }}</td>
+          <td class="py-3 pl-4 text-right font-medium">{{ formatCurrency(item.total) }} {{ inv.currency }}</td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Totals -->
+  <div class="flex justify-end mt-6">
+    <div class="w-72 space-y-2">
+      <div class="flex justify-between text-sm">
+        <span class="text-muted-foreground">Subtotal</span>
+        <span>{{ formatCurrency(inv.subtotal) }} {{ inv.currency }}</span>
+      </div>
+      @if (+inv.total_discount > 0) {
+      <div class="flex justify-between text-sm">
+        <span class="text-muted-foreground">Discount</span>
+        <span class="text-red-500">-{{ formatCurrency(inv.total_discount) }} {{ inv.currency }}</span>
+      </div>
+      }
+      @if (+inv.total_tax > 0) {
+      <div class="flex justify-between text-sm">
+        <span class="text-muted-foreground">Tax</span>
+        <span>{{ formatCurrency(inv.total_tax) }} {{ inv.currency }}</span>
+      </div>
+      }
+      <z-divider zSpacing="sm" />
+      <div class="flex justify-between font-bold text-base">
+        <span>Total</span>
+        <span>{{ formatCurrency(inv.total_amount) }} {{ inv.currency }}</span>
+      </div>
+      @if (+inv.amount_paid > 0) {
+      <div class="flex justify-between text-sm text-emerald-600">
+        <span>Paid</span>
+        <span>-{{ formatCurrency(inv.amount_paid) }} {{ inv.currency }}</span>
+      </div>
+      <div class="flex justify-between font-bold text-base">
+        <span>Amount due</span>
+        <span>{{ formatCurrency(inv.balance_due) }} {{ inv.currency }}</span>
+      </div>
+      }
+    </div>
+  </div>
+  }
+
+  <!-- Terms & Conditions -->
+  @if (inv.notes) {
+  <div class="mt-8 pt-4 border-t border-border/50">
+    <h4 class="text-sm font-semibold text-foreground mb-2">Terms & Condition</h4>
+    <p class="text-sm text-muted-foreground whitespace-pre-line">{{ inv.notes }}</p>
+  </div>
+  }
+
+  <!-- LHDN Info (for print) -->
+  @if (print && inv.lhdn_uuid) {
+  <div class="mt-6 pt-4 border-t border-border/50">
+    <h4 class="text-sm font-semibold text-foreground mb-2">LHDN MyInvois</h4>
+    <div class="text-xs text-muted-foreground space-y-1">
+      <p>UUID: {{ inv.lhdn_uuid }}</p>
+      @if (inv.lhdn_submission_uid) { <p>Submission UID: {{ inv.lhdn_submission_uid }}</p> }
+      @if (inv.lhdn_qr_url) { <p>Verify: {{ inv.lhdn_qr_url }}</p> }
+    </div>
+  </div>
+  }
+</ng-template>
+
+}

@@ -66,6 +66,12 @@ const ADMIN_MENU: SidebarMenuGroup[] = [
         route: '/statutory-reports'
       },
       {
+        title: 'e-Invoices',
+        icon: 'file-spreadsheet',
+        route: '/e-invoices',
+        roles: ['super_admin', 'admin']
+      },
+      {
         title: 'Analytics',
         icon: 'bar-chart-3',
         route: '/analytics'

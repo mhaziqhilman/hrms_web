@@ -88,8 +88,8 @@ export type ZardSelectSize = 'sm' | 'default' | 'lg';
           #dropdown
           role="listbox"
           [attr.aria-multiselectable]="zMultiple"
-          [style.width.px]="dropdownWidth()"
-          class="z-50 mt-1 rounded-md border border-input bg-popover text-popover-foreground shadow-md outline-none animate-in fade-in-80">
+          [style.min-width.px]="dropdownWidth()"
+          class="z-50 mt-1 w-fit rounded-md border border-input bg-popover text-popover-foreground shadow-md outline-none animate-in fade-in-80">
 
           <div class="max-h-60 overflow-y-auto p-1">
             <ng-content></ng-content>
@@ -265,7 +265,7 @@ export class ZardSelectComponent implements ControlValueAccessor, AfterContentIn
 
   getTriggerClasses(): string {
     const sizeClasses = {
-      sm: 'min-h-8 py-1 text-xs',
+      sm: 'min-h-8 py-1 text-sm',
       default: 'min-h-9 py-1.5 text-sm',
       lg: 'min-h-10 py-2 text-base'
     };

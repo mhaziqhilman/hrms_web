@@ -197,6 +197,21 @@ export const API_CONFIG = {
     auditLogs: {
       base: '/audit-logs'
     },
+    invoices: {
+      base: '/invoices',
+      detail: (id: string) => `/invoices/${id}`,
+      approve: (id: string) => `/invoices/${id}/approve`,
+      submit: (id: string) => `/invoices/${id}/submit`,
+      lhdnStatus: (id: string) => `/invoices/${id}/lhdn-status`,
+      cancel: (id: string) => `/invoices/${id}/cancel`,
+      payments: (id: string) => `/invoices/${id}/payments`,
+      pdf: (id: string) => `/invoices/${id}/pdf`,
+      analytics: '/invoices/analytics',
+      generatePayroll: '/invoices/generate/payroll',
+      generateClaim: '/invoices/generate/claim',
+      bulkSubmit: '/invoices/bulk-submit',
+      validateTin: '/invoices/validate-tin'
+    },
     settings: {
       base: '/settings',
       account: '/settings/account',

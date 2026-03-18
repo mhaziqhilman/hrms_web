@@ -1,0 +1,650 @@
+<!-- Header -->
+<div class="flex items-center justify-between mb-6">
+  <div class="flex items-center gap-3">
+    <button z-button zType="ghost" zSize="sm" (click)="cancel()">
+      <z-icon [zType]="$any('arrow-left')" zSize="sm" />
+    </button>
+    <div>
+      <h1 class="text-2xl font-bold text-foreground">{{ isEditMode() ? 'Edit Invoice' : 'Create Invoice' }}</h1>
+      <p class="text-muted-foreground text-sm">{{ isEditMode() ? 'Update the invoice details below' : 'Fill in the details to create a new e-invoice' }}</p>
+    </div>
+  </div>
+</div>
+
+@if (loading()) {
+<div class="flex items-center justify-center py-20">
+  <z-icon zType="loader-circle" class="text-primary text-4xl animate-spin" />
+</div>
+} @else {
+
+<div class="form-layout">
+  <!-- Left: Tabs + Form -->
+  <div class="form-main">
+    <z-tab-group [zShowArrow]="false" class="invoice-tabs">
+
+      <!-- Tab 1: Invoice Details -->
+      <z-tab label="Invoice Details" [icon]="'file-text'">
+        <div class="tab-body">
+          <div class="step-content" [formGroup]="detailsForm">
+            <h3 class="step-title">Invoice Information</h3>
+            <p class="step-description">Set the basic details for this invoice</p>
+
+            <div class="form-grid pt-2">
+              <z-form-field>
+                <label z-form-label class="flex items-center gap-1">
+                  Invoice Type
+                  <z-icon [zType]="$any('info')" zSize="sm" class="text-muted-foreground cursor-pointer" [zTooltip]="'Select the e-Invoice document type as defined by LHDN MyInvois.'" />
+                </label>
+                <z-form-control>
+                  <z-select formControlName="invoiceType" zPlaceholder="Select type">
+                    @for (type of invoiceTypes; track type.value) {
+                      <z-select-item [zValue]="type.value">{{ type.label }}</z-select-item>
+                    }
+                  </z-select>
+                </z-form-control>
+              </z-form-field>
+
+              <z-form-field>
+                <label z-form-label class="flex items-center gap-1">
+                  Currency
+                  <z-icon [zType]="$any('info')" zSize="sm" class="text-muted-foreground cursor-pointer" [zTooltip]="'Transaction currency. Default is MYR for domestic invoices.'" />
+                </label>
+                <z-form-control>
+                  <z-select formControlName="currency" zPlaceholder="Select currency">
+                    @for (cur of currencies; track cur.value) {
+                      <z-select-item [zValue]="cur.value">{{ cur.label }}</z-select-item>
+                    }
+                  </z-select>
+                </z-form-control>
+              </z-form-field>
+
+              <z-form-field>
+                <label z-form-label [zRequired]="true">Invoice Date</label>
+                <z-form-control>
+                  <z-date-picker
+                    formControlName="invoiceDate"
+                    placeholder="Pick invoice date"
+                    zFormat="dd-MM-yyyy">
+                  </z-date-picker>
+                </z-form-control>
+              </z-form-field>
+
+              <z-form-field>
+                <label z-form-label>Due Date</label>
+                <z-form-control>
+                  <z-date-picker
+                    formControlName="dueDate"
+                    placeholder="Pick due date"
+                    zFormat="dd-MM-yyyy">
+                  </z-date-picker>
+                </z-form-control>
+              </z-form-field>
+
+              <z-form-field>
+                <label z-form-label class="flex items-center gap-1">
+                  Payment Terms
+                  <z-icon [zType]="$any('info')" zSize="sm" class="text-muted-foreground cursor-pointer" [zTooltip]="'Payment period agreed between supplier and buyer.'" />
+                </label>
+                <z-form-control>
+                  <z-select formControlName="paymentTerms" zPlaceholder="Select...">
+                    @for (term of paymentTermOptions; track term.value) {
+                      <z-select-item [zValue]="term.value">{{ term.label }}</z-select-item>
+                    }
+                  </z-select>
+                </z-form-control>
+              </z-form-field>
+
+              <z-form-field class="flex items-end pb-2">
+                <z-form-control>
+                  <z-checkbox formControlName="isSelfBilled">
+                    <span class="text-sm flex items-center gap-1">
+                      Self-Billed Invoice
+                      <z-icon [zType]="$any('info')" zSize="sm" class="text-muted-foreground cursor-pointer" [zTooltip]="'Enable if the buyer is issuing this invoice on behalf of the supplier.'" />
+                    </span>
+                  </z-checkbox>
+                </z-form-control>
+              </z-form-field>
+            </div>
+
+            <z-form-field class="mt-4">
+              <label z-form-label>Notes</label>
+              <z-form-control>
+                <textarea z-input formControlName="notes" rows="2" placeholder="Internal notes (optional)" class="w-full resize-y h-20"></textarea>
+              </z-form-control>
+            </z-form-field>
+          </div>
+        </div>
+      </z-tab>
+
+      <!-- Tab 2: Parties -->
+      <z-tab label="Parties" [icon]="'users'">
+        <div class="tab-body">
+          <div class="step-content">
+            <h3 class="step-title">Parties Information</h3>
+            <p class="step-description">Both supplier and buyer details are required</p>
+
+            <div class="space-y-6 mt-5">
+              <!-- Supplier Card -->
+              <div class="rounded-lg border border-border overflow-hidden">
+                <button type="button" class="w-full flex items-center justify-between px-4 py-3 bg-muted/50 hover:bg-muted transition-colors" (click)="supplierExpanded = !supplierExpanded">
+                  <div class="flex items-center gap-2">
+                    <z-icon [zType]="$any('building')" zSize="sm" class="text-primary" />
+                    <span class="text-sm font-semibold text-foreground">{{ isSelfBilled ? 'Supplier (Employee)' : 'From (Supplier)' }}</span>
+                    <span class="text-xs text-destructive font-medium">Required</span>
+                  </div>
+                  <z-icon [zType]="supplierExpanded ? 'chevron-up' : 'chevron-down'" zSize="sm" class="text-muted-foreground" />
+                </button>
+                @if (supplierExpanded) {
+                  <div class="p-4 space-y-4" [formGroup]="supplierForm">
+                    <div class="flex items-start gap-2 px-3 py-2 rounded-md bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 text-xs leading-relaxed">
+                      <z-icon [zType]="$any('info')" zSize="sm" class="flex-shrink-0 mt-0.5" />
+                      <span>Enter the supplier's details as registered with LHDN. The TIN and BRN must match the supplier's official MyInvois records for successful submission.</span>
+                    </div>
+
+                    <z-form-field>
+                      <label z-form-label [zRequired]="true">Name</label>
+                      <z-form-control>
+                        <input z-input type="text" formControlName="name" placeholder="Supplier's registered business name" />
+                      </z-form-control>
+                      <p class="text-xs text-muted-foreground mt-0.5">As registered with SSM or Companies Commission of Malaysia</p>
+                    </z-form-field>
+
+                    <div class="grid grid-cols-2 gap-4">
+                      <div class="flex gap-2 items-end">
+                        <z-form-field class="flex-1">
+                          <label z-form-label class="flex items-center gap-1">
+                            TIN
+                            <z-icon [zType]="$any('info')" zSize="sm" class="text-muted-foreground cursor-pointer" [zTooltip]="'Tax Identification Number issued by LHDN. Starts with C for companies (e.g., C1234567890) or IG for individuals.'" />
+                          </label>
+                          <z-form-control>
+                            <input z-input type="text" formControlName="tin" placeholder="e.g., C1234567890" />
+                          </z-form-control>
+                        </z-form-field>
+                        <button z-button zType="outline" zSize="sm" class="mb-0.5" [zTooltip]="'Validate TIN against LHDN MyInvois'" (click)="validateTin(supplierTin); $event.stopPropagation()" [disabled]="tinValidating() || !supplierTin">
+                          @if (tinValidating()) {
+                            <z-icon zType="loader-circle" zSize="sm" class="animate-spin" />
+                          } @else {
+                            <z-icon [zType]="$any('shield-check')" zSize="sm" />
+                          }
+                        </button>
+                      </div>
+
+                      <z-form-field>
+                        <label z-form-label class="flex items-center gap-1">
+                          BRN
+                          <z-icon [zType]="$any('info')" zSize="sm" class="text-muted-foreground cursor-pointer" [zTooltip]="'Business Registration Number from SSM. For companies use the registration number (e.g., 202001012345).'" />
+                        </label>
+                        <z-form-control>
+                          <input z-input type="text" formControlName="brn" placeholder="e.g., 202001012345" />
+                        </z-form-control>
+                      </z-form-field>
+                    </div>
+                    @if (tinValidationResult()) {
+                      <p class="text-xs" [ngClass]="{ 'text-emerald-600': tinValidationResult()!.startsWith('Valid'), 'text-red-500': !tinValidationResult()!.startsWith('Valid') }">
+                        {{ tinValidationResult() }}
+                      </p>
+                    }
+
+                    <div class="grid grid-cols-2 gap-4">
+                      <z-form-field>
+                        <label z-form-label class="flex items-center gap-1">
+                          SST No.
+                          <z-icon [zType]="$any('info')" zSize="sm" class="text-muted-foreground cursor-pointer" [zTooltip]="'Sales and Service Tax registration number issued by Royal Malaysian Customs Department (JKDM).'" />
+                        </label>
+                        <z-form-control>
+                          <input z-input type="text" formControlName="sstNo" placeholder="e.g., A01-2345-67891012" />
+                        </z-form-control>
+                      </z-form-field>
+
+                      <z-form-field>
+                        <label z-form-label class="flex items-center gap-1">
+                          MSIC Code
+                          <z-icon [zType]="$any('info')" zSize="sm" class="text-muted-foreground cursor-pointer" [zTooltip]="'Malaysia Standard Industrial Classification code. 5-digit code that identifies the business activity (e.g., 46510 for wholesale of computers).'" />
+                        </label>
+                        <z-form-control>
+                          <input z-input type="text" formControlName="msicCode" placeholder="e.g., 46510" />
+                        </z-form-control>
+                      </z-form-field>
+                    </div>
+
+                    <z-form-field>
+                      <label z-form-label>Address</label>
+                      <z-form-control>
+                        <textarea z-input formControlName="address" rows="2" placeholder="Full registered business address" class="resize-y h-15"></textarea>
+                      </z-form-control>
+                      <p class="text-xs text-muted-foreground mt-1">Full address including city, state, and postcode</p>
+                    </z-form-field>
+
+                    <div class="grid grid-cols-2 gap-4">
+                      <z-form-field>
+                        <label z-form-label>Phone</label>
+                        <z-form-control>
+                          <input z-input type="text" formControlName="phone" placeholder="e.g., +60123456789" />
+                        </z-form-control>
+                      </z-form-field>
+                      <z-form-field>
+                        <label z-form-label>Email</label>
+                        <z-form-control>
+                          <input z-input type="email" formControlName="email" placeholder="e.g., billing@company.com" />
+                        </z-form-control>
+                      </z-form-field>
+                    </div>
+                  </div>
+                }
+              </div>
+
+              <!-- Buyer Card -->
+              <div class="rounded-lg border border-border overflow-hidden">
+                <button type="button" class="w-full flex items-center justify-between px-4 py-3 bg-muted/50 hover:bg-muted transition-colors" (click)="buyerExpanded = !buyerExpanded">
+                  <div class="flex items-center gap-2">
+                    <z-icon zType="user" zSize="sm" class="text-primary" />
+                    <span class="text-sm font-semibold text-foreground">{{ isSelfBilled ? 'Buyer (Company)' : 'To (Buyer)' }}</span>
+                    <span class="text-xs text-destructive font-medium">Required</span>
+                  </div>
+                  <z-icon [zType]="buyerExpanded ? 'chevron-up' : 'chevron-down'" zSize="sm" class="text-muted-foreground" />
+                </button>
+                @if (buyerExpanded) {
+                  <div class="p-4 space-y-4" [formGroup]="buyerForm">
+                    <div class="flex items-start gap-2 px-3 py-2 rounded-md bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 text-xs leading-relaxed">
+                      <z-icon [zType]="$any('info')" zSize="sm" class="flex-shrink-0 mt-0.5" />
+                      <span>Enter the buyer's details. For B2B transactions, provide the buyer's TIN and BRN. For B2C, use "EI00000000010" as the general TIN.</span>
+                    </div>
+
+                    <z-form-field>
+                      <label z-form-label [zRequired]="true">Name</label>
+                      <z-form-control>
+                        <input z-input type="text" formControlName="name" placeholder="Buyer's registered business or individual name" />
+                      </z-form-control>
+                      <p class="text-xs text-muted-foreground mt-1">For individual buyers, use their full name as per IC</p>
+                    </z-form-field>
+
+                    <div class="grid grid-cols-2 gap-4">
+                      <div class="flex gap-2 items-end">
+                        <z-form-field class="flex-1">
+                          <label z-form-label class="flex items-center gap-1">
+                            TIN
+                            <z-icon [zType]="$any('info')" zSize="sm" class="text-muted-foreground cursor-pointer" [zTooltip]="'Buyer\'s Tax Identification Number from LHDN. For general public or foreign buyers, use EI00000000010.'" />
+                          </label>
+                          <z-form-control>
+                            <input z-input type="text" formControlName="tin" placeholder="e.g., C1234567890" />
+                          </z-form-control>
+                        </z-form-field>
+                        <button z-button zType="outline" zSize="sm" class="mb-0.5" [zTooltip]="'Validate TIN against LHDN MyInvois'" (click)="validateTin(buyerTin); $event.stopPropagation()" [disabled]="tinValidating() || !buyerTin">
+                          @if (tinValidating()) {
+                            <z-icon zType="loader-circle" zSize="sm" class="animate-spin" />
+                          } @else {
+                            <z-icon [zType]="$any('shield-check')" zSize="sm" />
+                          }
+                        </button>
+                      </div>
+
+                      <z-form-field>
+                        <label z-form-label class="flex items-center gap-1">
+                          BRN
+                          <z-icon [zType]="$any('info')" zSize="sm" class="text-muted-foreground cursor-pointer" [zTooltip]="'Buyer\'s Business Registration Number from SSM. Leave empty for individual buyers.'" />
+                        </label>
+                        <z-form-control>
+                          <input z-input type="text" formControlName="brn" placeholder="e.g., 202001012345" />
+                        </z-form-control>
+                      </z-form-field>
+                    </div>
+
+                    <z-form-field>
+                      <label z-form-label>Address</label>
+                      <z-form-control>
+                        <textarea z-input formControlName="address" rows="2" placeholder="Full registered business or residential address" class="resize-y h-15"></textarea>
+                      </z-form-control>
+                      <p class="text-xs text-muted-foreground mt-1">Full address including city, state, and postcode</p>
+                    </z-form-field>
+
+                    <div class="grid grid-cols-2 gap-4">
+                      <z-form-field>
+                        <label z-form-label>Phone</label>
+                        <z-form-control>
+                          <input z-input type="text" formControlName="phone" placeholder="e.g., +60123456789" />
+                        </z-form-control>
+                      </z-form-field>
+                      <z-form-field>
+                        <label z-form-label>Email</label>
+                        <z-form-control>
+                          <input z-input type="email" formControlName="email" placeholder="e.g., buyer@company.com" />
+                        </z-form-control>
+                      </z-form-field>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      </z-tab>
+
+      <!-- Tab 3: Line Items -->
+      <z-tab label="Line Items" [icon]="'list'">
+        <div class="tab-body">
+          <div class="step-content flex flex-col">
+            <div class="flex items-center justify-between mb-5">
+              <div>
+                <h3 class="step-title">Line Items</h3>
+                <p class="step-description">Add products or services to the invoice</p>
+              </div>
+              <button type="button" class="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors cursor-pointer" (click)="addItem()">
+                <z-icon [zType]="$any('plus')" zSize="sm" />
+                <span class="underline underline-offset-2 text-sm">Add item</span>
+              </button>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="border-b border-border text-left text-xs font-light">
+                    @if (items.length > 1) {
+                      <th class="pb-2 w-6"></th>
+                    }
+                    <th class="pb-2 font-light text-muted-foreground w-8">#</th>
+                    <th class="pb-2 font-light text-muted-foreground">Description</th>
+                    <th class="pb-2 font-light text-muted-foreground w-20">Qty</th>
+                    <th class="pb-2 font-light text-muted-foreground w-28">Unit Price</th>
+                    <th class="pb-2 font-light text-muted-foreground w-32">Tax Type</th>
+                    <th class="pb-2 font-light text-muted-foreground w-16">Tax %</th>
+                    <th class="pb-2 font-light text-muted-foreground text-right">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (item of items; track $index; let i = $index) {
+                    <tr class="border-b border-border/50">
+                      @if (items.length > 1) {
+                        <td class="py-2">
+                          <button type="button" class="text-red-400 hover:text-red-600 transition-colors cursor-pointer" [zTooltip]="'Remove item'" (click)="removeItem(i)">
+                            <z-icon [zType]="$any('x')" zSize="sm" />
+                          </button>
+                        </td>
+                      }
+                      <td class="py-2 text-muted-foreground">{{ i + 1 }}.</td>
+                      <td class="py-2 pr-2">
+                        <input type="text" class="w-full px-2 py-1.5 text-sm border border-input rounded-md bg-background"
+                          [(ngModel)]="item.description" placeholder="Item description" (ngModelChange)="recalculateItem(item)" />
+                      </td>
+                      <td class="py-2 pr-2">
+                        <input type="number" class="w-full px-2 py-1.5 text-sm border border-input rounded-md bg-background text-right"
+                          [(ngModel)]="item.quantity" min="0.001" step="1" (ngModelChange)="recalculateItem(item)" />
+                      </td>
+                      <td class="py-2 pr-2">
+                        <input type="number" class="w-full px-2 py-1.5 text-sm border border-input rounded-md bg-background text-right"
+                          [(ngModel)]="item.unit_price" min="0" step="0.01" (ngModelChange)="recalculateItem(item)" />
+                      </td>
+                      <td class="py-2 pr-2">
+                        <z-select
+                          [ngModel]="item.tax_type"
+                          (ngModelChange)="item.tax_type = $event; onTaxTypeChange(item)"
+                          zSize="sm" class="rounded-md">
+                          @for (tt of TAX_TYPES; track tt) {
+                            <z-select-item [zValue]="tt">{{ tt }}</z-select-item>
+                          }
+                        </z-select>
+                      </td>
+                      <td class="py-2 pr-2">
+                        <input type="number" class="w-full px-2 py-1.5 text-sm border border-input rounded-md bg-background text-right"
+                          [(ngModel)]="item.tax_rate" min="0" max="100" step="0.5" (ngModelChange)="recalculateItem(item)" />
+                      </td>
+                      <td class="py-2 text-right font-medium text-sm">
+                        {{ currency }} {{ formatCurrency(item.total) }}
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Totals -->
+            <div class="mt-4 flex justify-end items-end">
+              <div class="w-64 space-y-1.5">
+                <div class="flex justify-between text-sm">
+                  <span class="text-muted-foreground">Subtotal</span>
+                  <span>{{ currency }} {{ formatCurrency(grandSubtotal) }}</span>
+                </div>
+                @if (grandDiscount > 0) {
+                  <div class="flex justify-between text-sm">
+                    <span class="text-muted-foreground">Discount</span>
+                    <span class="text-red-500">-{{ currency }} {{ formatCurrency(grandDiscount) }}</span>
+                  </div>
+                }
+                @if (grandTax > 0) {
+                  <div class="flex justify-between text-sm">
+                    <span class="text-muted-foreground">Tax</span>
+                    <span>{{ currency }} {{ formatCurrency(grandTax) }}</span>
+                  </div>
+                }
+                <z-divider zSpacing="sm" />
+                <div class="flex justify-between font-bold text-base">
+                  <span>Total</span>
+                  <span>{{ currency }} {{ formatCurrency(grandTotal) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </z-tab>
+
+      <!-- Tab 4: Review -->
+      <z-tab label="Review" [icon]="'check-circle'">
+        <div class="tab-body">
+          <div class="step-content">
+            <h3 class="step-title">Review Invoice</h3>
+            <p class="step-description mb-5">Verify all details before saving the invoice</p>
+
+            <div class="review-section">
+              <div class="review-section-header">
+                <z-icon [zType]="$any('file-text')" zSize="sm" class="text-primary" />
+                <span>Invoice Details</span>
+              </div>
+              <div class="review-grid">
+                <div class="review-item">
+                  <span class="review-label">Type</span>
+                  <span class="review-value">{{ getTypeLabel() }}</span>
+                </div>
+                <div class="review-item">
+                  <span class="review-label">Date</span>
+                  <span class="review-value">{{ formatDate(invoiceDateValue) }}</span>
+                </div>
+                <div class="review-item">
+                  <span class="review-label">Due Date</span>
+                  <span class="review-value">{{ dueDateValue ? formatDate(dueDateValue) : '-' }}</span>
+                </div>
+                <div class="review-item">
+                  <span class="review-label">Currency</span>
+                  <span class="review-value">{{ currency }}</span>
+                </div>
+                @if (paymentTerms) {
+                  <div class="review-item">
+                    <span class="review-label">Payment Terms</span>
+                    <span class="review-value">{{ paymentTerms }}</span>
+                  </div>
+                }
+                @if (isSelfBilled) {
+                  <div class="review-item">
+                    <span class="review-label">Self-Billed</span>
+                    <span class="review-value">Yes</span>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <div class="review-section">
+              <div class="review-section-header">
+                <z-icon [zType]="$any('users')" zSize="sm" class="text-primary" />
+                <span>Parties</span>
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <p class="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Supplier</p>
+                  <p class="text-sm font-medium">{{ supplierName || 'Not set' }}</p>
+                  @if (supplierTin) { <p class="text-xs text-muted-foreground">TIN: {{ supplierTin }}</p> }
+                  @if (supplierAddress) { <p class="text-xs text-muted-foreground mt-0.5">{{ supplierAddress }}</p> }
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Buyer</p>
+                  <p class="text-sm font-medium">{{ buyerName || 'Not set' }}</p>
+                  @if (buyerTin) { <p class="text-xs text-muted-foreground">TIN: {{ buyerTin }}</p> }
+                  @if (buyerAddress) { <p class="text-xs text-muted-foreground mt-0.5">{{ buyerAddress }}</p> }
+                </div>
+              </div>
+            </div>
+
+            <div class="review-section">
+              <div class="review-section-header">
+                <z-icon [zType]="$any('list')" zSize="sm" class="text-primary" />
+                <span>Line Items ({{ items.length }})</span>
+              </div>
+              <div class="space-y-2">
+                @for (item of items; track $index) {
+                  <div class="flex items-center justify-between text-sm py-1.5 border-b border-border/50 last:border-0">
+                    <div class="flex-1 space-y-1.5">
+                      <p class="font-medium">{{ item.description || 'Unnamed item' }}</p>
+                      <p class="text-xs text-muted-foreground">{{ item.quantity }} x {{ currency }} {{ formatCurrency(item.unit_price) }}</p>
+                    </div>
+                    <span class="font-medium">{{ currency }} {{ formatCurrency(item.total) }}</span>
+                  </div>
+                }
+              </div>
+              <z-divider zSpacing="sm" />
+              <div class="flex justify-between font-bold text-base">
+                <span>Grand Total</span>
+                <span class="text-primary">{{ currency }} {{ formatCurrency(grandTotal) }}</span>
+              </div>
+            </div>
+
+            @if (notes) {
+              <div class="review-section">
+                <div class="review-section-header">
+                  <z-icon [zType]="$any('sticky-note')" zSize="sm" class="text-primary" />
+                  <span>Notes</span>
+                </div>
+                <p class="text-sm text-muted-foreground">{{ notes }}</p>
+              </div>
+            }
+          </div>
+        </div>
+      </z-tab>
+
+    </z-tab-group>
+
+    <!-- Footer Actions -->
+    <z-divider zSpacing="none" />
+    <div class="form-footer">
+      <button z-button zType="outline" class="rounded-lg" (click)="cancel()">Cancel</button>
+      <div class="flex gap-2">
+        <button z-button zType="outline" class="rounded-lg" [disabled]="saving() || !validate()" (click)="save(false)">
+          @if (saving()) {
+            <z-icon zType="loader-circle" zSize="sm" class="animate-spin mr-0" />
+          }
+          Save as Draft
+        </button>
+        <button z-button [disabled]="saving() || !validate()" (click)="save(true)" class="rounded-lg">
+          @if (saving()) {
+            <z-icon zType="loader-circle" zSize="sm" class="animate-spin mr-1.5" />
+          }
+          <z-icon [zType]="$any('check')" zSize="sm" class="mr-0" />
+          Save & Approve
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Summary Panel -->
+  <div class="form-summary">
+    <h4 class="text-sm font-semibold text-foreground mb-4">Summary</h4>
+
+    <div class="summary-item">
+      <span class="summary-label">Invoice Type</span>
+      <span class="summary-value">{{ getTypeLabel() }}</span>
+    </div>
+
+    <div class="summary-item">
+      <span class="summary-label">Invoice Date</span>
+      <span class="summary-value">{{ formatDate(invoiceDateValue) }}</span>
+    </div>
+
+    @if (dueDateValue) {
+      <div class="summary-item">
+        <span class="summary-label">Due Date</span>
+        <span class="summary-value">{{ formatDate(dueDateValue) }}</span>
+      </div>
+    }
+
+    <div class="summary-item">
+      <span class="summary-label">Currency</span>
+      <span class="summary-value">{{ currency }}</span>
+    </div>
+
+    @if (paymentTerms) {
+      <div class="summary-item">
+        <span class="summary-label">Payment Terms</span>
+        <span class="summary-value">{{ paymentTerms }}</span>
+      </div>
+    }
+
+    <z-divider zSpacing="sm" />
+
+    <div class="summary-item">
+      <span class="summary-label">Supplier</span>
+      <span class="summary-value">{{ supplierName || 'Not set' }}</span>
+    </div>
+
+    <div class="summary-item">
+      <span class="summary-label">Buyer</span>
+      <span class="summary-value">{{ buyerName || 'Not set' }}</span>
+    </div>
+
+    <z-divider zSpacing="sm" />
+
+    <div class="summary-label mb-2">Items</div>
+    @if (items.length > 0 && items[0].description) {
+      <div class="space-y-1.5">
+        @for (item of items; track $index) {
+          @if (item.description) {
+            <div class="flex justify-between text-xs">
+              <span class="text-muted-foreground truncate max-w-[140px]">{{ item.description }}</span>
+              <span class="text-foreground font-medium">{{ currency }} {{ formatCurrency(item.total) }}</span>
+            </div>
+          }
+        }
+      </div>
+    } @else {
+      <div class="flex flex-col items-center py-3">
+        <z-icon [zType]="$any('package')" class="text-muted-foreground/40 mb-1" />
+        <p class="text-xs text-muted-foreground">No items yet</p>
+      </div>
+    }
+
+    <z-divider zSpacing="sm" />
+
+    <div class="space-y-1">
+      <div class="flex justify-between text-xs">
+        <span class="text-muted-foreground">Subtotal</span>
+        <span>{{ currency }} {{ formatCurrency(grandSubtotal) }}</span>
+      </div>
+      @if (grandTax > 0) {
+        <div class="flex justify-between text-xs">
+          <span class="text-muted-foreground">Tax</span>
+          <span>{{ currency }} {{ formatCurrency(grandTax) }}</span>
+        </div>
+      }
+      @if (grandDiscount > 0) {
+        <div class="flex justify-between text-xs">
+          <span class="text-muted-foreground">Discount</span>
+          <span class="text-red-500">-{{ currency }} {{ formatCurrency(grandDiscount) }}</span>
+        </div>
+      }
+    </div>
+
+    <div class="mt-3 pt-3 border-t border-border">
+      <div class="flex justify-between font-semibold text-sm">
+        <span>Total</span>
+        <span class="text-primary">{{ currency }} {{ formatCurrency(grandTotal) }}</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+}

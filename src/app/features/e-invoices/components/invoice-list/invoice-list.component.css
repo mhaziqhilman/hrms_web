@@ -1,0 +1,38 @@
+:host {
+  display: block;
+}
+
+/* Table fixed height rows with horizontal scroll */
+.invoice-table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.invoice-table-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.invoice-table-container::-webkit-scrollbar-thumb {
+  background-color: rgba(209, 209, 209, 0.5);
+  border-radius: 4px;
+}
+
+.invoice-table-container::-webkit-scrollbar-track {
+  background-color: rgba(209, 209, 209, 0.1);
+}
+
+.invoice-table tbody tr {
+  height: 60px;
+}
+
+.invoice-table th,
+.invoice-table td {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}
+
+.invoice-table th.th-text-center {
+  text-align: center !important;
+}

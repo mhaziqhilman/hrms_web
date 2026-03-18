@@ -30,7 +30,7 @@ import { ZardIconComponent } from '../icon/icon.component';
       }
 
       <!-- Item Content -->
-      <span class="flex-1 truncate">
+      <span class="flex-1 whitespace-nowrap">
         <ng-content></ng-content>
       </span>
     </div>

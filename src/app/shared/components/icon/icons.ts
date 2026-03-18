@@ -136,6 +136,7 @@ import {
   FileChartColumn,
   FileChartLine,
   FileChartColumnIncreasing,
+  FilePlus,
   KeyRound,
   CalendarCheck,
   CalendarX,
@@ -153,8 +154,11 @@ import {
   Image,
   FileType2,
   FileArchive,
+  Package,
+  StickyNote,
   TicketCheck,
   TextAlignJustify,
+  Printer,
 } from 'lucide-angular';
 
 const DarkMode: LucideIconData = [
@@ -324,6 +328,10 @@ export const ZARD_ICONS = {
   'file-archive': FileArchive,
   'trash-2': Trash2,
   'text-align-justify': TextAlignJustify,
+  'file-plus': FilePlus,
+  'package': Package,
+  'sticky-note': StickyNote,
+  'printer': Printer
 } as const satisfies Record<string, LucideIconData>;
 
 export declare type ZardIcon = keyof typeof ZARD_ICONS | LucideIconData;

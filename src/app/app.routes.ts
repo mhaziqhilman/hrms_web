@@ -88,6 +88,10 @@ export const routes: Routes = [
             {
                 path: 'audit-log',
                 loadChildren: () => import('./features/audit-log/audit-log.routes').then(m => m.AUDIT_LOG_ROUTES)
+            },
+            {
+                path: 'e-invoices',
+                loadChildren: () => import('./features/e-invoices/e-invoices.routes').then(m => m.E_INVOICES_ROUTES)
             }
         ]
     },

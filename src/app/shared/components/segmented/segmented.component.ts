@@ -1,0 +1,122 @@
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  forwardRef,
+  input,
+  type OnInit,
+  output,
+  signal,
+  ViewEncapsulation,
+} from '@angular/core';
+import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import type { ClassValue } from 'clsx';
+import { mergeClasses } from '@/shared/utils/merge-classes';
+import { segmentedItemVariants, segmentedVariants, type ZardSegmentedVariants } from './segmented.variants';
+
+export interface SegmentedOption {
+  value: string;
+  label: string;
+  disabled?: boolean;
+}
+
+@Component({
+  selector: 'z-segmented',
+  standalone: true,
+  template: `
+    <div [class]="classes()" role="tablist" [attr.aria-label]="zAriaLabel()">
+      @for (option of zOptions(); track option.value) {
+        <button
+          type="button"
+          role="tab"
+          [class]="getItemClasses(option.value)"
+          [disabled]="option.disabled || zDisabled()"
+          [attr.aria-selected]="isSelected(option.value)"
+          (click)="selectOption(option.value)"
+        >
+          {{ option.label }}
+        </button>
+      }
+    </div>
+  `,
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => ZardSegmentedComponent),
+      multi: true,
+    },
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  encapsulation: ViewEncapsulation.None,
+  host: {
+    '[class]': 'wrapperClasses()',
+  },
+  exportAs: 'zSegmented',
+})
+export class ZardSegmentedComponent implements ControlValueAccessor, OnInit {
+  readonly class = input<ClassValue>('');
+  readonly zSize = input<ZardSegmentedVariants['zSize']>('default');
+  readonly zOptions = input<SegmentedOption[]>([]);
+  readonly zDefaultValue = input<string>('');
+  readonly zDisabled = input(false);
+  readonly zAriaLabel = input<string>('Segmented control');
+
+  readonly zChange = output<string>();
+
+  protected readonly selectedValue = signal<string>('');
+
+  private onChange: (value: string) => void = () => {};
+  private onTouched = () => {};
+
+  ngOnInit() {
+    if (this.zDefaultValue()) {
+      this.selectedValue.set(this.zDefaultValue());
+    }
+  }
+
+  protected readonly classes = computed(() =>
+    mergeClasses(segmentedVariants({ zSize: this.zSize() }), this.class())
+  );
+
+  protected readonly wrapperClasses = computed(() => 'inline-block');
+
+  protected getItemClasses(value: string): string {
+    return segmentedItemVariants({
+      zSize: this.zSize(),
+      isActive: this.isSelected(value),
+    });
+  }
+
+  protected isSelected(value: string): boolean {
+    return this.selectedValue() === value;
+  }
+
+  protected selectOption(value: string) {
+    if (this.zDisabled()) return;
+
+    const option = this.zOptions().find(opt => opt.value === value);
+    if (option?.disabled) return;
+
+    this.selectedValue.set(value);
+    this.onChange(value);
+    this.onTouched();
+    this.zChange.emit(value);
+  }
+
+  writeValue(value: string): void {
+    this.selectedValue.set(value ?? '');
+  }
+
+  registerOnChange(fn: (value: string) => void): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: () => void): void {
+    this.onTouched = fn;
+  }
+
+  setDisabledState(_isDisabled: boolean): void {
+    // Handled by zDisabled input
+  }
+}
