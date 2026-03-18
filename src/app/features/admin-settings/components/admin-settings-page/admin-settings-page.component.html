@@ -1,7 +1,7 @@
 <div class="space-y-6 max-w-5xl mx-auto">
   <!-- Header -->
   <div>
-    <h1 class="text-2xl font-bold text-foreground">Administration</h1>
+    <h1 class="text-2xl font-semibold text-foreground">Administration</h1>
     <p class="text-muted-foreground">Manage company settings, leave types, holidays, payroll configuration and email templates.</p>
   </div>
 
@@ -41,8 +41,8 @@
           <div class="space-y-6">
             <z-card>
               <div zCardHeader class="grid gap-2 pb-4">
-                <h3 zCardTitle class="font-semibold">Company Profile</h3>
-                <p zCardDescription class="text-sm font-light">Update your company information.</p>
+                <h3 zCardTitle class="font-medium">Company Profile</h3>
+                <p zCardDescription class="text-sm font-extralight">Update your company information.</p>
               </div>
               <div zCardContent class="space-y-4">
                 <!-- Logo -->
@@ -208,13 +208,13 @@
           <div class="space-y-6">
             <z-card>
               <div zCardHeader class="grid gap-2 pb-4">
-                <h3 zCardTitle class="font-semibold">Statutory Information</h3>
-                <p zCardDescription class="text-sm font-light">Used for EA Forms (LHDN), EPF Borang A, SOCSO, and other statutory reports.</p>
+                <h3 zCardTitle class="font-medium">Statutory Information</h3>
+                <p zCardDescription class="text-sm font-extralight">Used for EA Forms (LHDN), EPF Borang A, SOCSO, and other statutory reports.</p>
               </div>
               <div zCardContent class="space-y-4">
                 <!-- LHDN -->
                 <div>
-                  <h4 class="text-sm font-semibold text-foreground mb-1">LHDN (Inland Revenue)</h4>
+                  <h4 class="text-sm font-medium text-foreground mb-1">LHDN (Inland Revenue)</h4>
                   <p class="text-xs text-muted-foreground mb-3">Lembaga Hasil Dalam Negeri Malaysia employer details.</p>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -238,7 +238,7 @@
 
                 <!-- EPF & SOCSO -->
                 <div>
-                  <h4 class="text-sm font-semibold text-foreground mb-1">EPF & SOCSO</h4>
+                  <h4 class="text-sm font-medium text-foreground mb-1">EPF & SOCSO</h4>
                   <p class="text-xs text-muted-foreground mb-3">Employer registration numbers for statutory contributions.</p>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -262,7 +262,7 @@
 
                 <!-- Signatory & Contact -->
                 <div>
-                  <h4 class="text-sm font-semibold text-foreground mb-1">Signatory & Contact</h4>
+                  <h4 class="text-sm font-medium text-foreground mb-1">Signatory & Contact</h4>
                   <p class="text-xs text-muted-foreground mb-3">Authorised officer details for statutory form submissions.</p>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -307,7 +307,7 @@
           <div class="space-y-4">
             <div class="flex items-center justify-between">
               <div>
-                <h3 class="text-lg font-semibold">Leave Types</h3>
+                <h3 class="text-lg font-medium">Leave Types</h3>
                 <p class="text-sm text-muted-foreground">Configure leave types and entitlements.</p>
               </div>
               <button z-button (click)="openLeaveTypeDialog()">
@@ -321,18 +321,18 @@
                   <table class="w-full">
                     <thead>
                       <tr class="border-b bg-muted/50">
-                        <th class="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Name</th>
-                        <th class="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Days/Year</th>
-                        <th class="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Paid</th>
-                        <th class="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Carry Forward</th>
-                        <th class="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Status</th>
-                        <th class="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Actions</th>
+                        <th class="px-4 py-3 text-left text-sm font-normal text-muted-foreground">Name</th>
+                        <th class="px-4 py-3 text-left text-sm font-normal text-muted-foreground">Days/Year</th>
+                        <th class="px-4 py-3 text-left text-sm font-normal text-muted-foreground">Paid</th>
+                        <th class="px-4 py-3 text-left text-sm font-normal text-muted-foreground">Carry Forward</th>
+                        <th class="px-4 py-3 text-left text-sm font-normal text-muted-foreground">Status</th>
+                        <th class="px-4 py-3 text-right text-sm font-normal text-muted-foreground">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       @for (lt of leaveTypes(); track lt.id) {
                         <tr class="border-b last:border-0 hover:bg-muted/30">
-                          <td class="px-4 py-3 text-sm font-medium">{{ lt.name }}</td>
+                          <td class="px-4 py-3 text-sm font-normal">{{ lt.name }}</td>
                           <td class="px-4 py-3 text-sm">{{ lt.days_per_year }}</td>
                           <td class="px-4 py-3 text-sm">
                             <span [class]="lt.is_paid ? 'text-green-600' : 'text-red-600'">{{ lt.is_paid ? 'Yes' : 'No' }}</span>
@@ -345,7 +345,7 @@
                             }
                           </td>
                           <td class="px-4 py-3 text-sm">
-                            <span [class]="lt.is_active ? 'inline-flex items-center rounded-full bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20' : 'inline-flex items-center rounded-full bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20'">
+                            <span [class]="lt.is_active ? 'inline-flex items-center rounded-full bg-green-50 px-2 py-1 text-xs font-normal text-green-700 ring-1 ring-inset ring-green-600/20' : 'inline-flex items-center rounded-full bg-red-50 px-2 py-1 text-xs font-normal text-red-700 ring-1 ring-inset ring-red-600/20'">
                               {{ lt.is_active ? 'Active' : 'Inactive' }}
                             </span>
                           </td>
@@ -375,7 +375,7 @@
             <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" (click)="closeLeaveTypeDialog()">
               <div class="bg-background rounded-lg border shadow-lg w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto" (click)="$event.stopPropagation()">
                 <div class="px-6 py-4 border-b">
-                  <h3 class="text-lg font-semibold">{{ editingLeaveType?.id ? 'Edit' : 'Add' }} Leave Type</h3>
+                  <h3 class="text-lg font-medium">{{ editingLeaveType?.id ? 'Edit' : 'Add' }} Leave Type</h3>
                 </div>
                 <div class="px-6 py-4 space-y-4">
                   <z-form-field>
@@ -440,7 +440,7 @@
           <div class="space-y-4">
             <div class="flex items-center justify-between">
               <div>
-                <h3 class="text-lg font-semibold">Leave Entitlements</h3>
+                <h3 class="text-lg font-medium">Leave Entitlements</h3>
                 <p class="text-sm text-muted-foreground">Manage leave entitlements for all employees by year.</p>
               </div>
               <div class="flex items-center gap-2">
@@ -481,13 +481,13 @@
                     <thead>
                       <tr class="border-b bg-muted/50">
                         <th class="w-8 px-2 py-3"></th>
-                        <th class="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Employee</th>
-                        <th class="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Total</th>
-                        <th class="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Used</th>
-                        <th class="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Pending</th>
-                        <th class="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Balance</th>
-                        <th class="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Carry Fwd</th>
-                        <th class="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Actions</th>
+                        <th class="px-4 py-3 text-left text-sm font-normal text-muted-foreground">Employee</th>
+                        <th class="px-4 py-3 text-right text-sm font-normal text-muted-foreground">Total</th>
+                        <th class="px-4 py-3 text-right text-sm font-normal text-muted-foreground">Used</th>
+                        <th class="px-4 py-3 text-right text-sm font-normal text-muted-foreground">Pending</th>
+                        <th class="px-4 py-3 text-right text-sm font-normal text-muted-foreground">Balance</th>
+                        <th class="px-4 py-3 text-right text-sm font-normal text-muted-foreground">Carry Fwd</th>
+                        <th class="px-4 py-3 text-right text-sm font-normal text-muted-foreground">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -500,11 +500,11 @@
                               class="h-4 w-4 text-muted-foreground chevron-icon"
                               [class.rotated]="isEmployeeExpanded(group.employeeId)" />
                           </td>
-                          <td class="px-4 py-3 text-sm font-semibold">{{ group.employeeName }}</td>
-                          <td class="px-4 py-3 text-sm text-right font-medium">{{ group.totalDays.toFixed(2) }}</td>
+                          <td class="px-4 py-3 text-sm font-medium">{{ group.employeeName }}</td>
+                          <td class="px-4 py-3 text-sm text-right font-normal">{{ group.totalDays.toFixed(2) }}</td>
                           <td class="px-4 py-3 text-sm text-right">{{ group.totalUsed.toFixed(2) }}</td>
                           <td class="px-4 py-3 text-sm text-right">{{ group.totalPending.toFixed(2) }}</td>
-                          <td class="px-4 py-3 text-sm text-right font-semibold">{{ group.totalBalance.toFixed(2) }}</td>
+                          <td class="px-4 py-3 text-sm text-right font-medium">{{ group.totalBalance.toFixed(2) }}</td>
                           <td class="px-4 py-3 text-sm text-right">{{ group.totalCarryFwd.toFixed(2) }}</td>
                           <td class="px-4 py-3 text-sm text-right text-muted-foreground">
                             {{ group.entitlements.length }} types
@@ -527,7 +527,7 @@
                                         <td class="px-4 py-2 text-sm text-right">{{ ent.total_days }}</td>
                                         <td class="px-4 py-2 text-sm text-right">{{ ent.used_days }}</td>
                                         <td class="px-4 py-2 text-sm text-right">{{ ent.pending_days }}</td>
-                                        <td class="px-4 py-2 text-sm text-right font-medium">{{ ent.balance_days }}</td>
+                                        <td class="px-4 py-2 text-sm text-right font-normal">{{ ent.balance_days }}</td>
                                         <td class="px-4 py-2 text-sm text-right">{{ ent.carry_forward_days }}</td>
                                         <td class="px-4 py-2 text-sm text-right">
                                           <button z-button zType="ghost" zSize="sm" (click)="openEditEntitlementDialog(ent); $event.stopPropagation()">
@@ -583,7 +583,7 @@
             <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" (click)="closeEntitlementDialog()">
               <div class="bg-background rounded-lg border shadow-lg w-full max-w-md mx-4" (click)="$event.stopPropagation()">
                 <div class="px-6 py-4 border-b">
-                  <h3 class="text-lg font-semibold">Edit Entitlement</h3>
+                  <h3 class="text-lg font-medium">Edit Entitlement</h3>
                   @if (editingEntitlement) {
                     <p class="text-sm text-muted-foreground">
                       {{ editingEntitlement.employee?.full_name }} - {{ editingEntitlement.leave_type?.name }} ({{ editingEntitlement.year }})
@@ -607,9 +607,9 @@
                   </z-form-field>
                   @if (editingEntitlement) {
                     <div class="rounded-lg border bg-muted/30 p-4 space-y-1">
-                      <p class="text-sm"><span class="text-muted-foreground">Used:</span> <span class="font-medium">{{ editingEntitlement.used_days }} days</span></p>
-                      <p class="text-sm"><span class="text-muted-foreground">Pending:</span> <span class="font-medium">{{ editingEntitlement.pending_days }} days</span></p>
-                      <p class="text-sm"><span class="text-muted-foreground">New Balance:</span> <span class="font-semibold">{{ (entitlementForm.total_days || 0) + (entitlementForm.carry_forward_days || 0) - editingEntitlement.used_days - editingEntitlement.pending_days }} days</span></p>
+                      <p class="text-sm"><span class="text-muted-foreground">Used:</span> <span class="font-normal">{{ editingEntitlement.used_days }} days</span></p>
+                      <p class="text-sm"><span class="text-muted-foreground">Pending:</span> <span class="font-normal">{{ editingEntitlement.pending_days }} days</span></p>
+                      <p class="text-sm"><span class="text-muted-foreground">New Balance:</span> <span class="font-medium">{{ (entitlementForm.total_days || 0) + (entitlementForm.carry_forward_days || 0) - editingEntitlement.used_days - editingEntitlement.pending_days }} days</span></p>
                     </div>
                   }
                 </div>
@@ -629,7 +629,7 @@
             <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" (click)="closeAddEntitlementDialog()">
               <div class="bg-background rounded-lg border shadow-lg w-full max-w-md mx-4" (click)="$event.stopPropagation()">
                 <div class="px-6 py-4 border-b">
-                  <h3 class="text-lg font-semibold">Add Leave Entitlement</h3>
+                  <h3 class="text-lg font-medium">Add Leave Entitlement</h3>
                 </div>
                 <div class="px-6 py-4 space-y-4">
                   <z-form-field>
@@ -684,7 +684,7 @@
           <div class="space-y-4">
             <div class="flex items-center justify-between">
               <div>
-                <h3 class="text-lg font-semibold">Claim Types</h3>
+                <h3 class="text-lg font-medium">Claim Types</h3>
                 <p class="text-sm text-muted-foreground">Configure claim types and limits.</p>
               </div>
               <button z-button (click)="openClaimTypeDialog()">
@@ -698,25 +698,25 @@
                   <table class="w-full">
                     <thead>
                       <tr class="border-b bg-muted/50">
-                        <th class="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Name</th>
-                        <th class="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Description</th>
-                        <th class="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Max Amount</th>
-                        <th class="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Receipt</th>
-                        <th class="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Status</th>
-                        <th class="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Actions</th>
+                        <th class="px-4 py-3 text-left text-sm font-normal text-muted-foreground">Name</th>
+                        <th class="px-4 py-3 text-left text-sm font-normal text-muted-foreground">Description</th>
+                        <th class="px-4 py-3 text-left text-sm font-normal text-muted-foreground">Max Amount</th>
+                        <th class="px-4 py-3 text-left text-sm font-normal text-muted-foreground">Receipt</th>
+                        <th class="px-4 py-3 text-left text-sm font-normal text-muted-foreground">Status</th>
+                        <th class="px-4 py-3 text-right text-sm font-normal text-muted-foreground">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       @for (ct of claimTypes(); track ct.id) {
                         <tr class="border-b last:border-0 hover:bg-muted/30">
-                          <td class="px-4 py-3 text-sm font-medium">{{ ct.name }}</td>
+                          <td class="px-4 py-3 text-sm font-normal">{{ ct.name }}</td>
                           <td class="px-4 py-3 text-sm text-muted-foreground">{{ ct.description || '-' }}</td>
                           <td class="px-4 py-3 text-sm">{{ ct.max_amount ? 'RM ' + ct.max_amount : 'No limit' }}</td>
                           <td class="px-4 py-3 text-sm">
                             <span [class]="ct.requires_receipt ? 'text-green-600' : 'text-muted-foreground'">{{ ct.requires_receipt ? 'Required' : 'Optional' }}</span>
                           </td>
                           <td class="px-4 py-3 text-sm">
-                            <span [class]="ct.is_active ? 'inline-flex items-center rounded-full bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20' : 'inline-flex items-center rounded-full bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20'">
+                            <span [class]="ct.is_active ? 'inline-flex items-center rounded-full bg-green-50 px-2 py-1 text-xs font-normal text-green-700 ring-1 ring-inset ring-green-600/20' : 'inline-flex items-center rounded-full bg-red-50 px-2 py-1 text-xs font-normal text-red-700 ring-1 ring-inset ring-red-600/20'">
                               {{ ct.is_active ? 'Active' : 'Inactive' }}
                             </span>
                           </td>
@@ -746,7 +746,7 @@
             <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" (click)="closeClaimTypeDialog()">
               <div class="bg-background rounded-lg border shadow-lg w-full max-w-lg mx-4" (click)="$event.stopPropagation()">
                 <div class="px-6 py-4 border-b">
-                  <h3 class="text-lg font-semibold">{{ editingClaimType?.id ? 'Edit' : 'Add' }} Claim Type</h3>
+                  <h3 class="text-lg font-medium">{{ editingClaimType?.id ? 'Edit' : 'Add' }} Claim Type</h3>
                 </div>
                 <div class="px-6 py-4 space-y-4">
                   <z-form-field>
@@ -793,7 +793,7 @@
           <div class="space-y-4">
             <div class="flex items-center justify-between">
               <div>
-                <h3 class="text-lg font-semibold">Public Holidays</h3>
+                <h3 class="text-lg font-medium">Public Holidays</h3>
                 <p class="text-sm text-muted-foreground">Manage public holidays for your company.</p>
               </div>
               <div class="flex items-center gap-2">
@@ -814,17 +814,17 @@
                   <table class="w-full">
                     <thead>
                       <tr class="border-b bg-muted/50">
-                        <th class="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Name</th>
-                        <th class="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Date</th>
-                        <th class="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Description</th>
-                        <th class="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Recurring</th>
-                        <th class="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Actions</th>
+                        <th class="px-4 py-3 text-left text-sm font-normal text-muted-foreground">Name</th>
+                        <th class="px-4 py-3 text-left text-sm font-normal text-muted-foreground">Date</th>
+                        <th class="px-4 py-3 text-left text-sm font-normal text-muted-foreground">Description</th>
+                        <th class="px-4 py-3 text-left text-sm font-normal text-muted-foreground">Recurring</th>
+                        <th class="px-4 py-3 text-right text-sm font-normal text-muted-foreground">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       @for (h of holidays(); track h.id) {
                         <tr class="border-b last:border-0 hover:bg-muted/30">
-                          <td class="px-4 py-3 text-sm font-medium">{{ h.name }}</td>
+                          <td class="px-4 py-3 text-sm font-normal">{{ h.name }}</td>
                           <td class="px-4 py-3 text-sm">{{ formatDateDisplay(h.date) }}</td>
                           <td class="px-4 py-3 text-sm text-muted-foreground">{{ h.description || '-' }}</td>
                           <td class="px-4 py-3 text-sm">
@@ -856,7 +856,7 @@
             <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" (click)="closeHolidayDialog()">
               <div class="bg-background rounded-lg border shadow-lg w-full max-w-lg mx-4" (click)="$event.stopPropagation()">
                 <div class="px-6 py-4 border-b">
-                  <h3 class="text-lg font-semibold">{{ editingHoliday?.id ? 'Edit' : 'Add' }} Public Holiday</h3>
+                  <h3 class="text-lg font-medium">{{ editingHoliday?.id ? 'Edit' : 'Add' }} Public Holiday</h3>
                 </div>
                 <div class="px-6 py-4 space-y-4">
                   <z-form-field>
@@ -905,7 +905,7 @@
           <div class="space-y-4">
             <div class="flex items-center justify-between">
               <div>
-                <h3 class="text-lg font-semibold">Payroll Configuration</h3>
+                <h3 class="text-lg font-medium">Payroll Configuration</h3>
                 <p class="text-sm text-muted-foreground">Configure statutory deduction rates. These rates are used in payroll calculations.</p>
               </div>
               @if (!statutoryEditing()) {
@@ -919,7 +919,7 @@
             @for (group of ['EPF', 'EIS', 'SOCSO']; track group) {
               <z-card>
                 <div zCardHeader class="grid gap-2 pb-4">
-                  <h4 zCardTitle class="text-sm font-semibold">{{ group }}</h4>
+                  <h4 zCardTitle class="text-sm font-medium">{{ group }}</h4>
                 </div>
                 <div zCardContent>
                   <div class="space-y-3">
@@ -927,7 +927,7 @@
                       @if (getConfigGroup(config.config_key) === group) {
                         <div class="flex items-center justify-between py-2">
                           <div>
-                            <p class="text-sm font-medium">{{ getConfigLabel(config.config_key) }}</p>
+                            <p class="text-sm font-normal">{{ getConfigLabel(config.config_key) }}</p>
                             @if (config.description) {
                               <p class="text-xs text-muted-foreground">{{ config.description }}</p>
                             }
@@ -935,7 +935,7 @@
                           @if (statutoryEditing()) {
                             <input z-input type="text" class="w-32 text-right" [(ngModel)]="statutoryForm[config.config_key]" />
                           } @else {
-                            <span class="text-sm font-semibold">{{ formatRate(config.config_value, config.config_key) }}</span>
+                            <span class="text-sm font-medium">{{ formatRate(config.config_value, config.config_key) }}</span>
                           }
                         </div>
                         <z-divider />
@@ -949,7 +949,7 @@
             <!-- PCB Settings Card -->
             <z-card>
               <div zCardHeader class="grid gap-2 pb-4">
-                <h4 zCardTitle class="text-sm font-semibold">PCB (Monthly Tax Deduction)</h4>
+                <h4 zCardTitle class="text-sm font-medium">PCB (Monthly Tax Deduction)</h4>
               </div>
               <div zCardContent>
                 <p class="text-sm text-muted-foreground mb-4">
@@ -961,7 +961,7 @@
                     <z-divider />
                     <div class="flex items-center justify-between py-3">
                       <div>
-                        <p class="text-sm font-medium">{{ getConfigLabel(config.config_key) }}</p>
+                        <p class="text-sm font-normal">{{ getConfigLabel(config.config_key) }}</p>
                         @if (config.description) {
                           <p class="text-xs text-muted-foreground">{{ config.description }}</p>
                         }
@@ -972,7 +972,7 @@
                           {{ statutoryForm[config.config_key] === 'true' ? 'Enabled' : 'Disabled' }}
                         </button>
                       } @else {
-                        <span class="text-sm font-semibold" [class.text-green-600]="config.config_value === 'true'" [class.text-muted-foreground]="config.config_value !== 'true'">
+                        <span class="text-sm font-medium" [class.text-green-600]="config.config_value === 'true'" [class.text-muted-foreground]="config.config_value !== 'true'">
                           {{ formatRate(config.config_value, config.config_key) }}
                         </span>
                       }
@@ -998,13 +998,13 @@
         @if (activeSection() === 'email-config') {
           <div class="space-y-6">
             <div>
-              <h3 class="text-lg font-semibold">Email Configuration</h3>
+              <h3 class="text-lg font-medium">Email Configuration</h3>
               <p class="text-sm text-muted-foreground">Configure SMTP settings for sending emails from your company. If not configured, the system default email settings will be used.</p>
             </div>
 
             <z-card>
               <div zCardHeader>
-                <h4 zCardTitle class="text-sm font-semibold">SMTP Settings</h4>
+                <h4 zCardTitle class="text-sm font-medium">SMTP Settings</h4>
               </div>
               <div zCardContent class="space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1049,7 +1049,7 @@
 
             <z-card>
               <div zCardHeader>
-                <h4 zCardTitle class="text-sm font-semibold">Sender Information</h4>
+                <h4 zCardTitle class="text-sm font-medium">Sender Information</h4>
               </div>
               <div zCardContent class="space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1074,7 +1074,7 @@
 
             <z-card>
               <div zCardHeader>
-                <h4 zCardTitle class="text-sm font-semibold">Status</h4>
+                <h4 zCardTitle class="text-sm font-medium">Status</h4>
               </div>
               <div zCardContent>
                 <z-checkbox [(ngModel)]="emailConfigForm.is_active"><span class="text-sm">Enable this email configuration</span></z-checkbox>
@@ -1087,7 +1087,7 @@
               <div [class]="testResult()!.success ? 'rounded-lg border border-green-200 bg-green-50 p-4' : 'rounded-lg border border-red-200 bg-red-50 p-4'">
                 <div class="flex items-center gap-2">
                   <z-icon [zType]="$any(testResult()!.success ? 'check-circle' : 'x-circle')" [class]="testResult()!.success ? 'h-5 w-5 text-green-600' : 'h-5 w-5 text-red-600'" />
-                  <p [class]="testResult()!.success ? 'text-sm font-medium text-green-800' : 'text-sm font-medium text-red-800'">{{ testResult()!.message }}</p>
+                  <p [class]="testResult()!.success ? 'text-sm font-normal text-green-800' : 'text-sm font-normal text-red-800'">{{ testResult()!.message }}</p>
                 </div>
               </div>
             }
@@ -1111,7 +1111,7 @@
         @if (activeSection() === 'email-templates') {
           <div class="space-y-4">
             <div>
-              <h3 class="text-lg font-semibold">Email Templates</h3>
+              <h3 class="text-lg font-medium">Email Templates</h3>
               <p class="text-sm text-muted-foreground">Customize email notifications sent by the system. Use <code class="text-xs bg-muted px-1 rounded">{{'{{variable}}'}}</code> placeholders for dynamic content.</p>
             </div>
 
@@ -1123,12 +1123,12 @@
                     <div class="flex items-center gap-3">
                       <z-icon zType="mail" class="h-5 w-5 text-muted-foreground" />
                       <div class="text-left">
-                        <p class="text-sm font-medium">{{ templateLabels[tmpl.template_key] || tmpl.template_key }}</p>
+                        <p class="text-sm font-normal">{{ templateLabels[tmpl.template_key] || tmpl.template_key }}</p>
                         <p class="text-xs text-muted-foreground">{{ tmpl.subject }}</p>
                       </div>
                     </div>
                     <div class="flex items-center gap-2">
-                      <span [class]="tmpl.is_active ? 'inline-flex items-center rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20' : 'inline-flex items-center rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20'">
+                      <span [class]="tmpl.is_active ? 'inline-flex items-center rounded-full bg-green-50 px-2 py-0.5 text-xs font-normal text-green-700 ring-1 ring-inset ring-green-600/20' : 'inline-flex items-center rounded-full bg-red-50 px-2 py-0.5 text-xs font-normal text-red-700 ring-1 ring-inset ring-red-600/20'">
                         {{ tmpl.is_active ? 'Active' : 'Inactive' }}
                       </span>
                       <z-icon [zType]="expandedTemplate() === tmpl.template_key ? 'chevron-up' : 'chevron-down'" class="h-4 w-4 text-muted-foreground" />
@@ -1156,7 +1156,7 @@
                       <!-- Available variables -->
                       @if (tmpl.variables && tmpl.variables.length > 0) {
                         <div>
-                          <label class="block text-xs font-medium text-muted-foreground mb-1.5">Available Variables</label>
+                          <label class="block text-xs font-normal text-muted-foreground mb-1.5">Available Variables</label>
                           <div class="flex flex-wrap gap-1.5">
                             @for (v of tmpl.variables; track v) {
                               <span class="inline-flex items-center rounded-md bg-muted px-2 py-1 text-xs font-mono">{{'{{' + v + '}}'}}</span>
@@ -1168,8 +1168,8 @@
                       <!-- Preview -->
                       @if (templatePreview()) {
                         <div class="border rounded-lg p-4 bg-muted/30">
-                          <label class="block text-xs font-medium text-muted-foreground mb-2">Preview</label>
-                          <p class="text-sm font-medium mb-2">{{ templatePreview()!.subject }}</p>
+                          <label class="block text-xs font-normal text-muted-foreground mb-2">Preview</label>
+                          <p class="text-sm font-normal mb-2">{{ templatePreview()!.subject }}</p>
                           <div class="text-sm whitespace-pre-wrap text-muted-foreground">{{ templatePreview()!.body }}</div>
                         </div>
                       }

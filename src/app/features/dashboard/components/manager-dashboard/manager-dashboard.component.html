@@ -2,7 +2,7 @@
   <z-tab label="Manager Dashboard">
     <div class="pt-6">
       <div class="mb-8">
-        <h1 class="text-2xl font-bold text-foreground mb-1">Manager Dashboard</h1>
+        <h1 class="text-2xl font-semibold text-foreground mb-1">Manager Dashboard</h1>
         <p class="text-muted-foreground">Manage your team's attendance, leave requests, and claims.</p>
       </div>
 
@@ -22,7 +22,7 @@
         <z-card>
           <div class="p-6 text-center">
             <z-icon zType="triangle-alert" class="text-red-500 text-4xl mb-3" />
-            <p class="text-red-600 font-semibold mb-3">{{ error() }}</p>
+            <p class="text-red-600 font-medium mb-3">{{ error() }}</p>
             <button z-button zType="outline" (click)="loadDashboard()">
               <z-icon zType="refresh-cw" class="mr-2" /> Retry
             </button>
@@ -42,8 +42,8 @@
                 <z-icon zType="users" class="text-primary text-xl" />
               </div>
               <div class="flex-grow">
-                <span class="text-muted-foreground font-semibold block text-sm">Team Members</span>
-                <span class="text-foreground font-bold block text-2xl">{{teamStats.totalMembers}}</span>
+                <span class="text-muted-foreground font-medium block text-sm">Team Members</span>
+                <span class="text-foreground font-semibold block text-2xl">{{teamStats.totalMembers}}</span>
               </div>
             </div>
           </div>
@@ -57,8 +57,8 @@
                 <z-icon zType="circle-check" class="text-green-600 text-xl" />
               </div>
               <div class="flex-grow">
-                <span class="text-muted-foreground font-semibold block text-sm">Present Today</span>
-                <span class="text-foreground font-bold block text-2xl">{{teamStats.presentToday}}</span>
+                <span class="text-muted-foreground font-medium block text-sm">Present Today</span>
+                <span class="text-foreground font-semibold block text-2xl">{{teamStats.presentToday}}</span>
               </div>
             </div>
           </div>
@@ -72,8 +72,8 @@
                 <z-icon zType="calendar" class="text-yellow-600 text-xl" />
               </div>
               <div class="flex-grow">
-                <span class="text-muted-foreground font-semibold block text-sm">Leave Requests</span>
-                <span class="text-foreground font-bold block text-2xl">{{pendingApprovals.leaves}}</span>
+                <span class="text-muted-foreground font-medium block text-sm">Leave Requests</span>
+                <span class="text-foreground font-semibold block text-2xl">{{pendingApprovals.leaves}}</span>
               </div>
             </div>
           </div>
@@ -87,8 +87,8 @@
                 <z-icon zType="file-text" class="text-blue-600 text-xl" />
               </div>
               <div class="flex-grow">
-                <span class="text-muted-foreground font-semibold block text-sm">Claims Pending</span>
-                <span class="text-foreground font-bold block text-2xl">{{pendingApprovals.claims}}</span>
+                <span class="text-muted-foreground font-medium block text-sm">Claims Pending</span>
+                <span class="text-foreground font-semibold block text-2xl">{{pendingApprovals.claims}}</span>
               </div>
             </div>
           </div>
@@ -106,11 +106,11 @@
               <table class="w-full">
                 <thead>
                   <tr class="border-b">
-                    <th class="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Employee</th>
-                    <th class="text-left py-3 px-2 text-sm font-semibold text-muted-foreground">Status</th>
-                    <th class="text-left py-3 px-2 text-sm font-semibold text-muted-foreground">Clock In</th>
-                    <th class="text-left py-3 px-2 text-sm font-semibold text-muted-foreground">Clock Out</th>
-                    <th class="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Hours</th>
+                    <th class="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Employee</th>
+                    <th class="text-left py-3 px-2 text-sm font-medium text-muted-foreground">Status</th>
+                    <th class="text-left py-3 px-2 text-sm font-medium text-muted-foreground">Clock In</th>
+                    <th class="text-left py-3 px-2 text-sm font-medium text-muted-foreground">Clock Out</th>
+                    <th class="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Hours</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -120,7 +120,7 @@
                       <div class="flex items-center">
                         <z-avatar [zFallback]="member.name.charAt(0)" class="mr-3 w-9 h-9 text-xs" />
                         <div>
-                          <span class="text-foreground font-semibold block text-sm">{{member.name}}</span>
+                          <span class="text-foreground font-medium block text-sm">{{member.name}}</span>
                           @if (member.late) {
                           <z-badge zType="destructive" class="text-xs mt-1">Late</z-badge>
                           }
@@ -134,13 +134,13 @@
                       </z-badge>
                     </td>
                     <td class="py-3 px-2">
-                      <span class="text-foreground font-semibold text-sm">{{member.clockIn}}</span>
+                      <span class="text-foreground font-medium text-sm">{{member.clockIn}}</span>
                     </td>
                     <td class="py-3 px-2">
                       <span class="text-muted-foreground text-sm">{{member.clockOut}}</span>
                     </td>
                     <td class="py-3 px-4">
-                      <span class="text-foreground font-semibold text-sm">{{member.hours}}</span>
+                      <span class="text-foreground font-medium text-sm">{{member.hours}}</span>
                     </td>
                   </tr>
                   }
@@ -167,10 +167,10 @@
                   <z-icon zType="user" class="text-green-600" />
                 </div>
                 <div class="flex-grow">
-                  <span class="text-muted-foreground font-semibold block text-base">Present (Office)</span>
+                  <span class="text-muted-foreground font-medium block text-base">Present (Office)</span>
                   <span class="text-muted-foreground text-xs">Working from office</span>
                 </div>
-                <span class="text-green-600 font-bold text-3xl">{{teamStats.presentToday - teamStats.wfhToday}}</span>
+                <span class="text-green-600 font-semibold text-3xl">{{teamStats.presentToday - teamStats.wfhToday}}</span>
               </div>
 
               <!-- WFH -->
@@ -179,10 +179,10 @@
                   <z-icon zType="house" class="text-blue-600" />
                 </div>
                 <div class="flex-grow">
-                  <span class="text-muted-foreground font-semibold block text-base">Work From Home</span>
+                  <span class="text-muted-foreground font-medium block text-base">Work From Home</span>
                   <span class="text-muted-foreground text-xs">Remote working</span>
                 </div>
-                <span class="text-blue-600 font-bold text-3xl">{{teamStats.wfhToday}}</span>
+                <span class="text-blue-600 font-semibold text-3xl">{{teamStats.wfhToday}}</span>
               </div>
 
               <!-- On Leave -->
@@ -191,10 +191,10 @@
                   <z-icon zType="calendar" class="text-yellow-600" />
                 </div>
                 <div class="flex-grow">
-                  <span class="text-muted-foreground font-semibold block text-base">On Leave</span>
+                  <span class="text-muted-foreground font-medium block text-base">On Leave</span>
                   <span class="text-muted-foreground text-xs">Approved leaves</span>
                 </div>
-                <span class="text-yellow-600 font-bold text-3xl">{{teamStats.onLeave}}</span>
+                <span class="text-yellow-600 font-semibold text-3xl">{{teamStats.onLeave}}</span>
               </div>
 
               <!-- WFH Requests -->
@@ -203,10 +203,10 @@
                   <z-icon zType="clock" class="text-primary" />
                 </div>
                 <div class="flex-grow">
-                  <span class="text-muted-foreground font-semibold block text-base">WFH Requests</span>
+                  <span class="text-muted-foreground font-medium block text-base">WFH Requests</span>
                   <span class="text-muted-foreground text-xs">Pending approval</span>
                 </div>
-                <span class="text-primary font-bold text-3xl">{{pendingApprovals.wfh}}</span>
+                <span class="text-primary font-semibold text-3xl">{{pendingApprovals.wfh}}</span>
               </div>
             </div>
           </z-card>
@@ -225,7 +225,7 @@
                 <div class="flex items-start flex-grow">
                   <z-avatar [zFallback]="leave.employee.charAt(0)" class="mr-4 w-10 h-10" />
                   <div class="flex-grow">
-                    <a class="text-foreground font-semibold hover:text-primary text-sm block cursor-pointer"
+                    <a class="text-foreground font-medium hover:text-primary text-sm block cursor-pointer"
                       (click)="navigateTo('/leave')">
                       {{leave.employee}}
                     </a>
@@ -275,7 +275,7 @@
                 <div class="flex items-start flex-grow">
                   <z-avatar [zFallback]="claim.employee.charAt(0)" class="mr-4 w-10 h-10" />
                   <div class="flex-grow">
-                    <a class="text-foreground font-semibold hover:text-primary text-sm block cursor-pointer"
+                    <a class="text-foreground font-medium hover:text-primary text-sm block cursor-pointer"
                       (click)="navigateTo('/claims')">
                       {{claim.employee}}
                     </a>
@@ -292,7 +292,7 @@
                   </div>
                 </div>
                 <div class="flex flex-col items-end gap-2">
-                  <div class="text-foreground font-bold text-xl">RM {{claim.amount.toFixed(2)}}</div>
+                  <div class="text-foreground font-semibold text-xl">RM {{claim.amount.toFixed(2)}}</div>
                   <button z-button zSize="sm" zType="outline" (click)="approveClaim(claim)">
                     <z-icon zType="check" class="mr-1" /> Approve
                   </button>
@@ -325,11 +325,11 @@
             <table class="w-full">
               <thead>
                 <tr class="border-b">
-                  <th class="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Employee</th>
-                  <th class="text-left py-3 px-2 text-sm font-semibold text-muted-foreground">Date</th>
-                  <th class="text-left py-3 px-2 text-sm font-semibold text-muted-foreground">Reason</th>
-                  <th class="text-left py-3 px-2 text-sm font-semibold text-muted-foreground">Status</th>
-                  <th class="text-right py-3 px-4 text-sm font-semibold text-muted-foreground">Actions</th>
+                  <th class="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Employee</th>
+                  <th class="text-left py-3 px-2 text-sm font-medium text-muted-foreground">Date</th>
+                  <th class="text-left py-3 px-2 text-sm font-medium text-muted-foreground">Reason</th>
+                  <th class="text-left py-3 px-2 text-sm font-medium text-muted-foreground">Status</th>
+                  <th class="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -338,7 +338,7 @@
                   <td class="py-3 px-4">
                     <div class="flex items-center">
                       <z-avatar [zFallback]="wfh.employee.charAt(0)" class="mr-3 w-9 h-9 text-xs" />
-                      <span class="text-foreground font-semibold text-sm">{{wfh.employee}}</span>
+                      <span class="text-foreground font-medium text-sm">{{wfh.employee}}</span>
                     </div>
                   </td>
                   <td class="py-3 px-2 text-sm">{{wfh.date}}</td>

@@ -18,6 +18,7 @@ import { ZardCheckboxComponent } from '@/shared/components/checkbox/checkbox.com
 import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-dialog.service';
 import { ZardTableComponent } from '@/shared/components/table/table.component';
 import { ZardEmptyComponent } from '@/shared/components/empty/empty.component';
+import { ZardDividerComponent } from '@/shared/components/divider/divider.component';
 
 @Component({
   selector: 'app-claim-list',
@@ -34,7 +35,8 @@ import { ZardEmptyComponent } from '@/shared/components/empty/empty.component';
     ZardMenuImports,
     ZardCheckboxComponent,
     ZardTableComponent,
-    ZardEmptyComponent
+    ZardEmptyComponent,
+    ZardDividerComponent
   ],
   templateUrl: './claim-list.component.html',
   styleUrl: './claim-list.component.css'
@@ -87,27 +89,21 @@ export class ClaimListComponent implements OnInit {
 
   // Column visibility
   visibleColumns = signal<{[key: string]: boolean}>({
-    date: true,
     employee: true,
     claimType: true,
+    date: true,
     amount: true,
-    description: true,
     status: true,
-    manager: true,
-    finance: true,
-    receipt: true
+    approval: true
   });
 
   columnList = [
-    { key: 'date', label: 'Date' },
     { key: 'employee', label: 'Employee' },
     { key: 'claimType', label: 'Claim Type' },
+    { key: 'date', label: 'Date' },
     { key: 'amount', label: 'Amount' },
-    { key: 'description', label: 'Description' },
     { key: 'status', label: 'Status' },
-    { key: 'manager', label: 'Manager Approval' },
-    { key: 'finance', label: 'Finance Approval' },
-    { key: 'receipt', label: 'Receipt' }
+    { key: 'approval', label: 'Approval' }
   ];
 
   // Expose Math to template
@@ -185,6 +181,11 @@ export class ClaimListComponent implements OnInit {
 
     if (this.employeeIdFilter()) {
       params.employee_id = this.employeeIdFilter()!;
+    }
+
+    if (this.sortColumn()) {
+      (params as any).sort = this.sortColumnMap[this.sortColumn()];
+      (params as any).order = this.sortDirection();
     }
 
     this.claimService.getAllClaims(params).subscribe({
@@ -338,7 +339,14 @@ export class ClaimListComponent implements OnInit {
     });
   }
 
-  // Sorting methods
+  // Sort column mapping (frontend key → backend field)
+  private sortColumnMap: Record<string, string> = {
+    date: 'date',
+    amount: 'amount',
+    status: 'status'
+  };
+
+  // Sorting methods (API-side)
   onSort(column: string): void {
     if (this.sortColumn() === column) {
       this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
@@ -346,50 +354,8 @@ export class ClaimListComponent implements OnInit {
       this.sortColumn.set(column);
       this.sortDirection.set('asc');
     }
-    this.sortClaims();
-  }
-
-  sortClaims(): void {
-    const column = this.sortColumn();
-    const direction = this.sortDirection();
-
-    if (!column) return;
-
-    const sorted = [...this.claims()].sort((a, b) => {
-      let aValue: any;
-      let bValue: any;
-
-      switch (column) {
-        case 'date':
-          aValue = new Date(a.date || '').getTime();
-          bValue = new Date(b.date || '').getTime();
-          break;
-        case 'employee':
-          aValue = a.employee?.full_name?.toLowerCase() || '';
-          bValue = b.employee?.full_name?.toLowerCase() || '';
-          break;
-        case 'claimType':
-          aValue = a.claimType?.name?.toLowerCase() || '';
-          bValue = b.claimType?.name?.toLowerCase() || '';
-          break;
-        case 'amount':
-          aValue = parseFloat(a.amount?.toString() || '0');
-          bValue = parseFloat(b.amount?.toString() || '0');
-          break;
-        case 'status':
-          aValue = a.status?.toLowerCase() || '';
-          bValue = b.status?.toLowerCase() || '';
-          break;
-        default:
-          return 0;
-      }
-
-      if (aValue < bValue) return direction === 'asc' ? -1 : 1;
-      if (aValue > bValue) return direction === 'asc' ? 1 : -1;
-      return 0;
-    });
-
-    this.claims.set(sorted);
+    this.currentPage.set(1);
+    this.loadClaims();
   }
 
   getSortIcon(column: string): 'chevrons-up-down' | 'chevron-up' | 'chevron-down' {
@@ -425,6 +391,28 @@ export class ClaimListComponent implements OnInit {
       default:
         return 'badge-secondary';
     }
+  }
+
+  getStatusBadgeType(status: string): string {
+    const badgeMap: Record<string, string> = {
+      'Pending': 'soft-yellow',
+      'Manager_Approved': 'soft-blue',
+      'Finance_Approved': 'soft-green',
+      'Paid': 'soft-green',
+      'Rejected': 'soft-red'
+    };
+    return badgeMap[status] || 'soft-gray';
+  }
+
+  getStatusDotClass(status: string): string {
+    const dotMap: Record<string, string> = {
+      'Pending': 'bg-yellow-500',
+      'Manager_Approved': 'bg-blue-500',
+      'Finance_Approved': 'bg-green-500',
+      'Paid': 'bg-green-500',
+      'Rejected': 'bg-red-500'
+    };
+    return dotMap[status] || 'bg-gray-400';
   }
 
   getStatusDisplayText(status: string): string {

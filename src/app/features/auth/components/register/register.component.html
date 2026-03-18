@@ -12,7 +12,7 @@
       <div z-card-content class="p-6">
         <!-- Header -->
         <div class="text-center mb-6">
-          <h1 class="text-2xl font-semibold text-foreground mb-2">Create New Account</h1>
+          <h1 class="text-2xl font-medium text-foreground mb-2">Create New Account</h1>
           <p class="text-sm text-muted-foreground">Enter your details below to create your account</p>
         </div>
 
@@ -103,7 +103,7 @@
                   <div class="flex-1 h-1 rounded-full" [ngClass]="passwordStrength >= 75 ? getPasswordStrengthClass() : 'bg-muted'"></div>
                   <div class="flex-1 h-1 rounded-full" [ngClass]="passwordStrength >= 90 ? getPasswordStrengthClass() : 'bg-muted'"></div>
                 </div>
-                <p class="text-xs font-medium" [ngClass]="{
+                <p class="text-xs font-normal" [ngClass]="{
                   'text-destructive': passwordStrength < 40,
                   'text-orange-500': passwordStrength >= 40 && passwordStrength < 60,
                   'text-blue-500': passwordStrength >= 60 && passwordStrength < 80,
@@ -169,7 +169,7 @@
             />
             <label for="agreeTerms" class="text-sm text-foreground cursor-pointer">
               I Accept the
-              <a href="#" class="text-primary hover:underline font-medium">Terms & Conditions</a>
+              <a href="#" class="text-primary hover:underline font-normal">Terms & Conditions</a>
             </label>
           </div>
           @if (registerForm.get('agreeTerms')?.invalid && registerForm.get('agreeTerms')?.touched) {
@@ -226,7 +226,7 @@
       <div class="border-t bg-muted/20 px-6 py-4">
         <p class="text-center text-sm text-muted-foreground">
           Already have an account?
-          <a routerLink="/auth/login" class="text-primary font-medium hover:underline ml-1">Sign in</a>
+          <a routerLink="/auth/login" class="text-primary font-normal hover:underline ml-1">Sign in</a>
         </p>
       </div>
     </z-card>

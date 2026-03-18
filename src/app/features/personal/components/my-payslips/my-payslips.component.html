@@ -3,7 +3,7 @@
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     @if (!embedded()) {
       <div>
-        <h1 class="text-2xl font-bold text-foreground">My Payslips</h1>
+        <h1 class="text-2xl font-semibold text-foreground">My Payslips</h1>
         <p class="text-muted-foreground">View and download your payslips</p>
       </div>
     }
@@ -30,7 +30,7 @@
           </div>
           <div>
             <p class="text-sm text-muted-foreground">YTD Gross</p>
-            <p class="text-lg font-semibold">{{ formatCurrency(ytdSummary()?.total_gross ?? 0) }}</p>
+            <p class="text-lg font-medium">{{ formatCurrency(ytdSummary()?.total_gross ?? 0) }}</p>
           </div>
         </div>
       </z-card>
@@ -42,7 +42,7 @@
           </div>
           <div>
             <p class="text-sm text-muted-foreground">YTD Net</p>
-            <p class="text-lg font-semibold">{{ formatCurrency(ytdSummary()?.total_net ?? 0) }}</p>
+            <p class="text-lg font-medium">{{ formatCurrency(ytdSummary()?.total_net ?? 0) }}</p>
           </div>
         </div>
       </z-card>
@@ -54,7 +54,7 @@
           </div>
           <div>
             <p class="text-sm text-muted-foreground">YTD EPF</p>
-            <p class="text-lg font-semibold">{{ formatCurrency(ytdSummary()?.total_epf ?? 0) }}</p>
+            <p class="text-lg font-medium">{{ formatCurrency(ytdSummary()?.total_epf ?? 0) }}</p>
           </div>
         </div>
       </z-card>
@@ -66,7 +66,7 @@
           </div>
           <div>
             <p class="text-sm text-muted-foreground">YTD Tax (PCB)</p>
-            <p class="text-lg font-semibold">{{ formatCurrency(ytdSummary()?.total_pcb ?? 0) }}</p>
+            <p class="text-lg font-medium">{{ formatCurrency(ytdSummary()?.total_pcb ?? 0) }}</p>
           </div>
         </div>
       </z-card>
@@ -86,7 +86,7 @@
             <div class="flex items-center justify-between">
               <h3 zCardTitle>{{ getMonthName(payslip.month) }} {{ payslip.year }}</h3>
               <span
-                class="px-2 py-1 text-xs font-medium rounded-full capitalize"
+                class="px-2 py-1 text-xs font-normal rounded-full capitalize"
                 [ngClass]="getStatusBadgeClass(payslip.status)">
                 {{ payslip.status }}
               </span>
@@ -95,16 +95,16 @@
           <div zCardContent class="space-y-3">
             <div class="flex justify-between items-center">
               <span class="text-sm text-muted-foreground">Gross Salary</span>
-              <span class="font-medium">{{ formatCurrency(payslip.gross_salary) }}</span>
+              <span class="font-normal">{{ formatCurrency(payslip.gross_salary) }}</span>
             </div>
             <div class="flex justify-between items-center">
               <span class="text-sm text-muted-foreground">Total Deductions</span>
-              <span class="font-medium text-red-600">-{{ formatCurrency(payslip.total_deductions) }}</span>
+              <span class="font-normal text-red-600">-{{ formatCurrency(payslip.total_deductions) }}</span>
             </div>
             <hr class="border-border">
             <div class="flex justify-between items-center">
-              <span class="text-sm font-medium">Net Salary</span>
-              <span class="font-semibold text-green-600">{{ formatCurrency(payslip.net_salary) }}</span>
+              <span class="text-sm font-normal">Net Salary</span>
+              <span class="font-medium text-green-600">{{ formatCurrency(payslip.net_salary) }}</span>
             </div>
           </div>
           <div zCardFooter class="pt-0">

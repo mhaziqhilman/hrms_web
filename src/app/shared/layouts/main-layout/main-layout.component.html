@@ -20,7 +20,7 @@
                 [class]="'flex-shrink-0 rounded-md object-cover ' +
                   (sidebarCollapsed() ? 'w-8 h-8' : 'w-9 h-9')" />
             } @else {
-              <div [class]="'flex-shrink-0 rounded-md bg-primary/10 flex items-center justify-center font-semibold text-primary ' +
+              <div [class]="'flex-shrink-0 rounded-md bg-primary/10 flex items-center justify-center font-medium text-primary ' +
                 (sidebarCollapsed() ? 'w-8 h-8 text-xs' : 'w-9 h-9 text-sm')">
                 {{ currentCompany ? getCompanyInitials() : 'SA' }}
               </div>
@@ -28,7 +28,7 @@
 
             @if (!sidebarCollapsed()) {
               <div class="flex-1 min-w-0">
-                <div class="font-semibold text-sm truncate leading-tight">{{ currentCompany?.name || 'Select Company' }}</div>
+                <div class="font-medium text-sm truncate leading-tight">{{ currentCompany?.name || 'Select Company' }}</div>
                 <div class="text-xs text-muted-foreground truncate capitalize">{{ getDisplayRole() }}</div>
               </div>
               <z-icon zType="chevrons-up-down" class="ml-auto shrink-0 w-4 h-4 text-muted-foreground" />
@@ -40,13 +40,13 @@
               @if (isSuperAdmin) {
                 <!-- Super Admin: show ALL companies with clear context option -->
                 <div class="px-2 py-1.5">
-                  <p class="text-xs font-medium text-muted-foreground">Company Context</p>
+                  <p class="text-xs font-normal text-muted-foreground">Company Context</p>
                 </div>
                 <button type="button" z-menu-item class="justify-between"
                   (click)="clearCompanyContext()"
                   [disabled]="switchingCompany">
                   <div class="flex items-center gap-2 min-w-0">
-                    <div class="w-6 h-6 rounded bg-muted flex items-center justify-center text-[10px] font-semibold text-muted-foreground flex-shrink-0">
+                    <div class="w-6 h-6 rounded bg-muted flex items-center justify-center text-[10px] font-medium text-muted-foreground flex-shrink-0">
                       <z-icon zType="globe" class="w-3.5 h-3.5" />
                     </div>
                     <div class="min-w-0">
@@ -67,7 +67,7 @@
                         <img [src]="company.logo_url" [alt]="company.name"
                           class="w-6 h-6 rounded object-cover flex-shrink-0" />
                       } @else {
-                        <div class="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-[10px] font-semibold text-primary flex-shrink-0">
+                        <div class="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-[10px] font-medium text-primary flex-shrink-0">
                           {{ getCompanyInitials(company.name) }}
                         </div>
                       }
@@ -83,7 +83,7 @@
               } @else {
                 <!-- Regular users: show memberships -->
                 <div class="px-2 py-1.5">
-                  <p class="text-xs font-medium text-muted-foreground">Your Companies</p>
+                  <p class="text-xs font-normal text-muted-foreground">Your Companies</p>
                 </div>
                 @for (membership of companyMemberships; track membership.id) {
                   <button type="button" z-menu-item class="justify-between"
@@ -94,7 +94,7 @@
                         <img [src]="membership.company!.logo_url" [alt]="membership.company!.name"
                           class="w-6 h-6 rounded object-cover flex-shrink-0" />
                       } @else {
-                        <div class="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-[10px] font-semibold text-primary flex-shrink-0">
+                        <div class="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-[10px] font-medium text-primary flex-shrink-0">
                           {{ getCompanyInitials(membership.company?.name) }}
                         </div>
                       }
@@ -114,13 +114,13 @@
         } @else {
           <!-- Fallback: No company assigned -->
           <div [class]="'flex items-center rounded-md ' + (sidebarCollapsed() ? 'justify-center p-1.5' : 'gap-2.5 p-2')">
-            <div [class]="'flex-shrink-0 rounded-md bg-muted flex items-center justify-center font-semibold text-muted-foreground ' +
+            <div [class]="'flex-shrink-0 rounded-md bg-muted flex items-center justify-center font-medium text-muted-foreground ' +
               (sidebarCollapsed() ? 'w-8 h-8 text-xs' : 'w-9 h-9 text-sm')">
               <z-icon [zType]="$any('building')" class="w-4 h-4" />
             </div>
             @if (!sidebarCollapsed()) {
               <div class="flex-1 min-w-0">
-                <div class="font-semibold text-sm truncate leading-tight text-muted-foreground">No Company</div>
+                <div class="font-medium text-sm truncate leading-tight text-muted-foreground">No Company</div>
                 <div class="text-xs text-muted-foreground truncate">Not assigned</div>
               </div>
             }
@@ -141,7 +141,7 @@
                 @if (isItemVisible(item)) {
                   @if (item.children && item.children.length > 0) {
                     <!-- Parent item with children -->
-                    <button type="button" z-button zType="ghost" class="px-2 py-1"
+                    <button type="button" z-button zType="ghost" class="px-2 py-1 text-foreground/65"
                       [class]="sidebarCollapsed() ? 'justify-center self-center !flex' : 'justify-start'"
                       [zTooltip]="sidebarCollapsed() ? item.title : ''" zPosition="right" (click)="toggleMenuItem(item.title)">
                       <z-icon [zType]="item.icon" [class]="sidebarCollapsed() ? '' : 'mr-1'" />
@@ -155,9 +155,9 @@
                     @if (isMenuItemExpanded(item.title) && !sidebarCollapsed()) {
                       <div class="ml-4 space-y-1 border-l-1 px-2.5">
                         @for (child of item.children; track child.route) {
-                          <a [routerLink]="child.route" routerLinkActive="bg-primary/10 text-primary font-semibold"
+                          <a [routerLink]="child.route" routerLinkActive="bg-primary/10 !text-primary font-medium"
                             [routerLinkActiveOptions]="{ exact: !child.children }" z-button zType="ghost"
-                            class="justify-start w-full pl-2 px-2 py-0">
+                            class="justify-start w-full pl-2 px-2 py-0 text-foreground/65">
                             <z-icon [zType]="child.icon" class="mr-1 w-4 h-4" />
                             <span>{{ child.title }}</span>
                           </a>
@@ -166,8 +166,8 @@
                     }
                   } @else {
                     <!-- Regular item without children -->
-                    <a [routerLink]="item.route" routerLinkActive="bg-primary/10 text-primary font-semibold" z-button
-                      zType="ghost" class="px-2 py-1"
+                    <a [routerLink]="item.route" routerLinkActive="bg-primary/10 !text-primary font-medium" z-button
+                      zType="ghost" class="px-2 py-1 text-foreground/65"
                       [class]="sidebarCollapsed() ? 'justify-center self-center !flex' : 'justify-start'"
                       [zTooltip]="sidebarCollapsed() ? item.title : ''" zPosition="right">
                       <z-icon [zType]="item.icon" [class]="sidebarCollapsed() ? '' : 'mr-1'" />
@@ -193,7 +193,7 @@
 
           @if (!sidebarCollapsed()) {
           <div class="flex-1 min-w-0">
-            <div class="font-medium text-sm truncate">{{ getDisplayName() }}</div>
+            <div class="font-normal text-sm truncate">{{ getDisplayName() }}</div>
             <div class="text-xs text-muted-foreground truncate">{{ currentUser?.email || 'admin@hrms.com' }}</div>
           </div>
           <z-icon zType="chevrons-up-down" class="ml-auto shrink-0" />
@@ -264,7 +264,7 @@
             </div>
             <div
               class="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none flex items-center gap-0.5 text-xs text-muted-foreground">
-              <kbd class="pointer-events-none inline-flex h-5 select-none items-center gap-0.5 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+              <kbd class="pointer-events-none inline-flex h-5 select-none items-center gap-0.5 rounded border bg-muted px-1.5 font-mono text-[10px] font-normal text-muted-foreground">
                 <span class="text-xs">Ctrl</span>K
               </kbd>
             </div>
@@ -288,7 +288,7 @@
             <div z-menu-content class="w-[380px] p-0">
               <!-- Header -->
               <div class="flex items-center justify-between px-4 py-3">
-                <h4 class="font-semibold text-sm">Notifications</h4>
+                <h4 class="font-medium text-sm">Notifications</h4>
                 <a routerLink="/notifications" class="text-xs text-primary hover:underline cursor-pointer">View all</a>
               </div>
               <z-divider zSpacing="none" />
@@ -312,7 +312,7 @@
                       </div>
                       <!-- Content -->
                       <div class="flex-1 min-w-0">
-                        <p class="text-sm font-medium leading-tight" [class.font-semibold]="!notification.is_read">
+                        <p class="text-sm font-normal leading-tight" [class.font-medium]="!notification.is_read">
                           {{ notification.title }}
                         </p>
                         <p class="text-xs text-muted-foreground mt-0.5 line-clamp-2">{{ notification.message }}</p>
@@ -362,7 +362,7 @@
               <div class="flex items-center justify-start gap-2 p-2">
                 <z-avatar class="h-8 w-8 flex-shrink-0" [zSrc]="userProfileService.profilePictureUrl() ?? undefined" [zAlt]="currentUser?.employee?.full_name || 'User'" [zFallback]="getUserInitials()" />
                 <div class="flex flex-col space-y-1 leading-none min-w-0">
-                  <p class="font-medium text-sm truncate">{{ currentUser?.employee?.full_name || 'Admin User' }}</p>
+                  <p class="font-normal text-sm truncate">{{ currentUser?.employee?.full_name || 'Admin User' }}</p>
                   <p class="text-xs text-muted-foreground truncate">{{ currentUser?.email || 'admin@hrms.com' }}</p>
                 </div>
               </div>
@@ -395,7 +395,7 @@
     <footer class="flex items-center px-6 border-t border-border shrink-0">
       <div class="flex items-center justify-between w-full h-14 text-sm text-muted-foreground">
         <div>
-          <span class="font-semibold">2025 ©</span>
+          <span class="font-medium">2025 ©</span>
           <a href="#" class="hover:text-primary ml-1">HRMS</a>
         </div>
         <div class="hidden md:block">

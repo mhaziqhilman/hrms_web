@@ -2,7 +2,7 @@
   <!-- Header -->
   <div class="flex items-center justify-between mb-6">
     <div>
-      <h1 class="text-2xl font-bold text-foreground">Leave Management</h1>
+      <h1 class="text-2xl font-semibold text-foreground">Leave Management</h1>
       <p class="text-muted-foreground">View and track all leave applications</p>
     </div>
     <div class="flex gap-2">
@@ -26,13 +26,13 @@
   <!-- View Toggle -->
   <div class="flex items-center gap-1 mb-6 bg-muted rounded-lg p-1 w-fit">
     <button
-      class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors bg-background text-foreground shadow-sm">
+      class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-normal transition-colors bg-background text-foreground shadow-sm">
       <z-icon zType="list" class="w-4 h-4" />
       List
     </button>
     <button
       routerLink="/leave/calendar"
-      class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors text-muted-foreground hover:text-foreground">
+      class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-normal transition-colors text-muted-foreground hover:text-foreground">
       <z-icon zType="calendar-check" class="w-4 h-4" />
       Calendar
     </button>
@@ -53,36 +53,11 @@
   <div class="flex items-center gap-3 mb-6 flex-wrap justify-between">
     <div class="flex items-center gap-3 flex-1 flex-wrap">
       <!-- Status Filter -->
-      <div z-menu [zMenuTriggerFor]="statusMenu">
-        <button
-          z-button
-          zType="outline"
-          [class]="selectedStatus()
-            ? 'gap-2 border border-solid px-2 bg-primary/5 text-primary border-primary'
-            : 'gap-2 border border-dashed px-2'">
-          <z-icon [zType]="selectedStatus() ? 'circle-check' : 'circle-plus'" class="w-4 h-4" />
-          {{ getStatusDisplayName() }}
-        </button>
-      </div>
-      <ng-template #statusMenu>
-        <div z-menu-content class="w-48">
-          <button type="button" z-menu-item (click)="selectedStatus.set(''); onFilterChange()">
-            All Status
-          </button>
-          <button type="button" z-menu-item (click)="selectedStatus.set(LeaveStatus.PENDING); onFilterChange()">
-            Pending
-          </button>
-          <button type="button" z-menu-item (click)="selectedStatus.set(LeaveStatus.APPROVED); onFilterChange()">
-            Approved
-          </button>
-          <button type="button" z-menu-item (click)="selectedStatus.set(LeaveStatus.REJECTED); onFilterChange()">
-            Rejected
-          </button>
-          <button type="button" z-menu-item (click)="selectedStatus.set(LeaveStatus.CANCELLED); onFilterChange()">
-            Cancelled
-          </button>
-        </div>
-      </ng-template>
+      <z-segmented
+        [zOptions]="statusOptions"
+        zDefaultValue=""
+        (zChange)="onStatusChange($event)">
+      </z-segmented>
 
       <!-- Start Date Filter -->
       <z-date-picker
@@ -104,7 +79,7 @@
 
       <!-- Clear Filters -->
       <button
-        *ngIf="selectedStatus() || startDateFilter() || endDateFilter()"
+        *ngIf="startDateFilter() || endDateFilter()"
         type="button"
         z-button
         zType="outline"
@@ -124,7 +99,7 @@
     </div>
     <ng-template #columnMenu>
       <div z-menu-content class="w-56">
-        <div class="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
+        <div class="px-2 py-1.5 text-xs font-medium text-muted-foreground">
           Toggle Columns
         </div>
         @for (column of columnList; track column.key) {
@@ -166,7 +141,7 @@
             <z-icon zType="check-circle" class="w-4 h-4 text-primary" />
           </div>
           <div class="flex flex-col">
-            <span class="text-sm font-semibold text-foreground">{{ getSelectedCount() }} Selected</span>
+            <span class="text-sm font-medium text-foreground">{{ getSelectedCount() }} Selected</span>
             <span class="text-xs text-muted-foreground">Bulk actions available</span>
           </div>
         </div>
@@ -174,18 +149,18 @@
         <!-- Right: Action Buttons -->
         <div class="flex items-center gap-2">
           <button type="button" (click)="bulkApprove()"
-            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary/90 rounded-md transition-all duration-200 shadow-sm hover:shadow-md">
+            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-normal text-white bg-primary hover:bg-primary/90 rounded-md transition-all duration-200 shadow-sm hover:shadow-md">
             <z-icon zType="circle-check" class="w-4 h-4" />
             <span>Approve</span>
           </button>
           <button type="button" (click)="bulkReject()"
-            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-destructive hover:bg-destructive/90 rounded-md transition-all duration-200 shadow-sm hover:shadow-md">
+            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-normal text-white bg-destructive hover:bg-destructive/90 rounded-md transition-all duration-200 shadow-sm hover:shadow-md">
             <z-icon zType="circle-x" class="w-4 h-4" />
             <span>Reject</span>
           </button>
           <div class="w-px h-6 bg-border mx-1"></div>
           <button type="button" (click)="clearSelection()"
-            class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200">
+            class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-normal text-muted-foreground hover:text-foreground transition-colors duration-200">
             <z-icon zType="x" class="w-4 h-4" />
             <span>Clear</span>
           </button>
@@ -207,54 +182,29 @@
               </th>
             }
 
-            <!-- Employee Column - Sortable -->
+            <!-- Employee Column -->
             <th class="!pl-3" *ngIf="visibleColumns()['employee']">
-              <button
-                (click)="onSort('employee')"
-                class="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer"
-                [class.text-primary]="isSortActive('employee')">
-                <span>Employee</span>
-                <z-icon [zType]="getSortIcon('employee')" class="w-4 h-4" />
-              </button>
+              <span>Employee</span>
             </th>
 
-            <!-- Leave Type Column - Sortable -->
+            <!-- Leave Type Column -->
             <th *ngIf="visibleColumns()['leaveType']">
-              <button
-                (click)="onSort('leaveType')"
-                class="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer"
-                [class.text-primary]="isSortActive('leaveType')">
-                <span>Leave Type</span>
-                <z-icon [zType]="getSortIcon('leaveType')" class="w-4 h-4" />
-              </button>
+              <span>Leave Type</span>
             </th>
 
-            <!-- Start Date Column - Sortable -->
-            <th *ngIf="visibleColumns()['startDate']">
-              <button
-                (click)="onSort('startDate')"
+            <!-- Period Column - Sortable -->
+            <th *ngIf="visibleColumns()['period']">
+              <button (click)="onSort('period')"
                 class="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer"
-                [class.text-primary]="isSortActive('startDate')">
-                <span>Start Date</span>
-                <z-icon [zType]="getSortIcon('startDate')" class="w-4 h-4" />
-              </button>
-            </th>
-
-            <!-- End Date Column - Sortable -->
-            <th *ngIf="visibleColumns()['endDate']">
-              <button
-                (click)="onSort('endDate')"
-                class="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer"
-                [class.text-primary]="isSortActive('endDate')">
-                <span>End Date</span>
-                <z-icon [zType]="getSortIcon('endDate')" class="w-4 h-4" />
+                [class.text-primary]="isSortActive('period')">
+                <span>Period</span>
+                <z-icon [zType]="getSortIcon('period')" class="w-4 h-4" />
               </button>
             </th>
 
             <!-- Duration Column - Sortable -->
             <th *ngIf="visibleColumns()['duration']">
-              <button
-                (click)="onSort('duration')"
+              <button (click)="onSort('duration')"
                 class="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer"
                 [class.text-primary]="isSortActive('duration')">
                 <span>Duration</span>
@@ -264,8 +214,7 @@
 
             <!-- Status Column - Sortable -->
             <th *ngIf="visibleColumns()['status']">
-              <button
-                (click)="onSort('status')"
+              <button (click)="onSort('status')"
                 class="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer"
                 [class.text-primary]="isSortActive('status')">
                 <span>Status</span>
@@ -274,21 +223,13 @@
             </th>
 
             <!-- Actions Column -->
-            <th class="!pr-3">Actions</th>
+            <th class="sticky-action-col">Actions</th>
           </tr>
         </thead>
         <tbody>
           @for (leave of leaves(); track leave.id) {
             <tr>
               <!-- Checkbox -->
-              <!-- <td class="!pl-3 text-center">
-                <input
-                  type="checkbox"
-                  [checked]="isLeaveSelected(leave.id)"
-                  (change)="toggleLeaveSelection(leave.id)"
-                  class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer" />
-              </td> -->
-
               @if (!isStaff()) {
                 <td class="!pl-3 text-center">
                   <span z-checkbox [ngModel]="isLeaveSelected(leave.id)"
@@ -301,12 +242,10 @@
               @if (visibleColumns()['employee']) {
                 <td class="!pl-3">
                   <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <z-icon zType="user" class="w-5 h-5 text-primary" />
-                    </div>
-                    <div class="min-w-0">
-                      <div class="text-sm font-medium text-foreground">{{ leave.employee?.full_name }}</div>
-                      <div class="text-xs text-muted-foreground">{{ leave.employee?.employee_id }}</div>
+                    <z-avatar [zFallback]="leave.employee?.full_name?.charAt(0) || '?'" class="w-10 h-10" />
+                    <div class="flex flex-col">
+                      <span class="font-normal text-foreground">{{ leave.employee?.full_name }}</span>
+                      <span class="mt-0.5 text-[11px] text-muted-foreground truncate">{{ leave.employee?.employee_id }}</span>
                     </div>
                   </div>
                 </td>
@@ -315,96 +254,88 @@
               <!-- Leave Type -->
               @if (visibleColumns()['leaveType']) {
                 <td>
-                  <div class="text-sm text-foreground">{{ leave.leave_type?.name || 'N/A' }}</div>
-                  <div class="text-xs text-muted-foreground">{{ leave.leave_type?.is_paid ? 'Paid' : 'Unpaid' }}</div>
+                  <div class="flex flex-col">
+                    <span>{{ leave.leave_type?.name || 'N/A' }}</span>
+                    <span class="mt-0.5 text-[11px] text-muted-foreground truncate">{{ leave.leave_type?.is_paid ? 'Paid' : 'Unpaid' }}</span>
+                  </div>
                 </td>
               }
 
-              <!-- Start Date -->
-              @if (visibleColumns()['startDate']) {
-                <td>{{ formatDate(leave.start_date) }}</td>
-              }
-
-              <!-- End Date -->
-              @if (visibleColumns()['endDate']) {
-                <td>{{ formatDate(leave.end_date) }}</td>
+              <!-- Period (Start → End) -->
+              @if (visibleColumns()['period']) {
+                <td>
+                  <div class="flex flex-col">
+                    <span>{{ formatDate(leave.start_date) }}</span>
+                    <span class="mt-0.5 text-[11px] text-muted-foreground truncate">{{ formatDate(leave.end_date) }}</span>
+                  </div>
+                </td>
               }
 
               <!-- Duration -->
               @if (visibleColumns()['duration']) {
                 <td>
-                  <div class="text-sm font-medium text-foreground">{{ getDuration(leave) }}</div>
+                  <div class="flex flex-col">
+                    <span>{{ getDuration(leave) }}</span>
+                    @if (leave.is_half_day) {
+                      <span class="mt-0.5 text-[11px] text-muted-foreground truncate">{{ leave.half_day_period }}</span>
+                    }
+                  </div>
                 </td>
               }
 
               <!-- Status -->
               @if (visibleColumns()['status']) {
                 <td>
-                  <z-badge [zType]="getStatusBadgeType(leave.status)" zShape="pill" class="gap-1">
-                    <z-icon [zType]="getStatusIconType(leave.status)" class="w-3 h-3" />
+                  <z-badge [zType]="$any(getStatusBadgeType(leave.status))" [zShape]="'pill'" class="text-xs">
+                    <span class="inline-block w-1.5 h-1.5 rounded-full" [class]="getStatusDotClass(leave.status)"></span>
                     {{ leave.status }}
                   </z-badge>
                 </td>
               }
 
               <!-- Actions -->
-              <td class="!pr-3 text-right">
-                <div class="flex gap-2 flex-nowrap justify-end">
-                  <button
-                    type="button"
-                    z-button
-                    zType="outline"
-                    zSize="sm"
-                    (click)="viewLeaveDetails(leave)"
-                    [zTooltip]="'View'">
-                    <z-icon zType="eye" class="w-4 h-4" />
-                  </button>
-                  @if (canEdit(leave)) {
-                    <a
-                      [routerLink]="['/leave', leave.public_id, 'edit']"
-                      z-button
-                      zType="outline"
-                      zSize="sm"
-                      [zTooltip]="'Edit'">
-                      <z-icon zType="pencil" class="w-4 h-4" />
-                    </a>
-                  }
-                  @if (canApprove(leave)) {
-                    <button
-                      type="button"
-                      (click)="approveLeave(leave)"
-                      z-button
-                      zType="outline"
-                      zSize="sm"
-                      [zTooltip]="'Approve'"
-                      class="text-green-600 hover:text-green-700">
-                      <z-icon zType="circle-check" class="w-4 h-4" />
+              <td class="sticky-action-col">
+                <div class="flex justify-end">
+                  <div z-menu [zMenuTriggerFor]="leaveActionMenu">
+                    <button z-button zType="ghost" zSize="sm">
+                      <z-icon zType="ellipsis" class="w-4 h-4" />
                     </button>
-                  }
-                  @if (canReject(leave)) {
-                    <button
-                      type="button"
-                      (click)="rejectLeave(leave)"
-                      z-button
-                      zType="outline"
-                      zSize="sm"
-                      [zTooltip]="'Reject'"
-                      class="text-red-600 hover:text-red-700">
-                      <z-icon zType="circle-x" class="w-4 h-4" />
-                    </button>
-                  }
-                  @if (canCancel(leave)) {
-                    <button
-                      type="button"
-                      (click)="cancelLeave(leave)"
-                      z-button
-                      zType="outline"
-                      zSize="sm"
-                      [zTooltip]="'Cancel'"
-                      class="text-orange-600 hover:text-orange-700">
-                      <z-icon zType="ban" class="w-4 h-4" />
-                    </button>
-                  }
+                  </div>
+                  <ng-template #leaveActionMenu>
+                    <div z-menu-content class="w-40">
+                      <button z-menu-item (click)="viewLeaveDetails(leave)" class="gap-2">
+                        <z-icon zType="eye" class="w-4 h-4" />
+                        View
+                      </button>
+                      @if (canEdit(leave)) {
+                        <a z-menu-item [routerLink]="['/leave', leave.public_id, 'edit']" class="gap-2">
+                          <z-icon zType="pencil" class="w-4 h-4" />
+                          Edit
+                        </a>
+                      }
+                      @if (canApprove(leave) || canReject(leave) || canCancel(leave)) {
+                        <z-divider zSpacing="sm" />
+                      }
+                      @if (canApprove(leave)) {
+                        <button z-menu-item (click)="approveLeave(leave)" class="gap-2 text-green-600">
+                          <z-icon zType="circle-check" class="w-4 h-4" />
+                          Approve
+                        </button>
+                      }
+                      @if (canReject(leave)) {
+                        <button z-menu-item (click)="rejectLeave(leave)" class="gap-2 text-destructive">
+                          <z-icon zType="circle-x" class="w-4 h-4" />
+                          Reject
+                        </button>
+                      }
+                      @if (canCancel(leave)) {
+                        <button z-menu-item (click)="cancelLeave(leave)" class="gap-2 text-destructive">
+                          <z-icon zType="ban" class="w-4 h-4" />
+                          Cancel
+                        </button>
+                      }
+                    </div>
+                  </ng-template>
                 </div>
               </td>
             </tr>
@@ -418,7 +349,7 @@
       <div class="bg-card border rounded-lg">
         <div class="flex flex-col items-center justify-center py-20 text-center">
           <z-icon zType="inbox" class="w-16 h-16 text-muted-foreground mb-4" />
-          <h3 class="text-lg font-semibold mb-2">No Leave Applications Found</h3>
+          <h3 class="text-lg font-medium mb-2">No Leave Applications Found</h3>
           <p class="text-muted-foreground mb-4">No leave applications match your current filters.</p>
           <button z-button zType="outline" (click)="clearFilters()">
             Clear Filters

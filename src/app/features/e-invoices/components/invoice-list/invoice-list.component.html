@@ -2,7 +2,7 @@
   <!-- Header -->
   <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
     <div>
-      <h2 class="text-2xl font-bold text-foreground">e-Invoices</h2>
+      <h2 class="text-2xl font-semibold text-foreground">e-Invoices</h2>
       <p class="text-muted-foreground mt-1">Manage invoices and LHDN MyInvois submissions</p>
     </div>
     <div class="flex items-center gap-3">
@@ -49,7 +49,7 @@
           <z-icon [zType]="$any('file-text')" class="w-5 h-5 text-blue-600" />
         </div>
         <div>
-          <p class="text-xl font-bold">{{ getTotalCount() }}</p>
+          <p class="text-xl font-semibold">{{ getTotalCount() }}</p>
           <p class="text-xs text-muted-foreground">Total Invoices</p>
         </div>
       </div>
@@ -60,7 +60,7 @@
           <z-icon [zType]="$any('clock')" class="w-5 h-5 text-amber-600" />
         </div>
         <div>
-          <p class="text-xl font-bold">{{ (a.statusCounts['Draft'] || 0) + (a.statusCounts['Pending'] || 0) }}</p>
+          <p class="text-xl font-semibold">{{ (a.statusCounts['Draft'] || 0) + (a.statusCounts['Pending'] || 0) }}</p>
           <p class="text-xs text-muted-foreground">Pending Approval</p>
         </div>
       </div>
@@ -71,7 +71,7 @@
           <z-icon [zType]="$any('check-circle')" class="w-5 h-5 text-green-600" />
         </div>
         <div>
-          <p class="text-xl font-bold">{{ a.statusCounts['Valid'] || 0 }}</p>
+          <p class="text-xl font-semibold">{{ a.statusCounts['Valid'] || 0 }}</p>
           <p class="text-xs text-muted-foreground">LHDN Validated</p>
         </div>
       </div>
@@ -82,7 +82,7 @@
           <z-icon [zType]="$any('dollar-sign')" class="w-5 h-5 text-purple-600" />
         </div>
         <div>
-          <p class="text-xl font-bold">{{ formatCurrency(a.totals.total_outstanding) }}</p>
+          <p class="text-xl font-semibold">{{ formatCurrency(a.totals.total_outstanding) }}</p>
           <p class="text-xs text-muted-foreground">Outstanding (RM)</p>
         </div>
       </div>
@@ -110,7 +110,7 @@
           <z-icon zType="check-circle" class="w-4 h-4 text-primary" />
         </div>
         <div class="flex flex-col">
-          <span class="text-sm font-semibold text-foreground">{{ selectedInvoices.size }} Selected</span>
+          <span class="text-sm font-medium text-foreground">{{ selectedInvoices.size }} Selected</span>
           <span class="text-xs text-muted-foreground">Bulk actions available</span>
         </div>
       </div>
@@ -220,7 +220,7 @@
   <!-- Column Menu Template -->
   <ng-template #columnMenu>
     <div z-menu-content class="w-56">
-      <div class="px-2 py-1.5 text-sm font-semibold text-foreground">Toggle columns</div>
+      <div class="px-2 py-1.5 text-sm font-medium text-foreground">Toggle columns</div>
       <div class="h-px bg-border my-1"></div>
       <button type="button" z-menu-item (click)="toggleColumn('invoiceNumber')" class="flex items-center justify-between">
         <span>Invoice #</span>
@@ -259,7 +259,7 @@
     } @else if (invoices().length === 0) {
     <div class="flex flex-col items-center justify-center py-16 px-4 text-center">
       <z-icon [zType]="$any('file-text')" class="w-16 h-16 text-muted-foreground/50 mb-4" />
-      <h4 class="text-lg font-semibold text-foreground mb-2">No Invoices Found</h4>
+      <h4 class="text-lg font-medium text-foreground mb-2">No Invoices Found</h4>
       <p class="text-muted-foreground mb-6">
         @if (hasActiveFilters()) {
           No invoices match your current filters.
@@ -341,7 +341,7 @@
             <!-- Invoice # -->
             <td class="!pl-3">
               <div class="flex flex-col">
-                <span class="font-medium text-foreground">{{ invoice.invoice_number }}</span>
+                <span class="font-normal text-foreground">{{ invoice.invoice_number }}</span>
                 @if (invoice.is_self_billed) {
                 <span class="text-sm text-muted-foreground">Self-Billed</span>
                 }
@@ -367,7 +367,7 @@
             <!-- Supplier / Buyer -->
             <td>
               <div class="flex flex-col">
-                <span class="font-medium text-foreground">{{ invoice.is_self_billed ? invoice.supplier_name : invoice.buyer_name }}</span>
+                <span class="font-normal text-foreground">{{ invoice.is_self_billed ? invoice.supplier_name : invoice.buyer_name }}</span>
                 <span class="text-sm text-muted-foreground">{{ invoice.is_self_billed ? 'Supplier' : 'Buyer' }}</span>
               </div>
             </td>
@@ -377,7 +377,7 @@
             <!-- Amount -->
             <td>
               <div class="flex flex-col">
-                <span class="font-semibold text-green-600">RM {{ formatCurrency(invoice.total_amount) }}</span>
+                <span class="font-medium text-green-600">RM {{ formatCurrency(invoice.total_amount) }}</span>
                 @if (+invoice.balance_due > 0 && +invoice.amount_paid > 0) {
                 <span class="text-xs text-muted-foreground">Due: RM {{ formatCurrency(invoice.balance_due) }}</span>
                 }
@@ -388,7 +388,7 @@
             @if (visibleColumns['status']) {
             <!-- Status -->
             <td>
-              <span [class]="getStatusColor(invoice.status)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold">
+              <span [class]="getStatusColor(invoice.status)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
                 {{ invoice.status }}
               </span>
             </td>

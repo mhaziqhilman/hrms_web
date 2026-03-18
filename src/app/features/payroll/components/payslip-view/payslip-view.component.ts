@@ -307,14 +307,14 @@ body { font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', R
 .header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 18px; }
 .header-left { display: flex; align-items: flex-start; gap: 16px; }
 .company-logo { width: 60px; height: 60px; object-fit: contain; }
-.company-logo-placeholder { width: 80px; height: 80px; border: 1px solid #d0d0d0; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; color: #555; text-align: center; border-radius: 4px; background: #f5f5f5; }
+.company-logo-placeholder { width: 80px; height: 80px; border: 1px solid #d0d0d0; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 600; color: #555; text-align: center; border-radius: 4px; background: #f5f5f5; }
 .company-info { padding-top: 4px; }
-.company-info .title { font-size: 16px; font-weight: 700; letter-spacing: 0.3px; }
+.company-info .title { font-size: 16px; font-weight: 600; letter-spacing: 0.3px; }
 .company-info .company-name { font-size: 13px; margin-top: 2px; }
 .company-info .reg-no { font-size: 12px; color: #555; margin-top: 1px; }
 .header-right { text-align: right; padding-top: 4px; }
 .header-right .period { font-size: 13px; }
-.header-right .period strong { font-weight: 700; }
+.header-right .period strong { font-weight: 600; }
 .header-right .issued { font-size: 12px; color: #555; margin-top: 2px; }
 .divider-solid { height: 2px; margin: 16px 0; }
 .divider-dashed { border: none; border-top: 1.5px dashed #bbb; margin: 20px 0; }
@@ -322,19 +322,19 @@ body { font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', R
 .info-row { display: flex; align-items: baseline; }
 .info-label { width: 130px; flex-shrink: 0; font-size: 13px; color: #333; }
 .info-colon { width: 14px; flex-shrink: 0; text-align: center; }
-.info-value { font-size: 13px; font-weight: 500; }
+.info-value { font-size: 13px; font-weight: 400; }
 .main-table { width: 100%; border-collapse: collapse; margin-top: 6px; }
-.main-table th { text-align: left; font-size: 13px; font-weight: 700; padding: 0px 12px 12px 12px; border: 1px solid #d0d0d0; background: #fafafa; white-space: nowrap; }
+.main-table th { text-align: left; font-size: 13px; font-weight: 600; padding: 0px 12px 12px 12px; border: 1px solid #d0d0d0; background: #fafafa; white-space: nowrap; }
 .main-table td { padding: 5px 10px; border-left: 1px solid #d0d0d0; border-right: 1px solid #d0d0d0; font-size: 13px; vertical-align: top; }
 .main-table .amount { text-align: right; white-space: nowrap; }
 .main-table .spacer-row td { height: 14px; }
-.totals-row td { border-top: 1px solid #d0d0d0; border-bottom: 1px solid #d0d0d0; font-weight: 600; padding: 0px 12px 12px 12px; background: #fafafa; white-space: nowrap; letter-spacing: -0.05em; }
+.totals-row td { border-top: 1px solid #d0d0d0; border-bottom: 1px solid #d0d0d0; font-weight: 500; padding: 0px 12px 12px 12px; background: #fafafa; white-space: nowrap; letter-spacing: -0.05em; }
 .tracking-tighter { letter-spacing: -0.05em; }
 .net-payable { display: flex; align-items: center; margin-top: 16px; border: 1.5px solid #1a1a1a; }
 .net-payable-label { flex: 1; padding: 0px 12px 14px 12px; border-right: 1.5px solid #1a1a1a; }
-.net-payable-label .main-label { font-size: 14px; font-weight: 700; }
+.net-payable-label .main-label { font-size: 14px; font-weight: 600; }
 .net-payable-label .sub-label { font-size: 11px; color: #666; margin-top: 1px; }
-.net-payable-amount { flex: 1; text-align: center; font-size: 18px; font-weight: 700; padding: 0px 12px 14px 12px; }
+.net-payable-amount { flex: 1; text-align: center; font-size: 18px; font-weight: 600; padding: 0px 12px 14px 12px; }
 .amount-words { text-align: center; font-size: 12px; color: #444; margin: 18px 0 10px; font-style: italic; }
 .ytd-section { margin-top: 14px; }
 .ytd-table { width: 100%; border-collapse: collapse; }

@@ -2,7 +2,7 @@
   <!-- Header -->
   <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
     <div>
-      <h1 class="text-2xl font-bold">Analytics Dashboard</h1>
+      <h1 class="text-2xl font-semibold">Analytics Dashboard</h1>
       <p class="text-muted-foreground">View and analyze HR metrics across different categories</p>
     </div>
 
@@ -65,7 +65,7 @@
                 </div>
                 <div>
                   <p class="text-sm text-muted-foreground">Total Gross</p>
-                  <p class="text-xl font-bold">{{ formatCurrency(payrollData()!.summary.total_gross) }}</p>
+                  <p class="text-xl font-semibold">{{ formatCurrency(payrollData()!.summary.total_gross) }}</p>
                 </div>
               </div>
             </z-card>
@@ -76,7 +76,7 @@
                 </div>
                 <div>
                   <p class="text-sm text-muted-foreground">Total Net</p>
-                  <p class="text-xl font-bold">{{ formatCurrency(payrollData()!.summary.total_net) }}</p>
+                  <p class="text-xl font-semibold">{{ formatCurrency(payrollData()!.summary.total_net) }}</p>
                 </div>
               </div>
             </z-card>
@@ -87,7 +87,7 @@
                 </div>
                 <div>
                   <p class="text-sm text-muted-foreground">Total EPF</p>
-                  <p class="text-xl font-bold">{{ formatCurrency(payrollData()!.summary.total_epf) }}</p>
+                  <p class="text-xl font-semibold">{{ formatCurrency(payrollData()!.summary.total_epf) }}</p>
                 </div>
               </div>
             </z-card>
@@ -98,7 +98,7 @@
                 </div>
                 <div>
                   <p class="text-sm text-muted-foreground">Employees</p>
-                  <p class="text-xl font-bold">{{ payrollData()!.summary.employee_count }}</p>
+                  <p class="text-xl font-semibold">{{ payrollData()!.summary.employee_count }}</p>
                 </div>
               </div>
             </z-card>
@@ -133,7 +133,7 @@
                 </div>
                 <div>
                   <p class="text-sm text-muted-foreground">Total Days Taken</p>
-                  <p class="text-xl font-bold">{{ leaveData()!.summary.total_days_taken }}</p>
+                  <p class="text-xl font-semibold">{{ leaveData()!.summary.total_days_taken }}</p>
                 </div>
               </div>
             </z-card>
@@ -144,7 +144,7 @@
                 </div>
                 <div>
                   <p class="text-sm text-muted-foreground">Total Requests</p>
-                  <p class="text-xl font-bold">{{ leaveData()!.summary.total_requests }}</p>
+                  <p class="text-xl font-semibold">{{ leaveData()!.summary.total_requests }}</p>
                 </div>
               </div>
             </z-card>
@@ -155,7 +155,7 @@
                 </div>
                 <div>
                   <p class="text-sm text-muted-foreground">Leave Types</p>
-                  <p class="text-xl font-bold">{{ leaveData()!.by_type.length }}</p>
+                  <p class="text-xl font-semibold">{{ leaveData()!.by_type.length }}</p>
                 </div>
               </div>
             </z-card>
@@ -166,7 +166,7 @@
                 </div>
                 <div>
                   <p class="text-sm text-muted-foreground">Departments</p>
-                  <p class="text-xl font-bold">{{ leaveData()!.by_department.length }}</p>
+                  <p class="text-xl font-semibold">{{ leaveData()!.by_department.length }}</p>
                 </div>
               </div>
             </z-card>
@@ -201,7 +201,7 @@
                 </div>
                 <div>
                   <p class="text-sm text-muted-foreground">Punctuality Rate</p>
-                  <p class="text-xl font-bold">{{ attendanceData()!.summary.punctuality_rate }}%</p>
+                  <p class="text-xl font-semibold">{{ attendanceData()!.summary.punctuality_rate }}%</p>
                 </div>
               </div>
             </z-card>
@@ -212,7 +212,7 @@
                 </div>
                 <div>
                   <p class="text-sm text-muted-foreground">Late Arrivals</p>
-                  <p class="text-xl font-bold">{{ attendanceData()!.summary.late_count }}</p>
+                  <p class="text-xl font-semibold">{{ attendanceData()!.summary.late_count }}</p>
                 </div>
               </div>
             </z-card>
@@ -223,7 +223,7 @@
                 </div>
                 <div>
                   <p class="text-sm text-muted-foreground">Avg Working Hours</p>
-                  <p class="text-xl font-bold">{{ attendanceData()!.summary.avg_working_hours }}</p>
+                  <p class="text-xl font-semibold">{{ attendanceData()!.summary.avg_working_hours }}</p>
                 </div>
               </div>
             </z-card>
@@ -234,7 +234,7 @@
                 </div>
                 <div>
                   <p class="text-sm text-muted-foreground">Total Records</p>
-                  <p class="text-xl font-bold">{{ attendanceData()!.summary.total_records }}</p>
+                  <p class="text-xl font-semibold">{{ attendanceData()!.summary.total_records }}</p>
                 </div>
               </div>
             </z-card>
@@ -269,7 +269,7 @@
                 </div>
                 <div>
                   <p class="text-sm text-muted-foreground">Total Amount</p>
-                  <p class="text-xl font-bold">{{ formatCurrency(claimsData()!.summary.total_amount) }}</p>
+                  <p class="text-xl font-semibold">{{ formatCurrency(claimsData()!.summary.total_amount) }}</p>
                 </div>
               </div>
             </z-card>
@@ -280,7 +280,7 @@
                 </div>
                 <div>
                   <p class="text-sm text-muted-foreground">Total Claims</p>
-                  <p class="text-xl font-bold">{{ claimsData()!.summary.total_claims }}</p>
+                  <p class="text-xl font-semibold">{{ claimsData()!.summary.total_claims }}</p>
                 </div>
               </div>
             </z-card>
@@ -291,7 +291,7 @@
                 </div>
                 <div>
                   <p class="text-sm text-muted-foreground">Average Claim</p>
-                  <p class="text-xl font-bold">{{ formatCurrency(claimsData()!.summary.avg_claim_amount) }}</p>
+                  <p class="text-xl font-semibold">{{ formatCurrency(claimsData()!.summary.avg_claim_amount) }}</p>
                 </div>
               </div>
             </z-card>
@@ -302,7 +302,7 @@
                 </div>
                 <div>
                   <p class="text-sm text-muted-foreground">Claim Types</p>
-                  <p class="text-xl font-bold">{{ claimsData()!.by_type.length }}</p>
+                  <p class="text-xl font-semibold">{{ claimsData()!.by_type.length }}</p>
                 </div>
               </div>
             </z-card>

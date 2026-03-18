@@ -15,15 +15,15 @@ import { Claim } from '../../../models/claim.model';
       <div class="space-y-2 bg-muted/30 rounded-lg p-4">
         <div class="flex justify-between">
           <span class="text-sm text-muted-foreground">Employee:</span>
-          <span class="text-sm font-medium text-foreground">{{ claim.employee?.full_name }}</span>
+          <span class="text-sm font-normal text-foreground">{{ claim.employee?.full_name }}</span>
         </div>
         <div class="flex justify-between">
           <span class="text-sm text-muted-foreground">Claim Type:</span>
-          <span class="text-sm font-medium text-foreground">{{ claim.claimType?.name }}</span>
+          <span class="text-sm font-normal text-foreground">{{ claim.claimType?.name }}</span>
         </div>
         <div class="flex justify-between">
           <span class="text-sm text-muted-foreground">Amount:</span>
-          <span class="text-sm font-semibold text-green-600">{{ formatCurrency(claim.amount) }}</span>
+          <span class="text-sm font-medium text-green-600">{{ formatCurrency(claim.amount) }}</span>
         </div>
         <div class="flex flex-col gap-1">
           <span class="text-sm text-muted-foreground">Description:</span>

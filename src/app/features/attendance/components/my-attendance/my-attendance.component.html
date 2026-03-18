@@ -22,7 +22,7 @@
         <!-- Left: Time display + button -->
         <div class="flex-1">
           <div class="mb-4">
-            <div class="text-4xl font-bold text-foreground tracking-tight">
+            <div class="text-4xl font-semibold text-foreground tracking-tight">
               {{ formatCurrentTime() }}
             </div>
             <div class="text-sm text-muted-foreground mt-1">
@@ -90,7 +90,7 @@
 
         <!-- Right: Today's summary -->
         <div class="lg:w-72 bg-muted/30 rounded-xl p-5">
-          <h4 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Today's Status</h4>
+          <h4 class="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-3">Today's Status</h4>
 
           <div class="mb-3">
             <z-badge [zType]="getStatusBadgeType()" zShape="pill" class="text-xs">
@@ -104,21 +104,21 @@
                 <z-icon [zType]="$any('log-in')" class="w-3.5 h-3.5" />
                 Clock In
               </span>
-              <span class="font-medium" [class.text-green-600]="clockInTime()">{{ formatTime(clockInTime()) }}</span>
+              <span class="font-normal" [class.text-green-600]="clockInTime()">{{ formatTime(clockInTime()) }}</span>
             </div>
             <div class="flex items-center justify-between">
               <span class="text-muted-foreground flex items-center gap-1.5">
                 <z-icon [zType]="$any('log-out')" class="w-3.5 h-3.5" />
                 Clock Out
               </span>
-              <span class="font-medium" [class.text-red-600]="clockOutTime()">{{ formatTime(clockOutTime()) }}</span>
+              <span class="font-normal" [class.text-red-600]="clockOutTime()">{{ formatTime(clockOutTime()) }}</span>
             </div>
             <div class="border-t pt-2.5 flex items-center justify-between">
               <span class="text-muted-foreground flex items-center gap-1.5">
                 <z-icon [zType]="$any('clock')" class="w-3.5 h-3.5" />
                 Total Hours
               </span>
-              <span class="font-semibold text-foreground">{{ totalHours() > 0 ? formatHours(totalHours()) : '--' }}</span>
+              <span class="font-medium text-foreground">{{ totalHours() > 0 ? formatHours(totalHours()) : '--' }}</span>
             </div>
             @if (todayAttendance()) {
               <div class="flex items-center justify-between">
@@ -138,7 +138,7 @@
   <!-- ═══════════════ TAB NAVIGATION ═══════════════ -->
   <div class="flex items-center gap-1 mb-4 border-b">
     <button
-      class="px-4 py-2.5 text-sm font-medium transition-colors relative"
+      class="px-4 py-2.5 text-sm font-normal transition-colors relative"
       [class]="activeTab() === 'history'
         ? 'text-foreground border-b-2 border-primary -mb-px'
         : 'text-muted-foreground hover:text-foreground'"
@@ -149,7 +149,7 @@
       </span>
     </button>
     <button
-      class="px-4 py-2.5 text-sm font-medium transition-colors relative"
+      class="px-4 py-2.5 text-sm font-normal transition-colors relative"
       [class]="activeTab() === 'wfh'
         ? 'text-foreground border-b-2 border-primary -mb-px'
         : 'text-muted-foreground hover:text-foreground'"
@@ -170,7 +170,7 @@
           <button z-button zType="outline" zSize="sm" (click)="prevMonth()" class="gap-1">
             <z-icon [zType]="$any('chevron-left')" class="w-4 h-4" />
           </button>
-          <span class="text-sm font-semibold text-foreground">{{ currentMonthLabel() }}</span>
+          <span class="text-sm font-medium text-foreground">{{ currentMonthLabel() }}</span>
           <button z-button zType="outline" zSize="sm" (click)="nextMonth()"
             [disabled]="isCurrentMonth()" class="gap-1">
             <z-icon [zType]="$any('chevron-right')" class="w-4 h-4" />
@@ -191,18 +191,18 @@
             <table class="w-full text-sm">
               <thead class="bg-muted/30 border-b">
                 <tr>
-                  <th class="text-left px-3 py-2.5 font-semibold text-muted-foreground">Date</th>
-                  <th class="text-left px-3 py-2.5 font-semibold text-muted-foreground">Clock In</th>
-                  <th class="text-left px-3 py-2.5 font-semibold text-muted-foreground">Clock Out</th>
-                  <th class="text-left px-3 py-2.5 font-semibold text-muted-foreground">Hours</th>
-                  <th class="text-left px-3 py-2.5 font-semibold text-muted-foreground">Type</th>
-                  <th class="text-left px-3 py-2.5 font-semibold text-muted-foreground">Status</th>
+                  <th class="text-left px-3 py-2.5 font-medium text-muted-foreground">Date</th>
+                  <th class="text-left px-3 py-2.5 font-medium text-muted-foreground">Clock In</th>
+                  <th class="text-left px-3 py-2.5 font-medium text-muted-foreground">Clock Out</th>
+                  <th class="text-left px-3 py-2.5 font-medium text-muted-foreground">Hours</th>
+                  <th class="text-left px-3 py-2.5 font-medium text-muted-foreground">Type</th>
+                  <th class="text-left px-3 py-2.5 font-medium text-muted-foreground">Status</th>
                 </tr>
               </thead>
               <tbody class="divide-y">
                 @for (a of attendances(); track a.id) {
                   <tr class="hover:bg-muted/20 transition-colors">
-                    <td class="px-3 py-2.5 font-medium text-foreground whitespace-nowrap">
+                    <td class="px-3 py-2.5 font-normal text-foreground whitespace-nowrap">
                       {{ formatDate(a.clock_in_time || a.created_at) }}
                     </td>
                     <td class="px-3 py-2.5 text-foreground whitespace-nowrap">
@@ -252,7 +252,7 @@
         @if (!loadingHistory() && attendances().length === 0) {
           <div class="flex flex-col items-center justify-center py-12 text-center">
             <z-icon [zType]="$any('calendar-x')" class="w-10 h-10 text-muted-foreground mb-3" />
-            <h3 class="text-sm font-semibold mb-1">No records found</h3>
+            <h3 class="text-sm font-medium mb-1">No records found</h3>
             <p class="text-xs text-muted-foreground">No attendance records for {{ currentMonthLabel() }}</p>
           </div>
         }
@@ -281,7 +281,7 @@
       <div class="lg:col-span-4">
         <div z-card>
           <div z-card-content class="p-5">
-            <h3 class="text-base font-semibold text-foreground mb-4 flex items-center gap-2">
+            <h3 class="text-base font-medium text-foreground mb-4 flex items-center gap-2">
               <z-icon [zType]="$any('plus')" class="w-4 h-4" />
               New Application
             </h3>
@@ -289,7 +289,7 @@
             <form [formGroup]="wfhForm" (ngSubmit)="onWfhSubmit()">
               <!-- Date -->
               <div class="mb-4">
-                <label class="block text-sm font-medium text-foreground mb-1.5">
+                <label class="block text-sm font-normal text-foreground mb-1.5">
                   WFH Date <span class="text-red-500">*</span>
                 </label>
                 <z-date-picker
@@ -308,7 +308,7 @@
 
               <!-- Reason -->
               <div class="mb-4">
-                <label for="reason" class="block text-sm font-medium text-foreground mb-1.5">
+                <label for="reason" class="block text-sm font-normal text-foreground mb-1.5">
                   Reason <span class="text-red-500">*</span>
                 </label>
                 <textarea
@@ -350,7 +350,7 @@
         <div z-card>
           <div z-card-content class="p-5">
             <div class="flex items-center justify-between mb-4">
-              <h3 class="text-base font-semibold text-foreground flex items-center gap-2">
+              <h3 class="text-base font-medium text-foreground flex items-center gap-2">
                 <z-icon [zType]="$any('file-text')" class="w-4 h-4" />
                 My Applications
               </h3>
@@ -390,17 +390,17 @@
                 <table class="w-full text-sm">
                   <thead class="bg-muted/30 border-b">
                     <tr>
-                      <th class="text-left px-3 py-2.5 font-semibold text-muted-foreground">Date</th>
-                      <th class="text-left px-3 py-2.5 font-semibold text-muted-foreground">Reason</th>
-                      <th class="text-left px-3 py-2.5 font-semibold text-muted-foreground">Status</th>
-                      <th class="text-left px-3 py-2.5 font-semibold text-muted-foreground">Approver</th>
+                      <th class="text-left px-3 py-2.5 font-medium text-muted-foreground">Date</th>
+                      <th class="text-left px-3 py-2.5 font-medium text-muted-foreground">Reason</th>
+                      <th class="text-left px-3 py-2.5 font-medium text-muted-foreground">Status</th>
+                      <th class="text-left px-3 py-2.5 font-medium text-muted-foreground">Approver</th>
                       <th class="w-16 px-3 py-2.5"></th>
                     </tr>
                   </thead>
                   <tbody class="divide-y">
                     @for (app of wfhApplications(); track app.id) {
                       <tr class="hover:bg-muted/20 transition-colors">
-                        <td class="px-3 py-2.5 font-medium text-foreground whitespace-nowrap">
+                        <td class="px-3 py-2.5 font-normal text-foreground whitespace-nowrap">
                           {{ formatWfhDate(app.date) }}
                         </td>
                         <td class="px-3 py-2.5 text-foreground max-w-[200px]">
@@ -461,7 +461,7 @@
             @if (!loadingWfh() && wfhApplications().length === 0) {
               <div class="flex flex-col items-center justify-center py-12 text-center">
                 <z-icon [zType]="$any('inbox')" class="w-10 h-10 text-muted-foreground mb-3" />
-                <h3 class="text-sm font-semibold mb-1">No applications found</h3>
+                <h3 class="text-sm font-medium mb-1">No applications found</h3>
                 <p class="text-xs text-muted-foreground">Submit your first WFH application</p>
               </div>
             }

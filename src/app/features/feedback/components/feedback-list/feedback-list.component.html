@@ -2,25 +2,25 @@
   <!-- Header -->
   <div class="flex items-center justify-between mb-6">
     <div>
-      <h1 class="text-2xl font-bold">User Feedback</h1>
+      <h1 class="text-2xl font-semibold">User Feedback</h1>
       <p class="text-muted-foreground text-sm mt-1">Review and manage feedback submitted by users</p>
     </div>
     @if (stats()) {
       <div class="flex items-center gap-2">
-        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 text-xs font-medium">
+        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 text-xs font-normal">
           <span class="w-2 h-2 rounded-full bg-blue-500"></span>
           {{ getStatusCount('new') }} New
         </div>
-        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 text-xs font-medium">
+        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 text-xs font-normal">
           <span class="w-2 h-2 rounded-full bg-amber-500"></span>
           {{ getStatusCount('in_review') }} In Review
         </div>
-        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-xs font-medium">
+        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-xs font-normal">
           <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
           {{ getStatusCount('resolved') }} Resolved
         </div>
         @if (stats()!.average_rating > 0) {
-          <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-purple-50 dark:bg-purple-500/10 text-purple-700 dark:text-purple-400 text-xs font-medium">
+          <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-purple-50 dark:bg-purple-500/10 text-purple-700 dark:text-purple-400 text-xs font-normal">
             <z-icon [zType]="$any('star')" class="w-3.5 h-3.5" />
             {{ stats()!.average_rating }} avg
           </div>
@@ -112,7 +112,7 @@
           <!-- Empty State -->
           <div class="flex flex-col items-center justify-center py-16 text-muted-foreground">
             <z-icon [zType]="$any('message-square')" zSize="xl" class="mb-3 opacity-30" />
-            <p class="font-medium">No feedback found</p>
+            <p class="font-normal">No feedback found</p>
             <p class="text-sm mt-1">
               @if (statusFilter() || categoryFilter() || searchTerm()) {
                 Try adjusting your filters
@@ -144,7 +144,7 @@
                   <!-- User -->
                   <td z-table-cell>
                     <div class="min-w-0">
-                      <p class="text-sm font-medium truncate">{{ feedback.user?.employee?.full_name || 'No name' }}</p>
+                      <p class="text-sm font-normal truncate">{{ feedback.user?.employee?.full_name || 'No name' }}</p>
                       <p class="text-xs text-muted-foreground truncate">{{ feedback.user?.email }}</p>
                     </div>
                   </td>
@@ -197,7 +197,7 @@
                     <ng-template #actionMenu>
                       <div z-menu-content class="w-44">
                         <div class="px-2 py-1.5">
-                          <p class="text-xs font-medium text-muted-foreground">Set Status</p>
+                          <p class="text-xs font-normal text-muted-foreground">Set Status</p>
                         </div>
                         @for (s of statuses; track s.value) {
                           <button z-menu-item
@@ -254,7 +254,7 @@
       <div class="w-[380px] flex-shrink-0 rounded-lg border bg-background overflow-hidden">
         <!-- Detail Header -->
         <div class="flex items-center justify-between px-5 py-4 border-b">
-          <h3 class="font-semibold text-sm">Feedback Detail</h3>
+          <h3 class="font-medium text-sm">Feedback Detail</h3>
           <button z-button zType="ghost" zSize="sm" (click)="selectedFeedback.set(null)">
             <z-icon zType="x" class="w-4 h-4" />
           </button>
@@ -263,14 +263,14 @@
         <div class="px-5 py-4 space-y-4 overflow-y-auto max-h-[calc(100vh-280px)]">
           <!-- User Info -->
           <div>
-            <p class="text-xs font-medium text-muted-foreground mb-1">Submitted by</p>
-            <p class="text-sm font-medium">{{ selectedFeedback()!.user?.employee?.full_name || 'No name' }}</p>
+            <p class="text-xs font-normal text-muted-foreground mb-1">Submitted by</p>
+            <p class="text-sm font-normal">{{ selectedFeedback()!.user?.employee?.full_name || 'No name' }}</p>
             <p class="text-xs text-muted-foreground">{{ selectedFeedback()!.user?.email }}</p>
           </div>
 
           <!-- Rating -->
           <div>
-            <p class="text-xs font-medium text-muted-foreground mb-1">Rating</p>
+            <p class="text-xs font-normal text-muted-foreground mb-1">Rating</p>
             <div class="flex items-center gap-1">
               @for (star of getRatingStars(selectedFeedback()!.rating); track star) {
                 <z-icon [zType]="$any('star')"
@@ -287,13 +287,13 @@
           <!-- Category & Status -->
           <div class="flex items-center gap-3">
             <div>
-              <p class="text-xs font-medium text-muted-foreground mb-1">Category</p>
+              <p class="text-xs font-normal text-muted-foreground mb-1">Category</p>
               <z-badge [zType]="$any(getCategoryBadgeType(selectedFeedback()!.category))">
                 {{ getCategoryLabel(selectedFeedback()!.category) }}
               </z-badge>
             </div>
             <div>
-              <p class="text-xs font-medium text-muted-foreground mb-1">Status</p>
+              <p class="text-xs font-normal text-muted-foreground mb-1">Status</p>
               <z-badge [zType]="$any(getStatusBadgeType(selectedFeedback()!.status))">
                 {{ getStatusLabel(selectedFeedback()!.status) }}
               </z-badge>
@@ -304,14 +304,14 @@
 
           <!-- Description -->
           <div>
-            <p class="text-xs font-medium text-muted-foreground mb-1">Description</p>
+            <p class="text-xs font-normal text-muted-foreground mb-1">Description</p>
             <p class="text-sm whitespace-pre-wrap">{{ selectedFeedback()!.description }}</p>
           </div>
 
           <!-- Page URL -->
           @if (selectedFeedback()!.page_url) {
             <div>
-              <p class="text-xs font-medium text-muted-foreground mb-1">Page</p>
+              <p class="text-xs font-normal text-muted-foreground mb-1">Page</p>
               <p class="text-sm text-primary font-mono text-xs">{{ selectedFeedback()!.page_url }}</p>
             </div>
           }
@@ -319,7 +319,7 @@
           <!-- Screenshot -->
           @if (selectedFeedback()!.screenshot_signed_url || selectedFeedback()!.screenshot_url) {
             <div>
-              <p class="text-xs font-medium text-muted-foreground mb-1">Screenshot</p>
+              <p class="text-xs font-normal text-muted-foreground mb-1">Screenshot</p>
               <div class="rounded-lg border overflow-hidden">
                 <img [src]="selectedFeedback()!.screenshot_signed_url || selectedFeedback()!.screenshot_url"
                   alt="Feedback screenshot"
@@ -331,13 +331,13 @@
 
           <!-- Timestamp -->
           <div>
-            <p class="text-xs font-medium text-muted-foreground mb-1">Submitted</p>
+            <p class="text-xs font-normal text-muted-foreground mb-1">Submitted</p>
             <p class="text-sm">{{ selectedFeedback()!.created_at | timeAgo }}</p>
           </div>
 
           @if (selectedFeedback()!.resolved_at) {
             <div>
-              <p class="text-xs font-medium text-muted-foreground mb-1">Resolved</p>
+              <p class="text-xs font-normal text-muted-foreground mb-1">Resolved</p>
               <p class="text-sm">{{ selectedFeedback()!.resolved_at | timeAgo }}</p>
             </div>
           }
@@ -346,7 +346,7 @@
 
           <!-- Quick Actions -->
           <div class="space-y-2">
-            <p class="text-xs font-medium text-muted-foreground">Quick Actions</p>
+            <p class="text-xs font-normal text-muted-foreground">Quick Actions</p>
             <div class="flex flex-wrap gap-2">
               @for (s of statuses; track s.value) {
                 <button z-button

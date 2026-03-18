@@ -2,7 +2,7 @@
   <!-- Header -->
   <div class="flex items-center justify-between mb-8">
     <div>
-      <h1 class="text-2xl font-bold text-foreground">Clock In/Out</h1>
+      <h1 class="text-2xl font-semibold text-foreground">Clock In/Out</h1>
       <p class="text-muted-foreground">Track your daily attendance</p>
     </div>
     <button z-button zType="outline" routerLink="/attendance" class="gap-2">
@@ -30,7 +30,7 @@
   <!-- Current Time Display Card -->
   <div z-card class="mb-6">
     <div z-card-content class="p-8 text-center">
-      <div class="text-5xl font-bold text-foreground mb-2">
+      <div class="text-5xl font-semibold text-foreground mb-2">
         {{ formatCurrentTime() }}
       </div>
       <div class="text-lg text-muted-foreground">
@@ -43,14 +43,14 @@
     <!-- Clock In/Out Card -->
     <div z-card>
       <div z-card-content class="p-6">
-        <h3 class="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
+        <h3 class="text-xl font-medium text-foreground mb-4 flex items-center gap-2">
           <z-icon zType="clock" class="w-5 h-5" />
           Attendance
         </h3>
 
         <!-- Attendance Type Selector -->
         <div class="mb-6">
-          <label class="block text-sm font-medium text-foreground mb-2">Attendance Type</label>
+          <label class="block text-sm font-normal text-foreground mb-2">Attendance Type</label>
           <div class="flex gap-2">
             <button
               z-button
@@ -121,19 +121,19 @@
         <div class="mt-6 space-y-3">
           <div class="flex items-center justify-between py-2 border-b">
             <span class="text-sm text-muted-foreground">Clock In:</span>
-            <span class="text-sm font-medium" [class.text-green-600]="clockInTime()">
+            <span class="text-sm font-normal" [class.text-green-600]="clockInTime()">
               {{ formatTime(clockInTime()) }}
             </span>
           </div>
           <div class="flex items-center justify-between py-2 border-b">
             <span class="text-sm text-muted-foreground">Clock Out:</span>
-            <span class="text-sm font-medium" [class.text-red-600]="clockOutTime()">
+            <span class="text-sm font-normal" [class.text-red-600]="clockOutTime()">
               {{ formatTime(clockOutTime()) }}
             </span>
           </div>
           <div class="flex items-center justify-between py-2">
             <span class="text-sm text-muted-foreground">Total Hours:</span>
-            <span class="text-sm font-medium" [class.text-blue-600]="totalHours() > 0">
+            <span class="text-sm font-normal" [class.text-blue-600]="totalHours() > 0">
               {{ totalHours() > 0 ? formatHours(totalHours()) : '--' }}
             </span>
           </div>
@@ -144,7 +144,7 @@
     <!-- Status Card -->
     <div z-card>
       <div z-card-content class="p-6">
-        <h3 class="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
+        <h3 class="text-xl font-medium text-foreground mb-4 flex items-center gap-2">
           <z-icon zType="circle" class="w-5 h-5" />
           Today's Status
         </h3>
@@ -165,7 +165,7 @@
               <z-icon zType="calendar" class="w-4 h-4 mt-0.5 text-muted-foreground" />
               <div class="flex-1">
                 <span class="text-sm text-muted-foreground">Type</span>
-                <p class="text-sm font-medium text-foreground">{{ todayAttendance()!.type }}</p>
+                <p class="text-sm font-normal text-foreground">{{ todayAttendance()!.type }}</p>
               </div>
             </div>
 
@@ -174,7 +174,7 @@
                 <z-icon zType="triangle-alert" class="w-4 h-4 mt-0.5 text-yellow-600" />
                 <div class="flex-1">
                   <span class="text-sm text-yellow-600">Late by</span>
-                  <p class="text-sm font-medium text-yellow-800">{{ todayAttendance()!.late_minutes || 0 }} minutes</p>
+                  <p class="text-sm font-normal text-yellow-800">{{ todayAttendance()!.late_minutes || 0 }} minutes</p>
                 </div>
               </div>
             }
@@ -184,7 +184,7 @@
                 <z-icon zType="circle" class="w-4 h-4 mt-0.5 text-blue-600" />
                 <div class="flex-1">
                   <span class="text-sm text-blue-600">Early leave by</span>
-                  <p class="text-sm font-medium text-blue-800">{{ todayAttendance()!.early_leave_minutes || 0 }} minutes</p>
+                  <p class="text-sm font-normal text-blue-800">{{ todayAttendance()!.early_leave_minutes || 0 }} minutes</p>
                 </div>
               </div>
             }
@@ -194,7 +194,7 @@
                 <z-icon zType="circle" class="w-4 h-4 mt-0.5 text-muted-foreground" />
                 <div class="flex-1">
                   <span class="text-sm text-muted-foreground">Location</span>
-                  <p class="text-sm font-medium text-foreground">{{ todayAttendance()!.clock_in_location_address }}</p>
+                  <p class="text-sm font-normal text-foreground">{{ todayAttendance()!.clock_in_location_address }}</p>
                 </div>
               </div>
             }
@@ -215,7 +215,7 @@
   <!-- Instructions -->
   <div z-card>
     <div z-card-content class="p-6">
-      <h4 class="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+      <h4 class="text-lg font-medium text-foreground mb-4 flex items-center gap-2">
         <z-icon zType="circle" class="w-5 h-5" />
         Instructions
       </h4>

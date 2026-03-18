@@ -39,7 +39,7 @@ export type ZardButtonType = 'default' | 'outline' | 'ghost';
         [disabled]="disabled"
         (click)="toggle()"
         [class]="getTriggerClasses()"
-        class="w-full justify-start text-left font-normal">
+        class="w-full justify-start text-left font-light">
 
         <z-icon zType="calendar" class="mr-2 h-4 w-4" />
 

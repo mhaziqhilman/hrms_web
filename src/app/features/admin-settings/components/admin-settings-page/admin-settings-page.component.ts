@@ -197,7 +197,7 @@ export class AdminSettingsPageComponent implements OnInit {
   }
 
   getNavItemClass(id: SectionType): string {
-    const base = 'inline-flex items-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none px-3 py-2';
+    const base = 'inline-flex items-center gap-2 whitespace-nowrap rounded-md text-sm font-normal transition-colors focus-visible:outline-none px-3 py-2';
     if (this.activeSection() === id) {
       return `${base} bg-muted text-foreground`;
     }

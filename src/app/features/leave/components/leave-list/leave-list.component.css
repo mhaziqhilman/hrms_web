@@ -19,8 +19,19 @@
   background-color: rgba(209, 209, 209, 0.1);
 }
 
+.leave-table thead tr {
+  height: 3rem;
+}
+
 .leave-table tbody tr {
   height: 60px;
+}
+
+.leave-table th {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .leave-table th,
@@ -33,6 +44,36 @@
 
 .leave-table th.th-text-center {
   text-align: center !important;
+}
+
+/* Frozen action column */
+.leave-table .sticky-action-col {
+  position: sticky;
+  right: 0;
+  z-index: 1;
+  background: hsl(var(--background));
+  text-align: right;
+  padding-left: 1.5rem;
+  padding-right: 0.75rem;
+  position: relative;
+}
+
+.leave-table .sticky-action-col::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: hsl(var(--border));
+}
+
+.leave-table thead .sticky-action-col {
+  z-index: 2;
+}
+
+.leave-table tbody tr:hover .sticky-action-col {
+  background: hsl(var(--muted)) !important;
 }
 
 /* Date Picker Styling to match filter buttons */

@@ -94,35 +94,35 @@
       </div>
 
       <!-- Title -->
-      <h1 class="text-2xl font-bold text-foreground mb-6">{{ memo()?.title }}</h1>
+      <h1 class="text-2xl font-semibold text-foreground mb-6">{{ memo()?.title }}</h1>
 
       <!-- Meta Information -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 p-4 bg-muted/30 rounded-lg">
         <div class="flex items-start gap-3" *ngIf="memo()?.author">
           <z-icon zType="user" class="w-5 h-5 text-muted-foreground mt-0.5" />
           <div>
-            <div class="font-semibold text-sm text-muted-foreground">Author</div>
+            <div class="font-medium text-sm text-muted-foreground">Author</div>
             <div class="text-foreground">{{ memo()?.author?.employee?.full_name || memo()?.author?.email }}</div>
           </div>
         </div>
         <div class="flex items-start gap-3" *ngIf="memo()?.published_at">
           <z-icon zType="calendar" class="w-5 h-5 text-muted-foreground mt-0.5" />
           <div>
-            <div class="font-semibold text-sm text-muted-foreground">Published</div>
+            <div class="font-medium text-sm text-muted-foreground">Published</div>
             <div class="text-foreground">{{ memo()?.published_at | appDateTime }}</div>
           </div>
         </div>
         <div class="flex items-start gap-3" *ngIf="memo()?.expires_at">
           <z-icon zType="clock" class="w-5 h-5 text-muted-foreground mt-0.5" />
           <div>
-            <div class="font-semibold text-sm text-muted-foreground">Expires</div>
+            <div class="font-medium text-sm text-muted-foreground">Expires</div>
             <div class="text-foreground">{{ memo()?.expires_at | appDate }}</div>
           </div>
         </div>
         <div class="flex items-start gap-3">
           <z-icon zType="users" class="w-5 h-5 text-muted-foreground mt-0.5" />
           <div>
-            <div class="font-semibold text-sm text-muted-foreground">Target Audience</div>
+            <div class="font-medium text-sm text-muted-foreground">Target Audience</div>
             <div class="text-foreground">{{ memo()?.target_audience }}</div>
           </div>
         </div>
@@ -130,7 +130,7 @@
 
       <!-- Summary -->
       <div class="mb-6 p-4 bg-primary/5 border-l-4 border-l-primary rounded" *ngIf="memo()?.summary">
-        <h5 class="font-semibold text-foreground mb-2">Summary</h5>
+        <h5 class="font-medium text-foreground mb-2">Summary</h5>
         <p class="text-muted-foreground">{{ memo()?.summary }}</p>
       </div>
 
@@ -144,14 +144,14 @@
         <div class="flex items-center gap-3">
           <z-icon zType="eye" class="w-6 h-6 text-primary" />
           <div>
-            <div class="text-2xl font-bold text-foreground">{{ memo()?.view_count || 0 }}</div>
+            <div class="text-2xl font-semibold text-foreground">{{ memo()?.view_count || 0 }}</div>
             <div class="text-sm text-muted-foreground">Views</div>
           </div>
         </div>
         <div class="flex items-center gap-3" *ngIf="memo()?.requires_acknowledgment">
           <z-icon zType="check-circle" class="w-6 h-6 text-green-600" />
           <div>
-            <div class="text-2xl font-bold text-foreground">{{ memo()?.acknowledgment_count || 0 }}</div>
+            <div class="text-2xl font-semibold text-foreground">{{ memo()?.acknowledgment_count || 0 }}</div>
             <div class="text-sm text-muted-foreground">Acknowledged</div>
           </div>
         </div>
@@ -183,39 +183,39 @@
     <z-card class="mb-6 bg-green-50 dark:bg-green-950 border-green-500" *ngIf="hasAcknowledged()">
       <div class="flex items-center gap-2 text-green-800 dark:text-green-200">
         <z-icon zType="check-circle" class="w-5 h-5" />
-        <span class="font-semibold">You have acknowledged this memo</span>
+        <span class="font-medium">You have acknowledged this memo</span>
       </div>
     </z-card>
 
     <!-- Statistics Card (Admin/Manager/Author) -->
     <z-card *ngIf="canViewStatistics() && statistics()">
-      <h4 class="text-xl font-semibold text-foreground mb-6 flex items-center gap-2">
+      <h4 class="text-xl font-medium text-foreground mb-6 flex items-center gap-2">
         <z-icon zType="bar-chart" class="w-6 h-6" />
         Statistics
       </h4>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div class="p-6 bg-primary/5 rounded-lg border border-primary/20">
-          <div class="text-3xl font-bold text-primary mb-1">{{ statistics()?.total_reads }}</div>
+          <div class="text-3xl font-semibold text-primary mb-1">{{ statistics()?.total_reads }}</div>
           <div class="text-sm text-muted-foreground mb-2">Total Reads</div>
-          <div class="text-lg font-semibold text-foreground">{{ statistics()?.read_percentage }}%</div>
+          <div class="text-lg font-medium text-foreground">{{ statistics()?.read_percentage }}%</div>
         </div>
 
         <div class="p-6 bg-green-50 dark:bg-green-950 rounded-lg border border-green-200 dark:border-green-800" *ngIf="memo()?.requires_acknowledgment">
-          <div class="text-3xl font-bold text-green-600 dark:text-green-400 mb-1">{{ statistics()?.total_acknowledgments }}</div>
+          <div class="text-3xl font-semibold text-green-600 dark:text-green-400 mb-1">{{ statistics()?.total_acknowledgments }}</div>
           <div class="text-sm text-muted-foreground mb-2">Acknowledged</div>
-          <div class="text-lg font-semibold text-foreground">{{ statistics()?.acknowledgment_percentage }}%</div>
+          <div class="text-lg font-medium text-foreground">{{ statistics()?.acknowledgment_percentage }}%</div>
         </div>
 
         <div class="p-6 bg-muted/50 rounded-lg border border-border">
-          <div class="text-3xl font-bold text-foreground mb-1">{{ statistics()?.target_count }}</div>
+          <div class="text-3xl font-semibold text-foreground mb-1">{{ statistics()?.target_count }}</div>
           <div class="text-sm text-muted-foreground">Target Recipients</div>
         </div>
       </div>
 
       <!-- Read Receipts Table -->
       <div *ngIf="statistics()?.read_receipts && statistics()!.read_receipts.length > 0">
-        <h5 class="text-lg font-semibold text-foreground mb-4">Read Receipts</h5>
+        <h5 class="text-lg font-medium text-foreground mb-4">Read Receipts</h5>
         <div class="overflow-x-auto">
           <table z-table>
             <thead>
@@ -228,7 +228,7 @@
             </thead>
             <tbody>
               <tr *ngFor="let receipt of statistics()?.read_receipts">
-                <td class="font-medium">{{ receipt.employee?.full_name || 'Unknown' }}</td>
+                <td class="font-normal">{{ receipt.employee?.full_name || 'Unknown' }}</td>
                 <td>{{ receipt.read_at | appDateTime }}</td>
                 <td *ngIf="memo()?.requires_acknowledgment">
                   <z-badge zType="default" *ngIf="receipt.acknowledged_at">

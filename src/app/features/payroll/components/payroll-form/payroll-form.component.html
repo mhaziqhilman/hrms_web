@@ -2,7 +2,7 @@
   <!-- Header -->
   <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
     <div>
-      <h2 class="text-2xl font-bold text-foreground">
+      <h2 class="text-2xl font-semibold text-foreground">
         {{ isEditMode() ? 'Edit Payroll' : 'Calculate Payroll' }}
       </h2>
       <p class="text-muted-foreground mt-1">
@@ -43,7 +43,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
       <!-- Basic Information -->
       <z-card>
-        <h3 class="text-xl font-semibold text-foreground mb-6">Basic Information</h3>
+        <h3 class="text-xl font-medium text-foreground mb-6">Basic Information</h3>
 
         <div class="space-y-6 flex flex-col">
           <!-- Employee - full width -->
@@ -93,7 +93,7 @@
 
       <!-- Earnings -->
       <z-card>
-        <h3 class="text-xl font-semibold text-foreground mb-6">Earnings</h3>
+        <h3 class="text-xl font-medium text-foreground mb-6">Earnings</h3>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <!-- Basic Salary -->
@@ -196,13 +196,13 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
       <!-- Deductions -->
       <z-card>
-        <h3 class="text-xl font-semibold text-foreground mb-6">Deductions</h3>
+        <h3 class="text-xl font-medium text-foreground mb-6">Deductions</h3>
 
         <!-- Statutory Contribution Reference Table -->
         <div class="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
           <div class="flex items-start gap-2 mb-3">
             <z-icon zType="info" class="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-            <p class="text-sm font-medium text-blue-800 dark:text-blue-200">
+            <p class="text-sm font-normal text-blue-800 dark:text-blue-200">
               Statutory deductions are calculated automatically using official Malaysian rates:
             </p>
           </div>
@@ -210,29 +210,29 @@
             <table class="w-full text-sm text-left">
               <thead>
                 <tr class="border-b border-blue-200 dark:border-blue-700">
-                  <th class="py-1.5 pr-4 font-semibold text-blue-900 dark:text-blue-100">Contribution</th>
-                  <th class="py-1.5 pr-4 font-semibold text-blue-900 dark:text-blue-100">Employee</th>
-                  <th class="py-1.5 font-semibold text-blue-900 dark:text-blue-100">Employer</th>
+                  <th class="py-1.5 pr-4 font-medium text-blue-900 dark:text-blue-100">Contribution</th>
+                  <th class="py-1.5 pr-4 font-medium text-blue-900 dark:text-blue-100">Employee</th>
+                  <th class="py-1.5 font-medium text-blue-900 dark:text-blue-100">Employer</th>
                 </tr>
               </thead>
               <tbody class="text-blue-800 dark:text-blue-200">
                 <tr class="border-b border-blue-100 dark:border-blue-800">
-                  <td class="py-1.5 pr-4 font-medium">EPF (KWSP)</td>
+                  <td class="py-1.5 pr-4 font-normal">EPF (KWSP)</td>
                   <td class="py-1.5 pr-4">11%</td>
                   <td class="py-1.5">13% (&le; RM5K) / 12% (&gt; RM5K)</td>
                 </tr>
                 <tr class="border-b border-blue-100 dark:border-blue-800">
-                  <td class="py-1.5 pr-4 font-medium">SOCSO (PERKESO)</td>
+                  <td class="py-1.5 pr-4 font-normal">SOCSO (PERKESO)</td>
                   <td class="py-1.5 pr-4">Official table (max RM29.75)</td>
                   <td class="py-1.5">Official table (max RM104.15)</td>
                 </tr>
                 <tr class="border-b border-blue-100 dark:border-blue-800">
-                  <td class="py-1.5 pr-4 font-medium">EIS (SIP)</td>
+                  <td class="py-1.5 pr-4 font-normal">EIS (SIP)</td>
                   <td class="py-1.5 pr-4">Official table (max RM11.90)</td>
                   <td class="py-1.5">Official table (max RM11.90)</td>
                 </tr>
                 <tr>
-                  <td class="py-1.5 pr-4 font-medium">PCB (Tax)</td>
+                  <td class="py-1.5 pr-4 font-normal">PCB (Tax)</td>
                   <td class="py-1.5 pr-4">LHDN e-CP39 algorithm</td>
                   <td class="py-1.5">N/A</td>
                 </tr>
@@ -285,7 +285,7 @@
 
       <!-- Payment Details -->
       <z-card>
-        <h3 class="text-xl font-semibold text-foreground mb-6">Payment Details</h3>
+        <h3 class="text-xl font-medium text-foreground mb-6">Payment Details</h3>
 
         <div class="grid grid-cols-1 gap-6">
           <!-- Payment Date -->
@@ -319,7 +319,7 @@
 
     <!-- Prior Employment YTD -->
     <z-card class="mb-6">
-      <h3 class="text-xl font-semibold text-foreground mb-4">Prior Employment YTD</h3>
+      <h3 class="text-xl font-medium text-foreground mb-4">Prior Employment YTD</h3>
       <p class="text-sm text-muted-foreground mb-6">
         For employees who joined mid-year from another company. Enter their previous employer's YTD data (from CP22A or previous payslips) to ensure accurate PCB calculation.
       </p>
@@ -383,22 +383,22 @@
 
     <!-- Calculation Summary -->
     <z-card class="mb-6 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
-      <h3 class="text-xl font-semibold text-foreground mb-6">Calculation Summary</h3>
+      <h3 class="text-xl font-medium text-foreground mb-6">Calculation Summary</h3>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div class="bg-background rounded-lg p-4 border border-border">
           <span class="text-sm text-muted-foreground block mb-2">Gross Salary</span>
-          <span class="text-2xl font-semibold text-foreground">{{ formatCurrency(calculatedGrossSalary()) }}</span>
+          <span class="text-2xl font-medium text-foreground">{{ formatCurrency(calculatedGrossSalary()) }}</span>
         </div>
 
         <div class="bg-background rounded-lg p-4 border border-border">
           <span class="text-sm text-muted-foreground block mb-2">Estimated Deductions</span>
-          <span class="text-2xl font-semibold text-orange-600 dark:text-orange-400">{{ formatCurrency(calculatedTotalDeductions()) }}</span>
+          <span class="text-2xl font-medium text-orange-600 dark:text-orange-400">{{ formatCurrency(calculatedTotalDeductions()) }}</span>
         </div>
 
         <div class="bg-background rounded-lg p-4 border border-border">
           <span class="text-sm text-muted-foreground block mb-2">Estimated Net Salary</span>
-          <span class="text-2xl font-semibold text-green-600 dark:text-green-400">{{ formatCurrency(calculatedNetSalary()) }}</span>
+          <span class="text-2xl font-medium text-green-600 dark:text-green-400">{{ formatCurrency(calculatedNetSalary()) }}</span>
         </div>
       </div>
 

@@ -16,16 +16,16 @@ import { Claim } from '../../../models/claim.model';
       <div class="space-y-2 bg-muted/30 rounded-lg p-4">
         <div class="flex justify-between">
           <span class="text-sm text-muted-foreground">Employee:</span>
-          <span class="text-sm font-medium text-foreground">{{ claim.employee?.full_name }}</span>
+          <span class="text-sm font-normal text-foreground">{{ claim.employee?.full_name }}</span>
         </div>
         <div class="flex justify-between">
           <span class="text-sm text-muted-foreground">Amount:</span>
-          <span class="text-sm font-semibold text-foreground">{{ formatCurrency(claim.amount) }}</span>
+          <span class="text-sm font-medium text-foreground">{{ formatCurrency(claim.amount) }}</span>
         </div>
       </div>
 
       <div>
-        <label for="rejectionReason" class="block text-sm font-medium text-foreground mb-2">
+        <label for="rejectionReason" class="block text-sm font-normal text-foreground mb-2">
           Rejection Reason <span class="text-red-500">*</span>
         </label>
         <textarea

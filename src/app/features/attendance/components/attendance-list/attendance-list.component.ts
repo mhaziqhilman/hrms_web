@@ -1,10 +1,10 @@
 import { Component, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AttendanceService } from '../../services/attendance.service';
 import { AuthService } from '@/core/services/auth.service';
-import { Attendance, AttendanceQueryParams } from '../../models/attendance.model';
+import { Attendance, AttendanceQueryParams, WFHApplication } from '../../models/attendance.model';
 import { DisplayService } from '@/core/services/display.service';
 
 // ZardUI Components
@@ -19,6 +19,11 @@ import { ZardTooltipModule } from '@/shared/components/tooltip/tooltip';
 import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-dialog.service';
 import { ZardEmptyComponent } from '@/shared/components/empty/empty.component';
 import { ZardDividerComponent } from '@/shared/components/divider/divider.component';
+import { ZardSheetImports } from '@/shared/components/sheet/sheet.component';
+import { ZardSegmentedComponent, type SegmentedOption } from '@/shared/components/segmented/segmented.component';
+import { ZardDatePickerComponent } from '@/shared/components/date-picker/date-picker.component';
+import { ZardDialogService } from '@/shared/components/dialog/dialog.service';
+import { AttendanceDialogComponent } from '../attendance-dialog/attendance-dialog.component';
 
 @Component({
   selector: 'app-attendance-list',
@@ -27,6 +32,7 @@ import { ZardDividerComponent } from '@/shared/components/divider/divider.compon
     CommonModule,
     RouterModule,
     FormsModule,
+    ReactiveFormsModule,
     ZardButtonComponent,
     ZardIconComponent,
     ZardBadgeComponent,
@@ -36,7 +42,10 @@ import { ZardDividerComponent } from '@/shared/components/divider/divider.compon
     ZardTooltipModule,
     ZardCardComponent,
     ZardEmptyComponent,
-    ZardDividerComponent
+    ZardDividerComponent,
+    ZardSheetImports,
+    ZardSegmentedComponent,
+    ZardDatePickerComponent
   ],
   templateUrl: './attendance-list.component.html',
   styleUrl: './attendance-list.component.css'
@@ -47,6 +56,8 @@ export class AttendanceListComponent implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
   private displayService = inject(DisplayService);
+  private fb = inject(FormBuilder);
+  private dialogService = inject(ZardDialogService);
 
   attendances = signal<Attendance[]>([]);
   loading = signal(false);
@@ -98,6 +109,49 @@ export class AttendanceListComponent implements OnInit {
   ];
 
   Math = Math;
+
+  // ===== WFH Sheet State =====
+  wfhSheetOpen = signal(false);
+  wfhActiveTab = signal<string>('personal');
+  showWfhDialog = signal(false);
+
+  // WFH Form
+  wfhForm!: FormGroup;
+  wfhSubmitting = signal(false);
+  wfhSuccess = signal<string | null>(null);
+  wfhError = signal<string | null>(null);
+
+  // WFH Personal Applications
+  wfhApplications = signal<WFHApplication[]>([]);
+  wfhLoading = signal(false);
+  wfhPage = signal(1);
+  wfhTotalPages = signal(1);
+  wfhStatusFilter = signal<'Pending' | 'Approved' | 'Rejected' | ''>('');
+
+  // WFH Approval List (admin/manager)
+  wfhApprovals = signal<WFHApplication[]>([]);
+  wfhApprovalsLoading = signal(false);
+  wfhApprovalsPage = signal(1);
+  wfhApprovalsTotalPages = signal(1);
+  wfhApprovalsStatusFilter = signal<'Pending' | 'Approved' | 'Rejected' | ''>('Pending');
+
+  // Rejection modal
+  showRejectionModal = signal(false);
+  selectedApplicationId = signal<number | null>(null);
+  rejectionReason = signal('');
+
+  // Employee ID for personal WFH
+  wfhEmployeeId = signal<string | null>(null);
+
+  // Segmented options for admin
+  wfhSegmentedOptions: SegmentedOption[] = [
+    { value: 'personal', label: 'My Applications' },
+    { value: 'approvals', label: 'Approvals' }
+  ];
+
+  isAdmin(): boolean {
+    return this.authService.hasAnyRole(['admin', 'super_admin', 'manager']);
+  }
 
   // Computed: filtered attendances based on search query
   filteredAttendances = computed(() => {
@@ -483,5 +537,349 @@ export class AttendanceListComponent implements OnInit {
   clearSelection(): void {
     this.selectedAttendances.set(new Set());
     this.selectAll.set(false);
+  }
+
+  // ===== Attendance Dialog =====
+
+  openAttendanceDialog(): void {
+    this.dialogService.create({
+      zTitle: 'Add Attendance',
+      zContent: AttendanceDialogComponent,
+      zHideFooter: true,
+      zClosable: true,
+      zWidth: '800px',
+      zCustomClasses: 'p-0 gap-0 overflow-hidden',
+      zData: {
+        onSuccess: () => this.loadAttendances()
+      }
+    });
+  }
+
+  // ===== WFH Sheet Methods =====
+
+  openWfhSheet(): void {
+    const user = this.authService.getCurrentUserValue();
+    this.wfhEmployeeId.set(user?.employee?.public_id ?? null);
+    this.initWfhForm();
+    this.wfhSheetOpen.set(true);
+    this.wfhActiveTab.set('personal');
+    this.loadWfhApplications();
+    if (this.isAdmin()) {
+      this.loadWfhApprovals();
+    }
+  }
+
+  closeWfhSheet(): void {
+    this.wfhSheetOpen.set(false);
+    this.showWfhDialog.set(false);
+    this.showRejectionModal.set(false);
+  }
+
+  onWfhTabChange(value: string): void {
+    this.wfhActiveTab.set(value);
+  }
+
+  // --- WFH Form ---
+
+  private initWfhForm(): void {
+    this.wfhForm = this.fb.group({
+      date: [null, [Validators.required]],
+      reason: ['', [Validators.required, Validators.minLength(10)]]
+    });
+    this.wfhSuccess.set(null);
+    this.wfhError.set(null);
+  }
+
+  openWfhApplyDialog(): void {
+    this.initWfhForm();
+    this.showWfhDialog.set(true);
+  }
+
+  closeWfhApplyDialog(): void {
+    this.showWfhDialog.set(false);
+  }
+
+  onWfhSubmit(): void {
+    if (this.wfhForm.invalid) {
+      Object.keys(this.wfhForm.controls).forEach(key => this.wfhForm.get(key)?.markAsTouched());
+      return;
+    }
+
+    if (!this.wfhEmployeeId()) {
+      this.wfhError.set('Employee ID not found. Please log in again.');
+      return;
+    }
+
+    this.wfhSubmitting.set(true);
+    this.wfhError.set(null);
+
+    const formData = this.wfhForm.value;
+    const dateVal: Date = formData.date;
+    const dateStr = `${dateVal.getFullYear()}-${String(dateVal.getMonth() + 1).padStart(2, '0')}-${String(dateVal.getDate()).padStart(2, '0')}`;
+
+    this.attendanceService.submitWFHApplication({
+      employee_id: this.wfhEmployeeId()!,
+      date: dateStr,
+      reason: formData.reason
+    }).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.wfhSuccess.set('WFH application submitted successfully!');
+          this.showWfhDialog.set(false);
+          this.wfhForm.reset();
+          this.loadWfhApplications();
+          if (this.isAdmin()) this.loadWfhApprovals();
+          setTimeout(() => this.wfhSuccess.set(null), 3000);
+        }
+        this.wfhSubmitting.set(false);
+      },
+      error: (err) => {
+        this.wfhError.set(err.error?.message || err.message || 'Failed to submit WFH application');
+        this.wfhSubmitting.set(false);
+      }
+    });
+  }
+
+  isWfhFieldInvalid(fieldName: string): boolean {
+    const field = this.wfhForm?.get(fieldName);
+    return !!(field && field.invalid && (field.dirty || field.touched));
+  }
+
+  getWfhFieldError(fieldName: string): string {
+    const field = this.wfhForm?.get(fieldName);
+    if (field?.errors) {
+      if (field.errors['required']) return `${fieldName === 'date' ? 'Date' : 'Reason'} is required`;
+      if (field.errors['minlength']) return `Reason must be at least ${field.errors['minlength'].requiredLength} characters`;
+    }
+    return '';
+  }
+
+  getWfhMinDate(): Date {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+    return tomorrow;
+  }
+
+  getWfhMaxDate(): Date {
+    const maxDate = new Date();
+    maxDate.setDate(maxDate.getDate() + 30);
+    maxDate.setHours(0, 0, 0, 0);
+    return maxDate;
+  }
+
+  // --- WFH Personal Applications ---
+
+  loadWfhApplications(): void {
+    if (!this.wfhEmployeeId()) return;
+
+    this.wfhLoading.set(true);
+    const params: any = {
+      employee_id: this.wfhEmployeeId(),
+      page: this.wfhPage(),
+      limit: 10
+    };
+    if (this.wfhStatusFilter()) {
+      params.status = this.wfhStatusFilter();
+    }
+
+    this.attendanceService.getWFHApplications(params).subscribe({
+      next: (response: any) => {
+        if (response?.success) {
+          let data: any[] = [];
+          if (Array.isArray(response.data)) {
+            data = response.data;
+          } else if (response.data && typeof response.data === 'object') {
+            if (response.data.wfh_applications) data = response.data.wfh_applications;
+            else if (response.data.wfhApplications) data = response.data.wfhApplications;
+            else if (response.data.data) data = response.data.data;
+          }
+          this.wfhApplications.set(data);
+          const pag = response.pagination || response.data?.pagination;
+          this.wfhTotalPages.set(pag?.totalPages || 1);
+        } else {
+          this.wfhApplications.set([]);
+        }
+        this.wfhLoading.set(false);
+      },
+      error: () => {
+        this.wfhApplications.set([]);
+        this.wfhLoading.set(false);
+      }
+    });
+  }
+
+  onWfhStatusFilterChange(): void {
+    this.wfhPage.set(1);
+    this.loadWfhApplications();
+  }
+
+  onWfhPageChange(page: number): void {
+    if (page >= 1 && page <= this.wfhTotalPages()) {
+      this.wfhPage.set(page);
+      this.loadWfhApplications();
+    }
+  }
+
+  cancelWfhApplication(id: number): void {
+    this.alertDialogService.confirm({
+      zTitle: 'Cancel WFH Application',
+      zDescription: 'Are you sure you want to cancel this WFH application?',
+      zOkText: 'Cancel Application',
+      zCancelText: 'Keep',
+      zOkDestructive: true,
+      zOnOk: () => {
+        this.attendanceService.cancelWFHApplication(id).subscribe({
+          next: (response) => {
+            if (response.success) {
+              this.wfhSuccess.set('WFH application cancelled');
+              this.loadWfhApplications();
+              setTimeout(() => this.wfhSuccess.set(null), 3000);
+            }
+          },
+          error: (err) => {
+            this.wfhError.set(err.error?.message || 'Failed to cancel WFH application');
+          }
+        });
+      }
+    });
+  }
+
+  canCancelWfh(app: WFHApplication): boolean {
+    if (app.status !== 'Pending') return false;
+    const date = new Date(app.date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return date >= today;
+  }
+
+  // --- WFH Approvals (admin/manager) ---
+
+  loadWfhApprovals(): void {
+    this.wfhApprovalsLoading.set(true);
+    const params: any = {
+      page: this.wfhApprovalsPage(),
+      limit: 10,
+      manager_view: true
+    };
+    if (this.wfhApprovalsStatusFilter()) {
+      params.status = this.wfhApprovalsStatusFilter();
+    }
+
+    this.attendanceService.getWFHApplications(params).subscribe({
+      next: (response: any) => {
+        if (response?.success) {
+          let data: any[] = [];
+          if (Array.isArray(response.data)) {
+            data = response.data;
+          } else if (response.data && typeof response.data === 'object') {
+            if (response.data.wfh_applications) data = response.data.wfh_applications;
+            else if (response.data.wfhApplications) data = response.data.wfhApplications;
+            else if (response.data.data) data = response.data.data;
+          }
+          this.wfhApprovals.set(data);
+          const pag = response.pagination || response.data?.pagination;
+          this.wfhApprovalsTotalPages.set(pag?.totalPages || 1);
+        } else {
+          this.wfhApprovals.set([]);
+        }
+        this.wfhApprovalsLoading.set(false);
+      },
+      error: () => {
+        this.wfhApprovals.set([]);
+        this.wfhApprovalsLoading.set(false);
+      }
+    });
+  }
+
+  onWfhApprovalsStatusChange(): void {
+    this.wfhApprovalsPage.set(1);
+    this.loadWfhApprovals();
+  }
+
+  onWfhApprovalsPageChange(page: number): void {
+    if (page >= 1 && page <= this.wfhApprovalsTotalPages()) {
+      this.wfhApprovalsPage.set(page);
+      this.loadWfhApprovals();
+    }
+  }
+
+  approveWfh(id: number): void {
+    this.alertDialogService.confirm({
+      zTitle: 'Approve WFH Application',
+      zDescription: 'Are you sure you want to approve this WFH application?',
+      zOkText: 'Approve',
+      zCancelText: 'Cancel',
+      zOnOk: () => {
+        this.attendanceService.approveRejectWFH(id, 'approve').subscribe({
+          next: (response) => {
+            if (response.success) {
+              this.wfhSuccess.set('WFH application approved');
+              this.loadWfhApprovals();
+              this.loadWfhApplications();
+              setTimeout(() => this.wfhSuccess.set(null), 3000);
+            }
+          },
+          error: (err) => {
+            this.wfhError.set(err.error?.message || 'Failed to approve');
+            setTimeout(() => this.wfhError.set(null), 5000);
+          }
+        });
+      }
+    });
+  }
+
+  openRejectModal(id: number): void {
+    this.selectedApplicationId.set(id);
+    this.rejectionReason.set('');
+    this.showRejectionModal.set(true);
+  }
+
+  closeRejectModal(): void {
+    this.showRejectionModal.set(false);
+    this.selectedApplicationId.set(null);
+    this.rejectionReason.set('');
+  }
+
+  submitRejection(): void {
+    const id = this.selectedApplicationId();
+    const reason = this.rejectionReason().trim();
+    if (!id || !reason) return;
+
+    this.attendanceService.approveRejectWFH(id, 'reject', reason).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.wfhSuccess.set('WFH application rejected');
+          this.loadWfhApprovals();
+          this.loadWfhApplications();
+          this.closeRejectModal();
+          setTimeout(() => this.wfhSuccess.set(null), 3000);
+        }
+      },
+      error: (err) => {
+        this.wfhError.set(err.error?.message || 'Failed to reject');
+        setTimeout(() => this.wfhError.set(null), 5000);
+      }
+    });
+  }
+
+  canApproveReject(app: WFHApplication): boolean {
+    if (app.status !== 'Pending') return false;
+    const date = new Date(app.date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return date >= today;
+  }
+
+  getEmployeeInitial(app: WFHApplication): string {
+    return (app.employee?.full_name || 'U').charAt(0).toUpperCase();
+  }
+
+  formatWfhDate(dateString: string): string {
+    return this.displayService.formatDate(dateString);
+  }
+
+  formatWfhDateTime(dateString: string | null | undefined): string {
+    return this.displayService.formatDateTime(dateString);
   }
 }

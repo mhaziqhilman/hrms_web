@@ -9,7 +9,7 @@
     <!-- Header -->
     <div class="flex items-center justify-between px-5 py-4 border-b">
       <div>
-        <h3 class="font-semibold text-base">Send Feedback</h3>
+        <h3 class="font-medium text-base">Send Feedback</h3>
         <p class="text-xs text-muted-foreground mt-0.5">Help us improve your experience</p>
       </div>
       <button type="button" z-button zType="ghost" zSize="sm" (click)="close()">
@@ -23,7 +23,7 @@
         <div class="w-14 h-14 rounded-full bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center mb-4">
           <z-icon zType="check" class="w-7 h-7 text-emerald-600 dark:text-emerald-400" />
         </div>
-        <h4 class="font-semibold text-lg">Thank you!</h4>
+        <h4 class="font-medium text-lg">Thank you!</h4>
         <p class="text-sm text-muted-foreground text-center mt-1">Your feedback has been submitted successfully.</p>
       </div>
     } @else {
@@ -39,7 +39,7 @@
 
         <!-- Rating -->
         <div>
-          <label class="text-sm font-medium mb-2 block">How's your experience? <span class="text-red-500">*</span></label>
+          <label class="text-sm font-normal mb-2 block">How's your experience? <span class="text-red-500">*</span></label>
           <div class="flex items-center gap-1">
             @for (star of [1, 2, 3, 4, 5]; track star) {
               <button type="button"
@@ -66,7 +66,7 @@
 
         <!-- Category -->
         <div>
-          <label class="text-sm font-medium mb-2 block">Category <span class="text-red-500">*</span></label>
+          <label class="text-sm font-normal mb-2 block">Category <span class="text-red-500">*</span></label>
           <z-select
             [zPlaceholder]="'Select a category'"
             [ngModel]="category()"
@@ -80,7 +80,7 @@
 
         <!-- Description -->
         <div>
-          <label class="text-sm font-medium mb-2 block">Description <span class="text-red-500">*</span></label>
+          <label class="text-sm font-normal mb-2 block">Description <span class="text-red-500">*</span></label>
           <textarea z-input
             [ngModel]="description()"
             (ngModelChange)="description.set($event)"
@@ -92,7 +92,7 @@
 
         <!-- Screenshot Upload -->
         <div>
-          <label class="text-sm font-medium mb-2 block">Screenshot <span class="text-muted-foreground font-normal">(optional)</span></label>
+          <label class="text-sm font-normal mb-2 block">Screenshot <span class="text-muted-foreground font-light">(optional)</span></label>
           @if (screenshotPreview()) {
             <div class="relative rounded-lg border overflow-hidden">
               <img [src]="screenshotPreview()" alt="Screenshot preview" class="w-full h-32 object-cover" />

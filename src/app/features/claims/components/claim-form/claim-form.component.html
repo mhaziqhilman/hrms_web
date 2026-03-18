@@ -2,7 +2,7 @@
   <!-- Header -->
   <div class="flex items-center justify-between mb-8">
     <div>
-      <h1 class="text-2xl font-bold text-foreground">
+      <h1 class="text-2xl font-semibold text-foreground">
         {{ isEditMode() ? 'Edit Claim' : 'Submit New Claim' }}
       </h1>
       <p class="text-muted-foreground">
@@ -50,13 +50,13 @@
           <div z-card-content class="p-5">
             <div class="flex items-center gap-2 mb-4">
               <z-icon zType="receipt-text" class="w-5 h-5 text-primary" />
-              <h3 class="text-lg font-semibold text-foreground">Claim Information</h3>
+              <h3 class="text-lg font-medium text-foreground">Claim Information</h3>
             </div>
 
             <div class="space-y-4">
               <!-- Claim Type -->
               <div>
-                <label class="block text-sm font-medium text-foreground mb-2">
+                <label class="block text-sm font-normal text-foreground mb-2">
                   Claim Type <span class="text-red-500">*</span>
                 </label>
                 <z-select zPlaceholder="Select claim type" formControlName="claim_type_id">
@@ -81,13 +81,13 @@
                   <z-icon zType="info" class="w-5 h-5 text-primary mt-0.5" />
                   <div class="flex-1 space-y-2">
                     <div class="flex justify-between items-start">
-                      <span class="text-sm font-medium text-foreground">Maximum Amount:</span>
-                      <span class="text-sm font-semibold text-primary">
+                      <span class="text-sm font-normal text-foreground">Maximum Amount:</span>
+                      <span class="text-sm font-medium text-primary">
                         {{ formatCurrency(selectedClaimType()?.max_amount) }}
                       </span>
                     </div>
                     <div class="flex justify-between items-center">
-                      <span class="text-sm font-medium text-foreground">Receipt Required:</span>
+                      <span class="text-sm font-normal text-foreground">Receipt Required:</span>
                       <z-badge [zType]="isReceiptRequired() ? 'destructive' : 'secondary'" class="text-xs">
                         {{ isReceiptRequired() ? 'Yes' : 'No' }}
                       </z-badge>
@@ -98,12 +98,12 @@
               }
 
               <div class="pt-2 border-t border-border">
-                <h4 class="text-sm font-semibold text-foreground mb-3">Date & Amount</h4>
+                <h4 class="text-sm font-medium text-foreground mb-3">Date & Amount</h4>
 
                 <div class="space-y-4">
                   <!-- Expense Date -->
                   <div>
-                    <label class="block text-sm font-medium text-foreground mb-2">
+                    <label class="block text-sm font-normal text-foreground mb-2">
                       Expense Date <span class="text-red-500">*</span>
                     </label>
                     <z-date-picker placeholder="Select expense date" formControlName="date">
@@ -116,7 +116,7 @@
 
                   <!-- Amount -->
                   <div>
-                    <label class="block text-sm font-medium text-foreground mb-2">
+                    <label class="block text-sm font-normal text-foreground mb-2">
                       Amount (RM) <span class="text-red-500">*</span>
                     </label>
                     <input z-input type="number"
@@ -148,13 +148,13 @@
           <div z-card-content class="p-5">
             <div class="flex items-center gap-2 mb-4">
               <z-icon zType="file-text" class="w-5 h-5 text-primary" />
-              <h3 class="text-lg font-semibold text-foreground">Details & Receipt</h3>
+              <h3 class="text-lg font-medium text-foreground">Details & Receipt</h3>
             </div>
 
             <div class="space-y-4">
               <!-- Description -->
               <div>
-                <label class="block text-sm font-medium text-foreground mb-2">
+                <label class="block text-sm font-normal text-foreground mb-2">
                   Description <span class="text-red-500">*</span>
                 </label>
                 <textarea z-input [zStatus]="isFieldInvalid('description') ? 'error' : undefined"
@@ -170,7 +170,7 @@
               <!-- Receipt URL -->
               <div class="pt-2 border-t border-border">
                 <div class="flex items-center justify-between mb-3">
-                  <label class="block text-sm font-medium text-foreground">
+                  <label class="block text-sm font-normal text-foreground">
                     Receipt URL @if (isReceiptRequired()) {<span class="text-red-500">*</span>} @else {(Optional)}
                   </label>
                   @if (isReceiptRequired()) {
@@ -203,7 +203,7 @@
               @if (isClaimEditable()) {
               <div class="pt-2 border-t border-border">
                 <div class="flex items-center justify-between mb-3">
-                  <label class="block text-sm font-medium text-foreground">
+                  <label class="block text-sm font-normal text-foreground">
                     Attach Receipt Files
                     @if (isReceiptRequired()) {
                     <span class="text-red-500">*</span>
@@ -240,7 +240,7 @@
               <!-- View Uploaded Files (Edit Mode) -->
               @if (claimId()) {
               <div class="pt-2 border-t border-border">
-                <h5 class="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                <h5 class="text-sm font-medium text-foreground mb-3 flex items-center gap-2">
                   <z-icon zType="file-text" class="w-4 h-4" />
                   Uploaded Receipts
                 </h5>
@@ -260,7 +260,7 @@
         <div class="pl-5">
           <div class="flex items-center gap-2 mb-4">
             <z-icon zType="info" class="w-5 h-5 text-primary" />
-            <h3 class="text-lg font-semibold text-foreground">Submission Guidelines</h3>
+            <h3 class="text-lg font-medium text-foreground">Submission Guidelines</h3>
           </div>
           <ul class="space-y-2">
             <li class="flex items-start gap-2 text-sm text-foreground">

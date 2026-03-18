@@ -12,7 +12,7 @@ import { AttendancePunctualityAnalytics, MONTH_SHORT_NAMES } from '../../models/
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- Punctuality Trend -->
       <div class="bg-card rounded-lg border p-4">
-        <h3 class="text-lg font-semibold mb-4">Punctuality Trend</h3>
+        <h3 class="text-lg font-medium mb-4">Punctuality Trend</h3>
         @if (trendChartData.datasets[0].data.length > 0) {
           <canvas baseChart
             [data]="trendChartData"
@@ -28,7 +28,7 @@ import { AttendancePunctualityAnalytics, MONTH_SHORT_NAMES } from '../../models/
 
       <!-- Department Punctuality Bar Chart -->
       <div class="bg-card rounded-lg border p-4">
-        <h3 class="text-lg font-semibold mb-4">Punctuality by Department</h3>
+        <h3 class="text-lg font-medium mb-4">Punctuality by Department</h3>
         @if (departmentChartData.datasets[0].data.length > 0) {
           <canvas baseChart
             [data]="departmentChartData"
@@ -44,7 +44,7 @@ import { AttendancePunctualityAnalytics, MONTH_SHORT_NAMES } from '../../models/
 
       <!-- Work Type Distribution -->
       <div class="bg-card rounded-lg border p-4">
-        <h3 class="text-lg font-semibold mb-4">Work Type Distribution</h3>
+        <h3 class="text-lg font-medium mb-4">Work Type Distribution</h3>
         @if (workTypeChartData.datasets[0].data.length > 0) {
           <canvas baseChart
             [data]="workTypeChartData"
@@ -60,23 +60,23 @@ import { AttendancePunctualityAnalytics, MONTH_SHORT_NAMES } from '../../models/
 
       <!-- Summary Stats -->
       <div class="bg-card rounded-lg border p-4">
-        <h3 class="text-lg font-semibold mb-4">Summary Statistics</h3>
+        <h3 class="text-lg font-medium mb-4">Summary Statistics</h3>
         @if (data) {
           <div class="grid grid-cols-2 gap-4">
             <div class="p-4 bg-muted/30 rounded-lg">
-              <div class="text-2xl font-bold text-primary">{{ data.summary.punctuality_rate }}%</div>
+              <div class="text-2xl font-semibold text-primary">{{ data.summary.punctuality_rate }}%</div>
               <div class="text-sm text-muted-foreground">Punctuality Rate</div>
             </div>
             <div class="p-4 bg-muted/30 rounded-lg">
-              <div class="text-2xl font-bold text-destructive">{{ data.summary.late_count }}</div>
+              <div class="text-2xl font-semibold text-destructive">{{ data.summary.late_count }}</div>
               <div class="text-sm text-muted-foreground">Late Arrivals</div>
             </div>
             <div class="p-4 bg-muted/30 rounded-lg">
-              <div class="text-2xl font-bold">{{ data.summary.avg_working_hours }}</div>
+              <div class="text-2xl font-semibold">{{ data.summary.avg_working_hours }}</div>
               <div class="text-sm text-muted-foreground">Avg Working Hours</div>
             </div>
             <div class="p-4 bg-muted/30 rounded-lg">
-              <div class="text-2xl font-bold">{{ data.summary.total_records }}</div>
+              <div class="text-2xl font-semibold">{{ data.summary.total_records }}</div>
               <div class="text-sm text-muted-foreground">Total Records</div>
             </div>
           </div>

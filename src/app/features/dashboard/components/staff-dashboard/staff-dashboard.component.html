@@ -1,5 +1,5 @@
 <div class="mb-8">
-  <h1 class="text-2xl font-bold text-foreground mb-2">My Dashboard</h1>
+  <h1 class="text-2xl font-semibold text-foreground mb-2">My Dashboard</h1>
   <p class="text-muted-foreground">Welcome back! Here's your personal overview.</p>
 </div>
 
@@ -30,7 +30,7 @@
     <z-card>
       <div class="p-6 text-center">
         <z-icon zType="triangle-alert" class="text-red-500 text-4xl mb-3" />
-        <p class="text-red-600 font-semibold mb-3">{{ error() }}</p>
+        <p class="text-red-600 font-medium mb-3">{{ error() }}</p>
         <button z-button zType="outline" (click)="loadDashboard()">
           <z-icon zType="refresh-cw" class="mr-2" /> Retry
         </button>
@@ -46,7 +46,7 @@
       <div class="p-10">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
           <div class="text-center md:text-left">
-            <h2 class="text-white text-2xl font-bold mb-3 flex items-center justify-center md:justify-start">
+            <h2 class="text-white text-2xl font-semibold mb-3 flex items-center justify-center md:justify-start">
               <z-icon zType="clock" class="mr-2 text-white" />
               {{ isClockedIn ? 'Clocked In' : 'Ready to start your day?' }}
             </h2>
@@ -58,7 +58,7 @@
             }
 
             @if (isClockedIn) {
-              <div class="text-white text-2xl font-bold mb-3">
+              <div class="text-white text-2xl font-semibold mb-3">
                 Working Hours: {{ workingHours }}
               </div>
             }
@@ -94,7 +94,7 @@
 
           <div class="text-center">
             <div class="bg-white/20 rounded-lg p-8">
-              <h1 class="text-white text-6xl font-bold mb-0">
+              <h1 class="text-white text-6xl font-semibold mb-0">
                 {{ currentTime | date:'HH:mm' }}
               </h1>
               <div class="text-white/75 text-lg mt-2">
@@ -109,7 +109,7 @@
 
   <!-- Leave Balance Cards -->
   <div class="mb-8">
-    <h3 class="text-xl font-bold text-foreground mb-4">Leave Balance</h3>
+    <h3 class="text-xl font-semibold text-foreground mb-4">Leave Balance</h3>
     @if (leaveBalance.length > 0) {
       <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
         @for (leave of leaveBalance; track leave.type) {
@@ -117,8 +117,8 @@
             <div class="p-0">
               <div class="flex justify-between items-start mb-5">
                 <div class="flex-grow">
-                  <span class="text-muted-foreground font-semibold block text-sm">{{leave.type}}</span>
-                  <span class="text-foreground font-bold block text-3xl">{{leave.available}}</span>
+                  <span class="text-muted-foreground font-medium block text-sm">{{leave.type}}</span>
+                  <span class="text-foreground font-semibold block text-3xl">{{leave.available}}</span>
                   <span class="text-muted-foreground text-xs">days available</span>
                 </div>
                 <div class="flex items-center justify-center w-12 h-12 rounded-md bg-primary/10">
@@ -170,23 +170,23 @@
           <table class="w-full">
             <thead>
               <tr class="border-b">
-                <th class="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Date</th>
-                <th class="text-left py-3 px-2 text-sm font-semibold text-muted-foreground">Clock In</th>
-                <th class="text-left py-3 px-2 text-sm font-semibold text-muted-foreground">Clock Out</th>
-                <th class="text-left py-3 px-2 text-sm font-semibold text-muted-foreground">Hours</th>
-                <th class="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Status</th>
+                <th class="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Date</th>
+                <th class="text-left py-3 px-2 text-sm font-medium text-muted-foreground">Clock In</th>
+                <th class="text-left py-3 px-2 text-sm font-medium text-muted-foreground">Clock Out</th>
+                <th class="text-left py-3 px-2 text-sm font-medium text-muted-foreground">Hours</th>
+                <th class="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Status</th>
               </tr>
             </thead>
             <tbody>
               @for (attendance of attendanceHistory; track attendance.date) {
                 <tr class="border-b last:border-0">
                   <td class="py-3 px-4">
-                    <span class="text-foreground font-semibold text-sm">{{attendance.date}}</span>
+                    <span class="text-foreground font-medium text-sm">{{attendance.date}}</span>
                   </td>
                   <td class="py-3 px-2 text-sm">{{attendance.clockIn}}</td>
                   <td class="py-3 px-2 text-sm">{{attendance.clockOut}}</td>
                   <td class="py-3 px-2">
-                    <span class="text-foreground font-semibold text-sm">{{attendance.hours}}</span>
+                    <span class="text-foreground font-medium text-sm">{{attendance.hours}}</span>
                   </td>
                   <td class="py-3 px-4">
                     <z-badge
@@ -224,13 +224,13 @@
                     <z-icon zType="file-text" class="text-primary" />
                   </div>
                   <div class="flex-grow">
-                    <span class="text-foreground font-semibold block text-sm">{{claim.type}}</span>
+                    <span class="text-foreground font-medium block text-sm">{{claim.type}}</span>
                     <span class="text-muted-foreground text-xs block">{{claim.description}}</span>
                     <span class="text-muted-foreground text-xs">{{claim.date}}</span>
                   </div>
                 </div>
                 <div class="text-right">
-                  <div class="text-foreground font-bold text-lg mb-1">RM {{claim.amount.toFixed(2)}}</div>
+                  <div class="text-foreground font-semibold text-lg mb-1">RM {{claim.amount.toFixed(2)}}</div>
                   <z-badge
                     [zType]="claim.status === 'Approved' || claim.status === 'Finance_Approved' ? 'default' : claim.status === 'Paid' ? 'secondary' : 'outline'">
                     {{formatStatus(claim.status)}}
@@ -270,7 +270,7 @@
                   <z-icon zType="calendar" class="text-yellow-600" />
                 </div>
                 <div class="flex-grow">
-                  <span class="text-foreground font-semibold block text-sm">{{leave.type}}</span>
+                  <span class="text-foreground font-medium block text-sm">{{leave.type}}</span>
                   <span class="text-muted-foreground text-xs">{{leave.from}} to {{leave.to}}</span>
                   <span class="text-muted-foreground text-xs block">{{leave.days}} days</span>
                 </div>
@@ -314,7 +314,7 @@
                     [class.text-primary]="!memo.urgent" />
                 </div>
                 <div class="flex-grow">
-                  <a class="text-foreground font-semibold hover:text-primary text-sm block cursor-pointer" (click)="navigateTo('/communication/memos')">
+                  <a class="text-foreground font-medium hover:text-primary text-sm block cursor-pointer" (click)="navigateTo('/communication/memos')">
                     {{memo.title}}
                     @if (!memo.read) {
                       <span class="inline-block w-2 h-2 bg-red-500 rounded-full ml-2"></span>

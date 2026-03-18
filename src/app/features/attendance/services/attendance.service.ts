@@ -9,6 +9,7 @@ import {
   ClockInRequest,
   ClockOutRequest,
   WFHApplicationRequest,
+  ManualAttendanceRequest,
   AttendanceQueryParams,
   WFHQueryParams,
   PaginatedResponse,
@@ -147,6 +148,29 @@ export class AttendanceService {
   // Get WFH applications
   getWFHApplications(params?: WFHQueryParams): Observable<PaginatedResponse<WFHApplication>> {
     return this.getAllWFH(params);
+  }
+
+  // Create manual attendance entry
+  createManualAttendance(request: ManualAttendanceRequest): Observable<ApiResponse<Attendance>> {
+    return this.http.post<ApiResponse<Attendance>>(`${this.apiUrl}/manual`, request).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // Get team attendance (manager's direct reports)
+  getTeamAttendance(params?: AttendanceQueryParams): Observable<PaginatedResponse<Attendance>> {
+    let httpParams = new HttpParams();
+    if (params) {
+      Object.keys(params).forEach(key => {
+        const value = params[key as keyof AttendanceQueryParams];
+        if (value !== undefined && value !== null) {
+          httpParams = httpParams.set(key, value.toString());
+        }
+      });
+    }
+    return this.http.get<PaginatedResponse<Attendance>>(`${this.apiUrl}/team`, { params: httpParams }).pipe(
+      catchError(this.handleError)
+    );
   }
 
   // Cancel WFH application

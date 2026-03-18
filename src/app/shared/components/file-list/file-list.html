@@ -6,7 +6,7 @@
         <!-- Category Filter -->
         @if (!category) {
           <div class="flex flex-col gap-1.5">
-            <label for="category-filter" class="text-xs font-medium text-muted-foreground">Category</label>
+            <label for="category-filter" class="text-xs font-normal text-muted-foreground">Category</label>
             <select
               id="category-filter"
               [value]="selectedCategory()"
@@ -22,7 +22,7 @@
 
         <!-- Search -->
         <div class="flex flex-col gap-1.5 flex-1 min-w-[200px]">
-          <label for="search-input" class="text-xs font-medium text-muted-foreground">Search</label>
+          <label for="search-input" class="text-xs font-normal text-muted-foreground">Search</label>
           <div class="relative">
             <z-icon [zType]="$any('search')" zSize="sm" class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/50" />
             <input
@@ -37,13 +37,13 @@
 
         <!-- Sort -->
         <div class="flex flex-col gap-1.5">
-          <label class="text-xs font-medium text-muted-foreground">Sort by</label>
+          <label class="text-xs font-normal text-muted-foreground">Sort by</label>
           <div class="flex gap-1">
             @for (s of sortOptions; track s.value) {
               <button
                 type="button"
                 (click)="onSortChange(s.value)"
-                class="h-9 px-3 rounded-md text-xs font-medium transition-colors"
+                class="h-9 px-3 rounded-md text-xs font-normal transition-colors"
                 [class]="sortBy() === s.value
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-muted text-muted-foreground hover:bg-muted/80'"
@@ -92,7 +92,7 @@
       <div class="w-14 h-14 rounded-full bg-muted flex items-center justify-center mb-4">
         <z-icon [zType]="$any('folder-open')" class="w-7 h-7 text-muted-foreground/60" />
       </div>
-      <h3 class="text-sm font-semibold text-foreground mb-1">No files found</h3>
+      <h3 class="text-sm font-medium text-foreground mb-1">No files found</h3>
       <p class="text-xs text-muted-foreground max-w-[300px] text-center">
         @if (searchTerm() || selectedCategory() !== 'all') {
           Try adjusting your filters or search term
@@ -117,7 +117,7 @@
 
             <!-- File Info -->
             <div class="flex-1 min-w-0">
-              <h4 class="text-sm font-medium text-foreground truncate" [title]="file.original_filename">
+              <h4 class="text-sm font-normal text-foreground truncate" [title]="file.original_filename">
                 {{ file.original_filename }}
               </h4>
               <p class="text-xs text-muted-foreground">{{ formatFileSize(file.file_size) }}</p>
@@ -169,7 +169,7 @@
                   <div class="w-14 h-14 rounded-xl bg-background/80 flex items-center justify-center shadow-sm border border-border/50">
                     <z-icon [zType]="$any(getZardFileIcon(file.mime_type))" class="w-7 h-7 text-muted-foreground" />
                   </div>
-                  <span class="text-[10px] font-medium text-muted-foreground/60 uppercase tracking-wider">
+                  <span class="text-[10px] font-normal text-muted-foreground/60 uppercase tracking-wider">
                     {{ getFileExtension(file.original_filename) }}
                   </span>
                 </div>
@@ -178,13 +178,13 @@
 
             <!-- File Info -->
             <div class="p-4 flex-1">
-              <h4 class="text-sm font-semibold text-foreground truncate mb-1.5" [title]="file.original_filename">
+              <h4 class="text-sm font-medium text-foreground truncate mb-1.5" [title]="file.original_filename">
                 {{ file.original_filename }}
               </h4>
               <div class="flex items-center gap-1.5 text-xs text-muted-foreground mb-1.5">
-                <span class="font-medium">{{ formatFileSize(file.file_size) }}</span>
+                <span class="font-normal">{{ formatFileSize(file.file_size) }}</span>
                 <span class="text-border">&#8226;</span>
-                <span class="px-1.5 py-0.5 rounded bg-primary/10 text-primary text-[10px] font-medium">
+                <span class="px-1.5 py-0.5 rounded bg-primary/10 text-primary text-[10px] font-normal">
                   {{ getCategoryLabel(file.category) }}
                 </span>
               </div>
@@ -203,7 +203,7 @@
                 <button
                   type="button"
                   (click)="previewFile(file)"
-                  class="flex-1 flex items-center justify-center gap-1.5 h-8 rounded-md text-xs font-medium border border-border bg-background text-muted-foreground hover:bg-primary/5 hover:text-primary hover:border-primary/30 transition-colors cursor-pointer"
+                  class="flex-1 flex items-center justify-center gap-1.5 h-8 rounded-md text-xs font-normal border border-border bg-background text-muted-foreground hover:bg-primary/5 hover:text-primary hover:border-primary/30 transition-colors cursor-pointer"
                 >
                   <z-icon zType="eye" zSize="sm" />
                   {{ canPreview(file.mime_type) ? 'Preview' : 'View' }}
@@ -211,7 +211,7 @@
                 <button
                   type="button"
                   (click)="downloadFile(file)"
-                  class="flex-1 flex items-center justify-center gap-1.5 h-8 rounded-md text-xs font-medium border border-border bg-background text-muted-foreground hover:bg-emerald-500/5 hover:text-emerald-600 hover:border-emerald-500/30 transition-colors cursor-pointer"
+                  class="flex-1 flex items-center justify-center gap-1.5 h-8 rounded-md text-xs font-normal border border-border bg-background text-muted-foreground hover:bg-emerald-500/5 hover:text-emerald-600 hover:border-emerald-500/30 transition-colors cursor-pointer"
                 >
                   <z-icon [zType]="$any('download')" zSize="sm" />
                   Download
@@ -250,7 +250,7 @@
             <button
               type="button"
               (click)="onPageChange(page)"
-              class="h-8 min-w-[32px] px-2.5 flex items-center justify-center rounded-md text-xs font-medium transition-colors cursor-pointer"
+              class="h-8 min-w-[32px] px-2.5 flex items-center justify-center rounded-md text-xs font-normal transition-colors cursor-pointer"
               [class]="currentPage() === page
                 ? 'bg-primary text-primary-foreground'
                 : 'border border-border bg-card text-muted-foreground hover:bg-muted'"

@@ -97,7 +97,7 @@
       <!-- Policy Header -->
       <div class="flex justify-between items-start mb-6 flex-wrap gap-4">
         <div class="flex items-center gap-3">
-          <span class="font-mono font-semibold text-xl text-primary">{{ policy()?.policy_code }}</span>
+          <span class="font-mono font-medium text-xl text-primary">{{ policy()?.policy_code }}</span>
           <span class="font-mono text-sm bg-muted px-2 py-1 rounded">v{{ policy()?.version }}</span>
         </div>
         <div class="flex flex-wrap gap-2">
@@ -119,7 +119,7 @@
       </div>
 
       <!-- Title -->
-      <h1 class="text-2xl font-bold text-foreground mb-4">{{ policy()?.title }}</h1>
+      <h1 class="text-2xl font-semibold text-foreground mb-4">{{ policy()?.title }}</h1>
 
       <!-- Description -->
       <p class="text-muted-foreground text-lg mb-6" *ngIf="policy()?.description">
@@ -131,42 +131,42 @@
         <div class="flex items-start gap-3" *ngIf="policy()?.author">
           <z-icon zType="user" class="w-5 h-5 text-muted-foreground mt-0.5" />
           <div>
-            <div class="font-semibold text-sm text-muted-foreground">Author</div>
+            <div class="font-medium text-sm text-muted-foreground">Author</div>
             <div class="text-foreground">{{ policy()?.author?.full_name }}</div>
           </div>
         </div>
         <div class="flex items-start gap-3" *ngIf="policy()?.effective_from">
           <z-icon zType="calendar" class="w-5 h-5 text-muted-foreground mt-0.5" />
           <div>
-            <div class="font-semibold text-sm text-muted-foreground">Effective From</div>
+            <div class="font-medium text-sm text-muted-foreground">Effective From</div>
             <div class="text-foreground">{{ policy()?.effective_from | appDate }}</div>
           </div>
         </div>
         <div class="flex items-start gap-3" *ngIf="policy()?.review_date">
           <z-icon zType="calendar-plus" class="w-5 h-5 text-muted-foreground mt-0.5" />
           <div>
-            <div class="font-semibold text-sm text-muted-foreground">Review Date</div>
+            <div class="font-medium text-sm text-muted-foreground">Review Date</div>
             <div class="text-foreground">{{ policy()?.review_date | appDate }}</div>
           </div>
         </div>
         <div class="flex items-start gap-3" *ngIf="policy()?.expires_at">
           <z-icon zType="clock" class="w-5 h-5 text-muted-foreground mt-0.5" />
           <div>
-            <div class="font-semibold text-sm text-muted-foreground">Expires</div>
+            <div class="font-medium text-sm text-muted-foreground">Expires</div>
             <div class="text-foreground">{{ policy()?.expires_at | appDate }}</div>
           </div>
         </div>
         <div class="flex items-start gap-3" *ngIf="policy()?.approved_by && policy()?.approver">
           <z-icon zType="badge-check" class="w-5 h-5 text-muted-foreground mt-0.5" />
           <div>
-            <div class="font-semibold text-sm text-muted-foreground">Approved By</div>
+            <div class="font-medium text-sm text-muted-foreground">Approved By</div>
             <div class="text-foreground">{{ policy()?.approver?.full_name }}</div>
           </div>
         </div>
         <div class="flex items-start gap-3" *ngIf="policy()?.approved_at">
           <z-icon zType="calendar" class="w-5 h-5 text-muted-foreground mt-0.5" />
           <div>
-            <div class="font-semibold text-sm text-muted-foreground">Approved On</div>
+            <div class="font-medium text-sm text-muted-foreground">Approved On</div>
             <div class="text-foreground">{{ policy()?.approved_at | appDate }}</div>
           </div>
         </div>
@@ -180,7 +180,7 @@
             This is version {{ policy()?.version }}, updated from
             <a
               [routerLink]="['/communication/policies', policy()?.parent?.public_id]"
-              class="underline font-semibold hover:text-blue-600"
+              class="underline font-medium hover:text-blue-600"
             >
               {{ policy()?.parent?.policy_code }} v{{ policy()?.parent?.version }}
             </a>
@@ -190,7 +190,7 @@
 
       <!-- Content -->
       <div class="mb-6">
-        <h4 class="text-xl font-semibold text-foreground mb-4">Policy Content</h4>
+        <h4 class="text-xl font-medium text-foreground mb-4">Policy Content</h4>
         <div class="prose max-w-none">
           <div [innerHTML]="policy()?.content"></div>
         </div>
@@ -201,7 +201,7 @@
         <div class="flex items-center gap-3">
           <z-icon zType="file-text" class="w-8 h-8 text-primary" />
           <div>
-            <div class="font-semibold text-foreground">Policy Document</div>
+            <div class="font-medium text-foreground">Policy Document</div>
             <small class="text-sm text-muted-foreground">
               {{ policy()?.file_size ? (policy()?.file_size! / 1024 / 1024).toFixed(2) + ' MB' : 'Size unknown' }}
             </small>
@@ -218,14 +218,14 @@
         <div class="flex items-center gap-3">
           <z-icon zType="eye" class="w-6 h-6 text-primary" />
           <div>
-            <div class="text-2xl font-bold text-foreground">{{ policy()?.view_count || 0 }}</div>
+            <div class="text-2xl font-semibold text-foreground">{{ policy()?.view_count || 0 }}</div>
             <div class="text-sm text-muted-foreground">Views</div>
           </div>
         </div>
         <div class="flex items-center gap-3" *ngIf="policy()?.requires_acknowledgment">
           <z-icon zType="check-circle" class="w-6 h-6 text-green-600" />
           <div>
-            <div class="text-2xl font-bold text-foreground">{{ policy()?.acknowledgment_count || 0 }}</div>
+            <div class="text-2xl font-semibold text-foreground">{{ policy()?.acknowledgment_count || 0 }}</div>
             <div class="text-sm text-muted-foreground">Acknowledged</div>
           </div>
         </div>
@@ -257,39 +257,39 @@
     <z-card class="mb-6 bg-green-50 dark:bg-green-950 border-green-500" *ngIf="hasAcknowledged()">
       <div class="flex items-center gap-2 text-green-800 dark:text-green-200">
         <z-icon zType="check-circle" class="w-5 h-5" />
-        <span class="font-semibold">You have acknowledged this policy</span>
+        <span class="font-medium">You have acknowledged this policy</span>
       </div>
     </z-card>
 
     <!-- Statistics Card (Admin/Manager) -->
     <z-card *ngIf="canViewStatistics() && statistics()">
-      <h4 class="text-xl font-semibold text-foreground mb-6 flex items-center gap-2">
+      <h4 class="text-xl font-medium text-foreground mb-6 flex items-center gap-2">
         <z-icon zType="bar-chart" class="w-6 h-6" />
         Acknowledgment Statistics
       </h4>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div class="p-6 bg-primary/5 rounded-lg border border-primary/20">
-          <div class="text-3xl font-bold text-primary mb-1">{{ statistics()?.total_views }}</div>
+          <div class="text-3xl font-semibold text-primary mb-1">{{ statistics()?.total_views }}</div>
           <div class="text-sm text-muted-foreground mb-2">Total Views</div>
-          <div class="text-lg font-semibold text-foreground">{{ statistics()?.view_percentage }}%</div>
+          <div class="text-lg font-medium text-foreground">{{ statistics()?.view_percentage }}%</div>
         </div>
 
         <div class="p-6 bg-green-50 dark:bg-green-950 rounded-lg border border-green-200 dark:border-green-800" *ngIf="policy()?.requires_acknowledgment">
-          <div class="text-3xl font-bold text-green-600 dark:text-green-400 mb-1">{{ statistics()?.total_acknowledgments }}</div>
+          <div class="text-3xl font-semibold text-green-600 dark:text-green-400 mb-1">{{ statistics()?.total_acknowledgments }}</div>
           <div class="text-sm text-muted-foreground mb-2">Acknowledged</div>
-          <div class="text-lg font-semibold text-foreground">{{ statistics()?.acknowledgment_percentage }}%</div>
+          <div class="text-lg font-medium text-foreground">{{ statistics()?.acknowledgment_percentage }}%</div>
         </div>
 
         <div class="p-6 bg-muted/50 rounded-lg border border-border">
-          <div class="text-3xl font-bold text-foreground mb-1">{{ statistics()?.total_employees }}</div>
+          <div class="text-3xl font-semibold text-foreground mb-1">{{ statistics()?.total_employees }}</div>
           <div class="text-sm text-muted-foreground">Total Employees</div>
         </div>
       </div>
 
       <!-- Acknowledgments Table -->
       <div *ngIf="statistics()?.acknowledgments && statistics()!.acknowledgments.length > 0">
-        <h5 class="text-lg font-semibold text-foreground mb-4">Acknowledgment Details</h5>
+        <h5 class="text-lg font-medium text-foreground mb-4">Acknowledgment Details</h5>
         <div class="overflow-x-auto">
           <table z-table>
             <thead>
@@ -303,7 +303,7 @@
             </thead>
             <tbody>
               <tr *ngFor="let ack of statistics()?.acknowledgments">
-                <td class="font-medium">{{ ack.employee?.full_name || 'Unknown' }}</td>
+                <td class="font-normal">{{ ack.employee?.full_name || 'Unknown' }}</td>
                 <td>{{ ack.viewed_at | appDateTime }}</td>
                 <td>
                   <z-badge zType="default" *ngIf="ack.acknowledged_at">
@@ -328,7 +328,7 @@
 
     <!-- Related Versions -->
     <z-card *ngIf="policy()?.versions && (policy()?.versions?.length ?? 0) > 0" class="mt-6">
-      <h4 class="text-xl font-semibold text-foreground mb-6 flex items-center gap-2">
+      <h4 class="text-xl font-medium text-foreground mb-6 flex items-center gap-2">
         <z-icon zType="clock" class="w-6 h-6" />
         Policy Versions
       </h4>
@@ -338,7 +338,7 @@
             <span class="font-mono text-sm bg-muted px-2 py-1 rounded">v{{ version.version }}</span>
             <z-badge [zType]="getStatusBadgeType(version.status)">{{ version.status }}</z-badge>
           </div>
-          <div class="font-semibold text-foreground mb-2">{{ version.title }}</div>
+          <div class="font-medium text-foreground mb-2">{{ version.title }}</div>
           <div class="flex items-center gap-2 text-sm text-muted-foreground mb-3">
             <z-icon zType="calendar" class="w-4 h-4" />
             <span>{{ version.created_at | appDate }}</span>

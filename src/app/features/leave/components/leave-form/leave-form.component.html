@@ -2,7 +2,7 @@
   <!-- Header -->
   <div class="flex items-center justify-between mb-8">
     <div>
-      <h1 class="text-2xl font-bold text-foreground">
+      <h1 class="text-2xl font-semibold text-foreground">
         {{ isEditMode() ? 'Edit Leave Application' : 'Apply for Leave' }}
       </h1>
       <p class="text-muted-foreground">
@@ -42,14 +42,14 @@
             <div z-card-content class="p-5">
               <div class="flex items-center gap-2 mb-4">
                 <z-icon zType="user" class="w-5 h-5 text-primary" />
-                <h3 class="text-lg font-semibold text-foreground">Leave Application</h3>
+                <h3 class="text-lg font-medium text-foreground">Leave Application</h3>
               </div>
 
               <div class="space-y-4">
                 <!-- Employee -->
                 @if (!isStaff()) {
                   <div>
-                    <label class="block text-sm font-medium text-foreground mb-2">
+                    <label class="block text-sm font-normal text-foreground mb-2">
                       Employee <span class="text-red-500">*</span>
                     </label>
                     <z-select
@@ -71,7 +71,7 @@
 
                 <!-- Leave Type -->
                 <div>
-                  <label class="block text-sm font-medium text-foreground mb-2">
+                  <label class="block text-sm font-normal text-foreground mb-2">
                     Leave Type <span class="text-red-500">*</span>
                   </label>
                   <z-select
@@ -94,7 +94,7 @@
                     <div class="flex items-start gap-3">
                       <z-icon zType="calendar-plus" class="w-5 h-5 text-primary mt-0.5" />
                       <div class="flex-1">
-                        <h5 class="text-sm font-semibold text-foreground mb-1">Available Balance</h5>
+                        <h5 class="text-sm font-medium text-foreground mb-1">Available Balance</h5>
                         <p class="text-sm text-muted-foreground">{{ getAvailableBalance() }} days remaining</p>
                       </div>
                     </div>
@@ -102,12 +102,12 @@
                 }
 
                 <div class="pt-2 border-t border-border">
-                  <h4 class="text-sm font-semibold text-foreground mb-3">Date & Duration</h4>
+                  <h4 class="text-sm font-medium text-foreground mb-3">Date & Duration</h4>
 
                   <div class="space-y-4">
                     <!-- Start Date -->
                     <div>
-                      <label class="block text-sm font-medium text-foreground mb-2">
+                      <label class="block text-sm font-normal text-foreground mb-2">
                         Start Date <span class="text-red-500">*</span>
                       </label>
                       <z-date-picker
@@ -121,7 +121,7 @@
 
                     <!-- End Date -->
                     <div>
-                      <label class="block text-sm font-medium text-foreground mb-2">
+                      <label class="block text-sm font-normal text-foreground mb-2">
                         End Date <span class="text-red-500">*</span>
                       </label>
                       <z-date-picker
@@ -142,14 +142,14 @@
                           class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
                           formControlName="is_half_day"
                           (change)="onHalfDayChange()">
-                        <span class="text-sm font-medium text-foreground">Half Day Leave</span>
+                        <span class="text-sm font-normal text-foreground">Half Day Leave</span>
                       </label>
                     </div>
 
                     <!-- Half Day Period -->
                     @if (leaveForm.get('is_half_day')?.value) {
                       <div>
-                        <label class="block text-sm font-medium text-foreground mb-2">Period</label>
+                        <label class="block text-sm font-normal text-foreground mb-2">Period</label>
                         <z-select
                           zPlaceholder="Select Period"
                           formControlName="half_day_period">
@@ -172,13 +172,13 @@
             <div z-card-content class="p-5">
               <div class="flex items-center gap-2 mb-4">
                 <z-icon zType="file-text" class="w-5 h-5 text-primary" />
-                <h3 class="text-lg font-semibold text-foreground">Details & Attachment</h3>
+                <h3 class="text-lg font-medium text-foreground">Details & Attachment</h3>
               </div>
 
               <div class="space-y-4">
                 <!-- Reason -->
                 <div>
-                  <label class="block text-sm font-medium text-foreground mb-2">
+                  <label class="block text-sm font-normal text-foreground mb-2">
                     Reason <span class="text-red-500">*</span>
                   </label>
                   <textarea
@@ -196,7 +196,7 @@
                 <!-- Attachment -->
                 <div class="pt-2 border-t border-border">
                   <div class="flex items-center justify-between mb-3">
-                    <label class="block text-sm font-medium text-foreground">
+                    <label class="block text-sm font-normal text-foreground">
                       Attachment @if (requiresDocument()) {<span class="text-red-500">*</span>}
                     </label>
                     @if (!isEditMode()) {
@@ -209,7 +209,7 @@
                         @if (!requiresDocument()) {
                           <button
                             type="button"
-                            class="text-xs text-primary hover:underline font-medium"
+                            class="text-xs text-primary hover:underline font-normal"
                             (click)="toggleAttachmentMode()">
                             {{ showUrlInput() ? 'Use File Upload' : 'Add from URL' }}
                           </button>
@@ -276,7 +276,7 @@
           <div z-card-content class="p-6">
             <div class="flex items-center gap-2 mb-6">
               <z-icon zType="file-text" class="w-5 h-5 text-primary" />
-              <h3 class="text-xl font-semibold text-foreground">{{ getDocumentTitle() }}</h3>
+              <h3 class="text-xl font-medium text-foreground">{{ getDocumentTitle() }}</h3>
               @if (requiresDocument()) {
                 <z-badge zType="destructive" class="text-xs">Required</z-badge>
               } @else {

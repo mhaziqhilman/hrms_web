@@ -32,7 +32,7 @@ import { TimeAgoPipe } from '@/shared/pipes/time-ago.pipe';
     <div class="bg-background min-h-screen max-w-6xl mx-auto">
       <!-- Header -->
       <div class="flex items-center justify-between mb-8">
-        <h1 class="text-2xl font-bold text-foreground">Notifications</h1>
+        <h1 class="text-2xl font-semibold text-foreground">Notifications</h1>
         <div class="flex items-center gap-2">
           @if (notificationService.unreadCount() > 0) {
             <button z-button (click)="markAllAsRead()" class="gap-2">
@@ -127,7 +127,7 @@ import { TimeAgoPipe } from '@/shared/pipes/time-ago.pipe';
         } @else if (notificationService.notifications().length === 0) {
           <div class="flex flex-col items-center justify-center py-16 text-muted-foreground">
             <z-icon zType="bell" zSize="xl" class="mb-3 opacity-30" />
-            <p class="text-lg font-medium">No notifications</p>
+            <p class="text-lg font-normal">No notifications</p>
             <p class="text-sm mt-1">You're all caught up!</p>
           </div>
         } @else {
@@ -148,7 +148,7 @@ import { TimeAgoPipe } from '@/shared/pipes/time-ago.pipe';
               <div class="flex-1 min-w-0">
                 <div class="flex items-start justify-between gap-4">
                   <div class="min-w-0">
-                    <p class="text-sm font-medium" [class.font-semibold]="!notification.is_read">
+                    <p class="text-sm font-normal" [class.font-medium]="!notification.is_read">
                       {{ notification.title }}
                     </p>
                     <p class="text-sm text-muted-foreground mt-0.5">{{ notification.message }}</p>

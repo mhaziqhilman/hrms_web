@@ -1,7 +1,7 @@
 <div class="space-y-6 max-w-5xl mx-auto">
   <!-- Header -->
   <div>
-    <h1 class="text-2xl font-bold text-foreground">Settings</h1>
+    <h1 class="text-2xl font-semibold text-foreground">Settings</h1>
     <p class="text-muted-foreground">Manage your account settings and preferences.</p>
   </div>
 
@@ -48,11 +48,11 @@
               @if (accountInfo()) {
                 <z-card>
                   <div zCardHeader class="grid gap-2 pb-4">
-                    <h3 zCardTitle class="flex items-center gap-2 font-semibold">
+                    <h3 zCardTitle class="flex items-center gap-2 font-medium">
                       <z-icon zType="image" class="h-5 w-5" />
                       Profile Picture
                     </h3>
-                    <p zCardDescription class="text-sm font-light">Upload a photo or use your initials as your avatar</p>
+                    <p zCardDescription class="text-sm font-extralight">Upload a photo or use your initials as your avatar</p>
                   </div>
                   <div zCardContent>
                     <div class="flex items-center gap-6">
@@ -65,7 +65,7 @@
                             class="h-24 w-24 rounded-full object-cover border-2 border-border" />
                         } @else {
                           <div class="h-24 w-24 rounded-full bg-primary/10 border-2 border-border flex items-center justify-center">
-                            <span class="text-2xl font-semibold text-primary">{{ getInitials() }}</span>
+                            <span class="text-2xl font-medium text-primary">{{ getInitials() }}</span>
                           </div>
                         }
                         @if (uploadingPhoto()) {
@@ -114,32 +114,32 @@
               @if (accountInfo()) {
                 <z-card>
                   <div zCardHeader class="grid gap-2 pb-4">
-                    <h3 zCardTitle class="flex items-center gap-2 font-semibold">
+                    <h3 zCardTitle class="flex items-center gap-2 font-medium">
                       <z-icon zType="circle-user" class="h-5 w-5" />
                       Account Information
                     </h3>
-                    <p zCardDescription class="text-sm font-light">Your account details</p>
+                    <p zCardDescription class="text-sm font-extralight">Your account details</p>
                   </div>
                   <div zCardContent>
                     <div class="space-y-4">
                       <div class="flex items-center justify-between py-2">
                         <span class="text-sm text-muted-foreground">Name</span>
-                        <span class="text-sm font-medium">{{ accountInfo()!.employee_name || 'Not set' }}</span>
+                        <span class="text-sm font-normal">{{ accountInfo()!.employee_name || 'Not set' }}</span>
                       </div>
                       <z-divider />
                       <div class="flex items-center justify-between py-2">
                         <span class="text-sm text-muted-foreground">Email</span>
-                        <span class="text-sm font-medium">{{ accountInfo()!.email }}</span>
+                        <span class="text-sm font-normal">{{ accountInfo()!.email }}</span>
                       </div>
                       <z-divider />
                       <div class="flex items-center justify-between py-2">
                         <span class="text-sm text-muted-foreground">Role</span>
-                        <span class="text-sm font-medium capitalize">{{ accountInfo()!.role }}</span>
+                        <span class="text-sm font-normal capitalize">{{ accountInfo()!.role }}</span>
                       </div>
                       <z-divider />
                       <div class="flex items-center justify-between py-2">
                         <span class="text-sm text-muted-foreground">Last Login</span>
-                        <span class="text-sm font-medium">{{ accountInfo()!.last_login || 'N/A' }}</span>
+                        <span class="text-sm font-normal">{{ accountInfo()!.last_login || 'N/A' }}</span>
                       </div>
                     </div>
                   </div>
@@ -149,16 +149,16 @@
               <!-- Change Password -->
               <z-card>
                 <div zCardHeader class="grid gap-2 pb-4">
-                  <h3 zCardTitle class="flex items-center gap-2 font-semibold">
+                  <h3 zCardTitle class="flex items-center gap-2 font-medium">
                     <z-icon zType="lock" class="h-5 w-5" />
                     Change Password
                   </h3>
-                  <p zCardDescription class="text-sm font-light">Choose a strong password that you don't use for other accounts</p>
+                  <p zCardDescription class="text-sm font-extralight">Choose a strong password that you don't use for other accounts</p>
                 </div>
                 <div zCardContent class="space-y-4">
                   <!-- Current Password -->
                   <div class="grid gap-2">
-                    <label class="text-sm font-medium">Current Password</label>
+                    <label class="text-sm font-normal">Current Password</label>
                     <div class="relative">
                       <input z-input
                         [type]="showCurrentPassword() ? 'text' : 'password'"
@@ -178,7 +178,7 @@
 
                   <!-- New Password -->
                   <div class="grid gap-2">
-                    <label class="text-sm font-medium">New Password</label>
+                    <label class="text-sm font-normal">New Password</label>
                     <div class="relative">
                       <input z-input
                         [type]="showNewPassword() ? 'text' : 'password'"
@@ -205,7 +205,7 @@
                               [style.width.%]="(passwordStrength().score / 6) * 100">
                             </div>
                           </div>
-                          <span class="text-sm font-medium" [ngClass]="{
+                          <span class="text-sm font-normal" [ngClass]="{
                             'text-red-500': passwordStrength().label === 'Weak',
                             'text-yellow-500': passwordStrength().label === 'Fair',
                             'text-blue-500': passwordStrength().label === 'Good',
@@ -220,7 +220,7 @@
 
                   <!-- Password Requirements -->
                   <div class="grid gap-2">
-                    <p class="text-sm font-medium text-muted-foreground">Password requirements:</p>
+                    <p class="text-sm font-normal text-muted-foreground">Password requirements:</p>
                     <ul class="space-y-1.5">
                       @for (req of passwordRequirements; track req.label; let i = $index) {
                         <li class="flex items-center gap-2 text-sm">
@@ -240,7 +240,7 @@
 
                   <!-- Confirm Password -->
                   <div class="grid gap-2">
-                    <label class="text-sm font-medium">Confirm New Password</label>
+                    <label class="text-sm font-normal">Confirm New Password</label>
                     <div class="relative">
                       <input z-input
                         [type]="showConfirmPassword() ? 'text' : 'password'"
@@ -285,7 +285,7 @@
               <!-- Year Filter -->
               <div class="flex items-center justify-between">
                 <div>
-                  <h3 class="text-lg font-semibold">My Payslips</h3>
+                  <h3 class="text-lg font-medium">My Payslips</h3>
                   <p class="text-sm text-muted-foreground">View and download your payslips</p>
                 </div>
                 <div class="flex items-center gap-2">
@@ -311,7 +311,7 @@
                       </div>
                       <div>
                         <p class="text-sm text-muted-foreground">YTD Gross</p>
-                        <p class="text-lg font-semibold">{{ formatCurrency(ytdSummary()?.total_gross ?? 0) }}</p>
+                        <p class="text-lg font-medium">{{ formatCurrency(ytdSummary()?.total_gross ?? 0) }}</p>
                       </div>
                     </div>
                   </z-card>
@@ -323,7 +323,7 @@
                       </div>
                       <div>
                         <p class="text-sm text-muted-foreground">YTD Net</p>
-                        <p class="text-lg font-semibold">{{ formatCurrency(ytdSummary()?.total_net ?? 0) }}</p>
+                        <p class="text-lg font-medium">{{ formatCurrency(ytdSummary()?.total_net ?? 0) }}</p>
                       </div>
                     </div>
                   </z-card>
@@ -335,7 +335,7 @@
                       </div>
                       <div>
                         <p class="text-sm text-muted-foreground">YTD EPF</p>
-                        <p class="text-lg font-semibold">{{ formatCurrency(ytdSummary()?.total_epf ?? 0) }}</p>
+                        <p class="text-lg font-medium">{{ formatCurrency(ytdSummary()?.total_epf ?? 0) }}</p>
                       </div>
                     </div>
                   </z-card>
@@ -347,7 +347,7 @@
                       </div>
                       <div>
                         <p class="text-sm text-muted-foreground">YTD Tax (PCB)</p>
-                        <p class="text-lg font-semibold">{{ formatCurrency(ytdSummary()?.total_pcb ?? 0) }}</p>
+                        <p class="text-lg font-medium">{{ formatCurrency(ytdSummary()?.total_pcb ?? 0) }}</p>
                       </div>
                     </div>
                   </z-card>
@@ -365,9 +365,9 @@
                     <z-card class="hover:shadow-md transition-shadow">
                       <div zCardHeader class="grid gap-2 pb-4">
                         <div class="flex items-center justify-between">
-                          <h3 zCardTitle class="font-semibold">{{ getMonthName(payslip.month) }} {{ payslip.year }}</h3>
+                          <h3 zCardTitle class="font-medium">{{ getMonthName(payslip.month) }} {{ payslip.year }}</h3>
                           <span
-                            class="px-2 py-1 text-xs font-medium rounded-full capitalize"
+                            class="px-2 py-1 text-xs font-normal rounded-full capitalize"
                             [ngClass]="getStatusBadgeClass(payslip.status)">
                             {{ payslip.status }}
                           </span>
@@ -376,16 +376,16 @@
                       <div zCardContent class="space-y-4">
                         <div class="flex justify-between items-center">
                           <span class="text-sm text-muted-foreground">Gross Salary</span>
-                          <span class="font-medium">{{ formatCurrency(payslip.gross_salary) }}</span>
+                          <span class="font-normal">{{ formatCurrency(payslip.gross_salary) }}</span>
                         </div>
                         <div class="flex justify-between items-center">
                           <span class="text-sm text-muted-foreground">Total Deductions</span>
-                          <span class="font-medium text-red-600">-{{ formatCurrency(payslip.total_deductions) }}</span>
+                          <span class="font-normal text-red-600">-{{ formatCurrency(payslip.total_deductions) }}</span>
                         </div>
                         <hr class="border-border">
                         <div class="flex justify-between items-center">
-                          <span class="text-sm font-medium">Net Salary</span>
-                          <span class="font-semibold text-green-600">{{ formatCurrency(payslip.net_salary) }}</span>
+                          <span class="text-sm font-normal">Net Salary</span>
+                          <span class="font-medium text-green-600">{{ formatCurrency(payslip.net_salary) }}</span>
                         </div>
                       </div>
                       <div zCardFooter class="pt-6">
@@ -444,11 +444,11 @@
               <!-- Theme -->
               <z-card>
                 <div zCardHeader class="grid gap-2 pb-4">
-                  <h3 zCardTitle class="flex items-center gap-2 font-semibold">
+                  <h3 zCardTitle class="flex items-center gap-2 font-medium">
                     <z-icon zType="sun-moon" class="h-5 w-5" />
                     Theme
                   </h3>
-                  <p zCardDescription class="text-sm font-light">Select your preferred theme for the application</p>
+                  <p zCardDescription class="text-sm font-extralight">Select your preferred theme for the application</p>
                 </div>
                 <div zCardContent>
                   <div class="grid grid-cols-3 gap-3">
@@ -459,7 +459,7 @@
                       [ngClass]="selectedTheme === 'light' ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground/30'"
                       (click)="setTheme('light')">
                       <z-icon zType="sun" class="h-6 w-6" />
-                      <span class="text-sm font-medium">Light</span>
+                      <span class="text-sm font-normal">Light</span>
                     </button>
                     <!-- Dark -->
                     <button
@@ -468,7 +468,7 @@
                       [ngClass]="selectedTheme === 'dark' ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground/30'"
                       (click)="setTheme('dark')">
                       <z-icon zType="moon" class="h-6 w-6" />
-                      <span class="text-sm font-medium">Dark</span>
+                      <span class="text-sm font-normal">Dark</span>
                     </button>
                     <!-- System -->
                     <button
@@ -477,7 +477,7 @@
                       [ngClass]="selectedTheme === 'system' ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground/30'"
                       (click)="setTheme('system')">
                       <z-icon zType="sun-moon" class="h-6 w-6" />
-                      <span class="text-sm font-medium">System</span>
+                      <span class="text-sm font-normal">System</span>
                     </button>
                   </div>
                 </div>
@@ -486,11 +486,11 @@
               <!-- Border Radius -->
               <z-card>
                 <div zCardHeader class="grid gap-2 pb-4">
-                  <h3 zCardTitle class="flex items-center gap-2 font-semibold">
+                  <h3 zCardTitle class="flex items-center gap-2 font-medium">
                     <z-icon zType="square" class="h-5 w-5" />
                     Border Radius
                   </h3>
-                  <p zCardDescription class="text-sm font-light">Adjust the roundedness of UI elements globally</p>
+                  <p zCardDescription class="text-sm font-extralight">Adjust the roundedness of UI elements globally</p>
                 </div>
                 <div zCardContent>
                   <div class="grid grid-cols-3 gap-3">
@@ -501,7 +501,7 @@
                       [ngClass]="selectedBorderRadius === 'sharp' ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground/30'"
                       (click)="setBorderRadius('sharp')">
                       <div class="h-10 w-10 border-2 border-foreground/40 rounded-sm"></div>
-                      <span class="text-sm font-medium">Sharp</span>
+                      <span class="text-sm font-normal">Sharp</span>
                     </button>
                     <!-- Default -->
                     <button
@@ -510,7 +510,7 @@
                       [ngClass]="selectedBorderRadius === 'default' ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground/30'"
                       (click)="setBorderRadius('default')">
                       <div class="h-10 w-10 border-2 border-foreground/40 rounded-lg"></div>
-                      <span class="text-sm font-medium">Default</span>
+                      <span class="text-sm font-normal">Default</span>
                     </button>
                     <!-- Round -->
                     <button
@@ -519,7 +519,7 @@
                       [ngClass]="selectedBorderRadius === 'round' ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground/30'"
                       (click)="setBorderRadius('round')">
                       <div class="h-10 w-10 border-2 border-foreground/40 rounded-2xl"></div>
-                      <span class="text-sm font-medium">Round</span>
+                      <span class="text-sm font-normal">Round</span>
                     </button>
                   </div>
                 </div>
@@ -528,16 +528,16 @@
               <!-- Layout Preferences -->
               <z-card>
                 <div zCardHeader class="grid gap-2 pb-4">
-                  <h3 zCardTitle class="flex items-center gap-2 font-semibold">
+                  <h3 zCardTitle class="flex items-center gap-2 font-medium">
                     <z-icon zType="panel-left" class="h-5 w-5" />
                     Layout
                   </h3>
-                  <p zCardDescription class="text-sm font-light">Customize the application layout</p>
+                  <p zCardDescription class="text-sm font-extralight">Customize the application layout</p>
                 </div>
                 <div zCardContent class="space-y-4">
                   <div class="flex items-center justify-between">
                     <div>
-                      <p class="text-sm font-medium">Sidebar Collapsed</p>
+                      <p class="text-sm font-normal">Sidebar Collapsed</p>
                       <p class="text-sm text-muted-foreground">Start with a collapsed sidebar by default</p>
                     </div>
                     <z-checkbox [(ngModel)]="sidebarCollapsed" (ngModelChange)="onSidebarCollapsedChange()">
@@ -546,7 +546,7 @@
                   <z-divider />
                   <div class="flex items-center justify-between">
                     <div>
-                      <p class="text-sm font-medium">Compact Mode</p>
+                      <p class="text-sm font-normal">Compact Mode</p>
                       <p class="text-sm text-muted-foreground">Reduce spacing for a more compact layout</p>
                     </div>
                     <z-checkbox [(ngModel)]="compactMode" (ngModelChange)="onCompactModeChange()">
@@ -574,16 +574,16 @@
               <!-- General Notifications -->
               <z-card>
                 <div zCardHeader class="grid gap-2 pb-4">
-                  <h3 zCardTitle class="flex items-center gap-2 font-semibold">
+                  <h3 zCardTitle class="flex items-center gap-2 font-medium">
                     <z-icon zType="bell" class="h-5 w-5" />
                     General
                   </h3>
-                  <p zCardDescription class="text-sm font-light">Configure how you receive notifications</p>
+                  <p zCardDescription class="text-sm font-extralight">Configure how you receive notifications</p>
                 </div>
                 <div zCardContent class="space-y-4">
                   <div class="flex items-center justify-between">
                     <div>
-                      <p class="text-sm font-medium">Email Notifications</p>
+                      <p class="text-sm font-normal">Email Notifications</p>
                       <p class="text-sm text-muted-foreground">Receive notifications via email</p>
                     </div>
                     <z-checkbox [(ngModel)]="emailNotifications">
@@ -592,7 +592,7 @@
                   <z-divider />
                   <div class="flex items-center justify-between">
                     <div>
-                      <p class="text-sm font-medium">Push Notifications</p>
+                      <p class="text-sm font-normal">Push Notifications</p>
                       <p class="text-sm text-muted-foreground">Receive push notifications in browser</p>
                     </div>
                     <z-checkbox [(ngModel)]="pushNotifications">
@@ -604,16 +604,16 @@
               <!-- Specific Notifications -->
               <z-card>
                 <div zCardHeader class="grid gap-2 pb-4">
-                  <h3 zCardTitle class="flex items-center gap-2 font-semibold">
+                  <h3 zCardTitle class="flex items-center gap-2 font-medium">
                     <z-icon zType="mail" class="h-5 w-5" />
                     Notification Preferences
                   </h3>
-                  <p zCardDescription class="text-sm font-light">Choose which notifications you want to receive</p>
+                  <p zCardDescription class="text-sm font-extralight">Choose which notifications you want to receive</p>
                 </div>
                 <div zCardContent class="space-y-4">
                   <div class="flex items-center justify-between">
                     <div>
-                      <p class="text-sm font-medium">Leave Approval</p>
+                      <p class="text-sm font-normal">Leave Approval</p>
                       <p class="text-sm text-muted-foreground">When your leave is approved or rejected</p>
                     </div>
                     <z-checkbox [(ngModel)]="notifyLeaveApproval">
@@ -622,7 +622,7 @@
                   <z-divider />
                   <div class="flex items-center justify-between">
                     <div>
-                      <p class="text-sm font-medium">Claim Approval</p>
+                      <p class="text-sm font-normal">Claim Approval</p>
                       <p class="text-sm text-muted-foreground">When your claim is approved or rejected</p>
                     </div>
                     <z-checkbox [(ngModel)]="notifyClaimApproval">
@@ -631,7 +631,7 @@
                   <z-divider />
                   <div class="flex items-center justify-between">
                     <div>
-                      <p class="text-sm font-medium">Payslip Ready</p>
+                      <p class="text-sm font-normal">Payslip Ready</p>
                       <p class="text-sm text-muted-foreground">When your monthly payslip is available</p>
                     </div>
                     <z-checkbox [(ngModel)]="notifyPayslipReady">
@@ -640,7 +640,7 @@
                   <z-divider />
                   <div class="flex items-center justify-between">
                     <div>
-                      <p class="text-sm font-medium">Memo Received</p>
+                      <p class="text-sm font-normal">Memo Received</p>
                       <p class="text-sm text-muted-foreground">When a new memo is sent to you</p>
                     </div>
                     <z-checkbox [(ngModel)]="notifyMemoReceived">
@@ -649,7 +649,7 @@
                   <z-divider />
                   <div class="flex items-center justify-between">
                     <div>
-                      <p class="text-sm font-medium">Policy Updates</p>
+                      <p class="text-sm font-normal">Policy Updates</p>
                       <p class="text-sm text-muted-foreground">When company policies are updated</p>
                     </div>
                     <z-checkbox [(ngModel)]="notifyPolicyUpdate">
@@ -676,16 +676,16 @@
             <div class="space-y-6">
               <z-card>
                 <div zCardHeader class="grid gap-2 pb-4">
-                  <h3 zCardTitle class="flex items-center gap-2 font-semibold">
+                  <h3 zCardTitle class="flex items-center gap-2 font-medium">
                     <z-icon zType="monitor" class="h-5 w-5" />
                     Display Preferences
                   </h3>
-                  <p zCardDescription class="text-sm font-light">Customize language, timezone, and formatting</p>
+                  <p zCardDescription class="text-sm font-extralight">Customize language, timezone, and formatting</p>
                 </div>
                 <div zCardContent class="space-y-4">
                   <!-- Language -->
                   <div class="grid gap-2">
-                    <label class="text-sm font-medium">Language</label>
+                    <label class="text-sm font-normal">Language</label>
                     <p class="text-sm text-muted-foreground">Select your preferred language</p>
                     <z-select [zValue]="selectedLanguage" (zValueChange)="onLanguageChange($event)">
                       @for (lang of languages; track lang.value) {
@@ -698,7 +698,7 @@
 
                   <!-- Timezone -->
                   <div class="grid gap-2">
-                    <label class="text-sm font-medium">Timezone</label>
+                    <label class="text-sm font-normal">Timezone</label>
                     <p class="text-sm text-muted-foreground">Set your local timezone for accurate dates and times</p>
                     <z-select [zValue]="selectedTimezone" (zValueChange)="onTimezoneChange($event)">
                       @for (tz of timezones; track tz.value) {
@@ -711,7 +711,7 @@
 
                   <!-- Date Format -->
                   <div class="grid gap-2">
-                    <label class="text-sm font-medium">Date Format</label>
+                    <label class="text-sm font-normal">Date Format</label>
                     <p class="text-sm text-muted-foreground">Choose how dates are displayed</p>
                     <z-select [zValue]="selectedDateFormat" (zValueChange)="onDateFormatChange($event)">
                       @for (df of dateFormats; track df.value) {
@@ -724,7 +724,7 @@
 
                   <!-- Time Format -->
                   <div class="grid gap-2">
-                    <label class="text-sm font-medium">Time Format</label>
+                    <label class="text-sm font-normal">Time Format</label>
                     <p class="text-sm text-muted-foreground">Choose 12-hour or 24-hour time format</p>
                     <z-select [zValue]="selectedTimeFormat" (zValueChange)="onTimeFormatChange($event)">
                       @for (tf of timeFormats; track tf.value) {
@@ -737,16 +737,16 @@
 
                   <!-- Live Preview -->
                   <div class="grid gap-2">
-                    <label class="text-sm font-medium">Preview</label>
+                    <label class="text-sm font-normal">Preview</label>
                     <div class="rounded-lg border border-border bg-muted/30 p-4">
                       <div class="flex items-center justify-between">
                         <span class="text-sm text-muted-foreground">Date</span>
-                        <span class="text-sm font-medium font-mono">{{ getDatePreview() }}</span>
+                        <span class="text-sm font-normal font-mono">{{ getDatePreview() }}</span>
                       </div>
                       <z-divider zSpacing="sm" />
                       <div class="flex items-center justify-between">
                         <span class="text-sm text-muted-foreground">Time</span>
-                        <span class="text-sm font-medium font-mono">{{ getTimePreview() }}</span>
+                        <span class="text-sm font-normal font-mono">{{ getTimePreview() }}</span>
                       </div>
                     </div>
                   </div>

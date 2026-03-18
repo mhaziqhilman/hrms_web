@@ -16,7 +16,7 @@
             <div class="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6">
               <z-icon zType="loader-circle" class="w-8 h-8 text-primary animate-spin" />
             </div>
-            <h1 class="text-2xl font-semibold text-foreground mb-2">Loading Invitation</h1>
+            <h1 class="text-2xl font-medium text-foreground mb-2">Loading Invitation</h1>
             <p class="text-sm text-muted-foreground">Please wait...</p>
           }
 
@@ -25,7 +25,7 @@
             <div class="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6">
               <z-icon zType="loader-circle" class="w-8 h-8 text-primary animate-spin" />
             </div>
-            <h1 class="text-2xl font-semibold text-foreground mb-2">Accepting Invitation</h1>
+            <h1 class="text-2xl font-medium text-foreground mb-2">Accepting Invitation</h1>
             <p class="text-sm text-muted-foreground">Please wait while we process your invitation...</p>
           }
 
@@ -34,7 +34,7 @@
             <div class="mx-auto w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center mb-6">
               <z-icon [zType]="$any('check-circle')" class="w-8 h-8 text-green-500" />
             </div>
-            <h1 class="text-2xl font-semibold text-foreground mb-2">Welcome Aboard!</h1>
+            <h1 class="text-2xl font-medium text-foreground mb-2">Welcome Aboard!</h1>
             <p class="text-sm text-muted-foreground mb-8">
               You've successfully joined @if (companyName) { <strong>{{ companyName }}</strong> } @else { the company }. You can now access the HRMS dashboard.
             </p>
@@ -54,7 +54,7 @@
             <div class="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6">
               <z-icon [zType]="$any('mail-open')" class="w-8 h-8 text-primary" />
             </div>
-            <h1 class="text-2xl font-semibold text-foreground mb-2">You've Been Invited!</h1>
+            <h1 class="text-2xl font-medium text-foreground mb-2">You've Been Invited!</h1>
             @if (companyName) {
               <p class="text-sm text-muted-foreground mb-2">
                 You've been invited to join <strong>{{ companyName }}</strong> as <strong class="capitalize">{{ invitedRole }}</strong>.
@@ -91,7 +91,7 @@
             <div class="mx-auto w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mb-6">
               <z-icon [zType]="$any('circle-x')" class="w-8 h-8 text-destructive" />
             </div>
-            <h1 class="text-2xl font-semibold text-foreground mb-2">Invitation Error</h1>
+            <h1 class="text-2xl font-medium text-foreground mb-2">Invitation Error</h1>
             <p class="text-sm text-muted-foreground mb-6">{{ errorMessage }}</p>
             <button
               z-button

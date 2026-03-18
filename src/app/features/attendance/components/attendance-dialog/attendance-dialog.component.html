@@ -1,0 +1,184 @@
+<div class="grid grid-cols-1 md:grid-cols-2 gap-0 min-h-[420px]">
+  <!-- LEFT: Clock Display -->
+  <div class="flex flex-col items-center justify-center p-6 bg-muted/30 border-r">
+    <!-- Live Clock -->
+    <p class="text-sm text-muted-foreground mb-2">{{ getClockDate() }}</p>
+    <p class="text-3xl font-semibold tabular-nums text-foreground mb-4">{{ getClockHours() }}</p>
+
+    <!-- Status Badge -->
+    <z-badge [zType]="$any(getStatusBadgeType())" zShape="pill" class="text-xs mb-5">
+      <span class="inline-block w-1.5 h-1.5 rounded-full"
+        [class]="isClockedIn() ? 'bg-green-500 animate-pulse' : todayAttendance() ? 'bg-green-500' : 'bg-gray-400'"></span>
+      {{ getStatusText() }}
+    </z-badge>
+
+    <!-- Timer (when clocked in) -->
+    @if (isClockedIn()) {
+      <div class="flex items-center gap-2 mb-4">
+        <div class="text-center">
+          <div class="bg-background border rounded-lg px-3 py-2 text-2xl font-mono font-semibold tabular-nums">{{ getHours() }}</div>
+          <p class="text-[10px] text-muted-foreground mt-1 uppercase tracking-wider">Hours</p>
+        </div>
+        <span class="text-xl font-semibold text-muted-foreground pb-4">:</span>
+        <div class="text-center">
+          <div class="bg-background border rounded-lg px-3 py-2 text-2xl font-mono font-semibold tabular-nums">{{ getMinutes() }}</div>
+          <p class="text-[10px] text-muted-foreground mt-1 uppercase tracking-wider">Minutes</p>
+        </div>
+        <span class="text-xl font-semibold text-muted-foreground pb-4">:</span>
+        <div class="text-center">
+          <div class="bg-background border rounded-lg px-3 py-2 text-2xl font-mono font-semibold tabular-nums">{{ getSeconds() }}</div>
+          <p class="text-[10px] text-muted-foreground mt-1 uppercase tracking-wider">Seconds</p>
+        </div>
+      </div>
+    }
+
+    <!-- Today's Info -->
+    @if (todayAttendance()) {
+      <div class="text-center text-sm text-muted-foreground space-y-1 mb-4">
+        <p>
+          <z-icon [zType]="$any('log-in')" class="w-3.5 h-3.5 inline-block mr-1" />
+          In: {{ formatTime(clockInTime()) }}
+          @if (clockOutTime()) {
+            <span class="mx-1.5">-</span>
+            <z-icon [zType]="$any('log-out')" class="w-3.5 h-3.5 inline-block mr-1" />
+            Out: {{ formatTime(clockOutTime()) }}
+          }
+        </p>
+        @if (clockOutTime()) {
+          <p class="text-foreground font-medium">Total: {{ getHours() }}h {{ getMinutes() }}m</p>
+        }
+      </div>
+    }
+
+    <!-- Clock In/Out Button -->
+    @if (!todayAttendance() || isClockedIn()) {
+      <button z-button [zType]="isClockedIn() ? 'destructive' : 'default'"
+        class="gap-2 w-48"
+        [disabled]="loading()"
+        (click)="isClockedIn() ? performClockOut() : performClockIn()">
+        @if (loading() && activeMode() === 'clock') {
+          <z-icon zType="loader-circle" class="w-4 h-4 animate-spin" />
+        } @else {
+          <z-icon [zType]="$any(isClockedIn() ? 'square' : 'play')" class="w-4 h-4" />
+        }
+        {{ isClockedIn() ? 'Clock Out' : 'Clock In' }}
+      </button>
+    }
+
+    @if (todayAttendance() && !isClockedIn()) {
+      <div class="flex items-center gap-2 text-sm text-green-600">
+        <z-icon zType="circle-check" class="w-4 h-4" />
+        Day completed
+      </div>
+    }
+  </div>
+
+  <!-- RIGHT: Form -->
+  <div class="flex flex-col p-6">
+    <!-- Mode Toggle -->
+    <div class="flex justify-center mb-5">
+      <z-segmented
+        [zOptions]="modeOptions"
+        zDefaultValue="clock"
+        zSize="sm"
+        (zChange)="onModeChange($event)" />
+    </div>
+
+    <!-- Alerts -->
+    @if (success()) {
+      <div class="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg p-2.5 flex items-center gap-2 text-green-800 dark:text-green-300 text-sm mb-4">
+        <z-icon zType="circle-check" class="w-4 h-4 shrink-0" />
+        <span>{{ success() }}</span>
+      </div>
+    }
+    @if (error()) {
+      <div class="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg p-2.5 flex items-center gap-2 text-red-800 dark:text-red-300 text-sm mb-4">
+        <z-icon zType="triangle-alert" class="w-4 h-4 shrink-0" />
+        <span>{{ error() }}</span>
+      </div>
+    }
+
+    <!-- Clock Mode: To-Do Notes + Type -->
+    @if (activeMode() === 'clock') {
+      <div class="flex-1 flex flex-col gap-4">
+        <!-- Type -->
+        <div>
+          <label class="block text-sm font-medium text-foreground mb-1.5">Attendance Type</label>
+          <z-segmented
+            [zOptions]="typeOptions"
+            [zDefaultValue]="attendanceType()"
+            zSize="sm"
+            [zDisabled]="isClockedIn()"
+            (zChange)="onTypeChange($event)" />
+        </div>
+
+        <!-- To-Do Notes -->
+        <div class="flex-1">
+          <label class="block text-sm font-medium text-foreground mb-1.5">To-Do Notes</label>
+          <textarea
+            class="w-full px-3 py-2 text-sm border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring resize-none"
+            rows="5"
+            [ngModel]="todoNotes()"
+            (ngModelChange)="todoNotes.set($event)"
+            placeholder="What are you working on today?"></textarea>
+        </div>
+      </div>
+    }
+
+    <!-- Manual Mode: Date, Time In, Time Out, Notes, Type -->
+    @if (activeMode() === 'manual') {
+      <form [formGroup]="manualForm" (ngSubmit)="submitManualEntry()" class="flex-1 flex flex-col gap-4">
+        <!-- Date -->
+        <div>
+          <label class="block text-sm font-medium text-foreground mb-1.5">Date</label>
+          <input type="date" formControlName="date"
+            class="w-full px-3 py-2 text-sm border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring" />
+        </div>
+
+        <!-- Time In / Out -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm font-medium text-foreground mb-1.5">Time In</label>
+            <input type="time" formControlName="clock_in_time"
+              class="w-full px-3 py-2 text-sm border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-foreground mb-1.5">Time Out</label>
+            <input type="time" formControlName="clock_out_time"
+              class="w-full px-3 py-2 text-sm border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring" />
+          </div>
+        </div>
+
+        <!-- Type -->
+        <div>
+          <label class="block text-sm font-medium text-foreground mb-1.5">Type</label>
+          <z-segmented
+            [zOptions]="typeOptions"
+            [zDefaultValue]="attendanceType()"
+            zSize="sm"
+            (zChange)="onTypeChange($event)" />
+        </div>
+
+        <!-- To-Do Notes -->
+        <div class="flex-1">
+          <label class="block text-sm font-medium text-foreground mb-1.5">To-Do Notes</label>
+          <textarea formControlName="todo_notes"
+            class="w-full px-3 py-2 text-sm border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring resize-none"
+            rows="3"
+            placeholder="Tasks for this day..."></textarea>
+        </div>
+
+        <!-- Submit -->
+        <button z-button type="submit" class="gap-2 w-full"
+          [disabled]="manualForm.invalid || loading()">
+          @if (loading()) {
+            <z-icon zType="loader-circle" class="w-4 h-4 animate-spin" />
+          } @else {
+            <z-icon zType="plus" class="w-4 h-4" />
+          }
+          Save Attendance
+        </button>
+      </form>
+    }
+  </div>
+</div>

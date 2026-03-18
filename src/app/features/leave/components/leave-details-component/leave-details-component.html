@@ -11,7 +11,7 @@
     <div class="max-w-4xl mx-auto p-6">
       <div class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
         <z-icon zType="triangle-alert" class="w-12 h-12 text-red-500 mx-auto mb-4" />
-        <h3 class="text-lg font-semibold text-red-800 mb-2">Error Loading Leave Details</h3>
+        <h3 class="text-lg font-medium text-red-800 mb-2">Error Loading Leave Details</h3>
         <p class="text-red-600 mb-4">{{ error() }}</p>
         <button z-button zType="outline" routerLink="/leave">
           <z-icon zType="arrow-left" class="w-4 h-4 mr-2" />
@@ -31,7 +31,7 @@
             <z-icon zType="arrow-left" class="w-4 h-4" />
             Back
           </button>
-          <h1 class="text-2xl font-bold text-foreground">{{ leave()!.leave_type?.name || 'Leave Application' }}</h1>
+          <h1 class="text-2xl font-semibold text-foreground">{{ leave()!.leave_type?.name || 'Leave Application' }}</h1>
         </div>
         <div class="flex items-center gap-2">
           <z-badge [zType]="getStatusBadgeType(leave()!.status)">
@@ -51,11 +51,11 @@
           <div>
             <div class="text-sm text-muted-foreground mb-3">Employee</div>
             <div class="flex items-center gap-3">
-              <span class="flex items-center justify-center w-10 h-10 bg-primary text-white rounded-full text-sm font-semibold">
+              <span class="flex items-center justify-center w-10 h-10 bg-primary text-white rounded-full text-sm font-medium">
                 {{ getInitials(leave()!.employee?.full_name) }}
               </span>
               <div>
-                <div class="text-sm font-medium text-foreground">{{ leave()!.employee?.full_name }}</div>
+                <div class="text-sm font-normal text-foreground">{{ leave()!.employee?.full_name }}</div>
                 <div class="text-xs text-muted-foreground">{{ leave()!.employee?.employee_id }}</div>
               </div>
             </div>
@@ -64,7 +64,7 @@
           <!-- Date -->
           <div>
             <div class="text-sm text-muted-foreground mb-3">Date</div>
-            <div class="flex items-center gap-2 text-sm font-medium">
+            <div class="flex items-center gap-2 text-sm font-normal">
               <z-icon zType="calendar" class="w-4 h-4 text-muted-foreground" />
               <span>{{ formatDate(leave()!.start_date) }} - {{ formatDate(leave()!.end_date) }}</span>
             </div>
@@ -74,7 +74,7 @@
           <div>
             <div class="text-sm text-muted-foreground mb-3">Duration</div>
             <div class="flex items-center gap-2">
-              <span class="text-sm font-medium">{{ leave()!.total_days }} {{ leave()!.total_days === 1 ? 'day' : 'days' }}</span>
+              <span class="text-sm font-normal">{{ leave()!.total_days }} {{ leave()!.total_days === 1 ? 'day' : 'days' }}</span>
               @if (leave()!.is_half_day) {
                 <z-badge zType="default">{{ leave()!.half_day_period }}</z-badge>
               }
@@ -85,7 +85,7 @@
           <div>
             <div class="text-sm text-muted-foreground mb-3">Leave Type</div>
             <div class="flex items-center justify-between">
-              <span class="text-sm font-medium">{{ leave()!.leave_type?.name }}</span>
+              <span class="text-sm font-normal">{{ leave()!.leave_type?.name }}</span>
               @if (leave()!.leave_type?.is_paid) {
                 <z-badge zType="default">Paid</z-badge>
               } @else {
@@ -112,7 +112,7 @@
       <z-card class="description-card w-full p-4">
         <div z-card-content class="p-0">
           <div class="border-l-4 border-primary p-6">
-            <h3 class="text-sm font-semibold mb-3">Reason</h3>
+            <h3 class="text-sm font-medium mb-3">Reason</h3>
             <p class="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{{ leave()!.reason }}</p>
           </div>
         </div>
@@ -123,7 +123,7 @@
         <z-card>
           <div z-card-content class="p-0">
             <div class="border-l-4 border-red-500 p-6 bg-red-50">
-              <h3 class="text-sm font-semibold text-red-900 mb-3">Rejection Reason</h3>
+              <h3 class="text-sm font-medium text-red-900 mb-3">Rejection Reason</h3>
               <p class="text-sm text-red-800 leading-relaxed">{{ leave()!.rejection_reason }}</p>
             </div>
           </div>
@@ -132,15 +132,15 @@
 
       <!-- Timeline & Approval Section -->
       <div class="space-y-6">
-        <h3 class="text-sm font-semibold">Timeline</h3>
+        <h3 class="text-sm font-medium">Timeline</h3>
 
         <div class="space-y-4">
           <!-- Created -->
           <div class="flex items-start gap-3">
             <div class="w-2 h-2 rounded-full bg-primary mt-2"></div>
             <div class="flex-1">
-              <div class="text-xs font-medium text-muted-foreground uppercase tracking-wide">Created</div>
-              <div class="text-sm font-medium text-foreground mt-1">{{ formatDateTime(leave()!.created_at) }}</div>
+              <div class="text-xs font-normal text-muted-foreground uppercase tracking-wide">Created</div>
+              <div class="text-sm font-normal text-foreground mt-1">{{ formatDateTime(leave()!.created_at) }}</div>
             </div>
           </div>
 
@@ -148,8 +148,8 @@
           <div class="flex items-start gap-3">
             <div class="w-2 h-2 rounded-full bg-muted mt-2"></div>
             <div class="flex-1">
-              <div class="text-xs font-medium text-muted-foreground uppercase tracking-wide">Last Updated</div>
-              <div class="text-sm font-medium text-foreground mt-1">{{ formatDateTime(leave()!.updated_at) }}</div>
+              <div class="text-xs font-normal text-muted-foreground uppercase tracking-wide">Last Updated</div>
+              <div class="text-sm font-normal text-foreground mt-1">{{ formatDateTime(leave()!.updated_at) }}</div>
             </div>
           </div>
 
@@ -161,10 +161,10 @@
                    [class.bg-red-500]="leave()!.status === LeaveStatus.REJECTED">
               </div>
               <div class="flex-1">
-                <div class="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                <div class="text-xs font-normal text-muted-foreground uppercase tracking-wide">
                   {{ leave()!.status === LeaveStatus.APPROVED ? 'Approved By' : 'Rejected By' }}
                 </div>
-                <div class="text-sm font-medium text-foreground mt-1">{{ leave()!.approver?.email || 'N/A' }}</div>
+                <div class="text-sm font-normal text-foreground mt-1">{{ leave()!.approver?.email || 'N/A' }}</div>
                 @if (leave()!.approved_at) {
                   <div class="text-xs text-muted-foreground mt-1">{{ formatDateTime(leave()!.approved_at) }}</div>
                 }

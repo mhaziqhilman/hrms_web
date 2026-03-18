@@ -2,7 +2,7 @@
   <!-- Header -->
   <div class="flex items-center justify-between mb-8">
     <div>
-      <h1 class="text-2xl font-bold text-foreground">User Management</h1>
+      <h1 class="text-2xl font-semibold text-foreground">User Management</h1>
       <p class="text-muted-foreground mt-1">Manage user accounts, roles, and employee linking</p>
     </div>
   </div>
@@ -180,7 +180,7 @@
                       <z-avatar [zSrc]="user.avatar_url || user.employee?.photo_url || undefined" [zFallback]="getUserInitial(user)" class="w-9 h-9" />
                     </div>
                     <div class="min-w-0">
-                      <span class="font-medium text-foreground block text-sm truncate">{{ getDisplayName(user) }}</span>
+                      <span class="font-normal text-foreground block text-sm truncate">{{ getDisplayName(user) }}</span>
                       <span class="text-muted-foreground text-xs truncate block">{{ user.email }}</span>
                     </div>
                   </div>
@@ -198,7 +198,7 @@
                     </div>
                     <ng-template #roleChangeMenu>
                       <div z-menu-content class="w-44">
-                        <div class="px-2 py-1.5 text-xs font-semibold text-muted-foreground">Change Role</div>
+                        <div class="px-2 py-1.5 text-xs font-medium text-muted-foreground">Change Role</div>
                         @for (role of roles; track role) {
                           <button type="button" z-menu-item (click)="changeRole(user, role)" class="justify-between">
                             {{ formatRole(role) }}
@@ -230,7 +230,7 @@
                   @if (user.employee) {
                     <div class="flex items-center gap-2">
                       <div>
-                        <span class="text-foreground text-sm font-medium block">{{ user.employee.full_name }}</span>
+                        <span class="text-foreground text-sm font-normal block">{{ user.employee.full_name }}</span>
                         <span class="text-muted-foreground text-xs">{{ user.employee.employee_id }} - {{ user.employee.department }}</span>
                       </div>
                     </div>
@@ -302,7 +302,7 @@
       <div class="bg-card border rounded-lg">
         <div class="flex flex-col items-center justify-center py-20 text-center">
           <z-icon zType="users" class="w-16 h-16 text-muted-foreground mb-4" />
-          <h3 class="text-lg font-semibold mb-2">No Users Found</h3>
+          <h3 class="text-lg font-medium mb-2">No Users Found</h3>
           <p class="text-muted-foreground mb-4">There are no users matching your criteria</p>
         </div>
       </div>
@@ -344,9 +344,9 @@
     <div class="relative bg-background rounded-lg shadow-lg w-full max-w-lg mx-4 max-h-[80vh] flex flex-col">
       <!-- Modal Header -->
       <div class="p-6 border-b flex-shrink-0">
-        <h3 class="text-lg font-semibold text-foreground">Link Employee</h3>
+        <h3 class="text-lg font-medium text-foreground">Link Employee</h3>
         <p class="text-muted-foreground text-sm mt-1">
-          Select an employee to link to <span class="font-medium text-foreground">{{ linkingUserEmail() }}</span>
+          Select an employee to link to <span class="font-normal text-foreground">{{ linkingUserEmail() }}</span>
         </p>
       </div>
 
@@ -380,7 +380,7 @@
                 class="w-full flex items-center gap-3 p-3 rounded-md border hover:bg-accent hover:border-primary transition-colors text-left cursor-pointer">
                 <z-avatar [zFallback]="emp.full_name.charAt(0)" class="w-9 h-9" />
                 <div class="flex-1 min-w-0">
-                  <span class="font-medium text-foreground block text-sm truncate">{{ emp.full_name }}</span>
+                  <span class="font-normal text-foreground block text-sm truncate">{{ emp.full_name }}</span>
                   <span class="text-muted-foreground text-xs">{{ emp.employee_id }} - {{ emp.department || 'No Dept' }} - {{ emp.position || 'No Position' }}</span>
                 </div>
               </button>
@@ -403,12 +403,12 @@
     <div class="absolute inset-0 bg-black/50" (click)="closeResetModal()"></div>
     <div class="relative bg-background rounded-lg shadow-lg w-full max-w-sm mx-4">
       <div class="p-6">
-        <h3 class="text-lg font-semibold text-foreground mb-1">Reset Password</h3>
+        <h3 class="text-lg font-medium text-foreground mb-1">Reset Password</h3>
         <p class="text-muted-foreground text-sm mb-4">
-          Set new password for <span class="font-medium text-foreground">{{ resetUserEmail() }}</span>
+          Set new password for <span class="font-normal text-foreground">{{ resetUserEmail() }}</span>
         </p>
         <div class="mb-4">
-          <label class="block text-sm font-medium text-foreground mb-1.5">New Password</label>
+          <label class="block text-sm font-normal text-foreground mb-1.5">New Password</label>
           <input
             type="password"
             [value]="newPassword()"

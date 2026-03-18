@@ -93,21 +93,19 @@ export class EmployeeListComponent implements OnInit {
 
   // Column visibility
   visibleColumns = signal<{[key: string]: boolean}>({
+    staffId: true,
     name: true,
     position: true,
-    employmentType: true,
-    email: true,
-    nationality: false,
+    nationality: true,
     status: true
   });
 
   // Column list for toggle menu
   columnList = [
-    { key: 'name', label: 'Name' },
+    { key: 'staffId', label: 'Staff ID' },
+    { key: 'name', label: 'Staff' },
     { key: 'position', label: 'Role' },
-    { key: 'employmentType', label: 'Plan' },
-    { key: 'email', label: 'Email' },
-    { key: 'nationality', label: 'Country' },
+    { key: 'nationality', label: 'Nationality' },
     { key: 'status', label: 'Status' }
   ];
 
@@ -142,13 +140,23 @@ export class EmployeeListComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
 
+    const sortColumnMap: Record<string, string> = {
+      staffId: 'employee_id',
+      name: 'full_name',
+      position: 'position',
+      nationality: 'nationality',
+      status: 'employment_status'
+    };
+
     const params: EmployeeListParams = {
       page: this.currentPage(),
       limit: this.limit(),
       search: this.searchTerm() || undefined,
       status: this.statusFilter() || undefined,
       employment_type: this.employmentTypeFilter() || undefined,
-      department: this.departmentFilter() || undefined
+      department: this.departmentFilter() || undefined,
+      sort: this.sortColumn() ? sortColumnMap[this.sortColumn()] : undefined,
+      order: this.sortColumn() ? this.sortDirection() : undefined
     };
 
     this.employeeService.getEmployees(params).subscribe({
@@ -221,6 +229,15 @@ export class EmployeeListComponent implements OnInit {
     }).format(amount);
   }
 
+  formatIcNo(ic: string | undefined): string {
+    if (!ic) return '-';
+    const digits = ic.replace(/\D/g, '');
+    if (digits.length === 12) {
+      return `${digits.slice(0, 6)}-${digits.slice(6, 8)}-${digits.slice(8)}`;
+    }
+    return ic;
+  }
+
   formatDate(dateString: string): string {
     return this.displayService.formatDate(dateString);
   }
@@ -228,61 +245,13 @@ export class EmployeeListComponent implements OnInit {
   // Sorting methods
   onSort(column: string): void {
     if (this.sortColumn() === column) {
-      // Toggle direction if same column
       this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
     } else {
-      // Set new column and default to ascending
       this.sortColumn.set(column);
       this.sortDirection.set('asc');
     }
-    this.sortEmployees();
-  }
-
-  sortEmployees(): void {
-    const column = this.sortColumn();
-    const direction = this.sortDirection();
-
-    if (!column) return;
-
-    const sorted = [...this.employees()].sort((a, b) => {
-      let aValue: any;
-      let bValue: any;
-
-      switch (column) {
-        case 'name':
-          aValue = a.full_name?.toLowerCase() || '';
-          bValue = b.full_name?.toLowerCase() || '';
-          break;
-        case 'position':
-          aValue = a.position?.toLowerCase() || '';
-          bValue = b.position?.toLowerCase() || '';
-          break;
-        case 'employmentType':
-          aValue = a.employment_type?.toLowerCase() || '';
-          bValue = b.employment_type?.toLowerCase() || '';
-          break;
-        case 'email':
-          aValue = a.email?.toLowerCase() || '';
-          bValue = b.email?.toLowerCase() || '';
-          break;
-        case 'nationality':
-          aValue = a.nationality?.toLowerCase() || '';
-          bValue = b.nationality?.toLowerCase() || '';
-          break;
-        case 'status':
-          aValue = a.employment_status?.toLowerCase() || '';
-          bValue = b.employment_status?.toLowerCase() || '';
-          break;
-        default:
-          return 0;
-      }
-
-      if (aValue < bValue) return direction === 'asc' ? -1 : 1;
-      if (aValue > bValue) return direction === 'asc' ? 1 : -1;
-      return 0;
-    });
-
-    this.employees.set(sorted);
+    this.currentPage.set(1);
+    this.loadEmployees();
   }
 
   getSortIcon(column: string): 'chevrons-up-down' | 'chevron-up' | 'chevron-down' {

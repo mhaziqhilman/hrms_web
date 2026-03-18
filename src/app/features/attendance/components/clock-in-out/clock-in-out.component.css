@@ -15,7 +15,7 @@
 
 .page-title {
   font-size: 1.75rem;
-  font-weight: 600;
+  font-weight: 500;
   color: #2c3e50;
   margin: 0;
 }
@@ -39,7 +39,7 @@
 
 .current-time {
   font-size: 3.5rem;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 2px;
   margin-bottom: 0.5rem;
 }
@@ -67,7 +67,7 @@
 
 .card-title {
   font-size: 1.25rem;
-  font-weight: 600;
+  font-weight: 500;
   color: #2c3e50;
   margin-bottom: 1.5rem;
   display: flex;
@@ -89,13 +89,13 @@
 
   label {
     color: #6c757d;
-    font-weight: 500;
+    font-weight: 400;
     font-size: 0.95rem;
   }
 
   .time-value {
     font-size: 1.25rem;
-    font-weight: 600;
+    font-weight: 500;
     color: #2c3e50;
   }
 }
@@ -112,7 +112,7 @@
   padding: 1rem 2rem;
   border-radius: 50px;
   font-size: 1.1rem;
-  font-weight: 600;
+  font-weight: 500;
 
   &.status-success {
     background-color: #d4edda;
@@ -187,7 +187,7 @@
 
 .instructions-title {
   font-size: 1.1rem;
-  font-weight: 600;
+  font-weight: 500;
   color: #2c3e50;
   margin-bottom: 1rem;
   display: flex;

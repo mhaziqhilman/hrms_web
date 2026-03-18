@@ -38,7 +38,7 @@ export type ZardBreadcrumbAlignVariants = NonNullable<VariantProps<typeof breadc
 export type ZardBreadcrumbWrapVariants = NonNullable<VariantProps<typeof breadcrumbListVariants>['zWrap']>;
 
 export const breadcrumbItemVariants = cva(
-  'inline-flex items-center gap-1.5 transition-colors cursor-pointer hover:text-foreground last:text-foreground last:font-normal last:pointer-events-none',
+  'inline-flex items-center gap-1.5 transition-colors cursor-pointer hover:text-foreground last:text-foreground last:font-light last:pointer-events-none',
 );
 export type ZardBreadcrumbItemVariants = VariantProps<typeof breadcrumbItemVariants>;
 

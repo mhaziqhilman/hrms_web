@@ -78,7 +78,7 @@ export class ZardCommandOptionComponent {
   template: `
     @if (!hidden()) {
       <div class="overflow-hidden p-1 text-foreground">
-        <div class="px-2 py-1.5 text-xs font-medium text-muted-foreground">{{ zLabel() }}</div>
+        <div class="px-2 py-1.5 text-xs font-normal text-muted-foreground">{{ zLabel() }}</div>
         <ng-content />
       </div>
     }

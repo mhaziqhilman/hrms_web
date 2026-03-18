@@ -33,7 +33,7 @@
         <z-icon [zType]="$any('user-x')" class="h-8 w-8 text-muted-foreground" />
       </div>
       <div>
-        <h2 class="text-lg font-semibold text-foreground">Profile Not Set Up</h2>
+        <h2 class="text-lg font-medium text-foreground">Profile Not Set Up</h2>
         <p class="text-sm text-muted-foreground mt-1 max-w-sm">Your employee profile has not been created yet. Please contact your administrator.</p>
       </div>
     </div>
@@ -56,8 +56,8 @@
         <div>
           <!-- Name + Status -->
           <div class="flex items-center gap-2.5">
-            <h1 class="text-xl font-semibold text-foreground">{{ profile()!.full_name }}</h1>
-            <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 dark:bg-emerald-950 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:text-emerald-400 ring-1 ring-inset ring-emerald-600/20">
+            <h1 class="text-xl font-medium text-foreground">{{ profile()!.full_name }}</h1>
+            <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 dark:bg-emerald-950 px-2 py-0.5 text-xs font-normal text-emerald-700 dark:text-emerald-400 ring-1 ring-inset ring-emerald-600/20">
               <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
               {{ profile()?.employment_status || 'Active' }}
             </span>
@@ -107,7 +107,7 @@
       <nav class="flex gap-1 -mb-px overflow-x-auto">
         @for (tab of tabs; track tab.id) {
           <button
-            class="tab-button flex items-center gap-1.5 px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors"
+            class="tab-button flex items-center gap-1.5 px-3 py-2 text-sm font-normal whitespace-nowrap transition-colors"
             [class.tab-active]="activeTab() === tab.id"
             [class.tab-inactive]="activeTab() !== tab.id"
             (click)="setActiveTab(tab.id)">
@@ -159,7 +159,7 @@
 
                     <!-- Info -->
                     <div class="flex-1 min-w-0">
-                      <p class="font-medium text-sm truncate">{{ member.full_name }}</p>
+                      <p class="font-normal text-sm truncate">{{ member.full_name }}</p>
                       <p class="text-xs text-muted-foreground truncate">{{ member.position || 'No position' }}</p>
                       @if (member.employee_id) {
                         <p class="text-xs text-muted-foreground mt-0.5">
@@ -194,7 +194,7 @@
 
                   <!-- Footer badge -->
                   <div class="mt-3 flex items-center justify-between">
-                    <span class="text-[11px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-medium capitalize">{{ member.employment_type }}</span>
+                    <span class="text-[11px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-normal capitalize">{{ member.employment_type }}</span>
                     @if (member.join_date) {
                       <span class="text-[11px] text-muted-foreground">Joined {{ formatDate(member.join_date) }}</span>
                     }
@@ -206,7 +206,7 @@
             <!-- Empty State -->
             <div class="rounded-xl border border-border bg-card py-12 text-center">
               <z-icon [zType]="$any('users')" class="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 class="text-lg font-semibold mb-1">No Team Members</h3>
+              <h3 class="text-lg font-medium mb-1">No Team Members</h3>
               <p class="text-sm text-muted-foreground">
                 @if (teamSearch) {
                   No team members matching "{{ teamSearch }}"
@@ -229,42 +229,42 @@
               <div class="flex items-center justify-between px-5 py-4 border-b border-border">
                 <div class="flex items-center gap-2">
                   <z-icon zType="user" class="h-4 w-4 text-muted-foreground" />
-                  <h3 class="text-sm font-semibold text-foreground">Personal Information</h3>
+                  <h3 class="text-sm font-medium text-foreground">Personal Information</h3>
                 </div>
               </div>
               <div class="px-5 py-4">
                 <div class="grid grid-cols-2 gap-x-6 gap-y-4">
                   <div>
                     <p class="text-xs text-muted-foreground mb-1">Full Name</p>
-                    <p class="text-sm font-medium">{{ profile()!.full_name || '-' }}</p>
+                    <p class="text-sm font-normal">{{ profile()!.full_name || '-' }}</p>
                   </div>
                   <div>
                     <p class="text-xs text-muted-foreground mb-1">IC Number</p>
-                    <p class="text-sm font-medium">{{ profile()!.ic_no || '-' }}</p>
+                    <p class="text-sm font-normal">{{ profile()!.ic_no || '-' }}</p>
                   </div>
                   <div>
                     <p class="text-xs text-muted-foreground mb-1">Gender</p>
-                    <p class="text-sm font-medium capitalize">{{ profile()!.gender || '-' }}</p>
+                    <p class="text-sm font-normal capitalize">{{ profile()!.gender || '-' }}</p>
                   </div>
                   <div>
                     <p class="text-xs text-muted-foreground mb-1">Marital Status</p>
-                    <p class="text-sm font-medium capitalize">{{ profile()!.marital_status || '-' }}</p>
+                    <p class="text-sm font-normal capitalize">{{ profile()!.marital_status || '-' }}</p>
                   </div>
                   <div>
                     <p class="text-xs text-muted-foreground mb-1">Religion</p>
-                    <p class="text-sm font-medium">{{ profile()!.religion || '-' }}</p>
+                    <p class="text-sm font-normal">{{ profile()!.religion || '-' }}</p>
                   </div>
                   <div>
                     <p class="text-xs text-muted-foreground mb-1">Nationality</p>
-                    <p class="text-sm font-medium">{{ profile()!.nationality || '-' }}</p>
+                    <p class="text-sm font-normal">{{ profile()!.nationality || '-' }}</p>
                   </div>
                   <div>
                     <p class="text-xs text-muted-foreground mb-1">Race</p>
-                    <p class="text-sm font-medium">{{ profile()!.race || '-' }}</p>
+                    <p class="text-sm font-normal">{{ profile()!.race || '-' }}</p>
                   </div>
                   <div>
                     <p class="text-xs text-muted-foreground mb-1">Date of Birth</p>
-                    <p class="text-sm font-medium">
+                    <p class="text-sm font-normal">
                       {{ formatDate(profile()!.date_of_birth ?? null) }}
                       @if (profile()!.date_of_birth) {
                         <span class="text-muted-foreground">({{ calculateAge(profile()!.date_of_birth!) }} yrs)</span>
@@ -280,18 +280,18 @@
               <div class="flex items-center justify-between px-5 py-4 border-b border-border">
                 <div class="flex items-center gap-2">
                   <z-icon [zType]="$any('map-pin')" class="h-4 w-4 text-muted-foreground" />
-                  <h3 class="text-sm font-semibold text-foreground">Address Information</h3>
+                  <h3 class="text-sm font-medium text-foreground">Address Information</h3>
                 </div>
               </div>
               <div class="px-5 py-4 space-y-4">
                 <div>
                   <p class="text-xs text-muted-foreground mb-1">Residential Address</p>
-                  <p class="text-sm font-medium">{{ profile()!.current_address || '-' }}</p>
+                  <p class="text-sm font-normal">{{ profile()!.current_address || '-' }}</p>
                 </div>
                 <z-divider zSpacing="none" />
                 <div>
                   <p class="text-xs text-muted-foreground mb-1">Permanent Address</p>
-                  <p class="text-sm font-medium">{{ profile()!.permanent_address || '-' }}</p>
+                  <p class="text-sm font-normal">{{ profile()!.permanent_address || '-' }}</p>
                 </div>
               </div>
             </div>
@@ -304,7 +304,7 @@
               <div class="flex items-center justify-between px-5 py-4 border-b border-border">
                 <div class="flex items-center gap-2">
                   <z-icon zType="phone" class="h-4 w-4 text-muted-foreground" />
-                  <h3 class="text-sm font-semibold text-foreground">Contact Information</h3>
+                  <h3 class="text-sm font-medium text-foreground">Contact Information</h3>
                 </div>
               </div>
               <div class="px-5 py-4 space-y-3">
@@ -315,9 +315,9 @@
                   <div>
                     <p class="text-xs text-muted-foreground">Phone</p>
                     @if (profile()!.mobile) {
-                      <a href="tel:{{ profile()!.mobile }}" class="text-sm font-medium text-primary hover:underline">{{ profile()!.mobile }}</a>
+                      <a href="tel:{{ profile()!.mobile }}" class="text-sm font-normal text-primary hover:underline">{{ profile()!.mobile }}</a>
                     } @else {
-                      <p class="text-sm font-medium">-</p>
+                      <p class="text-sm font-normal">-</p>
                     }
                   </div>
                 </div>
@@ -329,9 +329,9 @@
                   <div>
                     <p class="text-xs text-muted-foreground">Email</p>
                     @if (profile()!.email) {
-                      <a href="mailto:{{ profile()!.email }}" class="text-sm font-medium text-primary hover:underline truncate block max-w-[200px]">{{ profile()!.email }}</a>
+                      <a href="mailto:{{ profile()!.email }}" class="text-sm font-normal text-primary hover:underline truncate block max-w-[200px]">{{ profile()!.email }}</a>
                     } @else {
-                      <p class="text-sm font-medium">-</p>
+                      <p class="text-sm font-normal">-</p>
                     }
                   </div>
                 </div>
@@ -342,7 +342,7 @@
                   </div>
                   <div>
                     <p class="text-xs text-muted-foreground">Emergency Contact</p>
-                    <p class="text-sm font-medium">{{ profile()!.emergency_contact_name || '-' }}</p>
+                    <p class="text-sm font-normal">{{ profile()!.emergency_contact_name || '-' }}</p>
                     @if (profile()!.emergency_contact_phone) {
                       <p class="text-xs text-muted-foreground">{{ profile()!.emergency_contact_phone }}</p>
                     }
@@ -356,13 +356,13 @@
               <div class="flex items-center justify-between px-5 py-4 border-b border-border">
                 <div class="flex items-center gap-2">
                   <z-icon zType="briefcase" class="h-4 w-4 text-muted-foreground" />
-                  <h3 class="text-sm font-semibold text-foreground">Employment Overview</h3>
+                  <h3 class="text-sm font-medium text-foreground">Employment Overview</h3>
                 </div>
               </div>
               <div class="px-5 py-4 space-y-3">
                 <div class="flex items-center justify-between">
                   <span class="text-xs text-muted-foreground">Date Started</span>
-                  <span class="text-sm font-medium">
+                  <span class="text-sm font-normal">
                     {{ formatDate(profile()!.join_date ?? null) }}
                     @if (profile()!.join_date) {
                       <span class="text-muted-foreground">({{ calculateTenure(profile()!.join_date!) }})</span>
@@ -372,17 +372,17 @@
                 <z-divider zSpacing="none" />
                 <div class="flex items-center justify-between">
                   <span class="text-xs text-muted-foreground">Position</span>
-                  <span class="text-sm font-medium">{{ profile()!.position || '-' }}</span>
+                  <span class="text-sm font-normal">{{ profile()!.position || '-' }}</span>
                 </div>
                 <z-divider zSpacing="none" />
                 <div class="flex items-center justify-between">
                   <span class="text-xs text-muted-foreground">Department</span>
-                  <span class="text-sm font-medium">{{ profile()!.department || '-' }}</span>
+                  <span class="text-sm font-normal">{{ profile()!.department || '-' }}</span>
                 </div>
                 <z-divider zSpacing="none" />
                 <div class="flex items-center justify-between">
                   <span class="text-xs text-muted-foreground">Employment Type</span>
-                  <span class="text-sm font-medium capitalize">{{ profile()!.employment_type || '-' }}</span>
+                  <span class="text-sm font-normal capitalize">{{ profile()!.employment_type || '-' }}</span>
                 </div>
               </div>
             </div>
@@ -398,48 +398,48 @@
             <div class="flex items-center justify-between px-5 py-4 border-b border-border">
               <div class="flex items-center gap-2">
                 <z-icon zType="briefcase" class="h-4 w-4 text-muted-foreground" />
-                <h3 class="text-sm font-semibold text-foreground">Employment Details</h3>
+                <h3 class="text-sm font-medium text-foreground">Employment Details</h3>
               </div>
             </div>
             <div class="px-5 py-4">
               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
                 <div>
                   <p class="text-xs text-muted-foreground mb-1">Employee ID</p>
-                  <p class="text-sm font-medium">{{ profile()!.employee_id || '-' }}</p>
+                  <p class="text-sm font-normal">{{ profile()!.employee_id || '-' }}</p>
                 </div>
                 <div>
                   <p class="text-xs text-muted-foreground mb-1">Department</p>
-                  <p class="text-sm font-medium">{{ profile()!.department || '-' }}</p>
+                  <p class="text-sm font-normal">{{ profile()!.department || '-' }}</p>
                 </div>
                 <div>
                   <p class="text-xs text-muted-foreground mb-1">Position</p>
-                  <p class="text-sm font-medium">{{ profile()!.position || '-' }}</p>
+                  <p class="text-sm font-normal">{{ profile()!.position || '-' }}</p>
                 </div>
                 <div>
                   <p class="text-xs text-muted-foreground mb-1">Employment Type</p>
-                  <p class="text-sm font-medium capitalize">{{ profile()!.employment_type || '-' }}</p>
+                  <p class="text-sm font-normal capitalize">{{ profile()!.employment_type || '-' }}</p>
                 </div>
                 <div>
                   <p class="text-xs text-muted-foreground mb-1">Employment Status</p>
-                  <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 dark:bg-emerald-950 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:text-emerald-400 ring-1 ring-inset ring-emerald-600/20">
+                  <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 dark:bg-emerald-950 px-2 py-0.5 text-xs font-normal text-emerald-700 dark:text-emerald-400 ring-1 ring-inset ring-emerald-600/20">
                     {{ profile()!.employment_status || '-' }}
                   </span>
                 </div>
                 <div>
                   <p class="text-xs text-muted-foreground mb-1">Work Location</p>
-                  <p class="text-sm font-medium">{{ profile()!.work_location || '-' }}</p>
+                  <p class="text-sm font-normal">{{ profile()!.work_location || '-' }}</p>
                 </div>
                 <div>
                   <p class="text-xs text-muted-foreground mb-1">Join Date</p>
-                  <p class="text-sm font-medium">{{ formatDate(profile()!.join_date ?? null) }}</p>
+                  <p class="text-sm font-normal">{{ formatDate(profile()!.join_date ?? null) }}</p>
                 </div>
                 <div>
                   <p class="text-xs text-muted-foreground mb-1">Confirmation Date</p>
-                  <p class="text-sm font-medium">{{ formatDate(profile()!.confirmation_date ?? null) }}</p>
+                  <p class="text-sm font-normal">{{ formatDate(profile()!.confirmation_date ?? null) }}</p>
                 </div>
                 <div>
                   <p class="text-xs text-muted-foreground mb-1">Tenure</p>
-                  <p class="text-sm font-medium">
+                  <p class="text-sm font-normal">
                     @if (profile()!.join_date) {
                       {{ calculateTenure(profile()!.join_date!) }}
                     } @else {
@@ -456,26 +456,26 @@
             <div class="flex items-center justify-between px-5 py-4 border-b border-border">
               <div class="flex items-center gap-2">
                 <z-icon zType="wallet" class="h-4 w-4 text-muted-foreground" />
-                <h3 class="text-sm font-semibold text-foreground">Compensation & Banking</h3>
+                <h3 class="text-sm font-medium text-foreground">Compensation & Banking</h3>
               </div>
             </div>
             <div class="px-5 py-4">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
                 <div>
                   <p class="text-xs text-muted-foreground mb-1">Basic Salary</p>
-                  <p class="text-sm font-medium">{{ formatCurrency(profile()!.basic_salary ?? 0) }}</p>
+                  <p class="text-sm font-normal">{{ formatCurrency(profile()!.basic_salary ?? 0) }}</p>
                 </div>
                 <div>
                   <p class="text-xs text-muted-foreground mb-1">Bank Name</p>
-                  <p class="text-sm font-medium">{{ profile()!.bank_name || '-' }}</p>
+                  <p class="text-sm font-normal">{{ profile()!.bank_name || '-' }}</p>
                 </div>
                 <div>
                   <p class="text-xs text-muted-foreground mb-1">Bank Account No</p>
-                  <p class="text-sm font-medium">{{ profile()!.bank_account_no || '-' }}</p>
+                  <p class="text-sm font-normal">{{ profile()!.bank_account_no || '-' }}</p>
                 </div>
                 <div>
                   <p class="text-xs text-muted-foreground mb-1">Account Holder</p>
-                  <p class="text-sm font-medium">{{ profile()!.bank_account_holder || '-' }}</p>
+                  <p class="text-sm font-normal">{{ profile()!.bank_account_holder || '-' }}</p>
                 </div>
               </div>
             </div>
@@ -510,7 +510,7 @@
             <div class="flex items-center justify-between px-5 py-4 border-b border-border">
               <div class="flex items-center gap-2">
                 <z-icon zType="phone" class="h-4 w-4 text-muted-foreground" />
-                <h3 class="text-sm font-semibold text-foreground">Contact Details</h3>
+                <h3 class="text-sm font-medium text-foreground">Contact Details</h3>
               </div>
               @if (!editMode()) {
                 <button z-button zType="ghost" zSize="sm" (click)="toggleEditMode()">
@@ -526,7 +526,7 @@
                   @if (editMode()) {
                     <input z-input [(ngModel)]="formData.mobile" placeholder="Enter mobile number">
                   } @else {
-                    <p class="text-sm font-medium">{{ profile()!.mobile || '-' }}</p>
+                    <p class="text-sm font-normal">{{ profile()!.mobile || '-' }}</p>
                   }
                 </div>
                 <div>
@@ -534,7 +534,7 @@
                   @if (editMode()) {
                     <input z-input [(ngModel)]="formData.email" type="email" placeholder="Enter email address">
                   } @else {
-                    <p class="text-sm font-medium">{{ profile()!.email || '-' }}</p>
+                    <p class="text-sm font-normal">{{ profile()!.email || '-' }}</p>
                   }
                 </div>
                 <div class="md:col-span-2">
@@ -542,7 +542,7 @@
                   @if (editMode()) {
                     <input z-input [(ngModel)]="formData.current_address" placeholder="Enter current address">
                   } @else {
-                    <p class="text-sm font-medium">{{ profile()!.current_address || '-' }}</p>
+                    <p class="text-sm font-normal">{{ profile()!.current_address || '-' }}</p>
                   }
                 </div>
                 <div class="md:col-span-2">
@@ -550,7 +550,7 @@
                   @if (editMode()) {
                     <input z-input [(ngModel)]="formData.permanent_address" placeholder="Enter permanent address">
                   } @else {
-                    <p class="text-sm font-medium">{{ profile()!.permanent_address || '-' }}</p>
+                    <p class="text-sm font-normal">{{ profile()!.permanent_address || '-' }}</p>
                   }
                 </div>
               </div>
@@ -562,7 +562,7 @@
             <div class="flex items-center justify-between px-5 py-4 border-b border-border">
               <div class="flex items-center gap-2">
                 <z-icon [zType]="$any('circle-alert')" class="h-4 w-4 text-muted-foreground" />
-                <h3 class="text-sm font-semibold text-foreground">Emergency Contact</h3>
+                <h3 class="text-sm font-medium text-foreground">Emergency Contact</h3>
               </div>
               @if (!editMode()) {
                 <button z-button zType="ghost" zSize="sm" (click)="toggleEditMode()">
@@ -578,7 +578,7 @@
                   @if (editMode()) {
                     <input z-input [(ngModel)]="formData.emergency_contact_name" placeholder="Enter contact name">
                   } @else {
-                    <p class="text-sm font-medium">{{ profile()!.emergency_contact_name || '-' }}</p>
+                    <p class="text-sm font-normal">{{ profile()!.emergency_contact_name || '-' }}</p>
                   }
                 </div>
                 <div>
@@ -586,7 +586,7 @@
                   @if (editMode()) {
                     <input z-input [(ngModel)]="formData.emergency_contact_phone" placeholder="Enter contact phone">
                   } @else {
-                    <p class="text-sm font-medium">{{ profile()!.emergency_contact_phone || '-' }}</p>
+                    <p class="text-sm font-normal">{{ profile()!.emergency_contact_phone || '-' }}</p>
                   }
                 </div>
               </div>
@@ -616,7 +616,7 @@
             <div class="flex items-center gap-1 text-sm text-muted-foreground">
               <span>Sort:</span>
               <button class="px-2 py-1 rounded hover:bg-muted transition-colors"
-                [class.font-semibold]="docSort === 'original_filename'"
+                [class.font-medium]="docSort === 'original_filename'"
                 [class.text-foreground]="docSort === 'original_filename'"
                 (click)="onDocSort('original_filename')">
                 Name
@@ -625,7 +625,7 @@
                 }
               </button>
               <button class="px-2 py-1 rounded hover:bg-muted transition-colors"
-                [class.font-semibold]="docSort === 'uploaded_at'"
+                [class.font-medium]="docSort === 'uploaded_at'"
                 [class.text-foreground]="docSort === 'uploaded_at'"
                 (click)="onDocSort('uploaded_at')">
                 Date
@@ -634,7 +634,7 @@
                 }
               </button>
               <button class="px-2 py-1 rounded hover:bg-muted transition-colors"
-                [class.font-semibold]="docSort === 'file_size'"
+                [class.font-medium]="docSort === 'file_size'"
                 [class.text-foreground]="docSort === 'file_size'"
                 (click)="onDocSort('file_size')">
                 Size
@@ -664,9 +664,9 @@
 
                   <!-- File Info -->
                   <div class="flex-1 min-w-0">
-                    <p class="font-medium text-sm truncate" [title]="doc.original_filename">{{ doc.original_filename }}</p>
+                    <p class="font-normal text-sm truncate" [title]="doc.original_filename">{{ doc.original_filename }}</p>
                     <div class="flex items-center gap-2 mt-0.5">
-                      <span class="text-xs px-1.5 py-0.5 rounded-full font-medium" [ngClass]="getCategoryColor(doc.category)">{{ getCategoryLabel(doc.category) }}</span>
+                      <span class="text-xs px-1.5 py-0.5 rounded-full font-normal" [ngClass]="getCategoryColor(doc.category)">{{ getCategoryLabel(doc.category) }}</span>
                       @if (doc.is_verified) {
                         <span class="flex items-center gap-0.5 text-xs text-green-600 dark:text-green-400">
                           <z-icon [zType]="$any('badge-check')" class="h-3 w-3" />
@@ -707,7 +707,7 @@
             <!-- Empty State -->
             <div class="rounded-xl border border-border bg-card py-12 text-center">
               <z-icon [zType]="$any('folder-open')" class="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 class="text-lg font-semibold mb-1">No Documents</h3>
+              <h3 class="text-lg font-medium mb-1">No Documents</h3>
               <p class="text-sm text-muted-foreground">
                 @if (docSearch) {
                   No files matching "{{ docSearch }}"
@@ -728,26 +728,26 @@
             <div class="flex items-center justify-between px-5 py-4 border-b border-border">
               <div class="flex items-center gap-2">
                 <z-icon zType="shield" class="h-4 w-4 text-muted-foreground" />
-                <h3 class="text-sm font-semibold text-foreground">Statutory Contributions</h3>
+                <h3 class="text-sm font-medium text-foreground">Statutory Contributions</h3>
               </div>
             </div>
             <div class="px-5 py-4">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
                 <div>
                   <p class="text-xs text-muted-foreground mb-1">EPF Number</p>
-                  <p class="text-sm font-medium">{{ profile()!.epf_no || '-' }}</p>
+                  <p class="text-sm font-normal">{{ profile()!.epf_no || '-' }}</p>
                 </div>
                 <div>
                   <p class="text-xs text-muted-foreground mb-1">SOCSO Number</p>
-                  <p class="text-sm font-medium">{{ profile()!.socso_no || '-' }}</p>
+                  <p class="text-sm font-normal">{{ profile()!.socso_no || '-' }}</p>
                 </div>
                 <div>
                   <p class="text-xs text-muted-foreground mb-1">Tax Number</p>
-                  <p class="text-sm font-medium">{{ profile()!.tax_no || '-' }}</p>
+                  <p class="text-sm font-normal">{{ profile()!.tax_no || '-' }}</p>
                 </div>
                 <div>
                   <p class="text-xs text-muted-foreground mb-1">Tax Category</p>
-                  <p class="text-sm font-medium">{{ profile()!.tax_category || '-' }}</p>
+                  <p class="text-sm font-normal">{{ profile()!.tax_category || '-' }}</p>
                 </div>
               </div>
             </div>

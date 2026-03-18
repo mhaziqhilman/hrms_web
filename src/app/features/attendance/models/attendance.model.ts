@@ -17,6 +17,7 @@ export interface Attendance {
   late_minutes?: number;
   early_leave_minutes?: number;
   remarks?: string;
+  todo_notes?: string;
   created_at: string;
   updated_at: string;
   employee?: AttendanceEmployee;
@@ -67,6 +68,16 @@ export interface ClockInRequest {
   location_lat?: number;
   location_long?: number;
   location_address?: string;
+  todo_notes?: string;
+}
+
+export interface ManualAttendanceRequest {
+  employee_id: number | string;
+  date: string;
+  clock_in_time: string;
+  clock_out_time?: string;
+  type: 'Office' | 'WFH';
+  todo_notes?: string;
 }
 
 export interface ClockOutRequest {

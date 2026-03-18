@@ -10,7 +10,7 @@
             class="text-muted-foreground" />
         </div>
         <div class="min-w-0">
-          <h3 class="text-sm font-semibold text-foreground truncate leading-tight">
+          <h3 class="text-sm font-medium text-foreground truncate leading-tight">
             {{ fileMetadata()!.original_filename }}
           </h3>
           <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
@@ -99,14 +99,14 @@
               class="text-muted-foreground/60 !w-7 !h-7" />
           </div>
           @if (getFileExtension()) {
-            <span [class]="'absolute -bottom-1 -right-2 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider text-white shadow-sm ' + getExtensionColor()">
+            <span [class]="'absolute -bottom-1 -right-2 px-1.5 py-0.5 rounded text-[9px] font-semibold uppercase tracking-wider text-white shadow-sm ' + getExtensionColor()">
               {{ getFileExtension() }}
             </span>
           }
         </div>
 
         <!-- Message -->
-        <h4 class="text-sm font-semibold text-foreground mb-1">Preview not available</h4>
+        <h4 class="text-sm font-medium text-foreground mb-1">Preview not available</h4>
         <p class="text-xs text-muted-foreground mb-6 leading-relaxed max-w-[240px]">
           @if (previewFailed()) {
             Couldn't load the preview for this file. Download to view on your device.
@@ -125,19 +125,19 @@
         <div class="w-full rounded-lg border border-border overflow-hidden divide-y divide-border text-left">
           <div class="flex justify-between items-center px-3.5 py-2.5">
             <span class="text-[11px] text-muted-foreground">Size</span>
-            <span class="text-[11px] font-medium text-foreground">{{ formatFileSize(fileMetadata()!.file_size) }}</span>
+            <span class="text-[11px] font-normal text-foreground">{{ formatFileSize(fileMetadata()!.file_size) }}</span>
           </div>
           <div class="flex justify-between items-center px-3.5 py-2.5">
             <span class="text-[11px] text-muted-foreground">Type</span>
-            <span class="text-[11px] font-medium text-foreground">{{ getFileExtension() || fileMetadata()!.mime_type }}</span>
+            <span class="text-[11px] font-normal text-foreground">{{ getFileExtension() || fileMetadata()!.mime_type }}</span>
           </div>
           <div class="flex justify-between items-center px-3.5 py-2.5">
             <span class="text-[11px] text-muted-foreground">Category</span>
-            <span class="text-[11px] font-medium text-foreground">{{ getCategoryLabel(fileMetadata()!.category) }}</span>
+            <span class="text-[11px] font-normal text-foreground">{{ getCategoryLabel(fileMetadata()!.category) }}</span>
           </div>
           <div class="flex justify-between items-center px-3.5 py-2.5">
             <span class="text-[11px] text-muted-foreground">Uploaded</span>
-            <span class="text-[11px] font-medium text-foreground">{{ formatDate(fileMetadata()!.uploaded_at) }}</span>
+            <span class="text-[11px] font-normal text-foreground">{{ formatDate(fileMetadata()!.uploaded_at) }}</span>
           </div>
         </div>
 

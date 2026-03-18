@@ -2,7 +2,7 @@
   <!-- Header -->
   <div class="flex items-center justify-between mb-6">
     <div>
-      <h1 class="text-2xl font-bold text-foreground">Leave Management</h1>
+      <h1 class="text-2xl font-semibold text-foreground">Leave Management</h1>
       <p class="text-muted-foreground">Track team leave status at a glance</p>
     </div>
     <div class="flex gap-2">
@@ -21,12 +21,12 @@
   <div class="flex items-center gap-1 mb-6 bg-muted rounded-lg p-1 w-fit">
     <button
       routerLink="/leave/list"
-      class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors text-muted-foreground hover:text-foreground">
+      class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-normal transition-colors text-muted-foreground hover:text-foreground">
       <z-icon zType="list" class="w-4 h-4" />
       List
     </button>
     <button
-      class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors bg-background text-foreground shadow-sm">
+      class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-normal transition-colors bg-background text-foreground shadow-sm">
       <z-icon zType="calendar-check" class="w-4 h-4" />
       Calendar
     </button>
@@ -42,7 +42,7 @@
           <!-- Calendar Header -->
           <div class="flex items-center justify-between mb-6">
             <div class="flex items-center gap-3">
-              <h2 class="text-xl font-bold text-foreground">
+              <h2 class="text-xl font-semibold text-foreground">
                 {{ monthName() }} {{ currentYear() }}
               </h2>
               <div class="flex items-center gap-1">
@@ -115,7 +115,7 @@
             <div class="grid grid-cols-7 mb-1">
               @for (day of weekDays; track day) {
                 <div
-                  class="text-center text-xs font-semibold py-2 uppercase tracking-wider"
+                  class="text-center text-xs font-medium py-2 uppercase tracking-wider"
                   [class]="(day === 'Sat' || day === 'Sun')
                     ? 'text-muted-foreground/50'
                     : 'text-muted-foreground'">
@@ -139,7 +139,7 @@
                   <!-- Day Number -->
                   <div class="flex items-center justify-between mb-1">
                     <span
-                      class="text-sm font-medium w-7 h-7 flex items-center justify-center rounded-full"
+                      class="text-sm font-normal w-7 h-7 flex items-center justify-center rounded-full"
                       [class.bg-primary]="day.isToday"
                       [class.text-primary-foreground]="day.isToday"
                       [class.text-foreground]="!day.isToday && day.isCurrentMonth && !day.isWeekend"
@@ -150,7 +150,7 @@
 
                   <!-- Holiday indicator -->
                   @if (day.holidays.length > 0 && day.isCurrentMonth) {
-                    <div class="text-[10px] font-medium text-purple-600 dark:text-purple-400 truncate px-0.5 mb-0.5">
+                    <div class="text-[10px] font-normal text-purple-600 dark:text-purple-400 truncate px-0.5 mb-0.5">
                       {{ day.holidays[0].name }}
                     </div>
                   }
@@ -161,14 +161,14 @@
                       <div class="space-y-0.5">
                         @for (leave of day.leaves.slice(0, 2); track leave.id) {
                           <div
-                            class="text-[10px] leading-tight px-1 py-0.5 rounded truncate font-medium"
+                            class="text-[10px] leading-tight px-1 py-0.5 rounded truncate font-normal"
                             [style.background-color]="getLeaveTypeColor(leave.leave_type?.name || '') + '20'"
                             [style.color]="getLeaveTypeColor(leave.leave_type?.name || '')">
                             {{ (leave.employee?.full_name?.split(' ') || [''])[0] }}
                           </div>
                         }
                         @if (day.leaves.length > 2) {
-                          <div class="text-[10px] text-muted-foreground font-medium px-1">
+                          <div class="text-[10px] text-muted-foreground font-normal px-1">
                             +{{ day.leaves.length - 2 }} more
                           </div>
                         }
@@ -187,7 +187,7 @@
                         </div>
                       }
                       @if (getExtraCount(day) > 0) {
-                        <span class="text-[9px] text-muted-foreground font-medium ml-0.5">
+                        <span class="text-[9px] text-muted-foreground font-normal ml-0.5">
                           +{{ getExtraCount(day) }}
                         </span>
                       }
@@ -220,7 +220,7 @@
           <div class="p-0">
             <!-- Panel Header -->
             <div class="flex items-center justify-between mb-1">
-              <h3 class="text-lg font-bold text-foreground">
+              <h3 class="text-lg font-semibold text-foreground">
                 {{ formatShortDate(day.date) }}
               </h3>
               @if (day.leaves.length > 0 || day.holidays.length > 0) {
@@ -239,11 +239,11 @@
                     <z-icon [zType]="$any('star')" zSize="sm" class="text-purple-600 dark:text-purple-400" />
                   </div>
                   <div class="min-w-0">
-                    <p class="text-sm font-medium text-foreground truncate">{{ holiday.name }}</p>
+                    <p class="text-sm font-normal text-foreground truncate">{{ holiday.name }}</p>
                     <p class="text-xs text-muted-foreground">Public Holiday</p>
                   </div>
                 </div>
-                <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ml-2 bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300">
+                <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-normal flex-shrink-0 ml-2 bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300">
                   <div class="w-1.5 h-1.5 rounded-full bg-purple-500"></div>
                   Holiday
                 </div>
@@ -264,17 +264,17 @@
                       class="w-9 h-9 rounded-full object-cover flex-shrink-0" />
                   } @else {
                     <div
-                      class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-white text-sm font-semibold"
+                      class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-white text-sm font-medium"
                       [style.background-color]="getLeaveTypeColor(leave.leave_type?.name || '')">
                       {{ getInitials(leave.employee?.full_name || '') }}
                     </div>
                   }
                   <div class="min-w-0">
-                    <p class="text-sm font-medium text-foreground truncate">{{ leave.employee?.full_name }}</p>
+                    <p class="text-sm font-normal text-foreground truncate">{{ leave.employee?.full_name }}</p>
                     <div class="flex items-center gap-1.5 mt-0.5">
                       <!-- Leave Type Badge -->
                       <div
-                        class="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium"
+                        class="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-normal"
                         [style.background-color]="getLeaveTypeColor(leave.leave_type?.name || '') + '15'"
                         [style.color]="getLeaveTypeColor(leave.leave_type?.name || '')">
                         <div class="w-1 h-1 rounded-full"
@@ -283,7 +283,7 @@
                       </div>
                       <!-- Status Badge -->
                       <div
-                        class="px-1.5 py-0.5 rounded-full text-[10px] font-medium"
+                        class="px-1.5 py-0.5 rounded-full text-[10px] font-normal"
                         [class]="leave.status === 'Approved'
                           ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
                           : leave.status === 'Pending'
@@ -305,7 +305,7 @@
                 <div class="w-12 h-12 mx-auto rounded-full bg-muted flex items-center justify-center mb-3">
                   <z-icon [zType]="$any('calendar-check')" class="w-5 h-5 text-muted-foreground" />
                 </div>
-                <p class="text-sm font-medium text-foreground">No events</p>
+                <p class="text-sm font-normal text-foreground">No events</p>
                 <p class="text-xs text-muted-foreground mt-0.5">Everyone is at work!</p>
               </div>
             }
@@ -317,7 +317,7 @@
           <div class="p-0">
             <!-- Monthly Summary Header -->
             <div class="flex items-center justify-between mb-4">
-              <h3 class="text-lg font-bold text-foreground">Summary</h3>
+              <h3 class="text-lg font-semibold text-foreground">Summary</h3>
               <span class="text-xs text-muted-foreground">{{ monthName() }} {{ currentYear() }}</span>
             </div>
 
@@ -330,11 +330,11 @@
                   <z-icon [zType]="$any('check-circle')" zSize="sm" class="text-emerald-600 dark:text-emerald-400" />
                 </div>
                 <div>
-                  <p class="text-sm font-medium text-foreground">Approved</p>
+                  <p class="text-sm font-normal text-foreground">Approved</p>
                   <p class="text-xs text-muted-foreground">This month</p>
                 </div>
               </div>
-              <span class="text-lg font-bold text-emerald-600 dark:text-emerald-400">{{ getMonthlyApprovedCount() }}</span>
+              <span class="text-lg font-semibold text-emerald-600 dark:text-emerald-400">{{ getMonthlyApprovedCount() }}</span>
             </div>
 
             <div class="flex items-center justify-between py-3 border-b border-border">
@@ -343,11 +343,11 @@
                   <z-icon [zType]="$any('clock')" zSize="sm" class="text-amber-600 dark:text-amber-400" />
                 </div>
                 <div>
-                  <p class="text-sm font-medium text-foreground">Pending</p>
+                  <p class="text-sm font-normal text-foreground">Pending</p>
                   <p class="text-xs text-muted-foreground">Awaiting approval</p>
                 </div>
               </div>
-              <span class="text-lg font-bold text-amber-600 dark:text-amber-400">{{ getMonthlyPendingCount() }}</span>
+              <span class="text-lg font-semibold text-amber-600 dark:text-amber-400">{{ getMonthlyPendingCount() }}</span>
             </div>
 
             <div class="flex items-center justify-between py-3">
@@ -356,11 +356,11 @@
                   <z-icon [zType]="$any('star')" zSize="sm" class="text-purple-600 dark:text-purple-400" />
                 </div>
                 <div>
-                  <p class="text-sm font-medium text-foreground">Holidays</p>
+                  <p class="text-sm font-normal text-foreground">Holidays</p>
                   <p class="text-xs text-muted-foreground">Public holidays</p>
                 </div>
               </div>
-              <span class="text-lg font-bold text-purple-600 dark:text-purple-400">{{ holidays().length }}</span>
+              <span class="text-lg font-semibold text-purple-600 dark:text-purple-400">{{ holidays().length }}</span>
             </div>
 
             <!-- Hint -->

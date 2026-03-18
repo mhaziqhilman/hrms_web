@@ -19,8 +19,19 @@
   background-color: rgba(209, 209, 209, 0.1);
 }
 
+.employee-table thead tr {
+  height: 3rem;
+}
+
 .employee-table tbody tr {
   height: 60px;
+}
+
+.employee-table th {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .employee-table th,

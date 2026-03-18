@@ -16,6 +16,9 @@ import { ZardMenuImports } from '@/shared/components/menu/menu.imports';
 import { ZardDialogService } from '@/shared/components/dialog/dialog.service';
 import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-dialog.service';
 import { ZardCheckboxComponent } from '@/shared/components/checkbox/checkbox.component';
+import { ZardSegmentedComponent, SegmentedOption } from '@/shared/components/segmented/segmented.component';
+import { ZardTableImports } from '@/shared/components/table/table.imports';
+import { ZardDividerComponent } from '@/shared/components/divider/divider.component';
 
 // Dialog Components
 import { ApprovalConfirmationDialogComponent } from './dialogs/approval-confirmation-dialog.component';
@@ -34,7 +37,10 @@ import { PaymentDialogComponent } from './dialogs/payment-dialog.component';
     ZardBadgeComponent,
     ZardAvatarComponent,
     ZardMenuImports,
-    ZardCheckboxComponent
+    ZardCheckboxComponent,
+    ZardSegmentedComponent,
+    ZardTableImports,
+    ZardDividerComponent
   ],
   templateUrl: './claim-approval.component.html',
   styleUrl: './claim-approval.component.css'
@@ -72,6 +78,47 @@ export class ClaimApprovalComponent implements OnInit {
   searchQuery = signal<string>('');
   selectedStatus = signal<'Pending' | 'Manager_Approved' | 'Finance_Approved' | 'Rejected' | 'Paid' | ''>('');
   selectedClaimType = signal<number | null>(null);
+
+  // Status segmented filter options (computed based on role)
+  statusOptions = computed(() => {
+    const base: SegmentedOption[] = [
+      { value: 'All', label: 'All' },
+      { value: 'Pending', label: 'Pending' },
+      { value: 'Manager Approved', label: 'Manager Approved' },
+    ];
+    if (this.isAdmin()) {
+      base.push(
+        { value: 'Finance Approved', label: 'Finance Approved' },
+        { value: 'Paid', label: 'Paid' },
+      );
+    }
+    base.push({ value: 'Rejected', label: 'Rejected' });
+    return base;
+  });
+
+  // Column visibility
+  visibleColumns = signal<{[key: string]: boolean}>({
+    employee: true,
+    claimType: true,
+    date: true,
+    amount: true,
+    status: true
+  });
+
+  columnList = [
+    { key: 'employee', label: 'Employee' },
+    { key: 'claimType', label: 'Claim Type' },
+    { key: 'date', label: 'Date' },
+    { key: 'amount', label: 'Amount' },
+    { key: 'status', label: 'Status' }
+  ];
+
+  // Sort column mapping (frontend key → backend field)
+  private sortColumnMap: Record<string, string> = {
+    date: 'date',
+    amount: 'amount',
+    status: 'status'
+  };
 
   // Sorting
   sortColumn = signal<string>('');
@@ -127,6 +174,11 @@ export class ClaimApprovalComponent implements OnInit {
       params.claim_type_id = this.selectedClaimType()!;
     }
 
+    if (this.sortColumn()) {
+      (params as any).sort = this.sortColumnMap[this.sortColumn()];
+      (params as any).order = this.sortDirection();
+    }
+
     this.claimService.getAllClaims(params).subscribe({
       next: (response) => {
         if (response.success) {
@@ -135,8 +187,7 @@ export class ClaimApprovalComponent implements OnInit {
           this.totalRecords.set(response.pagination.total);
           this.currentPage.set(response.pagination.page);
 
-          this.calculateStatusCounts(); // Recalculate counts
-          this.sortClaims(); // Apply sorting if active
+          this.calculateStatusCounts();
         }
         this.loading.set(false);
       },
@@ -148,28 +199,31 @@ export class ClaimApprovalComponent implements OnInit {
     });
   }
 
-  // Tab & Status Logic
-  onTabChange(tab: { index: number, label: string }): void {
-    const label = tab.label;
-    this.activeTab.set(label);
+  // Segmented status filter change
+  onStatusSegmentChange(value: string): void {
+    this.activeTab.set(value);
 
-    // Map tab label to status
-    if (label === 'All Requests' || label === 'All') {
-      this.selectedStatus.set('');
-    } else if (label === 'Pending') {
-      this.selectedStatus.set('Pending');
-    } else if (label === 'To Approve' || label === 'Manager Approved') {
-      this.selectedStatus.set('Manager_Approved');
-    } else if (label === 'Finance Approved') {
-      this.selectedStatus.set('Finance_Approved');
-    } else if (label === 'Paid') {
-      this.selectedStatus.set('Paid');
-    } else if (label === 'Rejected') {
-      this.selectedStatus.set('Rejected');
-    }
-
+    // Map label to status value
+    const statusMap: Record<string, string> = {
+      'All': '',
+      'Pending': 'Pending',
+      'Manager Approved': 'Manager_Approved',
+      'Finance Approved': 'Finance_Approved',
+      'Paid': 'Paid',
+      'Rejected': 'Rejected'
+    };
+    this.selectedStatus.set((statusMap[value] || '') as any);
     this.currentPage.set(1);
     this.loadClaims();
+  }
+
+  // Column visibility toggle
+  toggleColumn(column: string): void {
+    const current = this.visibleColumns();
+    this.visibleColumns.set({
+      ...current,
+      [column]: !current[column]
+    });
   }
 
   calculateStatusCounts(): void {
@@ -183,7 +237,7 @@ export class ClaimApprovalComponent implements OnInit {
     */
   }
 
-  // Sorting Logic
+  // Sorting (API-side)
   onSort(column: string): void {
     if (this.sortColumn() === column) {
       this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
@@ -191,50 +245,8 @@ export class ClaimApprovalComponent implements OnInit {
       this.sortColumn.set(column);
       this.sortDirection.set('asc');
     }
-    this.sortClaims();
-  }
-
-  sortClaims(): void {
-    const column = this.sortColumn();
-    const direction = this.sortDirection();
-
-    if (!column) return;
-
-    const sorted = [...this.claims()].sort((a, b) => {
-      let aValue: any;
-      let bValue: any;
-
-      switch (column) {
-        case 'employee':
-          aValue = a.employee?.full_name?.toLowerCase() || '';
-          bValue = b.employee?.full_name?.toLowerCase() || '';
-          break;
-        case 'type':
-          aValue = a.claimType?.name?.toLowerCase() || '';
-          bValue = b.claimType?.name?.toLowerCase() || '';
-          break;
-        case 'date':
-          aValue = new Date(a.date).getTime();
-          bValue = new Date(b.date).getTime();
-          break;
-        case 'amount':
-          aValue = typeof a.amount === 'string' ? parseFloat(a.amount) : a.amount;
-          bValue = typeof b.amount === 'string' ? parseFloat(b.amount) : b.amount;
-          break;
-        case 'status':
-          aValue = a.status?.toLowerCase() || '';
-          bValue = b.status?.toLowerCase() || '';
-          break;
-        default:
-          return 0;
-      }
-
-      if (aValue < bValue) return direction === 'asc' ? -1 : 1;
-      if (aValue > bValue) return direction === 'asc' ? 1 : -1;
-      return 0;
-    });
-
-    this.claims.set(sorted);
+    this.currentPage.set(1);
+    this.loadClaims();
   }
 
   getSortIcon(column: string): 'chevrons-up-down' | 'chevron-up' | 'chevron-down' {
@@ -527,6 +539,28 @@ export class ClaimApprovalComponent implements OnInit {
       default:
         return 'badge-secondary';
     }
+  }
+
+  getStatusBadgeType(status: string): string {
+    const badgeMap: Record<string, string> = {
+      'Pending': 'soft-yellow',
+      'Manager_Approved': 'soft-blue',
+      'Finance_Approved': 'soft-green',
+      'Paid': 'soft-green',
+      'Rejected': 'soft-red'
+    };
+    return badgeMap[status] || 'soft-gray';
+  }
+
+  getStatusDotClass(status: string): string {
+    const dotMap: Record<string, string> = {
+      'Pending': 'bg-yellow-500',
+      'Manager_Approved': 'bg-blue-500',
+      'Finance_Approved': 'bg-green-500',
+      'Paid': 'bg-green-500',
+      'Rejected': 'bg-red-500'
+    };
+    return dotMap[status] || 'bg-gray-400';
   }
 
   getStatusDisplayText(status: string): string {

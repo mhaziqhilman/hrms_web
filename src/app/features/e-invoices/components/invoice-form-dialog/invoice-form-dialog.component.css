@@ -118,7 +118,7 @@
 
 .step-title {
   font-size: 0.9675rem;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--foreground);
 }
 
@@ -150,7 +150,7 @@
 
 .form-label {
   font-size: 0.8125rem;
-  font-weight: 500;
+  font-weight: 400;
   color: var(--foreground);
   padding-bottom: 1.765rem;
 }
@@ -170,7 +170,7 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--foreground);
   margin-bottom: 0.75rem;
 }
@@ -189,7 +189,7 @@
 
 .review-label {
   font-size: 0.6875rem;
-  font-weight: 500;
+  font-weight: 400;
   color: var(--muted-foreground);
   text-transform: uppercase;
   letter-spacing: 0.025em;
@@ -197,7 +197,7 @@
 
 .review-value {
   font-size: 0.8125rem;
-  font-weight: 500;
+  font-weight: 400;
   color: var(--foreground);
 }
 
@@ -211,7 +211,7 @@
 
 .summary-label {
   font-size: 0.6875rem;
-  font-weight: 500;
+  font-weight: 400;
   color: var(--muted-foreground);
   text-transform: uppercase;
   letter-spacing: 0.025em;
@@ -219,7 +219,7 @@
 
 .summary-value {
   font-size: 0.8125rem;
-  font-weight: 500;
+  font-weight: 400;
   color: var(--foreground);
 }
 

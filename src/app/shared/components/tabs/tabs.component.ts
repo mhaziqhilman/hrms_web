@@ -137,7 +137,7 @@ export class ZardTabComponent {
                     : (activeTabIndex() === index
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-secondary text-secondary-foreground')"
-                  class="ml-1 py-0.5 px-2 rounded-full text-xs font-semibold min-w-[24px] text-center">
+                  class="ml-1 py-0.5 px-2 rounded-full text-xs font-medium min-w-[24px] text-center">
                   {{ tab.badge() }}
                 </span>
               }

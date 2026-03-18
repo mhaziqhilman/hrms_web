@@ -41,7 +41,7 @@ import { mergeClasses } from '@/shared/utils/merge-classes';
     }
 
     @if (title) {
-      <h3 class="text-lg font-semibold text-foreground mb-1" data-slot="empty-title">
+      <h3 class="text-lg font-medium text-foreground mb-1" data-slot="empty-title">
         <ng-container *zStringTemplateOutlet="title">{{ title }}</ng-container>
       </h3>
     }

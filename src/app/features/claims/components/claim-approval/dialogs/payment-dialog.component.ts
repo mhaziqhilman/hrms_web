@@ -16,17 +16,17 @@ import { Claim } from '../../../models/claim.model';
       <div class="space-y-2 bg-muted/30 rounded-lg p-4">
         <div class="flex justify-between">
           <span class="text-sm text-muted-foreground">Employee:</span>
-          <span class="text-sm font-medium text-foreground">{{ claim.employee?.full_name }}</span>
+          <span class="text-sm font-normal text-foreground">{{ claim.employee?.full_name }}</span>
         </div>
         <div class="flex justify-between">
           <span class="text-sm text-muted-foreground">Amount to Pay:</span>
-          <span class="text-sm font-semibold text-green-600">{{ formatCurrency(claim.amount) }}</span>
+          <span class="text-sm font-medium text-green-600">{{ formatCurrency(claim.amount) }}</span>
         </div>
       </div>
 
       <div class="space-y-4">
         <div>
-          <label for="paymentMethod" class="block text-sm font-medium text-foreground mb-2">
+          <label for="paymentMethod" class="block text-sm font-normal text-foreground mb-2">
             Payment Method <span class="text-red-500">*</span>
           </label>
           <select
@@ -39,7 +39,7 @@ import { Claim } from '../../../models/claim.model';
           </select>
         </div>
         <div>
-          <label for="paymentReference" class="block text-sm font-medium text-foreground mb-2">
+          <label for="paymentReference" class="block text-sm font-normal text-foreground mb-2">
             Payment Reference <span class="text-red-500">*</span>
           </label>
           <input
@@ -50,7 +50,7 @@ import { Claim } from '../../../models/claim.model';
             placeholder="Transaction ID, Cheque No, etc." />
         </div>
         <div>
-          <label for="paymentDate" class="block text-sm font-medium text-foreground mb-2">
+          <label for="paymentDate" class="block text-sm font-normal text-foreground mb-2">
             Payment Date <span class="text-red-500">*</span>
           </label>
           <input

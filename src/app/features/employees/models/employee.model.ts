@@ -124,6 +124,8 @@ export interface EmployeeListParams {
   status?: EmploymentStatus;
   employment_type?: EmploymentType;
   department?: string;
+  sort?: string;
+  order?: 'asc' | 'desc';
 }
 
 export interface EmployeeListResponse {

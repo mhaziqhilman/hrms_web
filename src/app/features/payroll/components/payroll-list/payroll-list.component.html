@@ -2,14 +2,14 @@
   <!-- Header -->
   <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
     <div>
-      <h2 class="text-2xl font-bold text-foreground">Payroll Management</h2>
+      <h2 class="text-2xl font-semibold text-foreground">Payroll Management</h2>
       <p class="text-muted-foreground mt-1">Manage employee payroll records</p>
     </div>
     <div class="flex items-center gap-3">
       <!-- Global Month Selector -->
       <div z-menu [zMenuTriggerFor]="analyticsMonthMenu">
         <button type="button"
-          class="flex items-center gap-1 px-3 py-2 text-sm font-semibold border border-input rounded-md hover:bg-accent transition-colors"
+          class="flex items-center gap-1 px-3 py-2 text-sm font-medium border border-input rounded-md hover:bg-accent transition-colors"
           [class.bg-primary/5]="selectedMonth()" [class.text-primary]="selectedMonth()" [class.border-primary]="selectedMonth()">
           <z-icon zType="calendar" class="w-4 h-4" />
           {{ selectedMonth() ? getSelectedMonthName() : 'All Months' }}
@@ -35,7 +35,7 @@
           class="px-2 py-2 hover:bg-accent transition-colors text-muted-foreground hover:text-foreground">
           <z-icon zType="chevron-left" class="w-4 h-4" />
         </button>
-        <span class="px-3 py-2 text-sm font-semibold text-foreground bg-background min-w-[60px] text-center">
+        <span class="px-3 py-2 text-sm font-medium text-foreground bg-background min-w-[60px] text-center">
           {{ selectedYear() }}
         </span>
         <button type="button" (click)="onGlobalYearChange(selectedYear() + 1)"
@@ -59,7 +59,7 @@
             <z-icon zType="dollar-sign" class="w-5 h-5 text-blue-600" />
           </div>
           <div>
-            <p class="text-xl font-bold">{{ formatCurrency(data.summary.total_gross) }}</p>
+            <p class="text-xl font-semibold">{{ formatCurrency(data.summary.total_gross) }}</p>
             <p class="text-xs text-muted-foreground">Total Gross</p>
           </div>
         </div>
@@ -70,7 +70,7 @@
             <z-icon zType="wallet" class="w-5 h-5 text-green-600" />
           </div>
           <div>
-            <p class="text-xl font-bold">{{ formatCurrency(data.summary.total_net) }}</p>
+            <p class="text-xl font-semibold">{{ formatCurrency(data.summary.total_net) }}</p>
             <p class="text-xs text-muted-foreground">Total Net</p>
           </div>
         </div>
@@ -81,7 +81,7 @@
             <z-icon zType="building" class="w-5 h-5 text-purple-600" />
           </div>
           <div>
-            <p class="text-xl font-bold">{{ formatCurrency(data.summary.total_epf) }}</p>
+            <p class="text-xl font-semibold">{{ formatCurrency(data.summary.total_epf) }}</p>
             <p class="text-xs text-muted-foreground">Total EPF</p>
           </div>
         </div>
@@ -92,7 +92,7 @@
             <z-icon zType="users" class="w-5 h-5 text-orange-600" />
           </div>
           <div>
-            <p class="text-xl font-bold">{{ data.summary.employee_count }}</p>
+            <p class="text-xl font-semibold">{{ data.summary.employee_count }}</p>
             <p class="text-xs text-muted-foreground">Employees</p>
           </div>
         </div>
@@ -120,7 +120,7 @@
           <z-icon zType="check-circle" class="w-4 h-4 text-primary" />
         </div>
         <div class="flex flex-col">
-          <span class="text-sm font-semibold text-foreground">{{ getSelectedCount() }} Selected</span>
+          <span class="text-sm font-medium text-foreground">{{ getSelectedCount() }} Selected</span>
           <span class="text-xs text-muted-foreground">Bulk actions available</span>
         </div>
       </div>
@@ -130,7 +130,7 @@
         <!-- Submit for Approval (Draft -> Pending) -->
         <button *ngIf="getAvailableBulkActions().submit"
           type="button" (click)="bulkSubmit()" [disabled]="bulkProcessing()"
-          class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50">
+          class="inline-flex items-center gap-2 px-4 py-2 text-sm font-normal text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50">
           <z-icon [zType]="$any('send')" class="w-4 h-4" />
           <span>Submit</span>
         </button>
@@ -138,7 +138,7 @@
         <!-- Approve (Pending -> Approved) -->
         <button *ngIf="getAvailableBulkActions().approve"
           type="button" (click)="bulkApprove()" [disabled]="bulkProcessing()"
-          class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary/90 rounded-md transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50">
+          class="inline-flex items-center gap-2 px-4 py-2 text-sm font-normal text-white bg-primary hover:bg-primary/90 rounded-md transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50">
           <z-icon zType="circle-check" class="w-4 h-4" />
           <span>Approve</span>
         </button>
@@ -146,7 +146,7 @@
         <!-- Mark as Paid (Approved -> Paid) -->
         <button *ngIf="getAvailableBulkActions().markPaid"
           type="button" (click)="bulkMarkPaid()" [disabled]="bulkProcessing()"
-          class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-md transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50">
+          class="inline-flex items-center gap-2 px-4 py-2 text-sm font-normal text-white bg-green-600 hover:bg-green-700 rounded-md transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50">
           <z-icon [zType]="$any('dollar-sign')" class="w-4 h-4" />
           <span>Mark Paid</span>
         </button>
@@ -154,7 +154,7 @@
         <!-- Cancel (Draft/Pending -> Cancelled) -->
         <button *ngIf="getAvailableBulkActions().cancel"
           type="button" (click)="bulkCancel()" [disabled]="bulkProcessing()"
-          class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 rounded-md transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50">
+          class="inline-flex items-center gap-2 px-4 py-2 text-sm font-normal text-white bg-orange-600 hover:bg-orange-700 rounded-md transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50">
           <z-icon [zType]="$any('circle-x')" class="w-4 h-4" />
           <span>Cancel</span>
         </button>
@@ -162,14 +162,14 @@
         <!-- Permanent Delete (Cancelled only) -->
         <button *ngIf="getAvailableBulkActions().delete"
           type="button" (click)="bulkDelete()" [disabled]="bulkProcessing()"
-          class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-destructive hover:bg-destructive/90 rounded-md transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50">
+          class="inline-flex items-center gap-2 px-4 py-2 text-sm font-normal text-white bg-destructive hover:bg-destructive/90 rounded-md transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50">
           <z-icon zType="trash" class="w-4 h-4" />
           <span>Delete</span>
         </button>
 
         <div class="w-px h-6 bg-border mx-1"></div>
         <button type="button" (click)="clearSelection()"
-          class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200">
+          class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-normal text-muted-foreground hover:text-foreground transition-colors duration-200">
           <z-icon zType="x" class="w-4 h-4" />
           <span>Clear</span>
         </button>
@@ -270,7 +270,7 @@
   <!-- Column Menu Template -->
   <ng-template #columnMenu>
     <div z-menu-content class="w-56">
-      <div class="px-2 py-1.5 text-sm font-semibold text-foreground">Toggle columns</div>
+      <div class="px-2 py-1.5 text-sm font-medium text-foreground">Toggle columns</div>
       <div class="h-px bg-border my-1"></div>
 
       <button type="button" z-menu-item (click)="toggleColumn('employee')" class="flex items-center justify-between">
@@ -408,8 +408,8 @@
             <!-- Employee -->
             <td class="!pl-3">
               <div class="flex flex-col">
-                <span class="font-medium text-foreground">{{ payroll.employee?.full_name }}</span>
-                <span class="text-sm text-muted-foreground">ID: {{ payroll.employee?.employee_id }}</span>
+                <span class="font-normal text-foreground">{{ payroll.employee?.full_name }}</span>
+                <span class="mt-0.5 text-[11px] text-muted-foreground truncate">ID: {{ payroll.employee?.employee_id }}</span>
               </div>
             </td>
             }
@@ -418,8 +418,8 @@
             <!-- Period -->
             <td>
               <div class="flex flex-col">
-                <span class="font-medium">{{ getMonthName(payroll.month) }}</span>
-                <span class="text-sm text-muted-foreground">{{ payroll.year }}</span>
+                <span class="font-normal">{{ getMonthName(payroll.month) }}</span>
+                <span class="mt-0.5 text-[11px] text-muted-foreground truncate">{{ payroll.year }}</span>
               </div>
             </td>
             }
@@ -442,7 +442,7 @@
             @if (visibleColumns()['netSalary']) {
             <!-- Net Salary -->
             <td>
-              <span class="font-semibold text-green-600">{{ formatCurrency(payroll.net_salary) }}</span>
+              <span class="font-medium text-green-600">{{ formatCurrency(payroll.net_salary) }}</span>
             </td>
             }
 
@@ -450,7 +450,7 @@
             <!-- Status -->
             <td>
               <span [class]="getStatusBadgeClass(payroll.status)"
-                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold">
+                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
                 {{ payroll.status }}
               </span>
             </td>
@@ -518,7 +518,7 @@
     <!-- Empty State -->
     <div *ngIf="payrolls().length === 0" class="flex flex-col items-center justify-center py-16 px-4 text-center">
       <z-icon zType="inbox" class="w-16 h-16 text-muted-foreground/50 mb-4" />
-      <h4 class="text-lg font-semibold text-foreground mb-2">No Payroll Records Found</h4>
+      <h4 class="text-lg font-medium text-foreground mb-2">No Payroll Records Found</h4>
       <p class="text-muted-foreground mb-6">No payroll records match your current filters.</p>
       <button z-button zType="outline" (click)="clearFilters()">
         Clear Filters

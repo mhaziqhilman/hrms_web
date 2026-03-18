@@ -15,11 +15,11 @@
             <z-icon [zType]="$any('hourglass')" class="w-8 h-8 text-primary" />
           </div>
 
-          <h1 class="text-2xl font-semibold text-foreground mb-2">Waiting for Invitation</h1>
+          <h1 class="text-2xl font-medium text-foreground mb-2">Waiting for Invitation</h1>
           <p class="text-sm text-muted-foreground mb-2">
             Ask your company admin to invite you using your email:
           </p>
-          <p class="text-sm font-medium text-foreground mb-8">{{ userEmail }}</p>
+          <p class="text-sm font-normal text-foreground mb-8">{{ userEmail }}</p>
 
           <!-- Check Message -->
           @if (checkMessage) {

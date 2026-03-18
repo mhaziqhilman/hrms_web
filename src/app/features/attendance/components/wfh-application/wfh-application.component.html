@@ -2,7 +2,7 @@
   <!-- Header -->
   <div class="flex items-center justify-between mb-6">
     <div>
-      <h1 class="text-2xl font-bold text-foreground">Work From Home</h1>
+      <h1 class="text-2xl font-semibold text-foreground">Work From Home</h1>
       <p class="text-sm text-muted-foreground">Apply for WFH and track your applications</p>
     </div>
     <div class="flex items-center gap-2">
@@ -39,7 +39,7 @@
     <div class="lg:col-span-4">
       <div z-card>
         <div z-card-content class="p-5">
-          <h3 class="text-base font-semibold text-foreground mb-4 flex items-center gap-2">
+          <h3 class="text-base font-medium text-foreground mb-4 flex items-center gap-2">
             <z-icon zType="plus" class="w-4 h-4" />
             New Application
           </h3>
@@ -47,7 +47,7 @@
           <form [formGroup]="wfhForm" (ngSubmit)="onSubmit()">
             <!-- Date -->
             <div class="mb-4">
-              <label class="block text-sm font-medium text-foreground mb-1.5">
+              <label class="block text-sm font-normal text-foreground mb-1.5">
                 WFH Date <span class="text-red-500">*</span>
               </label>
               <z-date-picker
@@ -66,7 +66,7 @@
 
             <!-- Reason -->
             <div class="mb-4">
-              <label for="reason" class="block text-sm font-medium text-foreground mb-1.5">
+              <label for="reason" class="block text-sm font-normal text-foreground mb-1.5">
                 Reason <span class="text-red-500">*</span>
               </label>
               <textarea
@@ -119,7 +119,7 @@
       <div z-card>
         <div z-card-content class="p-5">
           <div class="flex items-center justify-between mb-4">
-            <h3 class="text-base font-semibold text-foreground flex items-center gap-2">
+            <h3 class="text-base font-medium text-foreground flex items-center gap-2">
               <z-icon zType="file-text" class="w-4 h-4" />
               My Applications
             </h3>
@@ -167,17 +167,17 @@
               <table class="w-full text-sm">
                 <thead class="bg-muted/30 border-b">
                   <tr>
-                    <th class="text-left px-3 py-2.5 font-semibold text-muted-foreground">Date</th>
-                    <th class="text-left px-3 py-2.5 font-semibold text-muted-foreground">Reason</th>
-                    <th class="text-left px-3 py-2.5 font-semibold text-muted-foreground">Status</th>
-                    <th class="text-left px-3 py-2.5 font-semibold text-muted-foreground">Approver</th>
+                    <th class="text-left px-3 py-2.5 font-medium text-muted-foreground">Date</th>
+                    <th class="text-left px-3 py-2.5 font-medium text-muted-foreground">Reason</th>
+                    <th class="text-left px-3 py-2.5 font-medium text-muted-foreground">Status</th>
+                    <th class="text-left px-3 py-2.5 font-medium text-muted-foreground">Approver</th>
                     <th class="w-20 px-3 py-2.5"></th>
                   </tr>
                 </thead>
                 <tbody class="divide-y">
                   @for (app of wfhApplications(); track app.id) {
                     <tr class="hover:bg-muted/20 transition-colors">
-                      <td class="px-3 py-2.5 font-medium text-foreground whitespace-nowrap">
+                      <td class="px-3 py-2.5 font-normal text-foreground whitespace-nowrap">
                         {{ formatDate(app.date) }}
                       </td>
                       <td class="px-3 py-2.5 text-foreground max-w-[200px]">
@@ -224,7 +224,7 @@
           @if (!loadingApplications() && wfhApplications().length === 0) {
             <div class="flex flex-col items-center justify-center py-12 text-center">
               <z-icon zType="inbox" class="w-12 h-12 text-muted-foreground mb-3" />
-              <h3 class="text-sm font-semibold mb-1">No applications found</h3>
+              <h3 class="text-sm font-medium mb-1">No applications found</h3>
               <p class="text-xs text-muted-foreground">Submit your first WFH application</p>
             </div>
           }

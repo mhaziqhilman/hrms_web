@@ -12,7 +12,7 @@
     <!-- Header -->
     <div class="flex justify-between items-start mb-6 flex-wrap gap-4">
       <div>
-        <h2 class="text-2xl font-bold text-foreground flex items-center gap-2">
+        <h2 class="text-2xl font-semibold text-foreground flex items-center gap-2">
           <z-icon zType="megaphone" class="w-8 h-8 text-primary" />
           {{ isEditMode() ? 'Edit Announcement' : 'Create New Announcement' }}
         </h2>
@@ -38,7 +38,7 @@
     <form [formGroup]="form" class="space-y-6">
       <!-- Basic Information Card -->
       <z-card>
-        <h4 class="text-xl font-semibold text-foreground mb-6 flex items-center gap-2">
+        <h4 class="text-xl font-medium text-foreground mb-6 flex items-center gap-2">
           <z-icon zType="info" class="w-6 h-6" />
           Basic Information
         </h4>
@@ -100,7 +100,7 @@
 
       <!-- Content Card -->
       <z-card>
-        <h4 class="text-xl font-semibold text-foreground mb-6 flex items-center gap-2">
+        <h4 class="text-xl font-medium text-foreground mb-6 flex items-center gap-2">
           <z-icon zType="file-text" class="w-6 h-6" />
           Content
         </h4>
@@ -119,7 +119,7 @@
 
       <!-- Target Audience Card -->
       <z-card>
-        <h4 class="text-xl font-semibold text-foreground mb-6 flex items-center gap-2">
+        <h4 class="text-xl font-medium text-foreground mb-6 flex items-center gap-2">
           <z-icon zType="users" class="w-6 h-6" />
           Target Audience
         </h4>
@@ -141,7 +141,7 @@
               <input type="checkbox" [id]="'dept-' + dept" [checked]="isDepartmentSelected(dept)"
                 (change)="toggleDepartment(dept)"
                 class="w-4 h-4 text-primary bg-background border-border rounded focus:ring-primary focus:ring-2" />
-              <label [for]="'dept-' + dept" class="text-sm font-medium text-foreground cursor-pointer">
+              <label [for]="'dept-' + dept" class="text-sm font-normal text-foreground cursor-pointer">
                 {{ dept }}
               </label>
             </div>
@@ -156,7 +156,7 @@
               <input type="checkbox" [id]="'pos-' + pos" [checked]="isPositionSelected(pos)"
                 (change)="togglePosition(pos)"
                 class="w-4 h-4 text-primary bg-background border-border rounded focus:ring-primary focus:ring-2" />
-              <label [for]="'pos-' + pos" class="text-sm font-medium text-foreground cursor-pointer">
+              <label [for]="'pos-' + pos" class="text-sm font-normal text-foreground cursor-pointer">
                 {{ pos }}
               </label>
             </div>
@@ -176,7 +176,7 @@
 
       <!-- Settings Card -->
       <z-card>
-        <h4 class="text-xl font-semibold text-foreground mb-6 flex items-center gap-2">
+        <h4 class="text-xl font-medium text-foreground mb-6 flex items-center gap-2">
           <z-icon zType="settings" class="w-6 h-6" />
           Settings
         </h4>
@@ -185,7 +185,7 @@
           <input type="checkbox" id="is_pinned" formControlName="is_pinned"
             class="w-4 h-4 mt-1 text-primary bg-background border-border rounded focus:ring-primary focus:ring-2" />
           <label for="is_pinned" class="flex flex-col cursor-pointer">
-            <span class="font-semibold text-foreground">Pin Announcement</span>
+            <span class="font-medium text-foreground">Pin Announcement</span>
             <span class="text-sm text-muted-foreground">Pinned announcements appear in the sidebar and at the top of the feed</span>
           </label>
         </div>
@@ -194,7 +194,7 @@
           <input type="checkbox" id="requires_acknowledgment" formControlName="requires_acknowledgment"
             class="w-4 h-4 mt-1 text-primary bg-background border-border rounded focus:ring-primary focus:ring-2" />
           <label for="requires_acknowledgment" class="flex flex-col cursor-pointer">
-            <span class="font-semibold text-foreground">Require Acknowledgment</span>
+            <span class="font-medium text-foreground">Require Acknowledgment</span>
             <span class="text-sm text-muted-foreground">Employees must acknowledge they have read this announcement</span>
           </label>
         </div>

@@ -12,7 +12,7 @@ import { LeaveUtilizationAnalytics, MONTH_SHORT_NAMES } from '../../models/analy
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- Leave by Type Doughnut Chart -->
       <div class="bg-card rounded-lg border p-4">
-        <h3 class="text-lg font-semibold mb-4">Leave by Type</h3>
+        <h3 class="text-lg font-medium mb-4">Leave by Type</h3>
         @if (typeChartData.datasets[0].data.length > 0) {
           <canvas baseChart
             [data]="typeChartData"
@@ -28,7 +28,7 @@ import { LeaveUtilizationAnalytics, MONTH_SHORT_NAMES } from '../../models/analy
 
       <!-- Monthly Trend Line Chart -->
       <div class="bg-card rounded-lg border p-4">
-        <h3 class="text-lg font-semibold mb-4">Monthly Leave Trend</h3>
+        <h3 class="text-lg font-medium mb-4">Monthly Leave Trend</h3>
         @if (monthlyChartData.datasets[0].data.length > 0) {
           <canvas baseChart
             [data]="monthlyChartData"

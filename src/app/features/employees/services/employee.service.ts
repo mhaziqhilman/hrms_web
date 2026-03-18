@@ -46,6 +46,12 @@ export class EmployeeService {
       if (params.department) {
         httpParams = httpParams.set('department', params.department);
       }
+      if (params.sort) {
+        httpParams = httpParams.set('sort', params.sort);
+      }
+      if (params.order) {
+        httpParams = httpParams.set('order', params.order);
+      }
     }
 
     return this.http.get<EmployeeListResponse>(

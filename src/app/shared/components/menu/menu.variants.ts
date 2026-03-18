@@ -39,7 +39,7 @@ export const submenuArrowVariants = cva([
 ]);
 
 export const menuLabelVariants = cva(
-  'relative flex items-center px-2 py-1.5 text-sm font-medium text-muted-foreground',
+  'relative flex items-center px-2 py-1.5 text-sm font-normal text-muted-foreground',
   {
     variants: {
       inset: {

@@ -42,7 +42,7 @@
 
   .browse-link {
     color: #2563eb;
-    font-weight: 600;
+    font-weight: 500;
     cursor: pointer;
     text-decoration: underline;
 
@@ -105,7 +105,7 @@
   h4 {
     margin: 0;
     font-size: 16px;
-    font-weight: 600;
+    font-weight: 500;
     color: #111827;
   }
 }
@@ -117,7 +117,7 @@
   border-radius: 6px;
   color: #374151;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 400;
   cursor: pointer;
   transition: all 0.2s ease;
 
@@ -186,7 +186,7 @@
 
 .file-name {
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 400;
   color: #111827;
   margin-bottom: 4px;
   overflow: hidden;
@@ -249,7 +249,7 @@
   border-radius: 8px;
   color: #ffffff;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
 
@@ -327,7 +327,7 @@
 
 .progress-text {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   color: #2563eb;
   min-width: 45px;
   text-align: right;

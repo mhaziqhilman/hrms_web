@@ -26,7 +26,7 @@ import { ZardIconComponent } from '../icon/icon.component';
             [value]="currentMonth()"
             (change)="onMonthSelect($event)"
             [disabled]="disabled"
-            class="text-sm font-semibold bg-transparent border border-border rounded-md px-2 py-1 cursor-pointer focus:outline-none focus:ring-1 focus:ring-ring appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_4px_center] pr-5">
+            class="text-sm font-medium bg-transparent border border-border rounded-md px-2 py-1 cursor-pointer focus:outline-none focus:ring-1 focus:ring-ring appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_4px_center] pr-5">
             @for (m of monthOptions; track m.value) {
               <option [value]="m.value" [selected]="m.value === currentMonth()">{{ m.label }}</option>
             }
@@ -35,7 +35,7 @@ import { ZardIconComponent } from '../icon/icon.component';
             [value]="currentYear()"
             (change)="onYearSelect($event)"
             [disabled]="disabled"
-            class="text-sm font-semibold bg-transparent border border-border rounded-md px-2 py-1 cursor-pointer focus:outline-none focus:ring-1 focus:ring-ring appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_4px_center] pr-5">
+            class="text-sm font-medium bg-transparent border border-border rounded-md px-2 py-1 cursor-pointer focus:outline-none focus:ring-1 focus:ring-ring appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_4px_center] pr-5">
             @for (y of yearOptions; track y) {
               <option [value]="y" [selected]="y === currentYear()">{{ y }}</option>
             }
@@ -56,7 +56,7 @@ import { ZardIconComponent } from '../icon/icon.component';
       <!-- Weekday Headers -->
       <div class="grid grid-cols-7 gap-1 mb-2">
         @for (day of weekDays; track day) {
-          <div class="text-center text-xs font-medium text-muted-foreground h-7 flex items-center justify-center">
+          <div class="text-center text-xs font-normal text-muted-foreground h-7 flex items-center justify-center">
             {{ day }}
           </div>
         }

@@ -1,113 +1,77 @@
-/* Tab navigation scrollbar styling */
-.nav-tab-scroll {
-  -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
-}
+/* Claim Approval Component - Table Styling */
 
-.nav-tab-scroll::-webkit-scrollbar-thumb {
-  background-color: rgba(209, 209, 209, 0.2);
-  border-radius: 2px;
-}
-
-.nav-tab-scroll::-webkit-scrollbar {
-  height: 4px;
-  width: 4px;
-}
-
-.nav-tab-scroll::-webkit-scrollbar-button {
-  display: none;
-}
-
-/* Table Container & Scrollbar */
-.payroll-table-container {
+/* Table fixed height rows with horizontal scroll */
+.approval-table-container {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  border-radius: 0.5rem;
-  border: 1px solid #e2e8f0;
-  /* border-border */
 }
 
-.payroll-table-container::-webkit-scrollbar {
+.approval-table-container::-webkit-scrollbar {
   height: 8px;
 }
 
-.payroll-table-container::-webkit-scrollbar-thumb {
+.approval-table-container::-webkit-scrollbar-thumb {
   background-color: rgba(209, 209, 209, 0.5);
   border-radius: 4px;
 }
 
-.payroll-table-container::-webkit-scrollbar-track {
+.approval-table-container::-webkit-scrollbar-track {
   background-color: rgba(209, 209, 209, 0.1);
 }
 
-/* Table Styling */
-.payroll-table {
-  width: 100%;
-  border-collapse: collapse;
+.approval-table thead tr {
+  height: 3rem;
 }
 
-.payroll-table thead {
-  background-color: #f8fafc;
-  /* bg-muted/30 */
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.payroll-table th {
-  font-weight: 600;
-  color: #64748b;
-  /* text-muted-foreground */
-  padding: 0.75rem 1rem;
-  text-align: left;
-  font-size: 0.875rem;
-  white-space: nowrap;
-}
-
-.payroll-table th.th-text-center {
-  text-align: center !important;
-}
-
-.payroll-table tbody tr {
+.approval-table tbody tr {
   height: 60px;
-  border-bottom: 1px solid #e2e8f0;
-  transition: background-color 0.2s;
 }
 
-.payroll-table tbody tr:hover {
-  background-color: #f1f5f9;
-  /* hover:bg-muted/20 */
+.approval-table th {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
-.payroll-table td {
-  padding: 0 1rem;
-  /* Height controlled by tr */
-  vertical-align: middle;
+.approval-table th,
+.approval-table td {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: #0f172a;
-  /* text-foreground */
-  font-size: 0.875rem;
+  vertical-align: middle;
 }
 
-/* Specific Column Styles */
-.amount-column {
-  font-family: 'Courier New', monospace;
-  font-weight: 600;
-  color: #0f172a;
+.approval-table th.th-text-center {
+  text-align: center !important;
 }
 
-.status-badge {
-  display: inline-flex;
-}
-
-.text-right {
+/* Frozen action column */
+.approval-table .sticky-action-col {
+  position: sticky;
+  right: 0;
+  z-index: 1;
+  background: hsl(var(--background));
   text-align: right;
+  padding-left: 1.5rem;
+  padding-right: 0.75rem;
+  position: relative;
 }
 
-.text-center {
-  text-align: center;
+.approval-table .sticky-action-col::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: hsl(var(--border));
 }
 
-.cursor-pointer {
-  cursor: pointer;
+.approval-table thead .sticky-action-col {
+  z-index: 2;
+}
+
+.approval-table tbody tr:hover .sticky-action-col {
+  background: hsl(var(--muted)) !important;
 }

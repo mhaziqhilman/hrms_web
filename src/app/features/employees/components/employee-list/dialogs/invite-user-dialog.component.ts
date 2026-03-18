@@ -15,7 +15,7 @@ import { ZardDialogRef } from '@/shared/components/dialog/dialog-ref';
 
       <!-- Email Field -->
       <div class="space-y-2">
-        <label for="inviteEmail" class="block text-sm font-medium text-foreground">
+        <label for="inviteEmail" class="block text-sm font-normal text-foreground">
           Email Address <span class="text-destructive">*</span>
         </label>
         <input
@@ -34,7 +34,7 @@ import { ZardDialogRef } from '@/shared/components/dialog/dialog-ref';
 
       <!-- Role Dropdown -->
       <div class="space-y-2">
-        <label for="inviteRole" class="block text-sm font-medium text-foreground">
+        <label for="inviteRole" class="block text-sm font-normal text-foreground">
           Role
         </label>
         <select

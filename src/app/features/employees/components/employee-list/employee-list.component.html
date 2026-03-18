@@ -1,7 +1,7 @@
 <div class="bg-background min-h-screen">
   <!-- Header -->
   <div class="flex items-center justify-between mb-8">
-    <h1 class="text-2xl font-bold text-foreground">Users</h1>
+    <h1 class="text-2xl font-semibold text-foreground">Users</h1>
     <div class="flex items-center gap-2">
       @if (isAdmin()) {
         <button z-button zType="outline" (click)="openInviteDialog()" class="gap-2">
@@ -130,7 +130,7 @@
       </div>
       <ng-template #columnMenu>
         <div z-menu-content class="w-56">
-          <div class="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
+          <div class="px-2 py-1.5 text-xs font-medium text-muted-foreground">
             Toggle Columns
           </div>
           @for (column of columnList; track column.key) {
@@ -175,7 +175,7 @@
           <z-icon zType="check-circle" class="w-4 h-4 text-primary" />
         </div>
         <div class="flex flex-col">
-          <span class="text-sm font-semibold text-foreground">{{ getSelectedCount() }} Selected</span>
+          <span class="text-sm font-medium text-foreground">{{ getSelectedCount() }} Selected</span>
           <span class="text-xs text-muted-foreground">Bulk actions available</span>
         </div>
       </div>
@@ -183,13 +183,13 @@
       <!-- Right: Action Buttons -->
       <div class="flex items-center gap-2">
         <button type="button" (click)="bulkDelete()"
-          class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-destructive hover:bg-destructive/90 rounded-md transition-all duration-200 shadow-sm hover:shadow-md">
+          class="inline-flex items-center gap-2 px-4 py-2 text-sm font-normal text-white bg-destructive hover:bg-destructive/90 rounded-md transition-all duration-200 shadow-sm hover:shadow-md">
           <z-icon zType="user-minus" class="w-4 h-4" />
           <span>Terminate</span>
         </button>
         <div class="w-px h-6 bg-border mx-1"></div>
         <button type="button" (click)="clearSelection()"
-          class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200">
+          class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-normal text-muted-foreground hover:text-foreground transition-colors duration-200">
           <z-icon zType="x" class="w-4 h-4" />
           <span>Clear</span>
         </button>
@@ -208,11 +208,19 @@
             <span z-checkbox class="border-primary/30" [(ngModel)]="selectAll"
               (ngModelChange)="toggleSelectAll()"></span>
           </th>
+          <th *ngIf="visibleColumns()['staffId']">
+            <button (click)="onSort('staffId')"
+              class="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer"
+              [class.text-primary]="isSortActive('staffId')">
+              <span>Staff ID</span>
+              <z-icon [zType]="getSortIcon('staffId')" class="w-4 h-4" />
+            </button>
+          </th>
           <th class="!pl-3" *ngIf="visibleColumns()['name']">
             <button (click)="onSort('name')"
               class="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer"
               [class.text-primary]="isSortActive('name')">
-              <span>Name</span>
+              <span>Staff</span>
               <z-icon [zType]="getSortIcon('name')" class="w-4 h-4" />
             </button>
           </th>
@@ -224,27 +232,11 @@
               <z-icon [zType]="getSortIcon('position')" class="w-4 h-4" />
             </button>
           </th>
-          <th *ngIf="visibleColumns()['employmentType']">
-            <button (click)="onSort('employmentType')"
-              class="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer"
-              [class.text-primary]="isSortActive('employmentType')">
-              <span>Plan</span>
-              <z-icon [zType]="getSortIcon('employmentType')" class="w-4 h-4" />
-            </button>
-          </th>
-          <th *ngIf="visibleColumns()['email']">
-            <button (click)="onSort('email')"
-              class="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer"
-              [class.text-primary]="isSortActive('email')">
-              <span>Email</span>
-              <z-icon [zType]="getSortIcon('email')" class="w-4 h-4" />
-            </button>
-          </th>
           <th *ngIf="visibleColumns()['nationality']">
             <button (click)="onSort('nationality')"
               class="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer"
               [class.text-primary]="isSortActive('nationality')">
-              <span>Country</span>
+              <span>Nationality</span>
               <z-icon [zType]="getSortIcon('nationality')" class="w-4 h-4" />
             </button>
           </th>
@@ -267,25 +259,35 @@
               (ngModelChange)="toggleEmployeeSelection(employee.id)"
               class="border-primary/30"></span>
           </td>
+          @if (visibleColumns()['staffId']) {
+          <td>#{{employee.employee_id || '-'}}</td>
+          }
           @if (visibleColumns()['name']) {
           <td class="!pl-3">
             <a [routerLink]="['/employees', employee.public_id]" class="flex items-center gap-3 no-underline group">
               <z-avatar [zSrc]="employee.photo_url || employee.user?.avatar_url || undefined" [zFallback]="employee.full_name.charAt(0)" class="w-10 h-10" />
-              <span class="font-medium text-foreground group-hover:text-primary transition-colors">{{employee.full_name}}</span>
+              <div class="flex flex-col">
+                <span class="font-normal text-foreground group-hover:text-primary transition-colors">{{employee.full_name}}</span>
+                <span class="mt-0.5 text-[11px] text-muted-foreground truncate">{{employee.email}}</span>
+              </div>
             </a>
           </td>
           }
           @if (visibleColumns()['position']) {
-          <td>{{employee.position || 'Staff'}}</td>
-          }
-          @if (visibleColumns()['employmentType']) {
-          <td>{{employee.employment_type}}</td>
-          }
-          @if (visibleColumns()['email']) {
-          <td>{{employee.email}}</td>
+          <td>
+            <div class="flex flex-col">
+              <span>{{employee.position || 'Staff'}}</span>
+              <span class="mt-0.5 text-[11px] text-muted-foreground truncate">{{employee.employment_type}}</span>
+            </div>
+          </td>
           }
           @if (visibleColumns()['nationality']) {
-          <td>{{employee.nationality || '-'}}</td>
+          <td>
+            <div class="flex flex-col">
+              <span>{{employee.nationality || '-'}}</span>
+              <span class="mt-0.5 text-[11px] text-muted-foreground truncate">{{employee.race || '-'}}</span>
+            </div>
+          </td>
           }
           @if (visibleColumns()['status']) {
           <td>
@@ -374,7 +376,7 @@
         <z-avatar [zSrc]="employee.photo_url || employee.user?.avatar_url || undefined"
           [zFallback]="employee.full_name.charAt(0)" class="w-16 h-16 mb-3" />
         <a [routerLink]="['/employees', employee.public_id]"
-          class="font-semibold text-foreground hover:text-primary transition-colors no-underline text-sm">
+          class="font-medium text-foreground hover:text-primary transition-colors no-underline text-sm">
           {{employee.full_name}}
         </a>
         <span class="text-xs text-muted-foreground mt-0.5">{{employee.position || 'Staff'}}</span>
@@ -385,7 +387,7 @@
         <!-- Employee ID -->
         <div class="flex items-center gap-2 text-muted-foreground">
           <z-icon zType="hash" class="w-3.5 h-3.5 shrink-0" />
-          <span class="font-medium">{{employee.employee_id}}</span>
+          <span class="font-normal">{{employee.employee_id}}</span>
         </div>
         <!-- Department + Type -->
         <div class="flex items-center gap-2 text-muted-foreground">
@@ -414,7 +416,7 @@
       <div class="flex items-center justify-between mt-4 pt-3 border-t">
         <span class="text-xs text-muted-foreground">Joined at {{formatDate(employee.join_date)}}</span>
         <a [routerLink]="['/employees', employee.public_id]"
-          class="text-xs font-medium text-foreground hover:text-primary transition-colors no-underline inline-flex items-center gap-1">
+          class="text-xs font-normal text-foreground hover:text-primary transition-colors no-underline inline-flex items-center gap-1">
           View details
           <z-icon zType="chevron-right" class="w-3 h-3" />
         </a>
@@ -429,7 +431,7 @@
   <div class="bg-card border rounded-lg">
     <div class="flex flex-col items-center justify-center py-20 text-center">
       <z-icon zType="users" class="w-16 h-16 text-muted-foreground mb-4" />
-      <h3 class="text-lg font-semibold mb-2">No Users Found</h3>
+      <h3 class="text-lg font-medium mb-2">No Users Found</h3>
       <p class="text-muted-foreground mb-4">There are no users matching your criteria</p>
       <button z-button [routerLink]="['/employees/new']">
         <z-icon zType="plus" class="mr-2" />

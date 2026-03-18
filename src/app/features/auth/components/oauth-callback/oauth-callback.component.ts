@@ -39,7 +39,7 @@ import { ZardIconComponent } from '@/shared/components/icon/icon.component';
                     <z-icon zType="circle-x" class="w-8 h-8 text-destructive" />
                   </div>
                 </div>
-                <h1 class="text-2xl font-semibold text-foreground">Authentication Failed</h1>
+                <h1 class="text-2xl font-medium text-foreground">Authentication Failed</h1>
                 <p class="text-sm text-muted-foreground">{{ errorMessage }}</p>
                 <button z-button type="button" class="w-full mt-4" routerLink="/auth/login">
                   Back to Login
@@ -51,7 +51,7 @@ import { ZardIconComponent } from '@/shared/components/icon/icon.component';
                 <div class="flex justify-center mb-4">
                   <z-icon zType="loader-circle" class="w-12 h-12 text-primary animate-spin" />
                 </div>
-                <h1 class="text-xl font-semibold text-foreground">Completing sign in...</h1>
+                <h1 class="text-xl font-medium text-foreground">Completing sign in...</h1>
                 <p class="text-sm text-muted-foreground">Please wait while we set up your session.</p>
               </div>
             }

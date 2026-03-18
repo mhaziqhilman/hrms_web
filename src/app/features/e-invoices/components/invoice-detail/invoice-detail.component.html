@@ -47,8 +47,8 @@
   <div class="mb-6">
     <div class="flex items-center justify-between gap-4 mb-1">
       <div class="flex items-center gap-3">
-        <h1 class="text-2xl font-bold text-foreground">{{ inv.invoice_number }}</h1>
-        <span class="text-xs font-medium px-2.5 py-1 rounded-full {{ getStatusColor(inv.status) }}">
+        <h1 class="text-2xl font-semibold text-foreground">{{ inv.invoice_number }}</h1>
+        <span class="text-xs font-normal px-2.5 py-1 rounded-full {{ getStatusColor(inv.status) }}">
           {{ inv.status }}
         </span>
       </div>
@@ -124,7 +124,7 @@
       </div>
     </div>
     <div class="flex items-center gap-2 text-sm text-muted-foreground mt-1">
-      <span class="font-semibold text-foreground">{{ formatCurrency(inv.total_amount) }}</span>
+      <span class="font-medium text-foreground">{{ formatCurrency(inv.total_amount) }}</span>
       <span>{{ inv.currency }}</span>
       @if (+inv.amount_paid >= +inv.total_amount && +inv.total_amount > 0) {
       <span class="text-muted-foreground">·</span>
@@ -139,7 +139,7 @@
   <!-- LHDN Status Panel -->
   @if (inv.lhdn_uuid || inv.status === 'Invalid') {
   <z-card class="mb-6">
-    <h3 class="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+    <h3 class="text-sm font-medium text-foreground mb-3 flex items-center gap-2">
       <z-icon [zType]="$any('shield-check')" zSize="sm" />
       LHDN MyInvois Status
     </h3>
@@ -172,7 +172,7 @@
 
     @if (inv.lhdn_validation_errors && inv.lhdn_validation_errors.length > 0) {
     <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-      <h4 class="text-sm font-semibold text-red-700 mb-2">Validation Errors</h4>
+      <h4 class="text-sm font-medium text-red-700 mb-2">Validation Errors</h4>
       @for (err of inv.lhdn_validation_errors; track $index) {
       <div class="text-sm text-red-600 mb-1">
         @if (err.code) { <span class="font-mono text-xs">[{{ err.code }}]</span> }
@@ -185,7 +185,7 @@
 
     @if (inv.lhdn_qr_url) {
     <div class="mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
-      <span class="text-sm text-emerald-700 font-medium">Verification URL: </span>
+      <span class="text-sm text-emerald-700 font-normal">Verification URL: </span>
       <span class="text-xs font-mono text-emerald-600 break-all">{{ inv.lhdn_qr_url }}</span>
     </div>
     }
@@ -195,7 +195,7 @@
   <!-- Cancel Form -->
   @if (showCancelForm()) {
   <z-card class="mb-6 border-red-200">
-    <h3 class="text-sm font-semibold text-red-700 mb-3">Cancel Invoice</h3>
+    <h3 class="text-sm font-medium text-red-700 mb-3">Cancel Invoice</h3>
     <p class="text-sm text-muted-foreground mb-3">This will notify LHDN and cannot be undone. A cancellation reason is
       required.</p>
     <textarea class="w-full px-3 py-2 text-sm border border-input rounded-md bg-background mb-3" rows="3"
@@ -214,20 +214,20 @@
   <!-- Payment Form -->
   @if (showPaymentForm()) {
   <z-card class="mb-6">
-    <h3 class="text-sm font-semibold text-foreground mb-4">Record Payment</h3>
+    <h3 class="text-sm font-medium text-foreground mb-4">Record Payment</h3>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
       <div>
-        <label class="text-sm font-medium text-foreground block mb-1">Date *</label>
+        <label class="text-sm font-normal text-foreground block mb-1">Date *</label>
         <input type="date" class="w-full px-3 py-2 text-sm border border-input rounded-md bg-background"
           [(ngModel)]="paymentDate" />
       </div>
       <div>
-        <label class="text-sm font-medium text-foreground block mb-1">Amount *</label>
+        <label class="text-sm font-normal text-foreground block mb-1">Amount *</label>
         <input type="number" class="w-full px-3 py-2 text-sm border border-input rounded-md bg-background"
           [(ngModel)]="paymentAmount" min="0.01" [max]="inv.balance_due" step="0.01" />
       </div>
       <div>
-        <label class="text-sm font-medium text-foreground block mb-1">Method *</label>
+        <label class="text-sm font-normal text-foreground block mb-1">Method *</label>
         <select class="w-full px-3 py-2 text-sm border border-input rounded-md bg-background"
           [(ngModel)]="paymentMethod">
           @for (m of PAYMENT_METHODS; track m) {
@@ -236,12 +236,12 @@
         </select>
       </div>
       <div>
-        <label class="text-sm font-medium text-foreground block mb-1">Reference #</label>
+        <label class="text-sm font-normal text-foreground block mb-1">Reference #</label>
         <input type="text" class="w-full px-3 py-2 text-sm border border-input rounded-md bg-background"
           [(ngModel)]="paymentRef" placeholder="Transaction reference" />
       </div>
       <div class="md:col-span-2">
-        <label class="text-sm font-medium text-foreground block mb-1">Notes</label>
+        <label class="text-sm font-normal text-foreground block mb-1">Notes</label>
         <input type="text" class="w-full px-3 py-2 text-sm border border-input rounded-md bg-background"
           [(ngModel)]="paymentNotes" placeholder="Optional notes" />
       </div>
@@ -272,7 +272,7 @@
       <!-- Payment History (below document) -->
       @if (inv.payments && inv.payments.length > 0) {
       <z-card class="mt-6">
-        <h3 class="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+        <h3 class="text-sm font-medium text-foreground mb-3 flex items-center gap-2">
           <z-icon [zType]="$any('credit-card')" zSize="sm" />
           Payment History
         </h3>
@@ -292,7 +292,7 @@
               @for (payment of inv.payments; track payment.id) {
               <tr z-table-row>
                 <td z-table-cell>{{ formatDate(payment.payment_date) }}</td>
-                <td z-table-cell class="text-right font-medium">{{ inv.currency }} {{ formatCurrency(payment.amount) }}
+                <td z-table-cell class="text-right font-normal">{{ inv.currency }} {{ formatCurrency(payment.amount) }}
                 </td>
                 <td z-table-cell>{{ payment.payment_method }}</td>
                 <td z-table-cell class="text-muted-foreground">{{ payment.reference_number || '-' }}</td>
@@ -317,7 +317,7 @@
 
       <!-- Notes -->
       <div class="flex items-center justify-between mb-3">
-        <h3 class="text-base font-bold text-foreground">Notes</h3>
+        <h3 class="text-base font-semibold text-foreground">Notes</h3>
         @if (canEdit()) {
         <button z-button zType="ghost" zSize="sm" class="text-primary text-xs gap-1" (click)="navigateToEdit()">
           <z-icon [zType]="$any('pencil')" zSize="sm" /> Edit Notes
@@ -335,7 +335,7 @@
       }
 
       <!-- Log -->
-      <h3 class="text-base font-bold text-foreground mt-8 mb-4">Log</h3>
+      <h3 class="text-base font-semibold text-foreground mt-8 mb-4">Log</h3>
       <div class="space-y-0">
         @for (event of activityLog(); track $index) {
         <div class="flex gap-3 relative pb-6 last:pb-0">
@@ -352,7 +352,7 @@
           <div class="flex-1 min-w-0 pt-0.5">
             <p class="text-sm text-foreground">
               {{ event.title }}
-              @if (event.actor) { <span class="font-bold">{{ event.actor }}</span> }
+              @if (event.actor) { <span class="font-semibold">{{ event.actor }}</span> }
             </p>
             <p class="text-xs text-muted-foreground mt-0.5">{{ event.timestamp }}</p>
           </div>
@@ -369,7 +369,7 @@
 <ng-template #invoiceDocument let-inv let-print="print">
   <!-- Document Header / Title -->
   <div class="mb-6">
-    <h2 class="text-lg font-semibold text-foreground">
+    <h2 class="text-lg font-medium text-foreground">
       {{ getTypeLabel(inv.invoice_type) }}
       @if (inv.payment_terms) { · {{ inv.payment_terms }} }
     </h2>
@@ -386,7 +386,7 @@
       <div class="">
         <span class="text-xs text-muted-foreground block mb-1">Billing details</span>
         <div class="space-y-1">
-          <span class="text-sm font-medium">{{ inv.buyer_name }}</span>
+          <span class="text-sm font-normal">{{ inv.buyer_name }}</span>
           @if (inv.buyer_tin) { <p class="text-xs text-muted-foreground">TIN: {{ inv.buyer_tin }}</p> }
           @if (inv.buyer_brn) { <p class="text-xs text-muted-foreground">BRN: {{ inv.buyer_brn }}</p> }
           @if (inv.buyer_address) { <p class="text-xs text-muted-foreground">{{ inv.buyer_address }}</p> }
@@ -399,7 +399,7 @@
     <div class="space-y-2.5">
       <div class="flex justify-between text-sm">
         <span class="text-muted-foreground">Invoice Number</span>
-        <span class="font-medium">{{ inv.invoice_number }}</span>
+        <span class="font-normal">{{ inv.invoice_number }}</span>
       </div>
       @if (inv.payment_terms) {
       <div class="flex justify-between text-sm">
@@ -431,7 +431,7 @@
   <div class="mb-6 space-y-1">
     <span class="text-xs text-muted-foreground block mb-1">{{ inv.is_self_billed ? 'Supplier (Employee)' : 'From'
       }}</span>
-    <span class="text-sm font-medium">{{ inv.supplier_name }}</span>
+    <span class="text-sm font-normal">{{ inv.supplier_name }}</span>
     @if (inv.supplier_tin) { <p class="text-xs text-muted-foreground">TIN: {{ inv.supplier_tin }}</p> }
     @if (inv.supplier_brn) { <p class="text-xs text-muted-foreground">BRN: {{ inv.supplier_brn }}</p> }
     @if (inv.supplier_sst_no) { <p class="text-xs text-muted-foreground">SST: {{ inv.supplier_sst_no }}</p> }
@@ -448,13 +448,13 @@
     <table class="w-full text-sm">
       <thead>
         <tr class="border-b">
-          <th class="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider py-3 pr-4">Product
+          <th class="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider py-3 pr-4">Product
           </th>
-          <th class="text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider py-3 px-4">Qty
+          <th class="text-center text-xs font-medium text-muted-foreground uppercase tracking-wider py-3 px-4">Qty
           </th>
-          <th class="text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider py-3 px-4">Unit
+          <th class="text-right text-xs font-medium text-muted-foreground uppercase tracking-wider py-3 px-4">Unit
             Price</th>
-          <th class="text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider py-3 pl-4">Amount
+          <th class="text-right text-xs font-medium text-muted-foreground uppercase tracking-wider py-3 pl-4">Amount
           </th>
         </tr>
       </thead>
@@ -467,7 +467,7 @@
                 <z-icon [zType]="$any('package')" zSize="sm" class="text-muted-foreground" />
               </div>
               <div>
-                <span class="font-medium text-foreground">{{ item.description }}</span>
+                <span class="font-normal text-foreground">{{ item.description }}</span>
                 @if (item.classification_code) {
                 <p class="text-xs text-muted-foreground">Code: {{ item.classification_code }}</p>
                 }
@@ -479,7 +479,7 @@
           </td>
           <td class="py-3 px-4 text-center">{{ item.quantity }}</td>
           <td class="py-3 px-4 text-right">{{ formatCurrency(item.unit_price) }} {{ inv.currency }}</td>
-          <td class="py-3 pl-4 text-right font-medium">{{ formatCurrency(item.total) }} {{ inv.currency }}</td>
+          <td class="py-3 pl-4 text-right font-normal">{{ formatCurrency(item.total) }} {{ inv.currency }}</td>
         </tr>
         }
       </tbody>
@@ -506,7 +506,7 @@
       </div>
       }
       <z-divider zSpacing="sm" />
-      <div class="flex justify-between font-bold text-base">
+      <div class="flex justify-between font-semibold text-base">
         <span>Total</span>
         <span>{{ formatCurrency(inv.total_amount) }} {{ inv.currency }}</span>
       </div>
@@ -515,7 +515,7 @@
         <span>Paid</span>
         <span>-{{ formatCurrency(inv.amount_paid) }} {{ inv.currency }}</span>
       </div>
-      <div class="flex justify-between font-bold text-base">
+      <div class="flex justify-between font-semibold text-base">
         <span>Amount due</span>
         <span>{{ formatCurrency(inv.balance_due) }} {{ inv.currency }}</span>
       </div>
@@ -527,7 +527,7 @@
   <!-- Terms & Conditions -->
   @if (inv.notes) {
   <div class="mt-8 pt-4 border-t border-border/50">
-    <h4 class="text-sm font-semibold text-foreground mb-2">Terms & Condition</h4>
+    <h4 class="text-sm font-medium text-foreground mb-2">Terms & Condition</h4>
     <p class="text-sm text-muted-foreground whitespace-pre-line">{{ inv.notes }}</p>
   </div>
   }
@@ -535,7 +535,7 @@
   <!-- LHDN Info (for print) -->
   @if (print && inv.lhdn_uuid) {
   <div class="mt-6 pt-4 border-t border-border/50">
-    <h4 class="text-sm font-semibold text-foreground mb-2">LHDN MyInvois</h4>
+    <h4 class="text-sm font-medium text-foreground mb-2">LHDN MyInvois</h4>
     <div class="text-xs text-muted-foreground space-y-1">
       <p>UUID: {{ inv.lhdn_uuid }}</p>
       @if (inv.lhdn_submission_uid) { <p>Submission UID: {{ inv.lhdn_submission_uid }}</p> }

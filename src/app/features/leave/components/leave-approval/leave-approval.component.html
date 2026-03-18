@@ -2,7 +2,7 @@
   <!-- Header -->
   <div class="flex items-center justify-between mb-8">
     <div>
-      <h1 class="text-2xl font-bold text-foreground">Leave Approvals</h1>
+      <h1 class="text-2xl font-semibold text-foreground">Leave Approvals</h1>
       <p class="text-muted-foreground">Review and manage pending leave applications</p>
     </div>
     <button z-button zType="outline" routerLink="/leave" class="gap-2">
@@ -86,7 +86,7 @@
                   <z-icon zType="user" class="w-6 h-6 text-primary" />
                 </div>
                 <div class="min-w-0 flex-1">
-                  <h4 class="text-base font-semibold text-foreground truncate">{{ leave.employee?.full_name }}</h4>
+                  <h4 class="text-base font-medium text-foreground truncate">{{ leave.employee?.full_name }}</h4>
                   <p class="text-sm text-muted-foreground">{{ leave.employee?.position }}</p>
                 </div>
               </div>
@@ -158,7 +158,7 @@
       <!-- Empty State -->
       <div class="flex flex-col items-center justify-center py-20 text-center">
         <z-icon zType="inbox" class="w-16 h-16 text-muted-foreground mb-4" />
-        <h3 class="text-lg font-semibold mb-2">No Pending Approvals</h3>
+        <h3 class="text-lg font-medium mb-2">No Pending Approvals</h3>
         <p class="text-muted-foreground">There are no pending leave applications to review at this time.</p>
       </div>
     }
@@ -172,7 +172,7 @@
       <!-- Modal Header -->
       <div class="p-6 border-b border-border">
         <div class="flex items-center justify-between">
-          <h3 class="text-lg font-semibold text-foreground">Reject Leave Application</h3>
+          <h3 class="text-lg font-medium text-foreground">Reject Leave Application</h3>
           <button
             type="button"
             (click)="closeRejectModal()"
@@ -184,7 +184,7 @@
 
       <!-- Modal Body -->
       <div class="p-6">
-        <label class="block text-sm font-medium text-foreground mb-2">
+        <label class="block text-sm font-normal text-foreground mb-2">
           Reason for Rejection <span class="text-red-500">*</span>
         </label>
         <textarea

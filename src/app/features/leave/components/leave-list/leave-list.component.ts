@@ -19,6 +19,9 @@ import { ZardTooltipModule } from '@/shared/components/tooltip/tooltip';
 import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-dialog.service';
 import { ZardCheckboxComponent } from '@/shared/components/checkbox/checkbox.component';
 import { ZardEmptyComponent } from '@/shared/components/empty/empty.component';
+import { ZardSegmentedComponent, SegmentedOption } from '@/shared/components/segmented/segmented.component';
+import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component';
+import { ZardDividerComponent } from '@/shared/components/divider/divider.component';
 
 @Component({
   selector: 'app-leave-list',
@@ -36,7 +39,10 @@ import { ZardEmptyComponent } from '@/shared/components/empty/empty.component';
     ZardTableImports,
     ZardTooltipModule,
     ZardCheckboxComponent,
-    ZardEmptyComponent
+    ZardEmptyComponent,
+    ZardSegmentedComponent,
+    ZardAvatarComponent,
+    ZardDividerComponent
   ],
   templateUrl: './leave-list.component.html',
   styleUrl: './leave-list.component.css'
@@ -83,8 +89,7 @@ export class LeaveListComponent implements OnInit {
   visibleColumns = signal<{[key: string]: boolean}>({
     employee: true,
     leaveType: true,
-    startDate: true,
-    endDate: true,
+    period: true,
     duration: true,
     status: true
   });
@@ -93,10 +98,18 @@ export class LeaveListComponent implements OnInit {
   columnList = [
     { key: 'employee', label: 'Employee' },
     { key: 'leaveType', label: 'Leave Type' },
-    { key: 'startDate', label: 'Start Date' },
-    { key: 'endDate', label: 'End Date' },
+    { key: 'period', label: 'Period' },
     { key: 'duration', label: 'Duration' },
     { key: 'status', label: 'Status' }
+  ];
+
+  // Status filter options
+  statusOptions: SegmentedOption[] = [
+    { value: '', label: 'All' },
+    { value: LeaveStatus.PENDING, label: 'Pending' },
+    { value: LeaveStatus.APPROVED, label: 'Approved' },
+    { value: LeaveStatus.REJECTED, label: 'Rejected' },
+    { value: LeaveStatus.CANCELLED, label: 'Cancelled' }
   ];
 
   // Constants
@@ -133,6 +146,13 @@ export class LeaveListComponent implements OnInit {
     }
   }
 
+  // Sort column mapping (frontend key → backend field)
+  private sortColumnMap: Record<string, string> = {
+    period: 'start_date',
+    duration: 'total_days',
+    status: 'status'
+  };
+
   loadLeaves(): void {
     this.loading.set(true);
     this.error.set(null);
@@ -154,6 +174,10 @@ export class LeaveListComponent implements OnInit {
     if (this.endDateFilter()) {
       params.end_date = this.endDateFilter();
     }
+    if (this.sortColumn()) {
+      params.sort = this.sortColumnMap[this.sortColumn()];
+      params.order = this.sortDirection();
+    }
 
     this.leaveService.getLeaves(params).subscribe({
       next: (response) => {
@@ -171,6 +195,11 @@ export class LeaveListComponent implements OnInit {
         console.error('Error loading leaves:', err);
       }
     });
+  }
+
+  onStatusChange(value: string): void {
+    this.selectedStatus.set(value as LeaveStatus | '');
+    this.onFilterChange();
   }
 
   onFilterChange(): void {
@@ -391,9 +420,19 @@ export class LeaveListComponent implements OnInit {
 
   getDuration(leave: Leave): string {
     if (leave.is_half_day) {
-      return `0.5 day (${leave.half_day_period})`;
+      return '0.5 day';
     }
     return `${leave.total_days} ${leave.total_days === 1 ? 'day' : 'days'}`;
+  }
+
+  getStatusDotClass(status: LeaveStatus): string {
+    const dotMap: Record<string, string> = {
+      'Pending': 'bg-yellow-500',
+      'Approved': 'bg-green-500',
+      'Rejected': 'bg-red-500',
+      'Cancelled': 'bg-gray-400'
+    };
+    return dotMap[status] || 'bg-gray-400';
   }
 
   canEdit(leave: Leave): boolean {
@@ -452,14 +491,14 @@ export class LeaveListComponent implements OnInit {
     return rangeWithDots;
   }
 
-  getStatusBadgeType(status: LeaveStatus): 'default' | 'destructive' | 'outline' | 'secondary' {
-    const colorMap: Record<string, 'default' | 'destructive' | 'outline' | 'secondary'> = {
-      'warning': 'outline',
-      'success': 'default',
-      'danger': 'destructive',
-      'secondary': 'secondary'
+  getStatusBadgeType(status: LeaveStatus): string {
+    const badgeMap: Record<string, string> = {
+      'Pending': 'soft-yellow',
+      'Approved': 'soft-green',
+      'Rejected': 'soft-red',
+      'Cancelled': 'soft-gray'
     };
-    return colorMap[LEAVE_STATUS_COLORS[status]] || 'outline';
+    return badgeMap[status] || 'soft-gray';
   }
 
   getStatusIconType(status: LeaveStatus): 'clock' | 'circle-check' | 'circle-x' | 'circle' {
@@ -515,7 +554,7 @@ export class LeaveListComponent implements OnInit {
     this.router.navigate(['/leave', leave.public_id]);
   }
 
-  // Sorting methods
+  // Sorting methods (API-side)
   onSort(column: string): void {
     if (this.sortColumn() === column) {
       this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
@@ -523,54 +562,8 @@ export class LeaveListComponent implements OnInit {
       this.sortColumn.set(column);
       this.sortDirection.set('asc');
     }
-    this.sortLeaves();
-  }
-
-  sortLeaves(): void {
-    const column = this.sortColumn();
-    const direction = this.sortDirection();
-
-    if (!column) return;
-
-    const sorted = [...this.leaves()].sort((a, b) => {
-      let aValue: any;
-      let bValue: any;
-
-      switch (column) {
-        case 'employee':
-          aValue = a.employee?.full_name?.toLowerCase() || '';
-          bValue = b.employee?.full_name?.toLowerCase() || '';
-          break;
-        case 'leaveType':
-          aValue = a.leave_type?.name?.toLowerCase() || '';
-          bValue = b.leave_type?.name?.toLowerCase() || '';
-          break;
-        case 'startDate':
-          aValue = a.start_date || '';
-          bValue = b.start_date || '';
-          break;
-        case 'endDate':
-          aValue = a.end_date || '';
-          bValue = b.end_date || '';
-          break;
-        case 'duration':
-          aValue = a.total_days || 0;
-          bValue = b.total_days || 0;
-          break;
-        case 'status':
-          aValue = a.status?.toLowerCase() || '';
-          bValue = b.status?.toLowerCase() || '';
-          break;
-        default:
-          return 0;
-      }
-
-      if (aValue < bValue) return direction === 'asc' ? -1 : 1;
-      if (aValue > bValue) return direction === 'asc' ? 1 : -1;
-      return 0;
-    });
-
-    this.leaves.set(sorted);
+    this.currentPage.set(1);
+    this.loadLeaves();
   }
 
   getSortIcon(column: string): 'chevrons-up-down' | 'chevron-up' | 'chevron-down' {

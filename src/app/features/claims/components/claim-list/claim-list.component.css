@@ -39,8 +39,19 @@
   background-color: rgba(209, 209, 209, 0.1);
 }
 
+.claim-table thead tr {
+  height: 3rem;
+}
+
 .claim-table tbody tr {
   height: 60px;
+}
+
+.claim-table th {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .claim-table th,
@@ -53,6 +64,36 @@
 
 .claim-table th.th-text-center {
   text-align: center !important;
+}
+
+/* Frozen action column */
+.claim-table .sticky-action-col {
+  position: sticky;
+  right: 0;
+  z-index: 1;
+  background: hsl(var(--background));
+  text-align: right;
+  padding-left: 1.5rem;
+  padding-right: 0.75rem;
+  position: relative;
+}
+
+.claim-table .sticky-action-col::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: hsl(var(--border));
+}
+
+.claim-table thead .sticky-action-col {
+  z-index: 2;
+}
+
+.claim-table tbody tr:hover .sticky-action-col {
+  background: hsl(var(--muted)) !important;
 }
 
 /* Override card content padding to px-5 */

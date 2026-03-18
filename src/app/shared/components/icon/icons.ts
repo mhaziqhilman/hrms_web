@@ -159,6 +159,7 @@ import {
   TicketCheck,
   TextAlignJustify,
   Printer,
+  Home,
 } from 'lucide-angular';
 
 const DarkMode: LucideIconData = [
@@ -331,7 +332,8 @@ export const ZARD_ICONS = {
   'file-plus': FilePlus,
   'package': Package,
   'sticky-note': StickyNote,
-  'printer': Printer
+  'printer': Printer,
+  'home': Home
 } as const satisfies Record<string, LucideIconData>;
 
 export declare type ZardIcon = keyof typeof ZARD_ICONS | LucideIconData;

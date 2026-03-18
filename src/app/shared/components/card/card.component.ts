@@ -23,7 +23,7 @@ import { cardBodyVariants, cardFooterVariants, cardHeaderVariants, cardVariants 
     @let title = zTitle();
     @if (title) {
       <div [class]="headerClasses()" data-slot="card-header">
-        <div class="leading-none font-semibold" [id]="titleId" data-slot="card-title">
+        <div class="leading-none font-medium" [id]="titleId" data-slot="card-title">
           <ng-container *zStringTemplateOutlet="title">{{ title }}</ng-container>
         </div>
 

@@ -1,6 +1,6 @@
 <!-- Page Header -->
 <div class="flex items-center justify-between mb-6 max-w-7xl mx-auto">
-  <h1 class="text-2xl font-bold">Announcement</h1>
+  <h1 class="text-2xl font-semibold">Announcement</h1>
   <div class="flex items-center gap-3">
     <!-- Date Range Filter -->
     <z-date-picker placeholder="From date" zFormat="dd-MM-yyyy" zType="outline" zSize="default" [ngModel]="dateFrom()"
@@ -48,7 +48,7 @@
   <aside class="w-60 shrink-0 sticky top-6 hidden md:block">
     <z-card class="py-4 border-0 bg-sidebar rounded-md">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="font-semibold text-sm">Category</h3>
+        <h3 class="font-medium text-sm">Category</h3>
         @if (canManageCategories) {
         <button z-button zType="ghost" zSize="sm" class="text-xs text-primary" (click)="toggleAddCategory()">
           + Add New
@@ -73,7 +73,7 @@
       <!-- All Announcement -->
       <button class="w-full flex items-center justify-between px-3 py-2 rounded-md text-sm transition-colors mb-1"
         [class.bg-primary/10]="!selectedCategory()" [class.text-primary]="!selectedCategory()"
-        [class.font-medium]="!selectedCategory()" [class.hover:bg-muted]="selectedCategory()"
+        [class.font-normal]="!selectedCategory()" [class.hover:bg-muted]="selectedCategory()"
         (click)="filterByCategory(null)">
         <span>All Announcement</span>
         <z-badge zType="secondary" zShape="pill" class="text-xs px-2 bg-primary text-white">
@@ -99,7 +99,7 @@
       <div
         class="group w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors mb-0.5 cursor-pointer"
         [class.bg-primary/10]="selectedCategory()?.id === cat.id"
-        [class.text-primary]="selectedCategory()?.id === cat.id" [class.font-medium]="selectedCategory()?.id === cat.id"
+        [class.text-primary]="selectedCategory()?.id === cat.id" [class.font-normal]="selectedCategory()?.id === cat.id"
         [class.hover:bg-muted]="selectedCategory()?.id !== cat.id" (click)="filterByCategory(cat)">
         <span class="w-2 h-2 rounded-full shrink-0" [style.background-color]="cat.color || '#6B7280'"></span>
         <span class="flex-1 text-left truncate">{{ cat.name }}</span>
@@ -146,7 +146,7 @@
           <z-avatar [zSrc]="getCurrentUserPhoto()" [zFallback]="getCurrentUserInitials()" zSize="default"
             class="mt-1" />
           <div class="flex-1 space-y-3">
-            <input z-input type="text" formControlName="title" placeholder="Announcement title..." class="font-medium"
+            <input z-input type="text" formControlName="title" placeholder="Announcement title..." class="font-normal"
               [class.border-destructive]="quickPostForm.get('title')?.invalid && quickPostForm.get('title')?.touched" />
             <textarea z-input formControlName="content" placeholder="What would you like to announce?" rows="3"
               class="resize-none"
@@ -215,7 +215,7 @@
     @if (memos().length === 0) {
     <z-card class="p-8 text-center">
       <z-icon [zType]="$any('megaphone')" class="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-      <h3 class="font-medium text-lg mb-1">No announcements yet</h3>
+      <h3 class="font-normal text-lg mb-1">No announcements yet</h3>
       <p class="text-muted-foreground text-sm">
         @if (selectedCategory()) {
         No announcements found in this category.
@@ -237,7 +237,7 @@
           <z-avatar [zFallback]="getInitials(getAuthorName(memo))" zSize="default" />
           }
           <div>
-            <p class="font-medium text-sm">{{ getAuthorName(memo) }}</p>
+            <p class="font-normal text-sm">{{ getAuthorName(memo) }}</p>
             <p class="text-xs text-muted-foreground">
               {{ getAuthorPosition(memo) }}
               @if (getAuthorPosition(memo)) { &middot; }
@@ -284,7 +284,7 @@
       <!-- Category Badge -->
       @if (memo.category) {
       <div class="mb-2">
-        <span class="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-md text-white"
+        <span class="inline-flex items-center gap-1.5 text-xs font-normal px-2.5 py-1 rounded-md text-white"
           [style.background-color]="memo.category.color || '#6B7280'">
           {{ memo.category.name }}
         </span>
@@ -292,7 +292,7 @@
       }
 
       <!-- Title -->
-      <h3 class="text-lg font-semibold mb-1.5">{{ memo.title }}</h3>
+      <h3 class="text-lg font-medium mb-1.5">{{ memo.title }}</h3>
 
       <!-- Content Preview -->
       <p class="text-muted-foreground text-sm leading-relaxed line-clamp-3">
@@ -309,7 +309,7 @@
           </span>
           }
         </div>
-        <button z-button zType="ghost" zSize="sm" class="text-primary text-sm font-medium" (click)="viewPost(memo.public_id)">
+        <button z-button zType="ghost" zSize="sm" class="text-primary text-sm font-normal" (click)="viewPost(memo.public_id)">
           View Full Post
           <z-icon [zType]="$any('arrow-right')" class="w-4 h-4 ml-1" />
         </button>
@@ -339,7 +339,7 @@
   <!-- RIGHT COLUMN: Pinned Announcements -->
   <aside class="w-72 shrink-0 sticky top-6 hidden lg:block">
     <z-card class="py-4">
-      <h3 class="font-semibold text-sm mb-4">Pinned Announcement</h3>
+      <h3 class="font-medium text-sm mb-4">Pinned Announcement</h3>
 
       @if (pinnedMemos().length === 0) {
       <p class="text-sm text-muted-foreground text-center py-4">No pinned announcements</p>
@@ -354,7 +354,7 @@
           } @else {
           <z-avatar [zFallback]="getInitials(getAuthorName(pinned))" zSize="sm" />
           }
-          <span class="text-sm font-medium truncate flex-1">{{ getAuthorName(pinned) }}</span>
+          <span class="text-sm font-normal truncate flex-1">{{ getAuthorName(pinned) }}</span>
           <z-badge zType="secondary" zShape="pill" class="text-[10px] px-1.5 shrink-0">
             <z-icon [zType]="$any('pin')" class="w-3 h-3 mr-0.5" />
             Pinned
@@ -363,14 +363,14 @@
 
         <!-- Category -->
         @if (pinned.category) {
-        <span class="inline-flex text-[10px] font-medium px-2 py-0.5 rounded text-white mb-1"
+        <span class="inline-flex text-[10px] font-normal px-2 py-0.5 rounded text-white mb-1"
           [style.background-color]="pinned.category.color || '#6B7280'">
           {{ pinned.category.name }}
         </span>
         }
 
         <!-- Title Preview -->
-        <h4 class="text-sm font-medium line-clamp-2 mb-0.5">{{ pinned.title }}</h4>
+        <h4 class="text-sm font-normal line-clamp-2 mb-0.5">{{ pinned.title }}</h4>
 
         <!-- Content Preview -->
         <p class="text-xs text-muted-foreground line-clamp-2 mb-1.5">
@@ -379,7 +379,7 @@
 
         <!-- View Post Link -->
         <a [routerLink]="['/communication/memos', pinned.public_id]"
-          class="text-primary text-xs font-medium hover:underline inline-flex items-center gap-1">
+          class="text-primary text-xs font-normal hover:underline inline-flex items-center gap-1">
           View post
           <z-icon [zType]="$any('chevron-right')" class="w-3 h-3" />
         </a>

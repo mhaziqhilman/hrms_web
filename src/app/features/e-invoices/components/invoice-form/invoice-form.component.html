@@ -5,7 +5,7 @@
       <z-icon [zType]="$any('arrow-left')" zSize="sm" />
     </button>
     <div>
-      <h1 class="text-2xl font-bold text-foreground">{{ isEditMode() ? 'Edit Invoice' : 'Create Invoice' }}</h1>
+      <h1 class="text-2xl font-semibold text-foreground">{{ isEditMode() ? 'Edit Invoice' : 'Create Invoice' }}</h1>
       <p class="text-muted-foreground text-sm">{{ isEditMode() ? 'Update the invoice details below' : 'Fill in the details to create a new e-invoice' }}</p>
     </div>
   </div>
@@ -129,8 +129,8 @@
                 <button type="button" class="w-full flex items-center justify-between px-4 py-3 bg-muted/50 hover:bg-muted transition-colors" (click)="supplierExpanded = !supplierExpanded">
                   <div class="flex items-center gap-2">
                     <z-icon [zType]="$any('building')" zSize="sm" class="text-primary" />
-                    <span class="text-sm font-semibold text-foreground">{{ isSelfBilled ? 'Supplier (Employee)' : 'From (Supplier)' }}</span>
-                    <span class="text-xs text-destructive font-medium">Required</span>
+                    <span class="text-sm font-medium text-foreground">{{ isSelfBilled ? 'Supplier (Employee)' : 'From (Supplier)' }}</span>
+                    <span class="text-xs text-destructive font-normal">Required</span>
                   </div>
                   <z-icon [zType]="supplierExpanded ? 'chevron-up' : 'chevron-down'" zSize="sm" class="text-muted-foreground" />
                 </button>
@@ -238,8 +238,8 @@
                 <button type="button" class="w-full flex items-center justify-between px-4 py-3 bg-muted/50 hover:bg-muted transition-colors" (click)="buyerExpanded = !buyerExpanded">
                   <div class="flex items-center gap-2">
                     <z-icon zType="user" zSize="sm" class="text-primary" />
-                    <span class="text-sm font-semibold text-foreground">{{ isSelfBilled ? 'Buyer (Company)' : 'To (Buyer)' }}</span>
-                    <span class="text-xs text-destructive font-medium">Required</span>
+                    <span class="text-sm font-medium text-foreground">{{ isSelfBilled ? 'Buyer (Company)' : 'To (Buyer)' }}</span>
+                    <span class="text-xs text-destructive font-normal">Required</span>
                   </div>
                   <z-icon [zType]="buyerExpanded ? 'chevron-up' : 'chevron-down'" zSize="sm" class="text-muted-foreground" />
                 </button>
@@ -328,7 +328,7 @@
                 <h3 class="step-title">Line Items</h3>
                 <p class="step-description">Add products or services to the invoice</p>
               </div>
-              <button type="button" class="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors cursor-pointer" (click)="addItem()">
+              <button type="button" class="inline-flex items-center gap-1.5 text-sm font-normal text-primary hover:text-primary/80 transition-colors cursor-pointer" (click)="addItem()">
                 <z-icon [zType]="$any('plus')" zSize="sm" />
                 <span class="underline underline-offset-2 text-sm">Add item</span>
               </button>
@@ -337,17 +337,17 @@
             <div class="overflow-x-auto">
               <table class="w-full text-sm">
                 <thead>
-                  <tr class="border-b border-border text-left text-xs font-light">
+                  <tr class="border-b border-border text-left text-xs font-extralight">
                     @if (items.length > 1) {
                       <th class="pb-2 w-6"></th>
                     }
-                    <th class="pb-2 font-light text-muted-foreground w-8">#</th>
-                    <th class="pb-2 font-light text-muted-foreground">Description</th>
-                    <th class="pb-2 font-light text-muted-foreground w-20">Qty</th>
-                    <th class="pb-2 font-light text-muted-foreground w-28">Unit Price</th>
-                    <th class="pb-2 font-light text-muted-foreground w-32">Tax Type</th>
-                    <th class="pb-2 font-light text-muted-foreground w-16">Tax %</th>
-                    <th class="pb-2 font-light text-muted-foreground text-right">Total</th>
+                    <th class="pb-2 font-extralight text-muted-foreground w-8">#</th>
+                    <th class="pb-2 font-extralight text-muted-foreground">Description</th>
+                    <th class="pb-2 font-extralight text-muted-foreground w-20">Qty</th>
+                    <th class="pb-2 font-extralight text-muted-foreground w-28">Unit Price</th>
+                    <th class="pb-2 font-extralight text-muted-foreground w-32">Tax Type</th>
+                    <th class="pb-2 font-extralight text-muted-foreground w-16">Tax %</th>
+                    <th class="pb-2 font-extralight text-muted-foreground text-right">Total</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -387,7 +387,7 @@
                         <input type="number" class="w-full px-2 py-1.5 text-sm border border-input rounded-md bg-background text-right"
                           [(ngModel)]="item.tax_rate" min="0" max="100" step="0.5" (ngModelChange)="recalculateItem(item)" />
                       </td>
-                      <td class="py-2 text-right font-medium text-sm">
+                      <td class="py-2 text-right font-normal text-sm">
                         {{ currency }} {{ formatCurrency(item.total) }}
                       </td>
                     </tr>
@@ -416,7 +416,7 @@
                   </div>
                 }
                 <z-divider zSpacing="sm" />
-                <div class="flex justify-between font-bold text-base">
+                <div class="flex justify-between font-semibold text-base">
                   <span>Total</span>
                   <span>{{ currency }} {{ formatCurrency(grandTotal) }}</span>
                 </div>
@@ -477,14 +477,14 @@
               </div>
               <div class="grid grid-cols-2 gap-4">
                 <div>
-                  <p class="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Supplier</p>
-                  <p class="text-sm font-medium">{{ supplierName || 'Not set' }}</p>
+                  <p class="text-xs font-normal text-muted-foreground uppercase tracking-wide mb-1">Supplier</p>
+                  <p class="text-sm font-normal">{{ supplierName || 'Not set' }}</p>
                   @if (supplierTin) { <p class="text-xs text-muted-foreground">TIN: {{ supplierTin }}</p> }
                   @if (supplierAddress) { <p class="text-xs text-muted-foreground mt-0.5">{{ supplierAddress }}</p> }
                 </div>
                 <div>
-                  <p class="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Buyer</p>
-                  <p class="text-sm font-medium">{{ buyerName || 'Not set' }}</p>
+                  <p class="text-xs font-normal text-muted-foreground uppercase tracking-wide mb-1">Buyer</p>
+                  <p class="text-sm font-normal">{{ buyerName || 'Not set' }}</p>
                   @if (buyerTin) { <p class="text-xs text-muted-foreground">TIN: {{ buyerTin }}</p> }
                   @if (buyerAddress) { <p class="text-xs text-muted-foreground mt-0.5">{{ buyerAddress }}</p> }
                 </div>
@@ -500,15 +500,15 @@
                 @for (item of items; track $index) {
                   <div class="flex items-center justify-between text-sm py-1.5 border-b border-border/50 last:border-0">
                     <div class="flex-1 space-y-1.5">
-                      <p class="font-medium">{{ item.description || 'Unnamed item' }}</p>
+                      <p class="font-normal">{{ item.description || 'Unnamed item' }}</p>
                       <p class="text-xs text-muted-foreground">{{ item.quantity }} x {{ currency }} {{ formatCurrency(item.unit_price) }}</p>
                     </div>
-                    <span class="font-medium">{{ currency }} {{ formatCurrency(item.total) }}</span>
+                    <span class="font-normal">{{ currency }} {{ formatCurrency(item.total) }}</span>
                   </div>
                 }
               </div>
               <z-divider zSpacing="sm" />
-              <div class="flex justify-between font-bold text-base">
+              <div class="flex justify-between font-semibold text-base">
                 <span>Grand Total</span>
                 <span class="text-primary">{{ currency }} {{ formatCurrency(grandTotal) }}</span>
               </div>
@@ -553,7 +553,7 @@
 
   <!-- Right: Summary Panel -->
   <div class="form-summary">
-    <h4 class="text-sm font-semibold text-foreground mb-4">Summary</h4>
+    <h4 class="text-sm font-medium text-foreground mb-4">Summary</h4>
 
     <div class="summary-item">
       <span class="summary-label">Invoice Type</span>
@@ -605,7 +605,7 @@
           @if (item.description) {
             <div class="flex justify-between text-xs">
               <span class="text-muted-foreground truncate max-w-[140px]">{{ item.description }}</span>
-              <span class="text-foreground font-medium">{{ currency }} {{ formatCurrency(item.total) }}</span>
+              <span class="text-foreground font-normal">{{ currency }} {{ formatCurrency(item.total) }}</span>
             </div>
           }
         }
@@ -639,7 +639,7 @@
     </div>
 
     <div class="mt-3 pt-3 border-t border-border">
-      <div class="flex justify-between font-semibold text-sm">
+      <div class="flex justify-between font-medium text-sm">
         <span>Total</span>
         <span class="text-primary">{{ currency }} {{ formatCurrency(grandTotal) }}</span>
       </div>

@@ -193,7 +193,7 @@ export class SettingsPageComponent implements OnInit {
   }
 
   getNavItemClass(id: SectionType): string {
-    const base = 'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors cursor-pointer w-full text-left';
+    const base = 'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-normal transition-colors cursor-pointer w-full text-left';
     if (this.activeSection() === id) {
       return `${base} bg-muted text-foreground`;
     }

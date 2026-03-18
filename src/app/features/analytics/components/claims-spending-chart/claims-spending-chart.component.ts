@@ -12,7 +12,7 @@ import { ClaimsSpendingAnalytics, MONTH_SHORT_NAMES } from '../../models/analyti
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- Claims by Type Bar Chart -->
       <div class="bg-card rounded-lg border p-4">
-        <h3 class="text-lg font-semibold mb-4">Claims by Type</h3>
+        <h3 class="text-lg font-medium mb-4">Claims by Type</h3>
         @if (typeChartData.datasets[0].data.length > 0) {
           <canvas baseChart
             [data]="typeChartData"
@@ -28,7 +28,7 @@ import { ClaimsSpendingAnalytics, MONTH_SHORT_NAMES } from '../../models/analyti
 
       <!-- Monthly Spending Line Chart -->
       <div class="bg-card rounded-lg border p-4">
-        <h3 class="text-lg font-semibold mb-4">Monthly Spending Trend</h3>
+        <h3 class="text-lg font-medium mb-4">Monthly Spending Trend</h3>
         @if (monthlyChartData.datasets[0].data.length > 0) {
           <canvas baseChart
             [data]="monthlyChartData"
@@ -44,7 +44,7 @@ import { ClaimsSpendingAnalytics, MONTH_SHORT_NAMES } from '../../models/analyti
 
       <!-- Department Distribution -->
       <div class="bg-card rounded-lg border p-4">
-        <h3 class="text-lg font-semibold mb-4">Claims by Department</h3>
+        <h3 class="text-lg font-medium mb-4">Claims by Department</h3>
         @if (departmentChartData.datasets[0].data.length > 0) {
           <canvas baseChart
             [data]="departmentChartData"
@@ -60,7 +60,7 @@ import { ClaimsSpendingAnalytics, MONTH_SHORT_NAMES } from '../../models/analyti
 
       <!-- Status Breakdown -->
       <div class="bg-card rounded-lg border p-4">
-        <h3 class="text-lg font-semibold mb-4">Claims Status</h3>
+        <h3 class="text-lg font-medium mb-4">Claims Status</h3>
         @if (statusChartData.datasets[0].data.length > 0) {
           <canvas baseChart
             [data]="statusChartData"

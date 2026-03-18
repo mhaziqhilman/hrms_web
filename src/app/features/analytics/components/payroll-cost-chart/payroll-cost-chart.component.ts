@@ -12,7 +12,7 @@ import { PayrollCostAnalytics, MONTH_SHORT_NAMES } from '../../models/analytics.
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- Monthly Bar Chart -->
       <div class="bg-card rounded-lg border p-4">
-        <h3 class="text-lg font-semibold mb-4">Monthly Payroll Cost</h3>
+        <h3 class="text-lg font-medium mb-4">Monthly Payroll Cost</h3>
         @if (monthlyChartData.datasets[0].data.length > 0) {
           <canvas baseChart
             [data]="monthlyChartData"
@@ -28,7 +28,7 @@ import { PayrollCostAnalytics, MONTH_SHORT_NAMES } from '../../models/analytics.
 
       <!-- Department Pie Chart -->
       <div class="bg-card rounded-lg border p-4">
-        <h3 class="text-lg font-semibold mb-4">Payroll by Department</h3>
+        <h3 class="text-lg font-medium mb-4">Payroll by Department</h3>
         @if (departmentChartData.datasets[0].data.length > 0) {
           <canvas baseChart
             [data]="departmentChartData"
