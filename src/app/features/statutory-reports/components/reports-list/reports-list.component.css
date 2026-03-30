@@ -1,11 +1,5 @@
-/* Reports List Component Styles */
 :host {
   display: block;
-}
-
-/* Card hover effect */
-[zardCard]:hover {
-  transform: translateY(-2px);
 }
 
 /* Table styles */
@@ -13,12 +7,21 @@ table {
   border-collapse: collapse;
 }
 
-table th,
-table td {
-  border-bottom: 1px solid #e5e7eb;
+/* Slide-in animation for EA Form preview panel */
+.animate-slide-in {
+  animation: slideIn 0.25s ease-out;
 }
 
-/* Loading spinner animation */
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* Loading spinner */
 .animate-spin {
   animation: spin 1s linear infinite;
 }

@@ -543,10 +543,9 @@ export class AttendanceListComponent implements OnInit {
 
   openAttendanceDialog(): void {
     this.dialogService.create({
-      zTitle: 'Add Attendance',
       zContent: AttendanceDialogComponent,
       zHideFooter: true,
-      zClosable: true,
+      zClosable: false,
       zWidth: '800px',
       zCustomClasses: 'p-0 gap-0 overflow-hidden',
       zData: {

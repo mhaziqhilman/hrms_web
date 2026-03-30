@@ -36,18 +36,7 @@ const ADMIN_MENU: SidebarMenuGroup[] = [
       {
         title: 'Attendance',
         icon: 'clock',
-        children: [
-          {
-            title: 'Attendance List',
-            icon: 'list',
-            route: '/attendance'
-          },
-          {
-            title: 'WFH',
-            icon: 'house',
-            route: '/attendance/wfh'
-          }
-        ]
+        route: '/attendance'
       },
       {
         title: 'Claims',
@@ -233,18 +222,7 @@ const MANAGER_MENU: SidebarMenuGroup[] = [
       {
         title: 'Attendance',
         icon: 'clock',
-        children: [
-          {
-            title: 'Attendance List',
-            icon: 'list',
-            route: '/attendance'
-          },
-          {
-            title: 'WFH Approvals',
-            icon: 'house',
-            route: '/attendance/wfh'
-          }
-        ]
+        route: '/attendance'
       }
     ]
   },
@@ -331,7 +309,7 @@ const STAFF_MENU: SidebarMenuGroup[] = [
       {
         title: 'Attendance',
         icon: 'clock',
-        route: '/attendance/my'
+        route: '/attendance'
       },
       {
         title: 'Claims',

@@ -75,6 +75,7 @@ import { cardBodyVariants, cardFooterVariants, cardHeaderVariants, cardVariants 
 })
 export class ZardCardComponent {
   readonly class = input<ClassValue>('');
+  readonly zContentClass = input<ClassValue>('');
   readonly zFooterBorder = input(false);
   readonly zHeaderBorder = input(false);
   readonly zAction = input('');
@@ -87,7 +88,7 @@ export class ZardCardComponent {
   protected readonly descriptionId = generateId('card-description');
 
   protected readonly classes = computed(() => mergeClasses(cardVariants(), this.class()));
-  protected readonly bodyClasses = computed(() => mergeClasses(cardBodyVariants()));
+  protected readonly bodyClasses = computed(() => mergeClasses(cardBodyVariants(), this.zContentClass()));
   protected readonly footerClasses = computed(() =>
     mergeClasses(cardFooterVariants(), this.zFooterBorder() ? 'border-t' : ''),
   );

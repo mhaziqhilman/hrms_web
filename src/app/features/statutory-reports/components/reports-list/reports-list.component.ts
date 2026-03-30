@@ -6,23 +6,17 @@ import {
   REPORT_TYPES,
   MONTHS,
   ReportType,
-  EAEmployee,
-  EAFormData,
-  EPFBorangAData,
-  SOCSOForm8AData,
-  EISLampiran1Data,
-  PCBCP39Data
+  EAEmployee
 } from '../../models/statutory-reports.model';
 import { toast } from 'ngx-sonner';
 
 // ZardUI Components
-import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { ZardIconComponent } from '@/shared/components/icon/icon.component';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { ZardSelectComponent } from '@/shared/components/select/select.component';
 import { ZardSelectItemComponent } from '@/shared/components/select/select-item.component';
-import { ZardTableComponent } from '@/shared/components/table/table.component';
+import { ZardDividerComponent } from '@/shared/components/divider/divider.component';
 
 @Component({
   selector: 'app-reports-list',
@@ -30,13 +24,12 @@ import { ZardTableComponent } from '@/shared/components/table/table.component';
   imports: [
     CommonModule,
     FormsModule,
-    ZardCardComponent,
     ZardButtonComponent,
     ZardIconComponent,
     ZardBadgeComponent,
     ZardSelectComponent,
     ZardSelectItemComponent,
-    ZardTableComponent
+    ZardDividerComponent
   ],
   templateUrl: './reports-list.component.html',
   styleUrl: './reports-list.component.css'
@@ -91,28 +84,58 @@ export class ReportsListComponent implements OnInit {
   }
 
   selectReportType(type: ReportType): void {
+    if (this.selectedReportType() === type) return;
+
     this.selectedReportType.set(type);
     this.reportData.set(null);
     this.showPreview.set(false);
+    this.selectedEmployeeId.set(null);
 
-    if (type === 'ea' && this.selectedYear()) {
-      this.loadEAEmployees();
+    if (type === 'ea') {
+      // Load employee list for EA form
+      if (this.selectedYear()) {
+        this.loadEAEmployees();
+      }
+    } else {
+      // For monthly reports, auto-select latest month and generate
+      this.autoSelectLatestMonth();
     }
   }
 
-  onYearChange(): void {
+  private autoSelectLatestMonth(): void {
+    const months = this.getAvailableMonths();
+    if (months.length > 0) {
+      const latestMonth = months[months.length - 1];
+      this.selectedMonth.set(latestMonth);
+      this.generateReport();
+    } else {
+      this.selectedMonth.set(null);
+    }
+  }
+
+  onYearSelect(value: number): void {
+    this.selectedYear.set(value);
+    this.reportData.set(null);
+    this.showPreview.set(false);
     this.selectedMonth.set(null);
-    this.reportData.set(null);
-    this.showPreview.set(false);
+    this.selectedEmployeeId.set(null);
 
-    if (this.selectedReportType() === 'ea' && this.selectedYear()) {
+    if (this.selectedReportType() === 'ea') {
       this.loadEAEmployees();
+    } else if (this.selectedReportType()) {
+      this.autoSelectLatestMonth();
     }
   }
 
-  onMonthChange(): void {
+  onMonthSelect(value: number): void {
+    this.selectedMonth.set(value);
     this.reportData.set(null);
     this.showPreview.set(false);
+
+    // Auto-generate when month is selected
+    if (this.selectedReportType() && this.selectedReportType() !== 'ea') {
+      this.generateReport();
+    }
   }
 
   getAvailableMonths(): number[] {
@@ -127,20 +150,110 @@ export class ReportsListComponent implements OnInit {
     return m ? m.label : '';
   }
 
+  getSelectedReportName(): string {
+    const type = this.selectedReportType();
+    if (!type) return '';
+    const report = REPORT_TYPES.find(r => r.id === type);
+    return report?.name || '';
+  }
+
+  getSelectedReportDescription(): string {
+    const type = this.selectedReportType();
+    if (!type) return '';
+    const report = REPORT_TYPES.find(r => r.id === type);
+    return report?.description || '';
+  }
+
   loadEAEmployees(): void {
     const year = this.selectedYear();
     if (!year) return;
 
+    this.loading.set(true);
     this.reportsService.getEAEmployees(year).subscribe({
       next: (response) => {
         if (response.success) {
           this.eaEmployees.set(response.data);
         }
+        this.loading.set(false);
       },
       error: (err) => {
         console.error('Error loading employees:', err);
+        this.loading.set(false);
       }
     });
+  }
+
+  viewEAForm(employeePublicId: string): void {
+    this.selectedEmployeeId.set(employeePublicId);
+    const year = this.selectedYear();
+    if (!year) return;
+
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.reportsService.getEAForm(employeePublicId, year).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.reportData.set(response.data);
+          this.showPreview.set(true);
+        }
+        this.loading.set(false);
+      },
+      error: (err) => {
+        this.error.set('Failed to generate EA Form');
+        this.loading.set(false);
+      }
+    });
+  }
+
+  downloadEAFormForEmployee(employeePublicId: string, format: 'pdf' | 'excel'): void {
+    const year = this.selectedYear();
+    if (!year) return;
+
+    this.selectedEmployeeId.set(employeePublicId);
+    const employee = this.eaEmployees().find(e => e.public_id === employeePublicId);
+
+    if (format === 'pdf') {
+      const filename = `EA_Form_${employee?.employee_id || employeePublicId}_${year}.pdf`;
+      const toastId = toast.loading('Preparing download...');
+
+      this.reportsService.downloadEAFormPDF(employeePublicId, year).subscribe({
+        next: (blob) => {
+          this.reportsService.downloadFile(blob, filename);
+          toast.success(`${filename} downloaded successfully.`, { id: toastId });
+        },
+        error: (err) => {
+          if (err?.status === 0) {
+            toast.success('Your download will start shortly.', { id: toastId });
+          } else {
+            toast.error('Failed to download the report.', { id: toastId });
+          }
+        }
+      });
+    } else {
+      const filename = `EA_Form_${employee?.employee_id || employeePublicId}_${year}.xlsx`;
+      const toastId = toast.loading('Preparing download...');
+
+      this.reportsService.downloadEAFormExcel(employeePublicId, year).subscribe({
+        next: (blob) => {
+          this.reportsService.downloadFile(blob, filename);
+          toast.success(`${filename} downloaded successfully.`, { id: toastId });
+        },
+        error: (err) => {
+          if (err?.status === 0) {
+            toast.success('Your download will start shortly.', { id: toastId });
+          } else {
+            toast.error('Failed to download the Excel report.', { id: toastId });
+          }
+        }
+      });
+    }
+  }
+
+  closePreview(): void {
+    this.showPreview.set(false);
+    this.reportData.set(null);
+    this.selectedEmployeeId.set(null);
   }
 
   canGenerateReport(): boolean {
@@ -314,8 +427,6 @@ export class ReportsListComponent implements OnInit {
       },
       error: (err) => {
         this.loading.set(false);
-        // IDM or similar download managers intercept the XHR request causing status 0.
-        // The file is still downloaded by the extension, so treat it as success.
         if (err?.status === 0) {
           toast.success('Your download will start shortly.', { id: toastId });
         } else {
@@ -389,34 +500,6 @@ export class ReportsListComponent implements OnInit {
   formatCurrency(amount: number | null | undefined): string {
     if (amount === null || amount === undefined) return 'RM 0.00';
     return `RM ${amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
-  }
-
-  backToSelection(): void {
-    this.selectedReportType.set(null);
-    this.reportData.set(null);
-    this.showPreview.set(false);
-    this.selectedEmployeeId.set(null);
-  }
-
-  getSelectedReportName(): string {
-    const type = this.selectedReportType();
-    if (!type) return '';
-    const report = REPORT_TYPES.find(r => r.id === type);
-    return report?.name || '';
-  }
-
-  onYearSelect(value: number): void {
-    this.selectedYear.set(value);
-    this.onYearChange();
-  }
-
-  onMonthSelect(value: number): void {
-    this.selectedMonth.set(value);
-    this.onMonthChange();
-  }
-
-  onEmployeeSelect(value: string): void {
-    this.selectedEmployeeId.set(value);
   }
 
   sendEAFormEmail(): void {

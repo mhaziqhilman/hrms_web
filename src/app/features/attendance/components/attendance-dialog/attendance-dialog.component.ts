@@ -5,6 +5,7 @@ import { AttendanceService } from '../../services/attendance.service';
 import { AuthService } from '@/core/services/auth.service';
 import { DisplayService } from '@/core/services/display.service';
 import { Attendance } from '../../models/attendance.model';
+import { EmployeeService } from '@/features/employees/services/employee.service';
 
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { ZardIconComponent } from '@/shared/components/icon/icon.component';
@@ -13,6 +14,10 @@ import { ZardDividerComponent } from '@/shared/components/divider/divider.compon
 import { ZardDialogRef } from '@/shared/components/dialog/dialog-ref';
 import { Z_MODAL_DATA } from '@/shared/components/dialog/dialog.service';
 import { ZardSegmentedComponent, type SegmentedOption } from '@/shared/components/segmented/segmented.component';
+import { ZardDatePickerComponent } from '@/shared/components/date-picker/date-picker.component';
+import { ZardSelectComponent } from '@/shared/components/select/select.component';
+import { ZardSelectItemComponent } from '@/shared/components/select/select-item.component';
+import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component';
 
 @Component({
   selector: 'app-attendance-dialog',
@@ -25,7 +30,11 @@ import { ZardSegmentedComponent, type SegmentedOption } from '@/shared/component
     ZardIconComponent,
     ZardBadgeComponent,
     ZardDividerComponent,
-    ZardSegmentedComponent
+    ZardSegmentedComponent,
+    ZardDatePickerComponent,
+    ZardSelectComponent,
+    ZardSelectItemComponent,
+    ZardAvatarComponent
   ],
   templateUrl: './attendance-dialog.component.html',
   styles: [`
@@ -36,6 +45,7 @@ export class AttendanceDialogComponent implements OnInit, OnDestroy {
   private attendanceService = inject(AttendanceService);
   private authService = inject(AuthService);
   private displayService = inject(DisplayService);
+  private employeeService = inject(EmployeeService);
   private dialogRef = inject(ZardDialogRef);
   private modalData = inject(Z_MODAL_DATA, { optional: true }) as { onSuccess?: () => void } | null;
   private fb = inject(FormBuilder);
@@ -55,7 +65,7 @@ export class AttendanceDialogComponent implements OnInit, OnDestroy {
   loading = signal(false);
   error = signal<string | null>(null);
   success = signal<string | null>(null);
-  activeMode = signal<string>('clock'); // 'clock' | 'manual'
+  activeMode = signal<string>('clock');
 
   // Employee
   employeeId = signal<string | null>(null);
@@ -75,7 +85,22 @@ export class AttendanceDialogComponent implements OnInit, OnDestroy {
 
   // Manual form
   manualForm!: FormGroup;
+  manualDate = signal<Date | null>(new Date());
   todoNotes = signal('');
+
+  // Time picker signals
+  timeInHour = signal(9);
+  timeInMinute = signal(0);
+  timeInPeriod = signal<'AM' | 'PM'>('AM');
+  timeOutHour = signal(6);
+  timeOutMinute = signal(0);
+  timeOutPeriod = signal<'AM' | 'PM'>('PM');
+
+  // Admin: employee selection
+  isAdminUser = signal(false);
+  employees = signal<any[]>([]);
+  loadingEmployees = signal(false);
+  selectedEmployeeName = signal<string | null>(null);
 
   // Location
   loadingLocation = signal(false);
@@ -83,9 +108,44 @@ export class AttendanceDialogComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     const user = this.authService.getCurrentUserValue();
     this.employeeId.set(user?.employee?.public_id ?? null);
+    this.selectedEmployeeName.set(user?.employee?.full_name ?? null);
+    this.isAdminUser.set(this.authService.hasAnyRole(['admin', 'super_admin']));
+
+    if (this.isAdminUser()) {
+      this.loadEmployees();
+    }
 
     this.initManualForm();
     this.startClock();
+    this.loadTodayAttendance();
+  }
+
+  private loadEmployees(): void {
+    this.loadingEmployees.set(true);
+    this.employeeService.getEmployees({ status: 'Active' as any, limit: 100 }).subscribe({
+      next: (response: any) => {
+        if (response?.success) {
+          const emps = response.data?.employees || response.data || [];
+          this.employees.set(emps);
+          // Re-set employeeId to trigger z-select to pick up the value after items render
+          const currentId = this.employeeId();
+          if (currentId) {
+            this.employeeId.set(null);
+            setTimeout(() => this.employeeId.set(currentId), 0);
+          }
+        }
+        this.loadingEmployees.set(false);
+      },
+      error: () => this.loadingEmployees.set(false)
+    });
+  }
+
+  onEmployeeChange(publicId: any): void {
+    this.employeeId.set(publicId);
+    const emp = this.employees().find(e => e.public_id === publicId);
+    this.selectedEmployeeName.set(emp?.full_name ?? null);
+    // Reload today's attendance for the selected employee
+    this.resetState();
     this.loadTodayAttendance();
   }
 
@@ -110,16 +170,63 @@ export class AttendanceDialogComponent implements OnInit, OnDestroy {
   }
 
   private initManualForm(): void {
-    const now = new Date();
-    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-
     this.manualForm = this.fb.group({
-      date: [today, Validators.required],
-      clock_in_time: ['09:00', Validators.required],
-      clock_out_time: ['18:00'],
       todo_notes: ['']
     });
   }
+
+  // --- Time Picker Helpers ---
+
+  adjustTimeIn(field: 'hour' | 'minute', delta: number): void {
+    if (this.todayAttendance()) return;
+    if (field === 'hour') {
+      let h = this.timeInHour() + delta;
+      if (h > 12) h = 1;
+      if (h < 1) h = 12;
+      this.timeInHour.set(h);
+    } else {
+      let m = this.timeInMinute() + delta;
+      if (m >= 60) m = 0;
+      if (m < 0) m = 55;
+      this.timeInMinute.set(m);
+    }
+  }
+
+  adjustTimeOut(field: 'hour' | 'minute', delta: number): void {
+    if (field === 'hour') {
+      let h = this.timeOutHour() + delta;
+      if (h > 12) h = 1;
+      if (h < 1) h = 12;
+      this.timeOutHour.set(h);
+    } else {
+      let m = this.timeOutMinute() + delta;
+      if (m >= 60) m = 0;
+      if (m < 0) m = 55;
+      this.timeOutMinute.set(m);
+    }
+  }
+
+  toggleTimeInPeriod(): void {
+    if (this.todayAttendance()) return;
+    this.timeInPeriod.set(this.timeInPeriod() === 'AM' ? 'PM' : 'AM');
+  }
+
+  toggleTimeOutPeriod(): void {
+    this.timeOutPeriod.set(this.timeOutPeriod() === 'AM' ? 'PM' : 'AM');
+  }
+
+  private getTime24(hour: number, minute: number, period: 'AM' | 'PM'): string {
+    let h = hour;
+    if (period === 'PM' && h !== 12) h += 12;
+    if (period === 'AM' && h === 12) h = 0;
+    return `${String(h).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+  }
+
+  padTwo(n: number): string {
+    return String(n).padStart(2, '0');
+  }
+
+  // --- Load Today ---
 
   loadTodayAttendance(): void {
     if (!this.employeeId()) return;
@@ -168,7 +275,7 @@ export class AttendanceDialogComponent implements OnInit, OnDestroy {
     try {
       let location: any = null;
       if (this.attendanceType() === 'Office') {
-        try { location = await this.getLocation(); } catch { /* continue without */ }
+        try { location = await this.getLocation(); } catch { /* continue */ }
       }
 
       const request: any = {
@@ -253,22 +360,25 @@ export class AttendanceDialogComponent implements OnInit, OnDestroy {
   // --- Manual Entry ---
 
   submitManualEntry(): void {
-    if (this.manualForm.invalid || !this.employeeId()) return;
+    if (!this.employeeId() || !this.manualDate()) return;
     this.loading.set(true);
     this.error.set(null);
 
-    const f = this.manualForm.value;
-    const date = f.date;
-    const clockIn = new Date(`${date}T${f.clock_in_time}:00`);
-    const clockOut = f.clock_out_time ? new Date(`${date}T${f.clock_out_time}:00`) : undefined;
+    const d = this.manualDate()!;
+    const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const timeIn = this.getTime24(this.timeInHour(), this.timeInMinute(), this.timeInPeriod());
+    const timeOut = this.getTime24(this.timeOutHour(), this.timeOutMinute(), this.timeOutPeriod());
+
+    const clockIn = new Date(`${date}T${timeIn}:00`);
+    const clockOut = new Date(`${date}T${timeOut}:00`);
 
     this.attendanceService.createManualAttendance({
       employee_id: this.employeeId()!,
       date,
       clock_in_time: clockIn.toISOString(),
-      clock_out_time: clockOut?.toISOString(),
+      clock_out_time: clockOut.toISOString(),
       type: this.attendanceType(),
-      todo_notes: f.todo_notes || undefined
+      todo_notes: this.manualForm.value.todo_notes || undefined
     }).subscribe({
       next: (response) => {
         if (response.success) {
@@ -293,7 +403,7 @@ export class AttendanceDialogComponent implements OnInit, OnDestroy {
   private async getLocation(): Promise<{ lat: number; long: number; address: string }> {
     this.loadingLocation.set(true);
     return new Promise((resolve, reject) => {
-      if (!navigator.geolocation) { this.loadingLocation.set(false); reject(new Error('Geolocation not supported')); return; }
+      if (!navigator.geolocation) { this.loadingLocation.set(false); reject(new Error('Not supported')); return; }
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           this.loadingLocation.set(false);
@@ -311,7 +421,6 @@ export class AttendanceDialogComponent implements OnInit, OnDestroy {
 
   onModeChange(value: string): void { this.activeMode.set(value); }
   onTypeChange(value: string): void { this.attendanceType.set(value as 'Office' | 'WFH'); }
-
   close(): void { this.dialogRef.close(); }
 
   formatTime(dateString: string | null): string {

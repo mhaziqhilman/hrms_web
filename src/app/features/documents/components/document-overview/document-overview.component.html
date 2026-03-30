@@ -135,7 +135,7 @@
     </div>
     @if (stats().recent_activity.length > 0) {
     <div class="space-y-4">
-      @for (activity of stats().recent_activity.slice(0, 5); track activity.id) {
+      @for (activity of stats().recent_activity.slice(0, 5); track $index) {
       <div class="flex items-start gap-3">
         <div class="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 mt-0.5 shrink-0">
           <z-icon [zType]="$any('upload')" zSize="sm" class="text-primary" />
@@ -328,7 +328,7 @@
         </tr>
       </thead>
       <tbody>
-        @for (file of files(); track file.id) {
+        @for (file of files(); track file.id ?? $index) {
         <tr class="hover:bg-muted/50 transition-colors">
           <!-- Checkbox -->
           <td class="!pl-4">

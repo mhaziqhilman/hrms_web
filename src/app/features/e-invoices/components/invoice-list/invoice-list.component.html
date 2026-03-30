@@ -5,13 +5,13 @@
       <h2 class="text-2xl font-semibold text-foreground">e-Invoices</h2>
       <p class="text-muted-foreground mt-1">Manage invoices and LHDN MyInvois submissions</p>
     </div>
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-4">
       <span class="text-sm text-muted-foreground flex items-center gap-1.5">
         <z-icon [zType]="$any('calendar')" zSize="sm" />
         {{ getTodayDate() }}
       </span>
-      <button z-button (click)="navigateToCreate()">
-        <z-icon [zType]="$any('plus')" zSize="sm" class="mr-1.5" />
+      <button z-button (click)="navigateToCreate()" class="gap-1">
+        <z-icon [zType]="$any('plus')" zSize="sm" class="mr-0" />
         Create Invoice
       </button>
     </div>
