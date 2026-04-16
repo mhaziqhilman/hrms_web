@@ -12,6 +12,7 @@ import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { ZardIconComponent } from '@/shared/components/icon/icon.component';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
+import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
 
 @Component({
   selector: 'app-clock-in-out',
@@ -23,7 +24,8 @@ import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
     ZardCardComponent,
     ZardButtonComponent,
     ZardIconComponent,
-    ZardBadgeComponent
+    ZardBadgeComponent,
+    ZardSkeletonComponent
   ],
   templateUrl: './clock-in-out.component.html',
   styleUrl: './clock-in-out.component.css'
@@ -48,6 +50,7 @@ export class ClockInOutComponent implements OnInit, OnDestroy {
 
   // UI State
   loading = signal(false);
+  initialLoading = signal(true);
   error = signal<string | null>(null);
   success = signal<string | null>(null);
 
@@ -166,6 +169,7 @@ export class ClockInOutComponent implements OnInit, OnDestroy {
       next: (response: any) => {
         console.log('Today Attendance API Response:', response);
 
+        this.initialLoading.set(false);
         if (response.success) {
           // The response now returns a paginated structure like attendance list
           let attendanceArray: any[] = [];
@@ -225,6 +229,7 @@ export class ClockInOutComponent implements OnInit, OnDestroy {
         console.error('Status:', err.status);
         console.error('Message:', err.error?.message || err.message);
 
+        this.initialLoading.set(false);
         // Reset states on error
         this.todayAttendance.set(null);
         this.isClockedIn.set(false);

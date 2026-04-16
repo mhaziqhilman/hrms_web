@@ -88,6 +88,7 @@ export const API_CONFIG = {
       eaPdf: (employeeId: number | string, year: number) => `/statutory-reports/ea/${employeeId}/${year}/pdf`,
       eaExcel: (employeeId: number | string, year: number) => `/statutory-reports/ea/${employeeId}/${year}/excel`,
       eaSendEmail: (employeeId: number | string, year: number) => `/statutory-reports/ea/${employeeId}/${year}/send-email`,
+      eaBulkDownload: (year: number) => `/statutory-reports/ea/${year}/bulk-download`,
       epf: (year: number, month: number) => `/statutory-reports/epf/${year}/${month}`,
       epfPdf: (year: number, month: number) => `/statutory-reports/epf/${year}/${month}/pdf`,
       socso: (year: number, month: number) => `/statutory-reports/socso/${year}/${month}`,
@@ -185,7 +186,8 @@ export const API_CONFIG = {
       unreadCount: '/notifications/unread-count',
       markAllRead: '/notifications/mark-all-read',
       markAsRead: (id: number) => `/notifications/${id}/read`,
-      detail: (id: number) => `/notifications/${id}`
+      detail: (id: number) => `/notifications/${id}`,
+      deviceToken: '/notifications/device-token'
     },
     feedback: {
       base: '/feedback',

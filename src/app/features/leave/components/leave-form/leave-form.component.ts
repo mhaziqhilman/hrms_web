@@ -21,6 +21,7 @@ import { ZardSelectComponent } from '@/shared/components/select/select.component
 import { ZardSelectItemComponent } from '@/shared/components/select/select-item.component';
 import { ZardInputDirective } from '@/shared/components/input/input.directive';
 import { ZardDatePickerComponent } from '@/shared/components/date-picker/date-picker.component';
+import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
 
 @Component({
   selector: 'app-leave-form',
@@ -38,7 +39,8 @@ import { ZardDatePickerComponent } from '@/shared/components/date-picker/date-pi
     ZardSelectComponent,
     ZardSelectItemComponent,
     ZardInputDirective,
-    ZardDatePickerComponent
+    ZardDatePickerComponent,
+    ZardSkeletonComponent
   ],
   templateUrl: './leave-form.component.html',
   styleUrl: './leave-form.component.css'

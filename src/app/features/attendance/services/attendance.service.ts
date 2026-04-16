@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, catchError, throwError } from 'rxjs';
+import { Observable, catchError, map, throwError } from 'rxjs';
 import { API_CONFIG } from '../../../core/config/api.config';
 import {
   Attendance,
@@ -87,19 +87,44 @@ export class AttendanceService {
     );
   }
 
-  // Get today's attendance for an employee
+  // Get today's attendance for an employee.
+  // Queries a 2-day window (yesterday + today in local time) and narrows the
+  // response to the relevant record: an open session (no clock_out_time) takes
+  // precedence, otherwise today's completed record. This lets the UI surface a
+  // late-night clock-in that crossed midnight so the user can still clock out.
   getTodayAttendance(employeeId: number | string): Observable<PaginatedResponse<Attendance>> {
-    const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
+    const now = new Date();
+    const todayStr = this.formatLocalDate(now);
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = this.formatLocalDate(yesterday);
 
-    let httpParams = new HttpParams()
+    const httpParams = new HttpParams()
       .set('employee_id', employeeId.toString())
-      .set('start_date', today)
-      .set('end_date', today)
-      .set('limit', '1');
+      .set('start_date', yesterdayStr)
+      .set('end_date', todayStr)
+      .set('limit', '2');
 
     return this.http.get<PaginatedResponse<Attendance>>(`${this.apiUrl}`, { params: httpParams }).pipe(
+      map(response => {
+        const arr: Attendance[] = (response as any)?.data?.attendance || [];
+        const open = arr.find(a => !a.clock_out_time);
+        const todayRecord = arr.find(a => a.date === todayStr);
+        const relevant = open || todayRecord;
+        return {
+          ...response,
+          data: {
+            ...(response as any).data,
+            attendance: relevant ? [relevant] : []
+          }
+        } as PaginatedResponse<Attendance>;
+      }),
       catchError(this.handleError)
     );
+  }
+
+  private formatLocalDate(d: Date): string {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   }
 
   // Apply for WFH

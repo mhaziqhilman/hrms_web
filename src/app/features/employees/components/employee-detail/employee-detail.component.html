@@ -424,6 +424,41 @@
                       <dd class="text-sm text-muted-foreground">-</dd>
                     }
                   </div>
+                  <!-- Flexible WFH toggle -->
+                  <div class="col-span-2 pt-3 border-t border-border">
+                    <div class="flex items-start justify-between gap-4 rounded-lg border border-border bg-muted/30 p-3">
+                      <div class="min-w-0 flex-1">
+                        <div class="flex items-center gap-2">
+                          <z-icon [zType]="$any('house')" zSize="sm" class="text-muted-foreground" />
+                          <p class="text-sm font-medium text-foreground">Flexible WFH</p>
+                          @if (employee()!.wfh_flexible) {
+                            <span class="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
+                              Granted
+                            </span>
+                          }
+                        </div>
+                        <p class="mt-1 text-xs text-muted-foreground">
+                          When enabled, this employee can clock in as WFH directly — no WFH
+                          application required.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        role="switch"
+                        [attr.aria-checked]="employee()!.wfh_flexible ? 'true' : 'false'"
+                        (click)="toggleWfhFlexible()"
+                        [disabled]="savingWfhFlexible()"
+                        class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors disabled:opacity-50"
+                        [class]="employee()!.wfh_flexible ? 'bg-emerald-600' : 'bg-muted'"
+                      >
+                        <span
+                          class="inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform"
+                          [class]="employee()!.wfh_flexible ? 'translate-x-5' : 'translate-x-0.5'"
+                        ></span>
+                      </button>
+                    </div>
+                  </div>
+
                   <div class="col-span-2 pt-2 border-t border-border">
                     <dt class="text-xs font-normal text-muted-foreground mb-1">Basic Salary</dt>
                     <dd class="text-lg font-medium text-foreground">{{ formatCurrency(employee()!.basic_salary) }}</dd>

@@ -18,6 +18,7 @@ import { ZardSelectItemComponent } from '@/shared/components/select/select-item.
 import { ZardInputDirective } from '@/shared/components/input/input.directive';
 import { ZardDatePickerComponent } from '@/shared/components/date-picker/date-picker.component';
 import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-dialog.service';
+import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
 
 @Component({
   selector: 'app-claim-form',
@@ -35,7 +36,8 @@ import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-d
     ZardSelectComponent,
     ZardSelectItemComponent,
     ZardInputDirective,
-    ZardDatePickerComponent
+    ZardDatePickerComponent,
+    ZardSkeletonComponent
   ],
   templateUrl: './claim-form.component.html',
   styleUrl: './claim-form.component.css'

@@ -78,7 +78,7 @@ export interface ClaimAnalytics {
 }
 
 export interface SubmitClaimRequest {
-  employee_id: number;
+  employee_id: number | string;
   claim_type_id: number;
   date: string;
   amount: number;

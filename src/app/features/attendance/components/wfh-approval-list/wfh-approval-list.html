@@ -91,8 +91,36 @@
 
   <!-- Loading State -->
   @if (loading()) {
-    <div class="flex items-center justify-center py-20">
-      <z-icon zType="loader-circle" class="w-8 h-8 animate-spin text-primary" />
+    <div class="rounded-lg border overflow-hidden">
+      <!-- Skeleton: Table Header -->
+      <div class="bg-muted/30 px-3 py-3 flex gap-6">
+        <z-skeleton class="h-4 w-32" />
+        <z-skeleton class="h-4 w-24" />
+        <z-skeleton class="h-4 w-28" />
+        <z-skeleton class="h-4 w-16" />
+        <z-skeleton class="h-4 w-20" />
+        <z-skeleton class="h-4 w-16" />
+      </div>
+      <!-- Skeleton: Table Rows -->
+      @for (i of [1,2,3,4,5]; track i) {
+        <div class="px-3 py-3.5 flex items-center gap-6 border-t">
+          <div class="flex items-center gap-3 w-32">
+            <z-skeleton class="h-9 w-9 rounded-full" />
+            <div>
+              <z-skeleton class="h-4 w-24 mb-1" />
+              <z-skeleton class="h-3 w-16" />
+            </div>
+          </div>
+          <z-skeleton class="h-4 w-24" />
+          <z-skeleton class="h-4 w-40" />
+          <z-skeleton class="h-5 w-16 rounded-full" />
+          <z-skeleton class="h-4 w-20" />
+          <div class="flex gap-1.5">
+            <z-skeleton class="h-8 w-8 rounded-md" />
+            <z-skeleton class="h-8 w-8 rounded-md" />
+          </div>
+        </div>
+      }
     </div>
   }
 

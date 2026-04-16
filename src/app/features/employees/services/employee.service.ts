@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, catchError, throwError } from 'rxjs';
+import { Observable, catchError, throwError, map } from 'rxjs';
 import { API_CONFIG } from '../../../core/config/api.config';
 import {
   Employee,
@@ -98,6 +98,21 @@ export class EmployeeService {
   }
 
   /**
+   * Toggle the flexible WFH permission for an employee (admin only).
+   */
+  setWfhFlexible(
+    id: number | string,
+    wfh_flexible: boolean
+  ): Observable<ApiResponse<{ id: number; public_id: string; wfh_flexible: boolean }>> {
+    return this.http.patch<ApiResponse<{ id: number; public_id: string; wfh_flexible: boolean }>>(
+      `${this.apiUrl}${API_CONFIG.endpoints.employees.detail(id)}/wfh-flexible`,
+      { wfh_flexible }
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
    * Delete employee (soft delete - change status)
    */
   deleteEmployee(id: number | string, status: 'Resigned' | 'Terminated', reason?: string): Observable<ApiResponse> {
@@ -136,6 +151,23 @@ export class EmployeeService {
       `${this.apiUrl}${API_CONFIG.endpoints.employees.statistics}`
     ).pipe(
       catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Check if employee_id already exists in the company
+   */
+  checkEmployeeId(employeeId: string, exclude?: string): Observable<boolean> {
+    let params = new HttpParams().set('employee_id', employeeId);
+    if (exclude) {
+      params = params.set('exclude', exclude);
+    }
+    return this.http.get<ApiResponse<{ exists: boolean }>>(
+      `${this.apiUrl}${API_CONFIG.endpoints.employees.base}/check-id`,
+      { params }
+    ).pipe(
+      map(res => res.data?.exists ?? false),
+      catchError(() => [false])
     );
   }
 

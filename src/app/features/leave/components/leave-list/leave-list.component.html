@@ -118,8 +118,36 @@
 
   <!-- Loading State -->
   @if (loading()) {
-    <div class="flex items-center justify-center py-20">
-      <z-icon zType="loader-circle" class="w-8 h-8 animate-spin text-primary" />
+    <div class="rounded-xl border bg-card">
+      <!-- Table Header Skeleton -->
+      <div class="flex items-center gap-4 px-4 py-3 border-b">
+        <z-skeleton class="h-4 w-24" />
+        <z-skeleton class="h-4 w-24" />
+        <z-skeleton class="h-4 w-20" />
+        <z-skeleton class="h-4 w-20" />
+        <z-skeleton class="h-4 w-16" />
+        <z-skeleton class="h-4 w-16 ml-auto" />
+      </div>
+      <!-- Table Row Skeletons -->
+      @for (i of [1,2,3,4,5]; track i) {
+        <div class="flex items-center gap-4 px-4 py-4 border-b last:border-0">
+          <div class="flex items-center gap-3">
+            <z-skeleton class="h-10 w-10 rounded-full" />
+            <div class="space-y-2">
+              <z-skeleton class="h-4 w-32" />
+              <z-skeleton class="h-3 w-20" />
+            </div>
+          </div>
+          <z-skeleton class="h-4 w-24" />
+          <div class="space-y-2">
+            <z-skeleton class="h-4 w-24" />
+            <z-skeleton class="h-3 w-24" />
+          </div>
+          <z-skeleton class="h-4 w-16" />
+          <z-skeleton class="h-6 w-20 rounded-full" />
+          <z-skeleton class="h-8 w-8 rounded ml-auto" />
+        </div>
+      }
     </div>
   }
 

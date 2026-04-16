@@ -3,12 +3,61 @@
   <p class="text-muted-foreground">Welcome back! Here's your personal overview.</p>
 </div>
 
-<!-- Loading State -->
+<!-- Loading Skeleton -->
 @if (loading()) {
-  <div class="flex items-center justify-center py-20">
-    <div class="text-center">
-      <z-icon zType="loader-circle" class="text-primary text-4xl animate-spin mb-3" />
-      <p class="text-muted-foreground">Loading dashboard data...</p>
+  <div class="space-y-8">
+    <!-- Hero clock card skeleton -->
+    <div class="rounded-xl bg-primary/10 p-10">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        <div class="space-y-4">
+          <z-skeleton class="h-7 w-48" />
+          <z-skeleton class="h-6 w-36" />
+          <z-skeleton class="h-11 w-32 rounded-md" />
+        </div>
+        <div class="flex justify-center">
+          <div class="rounded-lg bg-card/50 p-8 w-full max-w-xs">
+            <z-skeleton class="h-16 w-full mb-2" />
+            <z-skeleton class="h-5 w-32 mx-auto" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Leave balance card skeletons -->
+    <div>
+      <z-skeleton class="h-6 w-32 mb-4" />
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+        @for (i of [1,2,3,4]; track i) {
+        <div class="rounded-xl border bg-card p-6 space-y-3">
+          <z-skeleton class="h-4 w-24" />
+          <z-skeleton class="h-7 w-16" />
+          <z-skeleton class="h-2 w-full rounded-full" />
+          <z-skeleton class="h-3 w-32" />
+        </div>
+        }
+      </div>
+    </div>
+    <!-- Two-column content skeletons -->
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+      <div class="rounded-xl border bg-card p-6 space-y-3">
+        <z-skeleton class="h-5 w-36 mb-2" />
+        <z-skeleton class="h-10 w-full rounded-lg" />
+        @for (i of [1,2,3]; track i) {
+        <z-skeleton class="h-12 w-full rounded-lg" />
+        }
+      </div>
+      <div class="rounded-xl border bg-card p-6 space-y-4">
+        <z-skeleton class="h-5 w-28 mb-2" />
+        @for (i of [1,2,3]; track i) {
+        <div class="flex items-center gap-3 py-2">
+          <z-skeleton class="h-4 w-4 rounded-full" />
+          <div class="space-y-2 flex-grow">
+            <z-skeleton class="h-4 w-40" />
+            <z-skeleton class="h-3 w-24" />
+          </div>
+          <z-skeleton class="h-6 w-16 rounded-full" />
+        </div>
+        }
+      </div>
     </div>
   </div>
 }
@@ -149,9 +198,12 @@
     }
     @if (leaveBalance.length === 0) {
       <z-card>
-        <div class="p-6 text-center">
-          <z-icon zType="calendar" class="text-muted-foreground text-4xl mb-3" />
-          <p class="text-muted-foreground text-sm">No leave entitlements found for this year</p>
+        <div class="flex flex-col items-center justify-center py-8">
+          <div class="flex items-center justify-center w-14 h-14 rounded-full bg-muted mb-3">
+            <z-icon zType="calendar" class="text-muted-foreground text-2xl" />
+          </div>
+          <p class="text-foreground font-medium text-sm mb-1">No leave entitlements yet</p>
+          <p class="text-muted-foreground text-xs">Your leave balance will appear here once entitlements are set up</p>
         </div>
       </z-card>
     }
@@ -201,9 +253,12 @@
         </div>
       }
       @if (attendanceHistory.length === 0) {
-        <div class="text-center py-8">
-          <z-icon zType="clock" class="text-muted-foreground text-4xl mb-3" />
-          <p class="text-muted-foreground text-sm">No attendance records found</p>
+        <div class="flex flex-col items-center justify-center py-8">
+          <div class="flex items-center justify-center w-14 h-14 rounded-full bg-muted mb-3">
+            <z-icon zType="clock" class="text-muted-foreground text-2xl" />
+          </div>
+          <p class="text-foreground font-medium text-sm mb-1">No attendance records yet</p>
+          <p class="text-muted-foreground text-xs">Your attendance history will appear here after you clock in</p>
         </div>
       }
     </z-card>
@@ -245,9 +300,12 @@
         </div>
       }
       @if (myClaims.length === 0) {
-        <div class="text-center py-8">
-          <z-icon zType="file-text" class="text-muted-foreground text-4xl mb-3" />
-          <p class="text-muted-foreground text-sm">No claims submitted</p>
+        <div class="flex flex-col items-center justify-center py-8">
+          <div class="flex items-center justify-center w-14 h-14 rounded-full bg-muted mb-3">
+            <z-icon zType="file-text" class="text-muted-foreground text-2xl" />
+          </div>
+          <p class="text-foreground font-medium text-sm mb-1">No claims submitted yet</p>
+          <p class="text-muted-foreground text-xs">Submit expense claims to see them listed here</p>
         </div>
       }
     </z-card>
@@ -287,9 +345,12 @@
         </div>
       }
       @if (upcomingLeaves.length === 0) {
-        <div class="text-center py-8">
-          <z-icon zType="calendar" class="text-muted-foreground text-5xl mb-3" />
-          <span class="text-muted-foreground text-sm block">No upcoming leaves</span>
+        <div class="flex flex-col items-center justify-center py-8">
+          <div class="flex items-center justify-center w-14 h-14 rounded-full bg-muted mb-3">
+            <z-icon zType="calendar" class="text-muted-foreground text-2xl" />
+          </div>
+          <p class="text-foreground font-medium text-sm mb-1">No upcoming leaves</p>
+          <p class="text-muted-foreground text-xs">Your scheduled leaves will appear here</p>
         </div>
       }
     </z-card>
@@ -334,9 +395,12 @@
         </div>
       }
       @if (recentMemos.length === 0) {
-        <div class="text-center py-8">
-          <z-icon zType="bell" class="text-muted-foreground text-5xl mb-3" />
-          <span class="text-muted-foreground text-sm block">No recent memos</span>
+        <div class="flex flex-col items-center justify-center py-8">
+          <div class="flex items-center justify-center w-14 h-14 rounded-full bg-muted mb-3">
+            <z-icon zType="bell" class="text-muted-foreground text-2xl" />
+          </div>
+          <p class="text-foreground font-medium text-sm mb-1">No memos yet</p>
+          <p class="text-muted-foreground text-xs">Company announcements will appear here</p>
         </div>
       }
     </z-card>

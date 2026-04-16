@@ -305,6 +305,21 @@ export class PayrollListComponent implements OnInit {
     this.loadAnalytics();
   }
 
+  onMonthNavigate(direction: 1 | -1): void {
+    const currentMonth = this.selectedMonth();
+    // Cycle: All Months → Jan → Feb → ... → Dec → All Months
+    if (currentMonth === '') {
+      this.onAnalyticsMonthChange(direction === 1 ? 1 : 12);
+    } else {
+      const newMonth = (currentMonth as number) + direction;
+      if (newMonth > 12 || newMonth < 1) {
+        this.onAnalyticsMonthChange('');
+      } else {
+        this.onAnalyticsMonthChange(newMonth);
+      }
+    }
+  }
+
   clearFilters(): void {
     this.selectedStatus.set('');
     this.selectedMonth.set('');

@@ -10,9 +10,12 @@ import { ZardDividerComponent } from '@/shared/components/divider/divider.compon
 import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { ZardEmptyComponent } from '@/shared/components/empty/empty.component';
 import { AppDatePipe, AppTimePipe } from '@/shared/pipes/app-date.pipe';
+import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
+import { ZardDialogService } from '@/shared/components/dialog/dialog.service';
 
 import { AuthService } from '@/core/services/auth.service';
 import { DashboardService, StaffDashboardData } from '../../services/dashboard.service';
+import { AttendanceDialogComponent } from '@/features/attendance/components/attendance-dialog/attendance-dialog.component';
 
 @Component({
   selector: 'app-staff-dashboard',
@@ -25,6 +28,7 @@ import { DashboardService, StaffDashboardData } from '../../services/dashboard.s
     ZardBadgeComponent,
     ZardDividerComponent,
     ZardEmptyComponent,
+    ZardSkeletonComponent,
     AppDatePipe,
     AppTimePipe
   ],
@@ -34,6 +38,7 @@ import { DashboardService, StaffDashboardData } from '../../services/dashboard.s
 export class StaffDashboardComponent implements OnInit, OnDestroy {
   private dashboardService = inject(DashboardService);
   private authService = inject(AuthService);
+  private dialogService = inject(ZardDialogService);
   private router = inject(Router);
   private timerInterval: any;
 
@@ -127,13 +132,24 @@ export class StaffDashboardComponent implements OnInit, OnDestroy {
   }
 
   clockIn(): void {
-    this.isClockedIn = true;
-    this.clockInTime = new Date();
+    this.openAttendanceDialog();
   }
 
   clockOut(): void {
-    this.isClockedIn = false;
-    console.log('Clocked out at', new Date());
+    this.openAttendanceDialog();
+  }
+
+  private openAttendanceDialog(): void {
+    this.dialogService.create({
+      zContent: AttendanceDialogComponent,
+      zHideFooter: true,
+      zClosable: false,
+      zWidth: '800px',
+      zCustomClasses: 'p-0 gap-0 overflow-hidden',
+      zData: {
+        onSuccess: () => this.loadDashboard()
+      }
+    });
   }
 
   getStatusBadgeClass(status: string): string {

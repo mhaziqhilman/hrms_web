@@ -15,6 +15,7 @@ import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { ZardProgressBarComponent } from '@/shared/components/progress-bar/progress-bar.component';
 import { ZardSelectComponent } from '@/shared/components/select/select.component';
 import { ZardSelectItemComponent } from '@/shared/components/select/select-item.component';
+import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
 
 @Component({
   selector: 'app-leave-balance',
@@ -29,7 +30,8 @@ import { ZardSelectItemComponent } from '@/shared/components/select/select-item.
     ZardBadgeComponent,
     ZardProgressBarComponent,
     ZardSelectComponent,
-    ZardSelectItemComponent
+    ZardSelectItemComponent,
+    ZardSkeletonComponent
   ],
   templateUrl: './leave-balance.component.html',
   styleUrl: './leave-balance.component.css'

@@ -107,10 +107,50 @@
     </div>
   }
 
-  <!-- Loading -->
+  <!-- Loading Skeleton -->
   @if (loading()) {
-    <div class="flex items-center justify-center py-20">
-      <z-icon zType="loader-circle" class="w-8 h-8 animate-spin text-primary" />
+    <!-- Filter Bar Skeleton -->
+    <div class="flex items-center gap-3 mb-6">
+      <z-skeleton class="h-10 w-72 rounded-md" />
+      <z-skeleton class="h-10 flex-1 max-w-sm rounded-md" />
+      <z-skeleton class="h-10 w-20 rounded-md ml-auto" />
+    </div>
+
+    <!-- Table Skeleton -->
+    <div class="rounded-lg border">
+      <div class="p-4 border-b border-border">
+        <div class="flex items-center gap-4">
+          <z-skeleton class="h-4 w-8" />
+          <z-skeleton class="h-4 w-24" />
+          <z-skeleton class="h-4 w-24" />
+          <z-skeleton class="h-4 w-20" />
+          <z-skeleton class="h-4 w-20" />
+          <z-skeleton class="h-4 w-20" />
+          <z-skeleton class="h-4 w-16 ml-auto" />
+        </div>
+      </div>
+      @for (i of [1,2,3,4,5]; track i) {
+        <div class="p-4 border-b border-border last:border-b-0">
+          <div class="flex items-center gap-4">
+            <z-skeleton class="h-4 w-4 rounded" />
+            <div class="flex items-center gap-3">
+              <z-skeleton class="h-10 w-10 rounded-full" />
+              <div>
+                <z-skeleton class="h-4 w-28 mb-1" />
+                <z-skeleton class="h-3 w-20" />
+              </div>
+            </div>
+            <div>
+              <z-skeleton class="h-4 w-24 mb-1" />
+              <z-skeleton class="h-3 w-32" />
+            </div>
+            <z-skeleton class="h-4 w-20" />
+            <z-skeleton class="h-4 w-16" />
+            <z-skeleton class="h-6 w-24 rounded-full" />
+            <z-skeleton class="h-8 w-8 rounded ml-auto" />
+          </div>
+        </div>
+      }
     </div>
   }
 

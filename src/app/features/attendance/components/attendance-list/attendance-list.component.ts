@@ -23,6 +23,7 @@ import { ZardSheetImports } from '@/shared/components/sheet/sheet.component';
 import { ZardSegmentedComponent, type SegmentedOption } from '@/shared/components/segmented/segmented.component';
 import { ZardDatePickerComponent } from '@/shared/components/date-picker/date-picker.component';
 import { ZardDialogService } from '@/shared/components/dialog/dialog.service';
+import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
 import { AttendanceDialogComponent } from '../attendance-dialog/attendance-dialog.component';
 
 @Component({
@@ -45,7 +46,8 @@ import { AttendanceDialogComponent } from '../attendance-dialog/attendance-dialo
     ZardDividerComponent,
     ZardSheetImports,
     ZardSegmentedComponent,
-    ZardDatePickerComponent
+    ZardDatePickerComponent,
+    ZardSkeletonComponent
   ],
   templateUrl: './attendance-list.component.html',
   styleUrl: './attendance-list.component.css'

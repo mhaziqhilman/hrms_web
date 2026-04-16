@@ -5,12 +5,27 @@ import { SidebarMenuGroup } from '@/core/models/sidebar.models';
  */
 const ADMIN_MENU: SidebarMenuGroup[] = [
   {
-    label: 'Dashboards',
+    label: 'Personal',
     items: [
       {
         title: 'My Dashboard',
         icon: 'layout-dashboard',
         route: '/dashboard'
+      },
+      {
+        title: 'Profile',
+        icon: 'user-circle',
+        route: '/personal/profile'
+      },
+      {
+        title: 'Notifications',
+        icon: 'bell',
+        route: '/notifications'
+      },
+      {
+        title: 'Announcements',
+        icon: 'megaphone',
+        route: '/communication'
       }
     ]
   },
@@ -64,26 +79,6 @@ const ADMIN_MENU: SidebarMenuGroup[] = [
         title: 'Analytics',
         icon: 'bar-chart-3',
         route: '/analytics'
-      }
-    ]
-  },
-  {
-    label: 'Personal',
-    items: [
-      {
-        title: 'Profile',
-        icon: 'user-circle',
-        route: '/personal/profile'
-      },
-      {
-        title: 'Notifications',
-        icon: 'bell',
-        route: '/notifications'
-      },
-      {
-        title: 'Announcements',
-        icon: 'megaphone',
-        route: '/communication'
       }
     ]
   },
@@ -197,12 +192,27 @@ const ADMIN_MENU: SidebarMenuGroup[] = [
  */
 const MANAGER_MENU: SidebarMenuGroup[] = [
   {
-    label: 'Dashboards',
+    label: 'Personal',
     items: [
       {
         title: 'My Dashboard',
         icon: 'layout-dashboard',
         route: '/dashboard'
+      },
+      {
+        title: 'Profile',
+        icon: 'user-circle',
+        route: '/personal/profile'
+      },
+      {
+        title: 'Notifications',
+        icon: 'bell',
+        route: '/notifications'
+      },
+      {
+        title: 'Announcements',
+        icon: 'megaphone',
+        route: '/communication'
       }
     ]
   },
@@ -223,26 +233,6 @@ const MANAGER_MENU: SidebarMenuGroup[] = [
         title: 'Attendance',
         icon: 'clock',
         route: '/attendance'
-      }
-    ]
-  },
-  {
-    label: 'Personal',
-    items: [
-      {
-        title: 'Profile',
-        icon: 'user-circle',
-        route: '/personal/profile'
-      },
-      {
-        title: 'Notifications',
-        icon: 'bell',
-        route: '/notifications'
-      },
-      {
-        title: 'Announcements',
-        icon: 'megaphone',
-        route: '/communication'
       }
     ]
   },
@@ -284,18 +274,13 @@ const MANAGER_MENU: SidebarMenuGroup[] = [
  */
 const STAFF_MENU: SidebarMenuGroup[] = [
   {
-    label: 'Dashboards',
+    label: 'Personal',
     items: [
       {
         title: 'My Dashboard',
         icon: 'layout-dashboard',
         route: '/dashboard'
-      }
-    ]
-  },
-  {
-    label: 'Personal',
-    items: [
+      },
       {
         title: 'Profile',
         icon: 'user-circle',

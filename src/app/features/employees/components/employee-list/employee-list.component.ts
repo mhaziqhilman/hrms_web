@@ -29,6 +29,7 @@ import { ZardDividerComponent } from '@/shared/components/divider/divider.compon
 
 // Dialog Components
 import { InviteUserDialogComponent } from './dialogs/invite-user-dialog.component';
+import { EmployeeFormDialogComponent } from '../employee-form-dialog/employee-form-dialog.component';
 
 @Component({
   selector: 'app-employee-list',
@@ -384,6 +385,45 @@ export class EmployeeListComponent implements OnInit {
         }
         const { email, role } = instance.getInviteData();
         this.sendInvitation(email, role);
+      }
+    });
+  }
+
+  openAddEmployeeDialog(): void {
+    this.dialogService.create({
+      zContent: EmployeeFormDialogComponent,
+      zHideFooter: true,
+      zClosable: false,
+      zMaskClosable: false,
+      zWidth: '70vw',
+      zCustomClasses: 'p-0 gap-0 overflow-hidden !left-auto !right-4 !top-4 !bottom-4 !translate-x-0 !translate-y-0 !max-w-none h-[calc(100vh-2rem)] rounded-xl',
+      zData: {
+        onSuccess: () => {
+          this.loadEmployees();
+        }
+      }
+    });
+  }
+
+  openEditEmployeeDialog(employee: Employee): void {
+    this.employeeService.getEmployeeById(employee.public_id!).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.dialogService.create({
+            zContent: EmployeeFormDialogComponent,
+            zHideFooter: true,
+            zClosable: false,
+            zMaskClosable: false,
+            zWidth: '70vw',
+            zCustomClasses: 'p-0 gap-0 overflow-hidden !left-auto !right-4 !top-4 !bottom-4 !translate-x-0 !translate-y-0 !max-w-none h-[calc(100vh-2rem)] rounded-xl',
+            zData: {
+              employee: res.data,
+              onSuccess: () => {
+                this.loadEmployees();
+              }
+            }
+          });
+        }
       }
     });
   }

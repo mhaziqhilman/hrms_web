@@ -19,6 +19,7 @@ import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-d
 import { ZardTableComponent } from '@/shared/components/table/table.component';
 import { ZardEmptyComponent } from '@/shared/components/empty/empty.component';
 import { ZardDividerComponent } from '@/shared/components/divider/divider.component';
+import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
 
 @Component({
   selector: 'app-claim-list',
@@ -36,7 +37,8 @@ import { ZardDividerComponent } from '@/shared/components/divider/divider.compon
     ZardCheckboxComponent,
     ZardTableComponent,
     ZardEmptyComponent,
-    ZardDividerComponent
+    ZardDividerComponent,
+    ZardSkeletonComponent
   ],
   templateUrl: './claim-list.component.html',
   styleUrl: './claim-list.component.css'

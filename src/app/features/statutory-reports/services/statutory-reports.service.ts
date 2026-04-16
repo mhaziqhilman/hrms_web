@@ -78,6 +78,16 @@ export class StatutoryReportsService {
     );
   }
 
+  /**
+   * Bulk download all EA Forms as ZIP (PDFs)
+   */
+  bulkDownloadEAFormPDF(year: number): Observable<Blob> {
+    return this.http.get(
+      `${this.apiUrl}${API_CONFIG.endpoints.statutoryReports.eaBulkDownload(year)}`,
+      { responseType: 'blob' }
+    );
+  }
+
   // ============ EPF Borang A ============
 
   /**

@@ -31,6 +31,35 @@
   </div>
 }
 
+@if (initialLoading()) {
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-0 h-[480px]">
+    <!-- LEFT: Skeleton Clock Display -->
+    <div class="flex flex-col items-center justify-center p-8 bg-muted/20 border-r">
+      <z-skeleton class="h-4 w-48 mb-1.5" />
+      <z-skeleton class="h-10 w-52 mb-5" />
+      <z-skeleton class="h-6 w-24 rounded-full mb-6" />
+      <z-skeleton class="h-11 w-52 rounded-xl" />
+    </div>
+    <!-- RIGHT: Skeleton Form -->
+    <div class="flex flex-col p-6">
+      <div class="flex justify-center mb-6">
+        <z-skeleton class="h-9 w-52 rounded-md" />
+      </div>
+      <div class="space-y-5">
+        <div>
+          <z-skeleton class="h-4 w-28 mb-2" />
+          <z-skeleton class="h-9 w-full rounded-md" />
+        </div>
+        <div>
+          <z-skeleton class="h-4 w-20 mb-2" />
+          <z-skeleton class="h-28 w-full rounded-xl" />
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+@if (!initialLoading()) {
 <div class="grid grid-cols-1 md:grid-cols-2 gap-0 h-[480px]">
   <!-- LEFT: Clock Display -->
   <div class="flex flex-col items-center justify-center p-8 bg-muted/20 border-r overflow-hidden">
@@ -282,3 +311,4 @@
     }
   </div>
 </div>
+}

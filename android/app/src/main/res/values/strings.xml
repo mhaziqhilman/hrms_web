@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Nextura HRMS</string>
+    <string name="title_activity_main">Nextura HRMS</string>
+    <string name="package_name">com.nextura.hrms</string>
+    <string name="custom_url_scheme">com.nextura.hrms</string>
+</resources>

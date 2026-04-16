@@ -1,0 +1,208 @@
+<section class="home anim-stagger">
+  <!-- Greeting -->
+  <div class="home__greeting">
+    <div class="home__greeting-left">
+      <p class="home__greeting-hello">{{ greeting() }},</p>
+      <h1 class="home__greeting-name">
+        {{ user()?.employee?.full_name || user()?.email?.split('@')?.[0] || 'there' }}
+      </h1>
+    </div>
+    <div class="home__greeting-right">
+      @if (company()?.logo_url?.startsWith?.('http')) {
+        <img
+          class="home__greeting-logo"
+          [src]="company()!.logo_url"
+          [alt]="(company()?.name || 'Company') + ' logo'"
+        />
+      } @else if (companyInitial()) {
+        <span class="home__greeting-logo home__greeting-logo--fallback">
+          {{ companyInitial() }}
+        </span>
+      }
+    </div>
+  </div>
+
+  <!-- Announcement (dismissible) -->
+  @if (announcement(); as ann) {
+    <div class="home__announcement anim-pop-in">
+      <button
+        type="button"
+        class="home__announcement-close"
+        (click)="dismissAnnouncement()"
+        aria-label="Dismiss announcement"
+      >
+        <z-icon zType="x" zSize="sm"></z-icon>
+      </button>
+      <div class="home__announcement-title">{{ ann.title }}</div>
+      <div class="home__announcement-body">{{ ann.summary || ann.content }}</div>
+      <div class="home__announcement-actions">
+        <button type="button" class="home__announcement-link" (click)="dismissAnnouncement()">
+          Dismiss
+        </button>
+        <a
+          [routerLink]="['/m/announcements', ann.public_id || ann.id]"
+          class="home__announcement-link home__announcement-link--primary"
+        >
+          View details
+        </a>
+      </div>
+    </div>
+  }
+
+  <!-- Hero: Live clock + clock-in button on the right -->
+  <div class="home__hero" [class.home__hero--active]="isClockedIn()">
+    <div class="home__hero-glow"></div>
+
+    <div class="home__hero-row">
+      <div class="home__hero-left">
+        <div class="home__hero-time">
+          <span class="home__hero-time-value">{{ timeString() }}</span>
+          <span class="home__hero-time-seconds">:{{ secondsString() }}</span>
+        </div>
+        <div class="home__hero-date">{{ dateString() }}</div>
+
+        @if (isClockedIn()) {
+          <div class="home__hero-status home__hero-status--active">
+            <span class="home__hero-dot"></span>
+            <span>Clocked in · {{ workedDuration() }}</span>
+          </div>
+        } @else if (isDayCompleted()) {
+          <div class="home__hero-status">
+            <span class="home__hero-dot home__hero-dot--idle"></span>
+            <span>Day completed</span>
+          </div>
+        } @else {
+          <div class="home__hero-status">
+            <span class="home__hero-dot home__hero-dot--idle"></span>
+            <span>Ready to clock in</span>
+          </div>
+        }
+      </div>
+
+      @if (isDayCompleted()) {
+        <a
+          routerLink="/m/attendance"
+          class="home__hero-action home__hero-action--done"
+        >
+          <z-icon zType="circle-check" zSize="sm"></z-icon>
+          <span>Done</span>
+        </a>
+      } @else {
+        <button
+          type="button"
+          class="home__hero-action"
+          [class.home__hero-action--out]="isClockedIn()"
+          [disabled]="clockLoading()"
+          (click)="toggleClock()"
+        >
+          @if (clockLoading()) {
+            <z-icon zType="loader-circle" zSize="sm" class="home__hero-spin"></z-icon>
+            <span>…</span>
+          } @else {
+            <z-icon [zType]="isClockedIn() ? 'log-out' : 'map-pin'" zSize="sm"></z-icon>
+            <span>{{ isClockedIn() ? 'Clock Out' : 'Clock In' }}</span>
+          }
+        </button>
+      }
+    </div>
+
+    @if (clockError(); as err) {
+      <div class="home__hero-error">{{ err }}</div>
+    }
+  </div>
+
+  <!-- Leave Balance -->
+  @if (leaveBalanceLoaded() && leaveTotal() > 0) {
+    <div class="home__balance">
+      <div class="home__balance-header">
+        <div class="home__balance-title">Leave Balance</div>
+        <div class="home__balance-meta">{{ leaveRemaining() }} days left</div>
+      </div>
+      <div class="home__balance-bar">
+        <div class="home__balance-fill" [style.width.%]="leavePercent()"></div>
+      </div>
+      <div class="home__balance-foot">
+        <span>{{ leaveUsed() }} used</span>
+        <span>{{ leaveTotal() }} total</span>
+      </div>
+    </div>
+  }
+
+  <!-- Approvals (manager only) -->
+  @if (isManager() && approvalsLoaded() && approvalsPending() > 0) {
+    <div class="home__summary-wrap">
+      <div class="home__summary anim-pop-in">
+        <div class="home__summary-head">
+          <div class="home__summary-title">Approvals</div>
+          <div class="home__summary-pct">{{ approvalsPending() }}</div>
+        </div>
+        <div class="home__summary-body">
+          You have {{ approvalsPending() }} pending
+          {{ approvalsPending() === 1 ? 'request' : 'requests' }} waiting for review.
+        </div>
+        <div class="home__summary-bar">
+          <div class="home__summary-fill" [style.width.%]="approvalsBarPercent()"></div>
+        </div>
+        <a routerLink="/m/approvals" class="home__summary-link">
+          View all approvals
+          <z-icon zType="chevron-right" zSize="sm"></z-icon>
+        </a>
+      </div>
+    </div>
+  }
+
+  <!-- Quick actions -->
+  <div>
+    <div class="home__section-header">
+      <h2 class="home__section-title">Quick actions</h2>
+    </div>
+    <div class="home__actions">
+      @for (action of quickActions; track action.path) {
+        <a
+          [routerLink]="action.path"
+          class="home__action"
+          [attr.data-tone]="action.tone"
+        >
+          <span class="home__action-icon">
+            <z-icon [zType]="action.icon" zSize="default"></z-icon>
+          </span>
+          <span class="home__action-body">
+            <span class="home__action-label">{{ action.label }}</span>
+            <span class="home__action-sub">{{ action.sublabel }}</span>
+          </span>
+        </a>
+      }
+    </div>
+  </div>
+
+  <!-- Activity preview -->
+  <div>
+    <div class="home__section-header">
+      <h2 class="home__section-title">Recent</h2>
+      <a routerLink="/m/notifications" class="home__section-link">See all</a>
+    </div>
+
+    @if (recentNotifications().length) {
+      <div class="home__recent anim-stagger">
+        @for (n of recentNotifications().slice(0, 3); track trackNotification($index, n)) {
+          <a routerLink="/m/notifications" class="home__recent-item" [attr.data-tone]="toneForNotification(n.type)">
+            <span class="home__recent-icon">
+              <z-icon [zType]="iconForNotification(n.type)" zSize="sm"></z-icon>
+            </span>
+            <span class="home__recent-body">
+              <span class="home__recent-title" [class.home__recent-title--unread]="!n.is_read">
+                {{ n.title }}
+              </span>
+              <span class="home__recent-msg">{{ n.message }}</span>
+            </span>
+            <span class="home__recent-time">{{ n.created_at | timeAgo }}</span>
+          </a>
+        }
+      </div>
+    } @else if (recentLoaded()) {
+      <div class="home__placeholder">No recent activity yet.</div>
+    } @else {
+      <div class="home__placeholder">Loading…</div>
+    }
+  </div>
+</section>

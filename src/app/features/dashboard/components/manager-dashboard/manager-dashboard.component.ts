@@ -10,6 +10,7 @@ import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { ZardDividerComponent } from '@/shared/components/divider/divider.component';
 import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component';
 import { ZardTabGroupComponent, ZardTabComponent } from '@/shared/components/tabs/tabs.component';
+import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
 
 import { DashboardService, ManagerDashboardData } from '../../services/dashboard.service';
 import { StaffDashboardComponent } from '../staff-dashboard/staff-dashboard.component';
@@ -27,6 +28,7 @@ import { StaffDashboardComponent } from '../staff-dashboard/staff-dashboard.comp
     ZardAvatarComponent,
     ZardTabGroupComponent,
     ZardTabComponent,
+    ZardSkeletonComponent,
     StaffDashboardComponent
   ],
   templateUrl: './manager-dashboard.component.html',

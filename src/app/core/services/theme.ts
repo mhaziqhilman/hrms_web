@@ -4,9 +4,9 @@ export type ThemePreference = 'light' | 'dark' | 'system';
 export type BorderRadiusPreset = 'sharp' | 'default' | 'round';
 
 const RADIUS_VALUES: Record<BorderRadiusPreset, string> = {
-  sharp: '0.5rem',
-  default: '0.625rem',
-  round: '0.875rem'
+  sharp: '0.55rem',
+  default: '0.75rem',
+  round: '0.95rem'
 };
 
 @Injectable({

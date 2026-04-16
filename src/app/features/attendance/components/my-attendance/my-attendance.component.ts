@@ -13,6 +13,7 @@ import { ZardIconComponent } from '@/shared/components/icon/icon.component';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { ZardMenuImports } from '@/shared/components/menu/menu.imports';
 import { ZardDatePickerComponent } from '@/shared/components/date-picker/date-picker.component';
+import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
 
 @Component({
   selector: 'app-my-attendance',
@@ -25,7 +26,8 @@ import { ZardDatePickerComponent } from '@/shared/components/date-picker/date-pi
     ZardIconComponent,
     ZardBadgeComponent,
     ZardMenuImports,
-    ZardDatePickerComponent
+    ZardDatePickerComponent,
+    ZardSkeletonComponent
   ],
   templateUrl: './my-attendance.component.html'
 })

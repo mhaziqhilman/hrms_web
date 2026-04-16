@@ -17,6 +17,7 @@ import { ZardButtonComponent } from '@/shared/components/button/button.component
 import { ZardIconComponent } from '@/shared/components/icon/icon.component';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { ZardTooltipModule } from '@/shared/components/tooltip/tooltip';
+import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
 
 @Component({
   selector: 'app-leave-calendar',
@@ -28,7 +29,8 @@ import { ZardTooltipModule } from '@/shared/components/tooltip/tooltip';
     ZardButtonComponent,
     ZardIconComponent,
     ZardBadgeComponent,
-    ZardTooltipModule
+    ZardTooltipModule,
+    ZardSkeletonComponent
   ],
   templateUrl: './leave-calendar.component.html',
   styleUrl: './leave-calendar.component.css'

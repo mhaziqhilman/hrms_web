@@ -1,0 +1,79 @@
+<div class="mobile-shell">
+  <header class="mobile-shell__topbar">
+    <div class="flex items-center gap-2">
+      <img src="assets/images/nextura-title-logo.png" alt="Nextura" class="h-7 w-auto" />
+    </div>
+
+    <div class="flex items-center gap-1">
+      @if (!native.online()) {
+        <span class="rounded-full bg-amber-100 text-amber-700 text-[10px] px-2 py-0.5 font-medium">
+          Offline
+        </span>
+      }
+
+      <button type="button" class="mobile-shell__icon-btn" (click)="goToNotifications()" aria-label="Notifications">
+        <z-icon zType="bell" zSize="default"></z-icon>
+        @if (unreadCount() > 0) {
+          <span class="mobile-shell__badge">{{ unreadCount() > 9 ? '9+' : unreadCount() }}</span>
+        }
+      </button>
+
+      <button type="button" class="mobile-shell__icon-btn" (click)="goToProfile()" aria-label="Profile">
+        @if (user()?.avatar_url && !avatarFailed()) {
+          <img
+            [src]="user()!.avatar_url"
+            alt=""
+            class="h-7 w-7 rounded-full object-cover"
+            referrerpolicy="no-referrer"
+            (error)="onAvatarError()"
+          />
+        } @else {
+          <z-icon zType="circle-user" zSize="default"></z-icon>
+        }
+      </button>
+    </div>
+  </header>
+
+  <main class="mobile-shell__content">
+    <router-outlet />
+  </main>
+
+  <nav class="mobile-shell__tabbar" role="navigation" aria-label="Primary">
+    <div class="mobile-shell__tabbar-inner">
+      @for (tab of leftTabs; track tab.path) {
+        <a
+          class="mobile-shell__tab"
+          [routerLink]="tab.path"
+          routerLinkActive="mobile-shell__tab--active"
+          (click)="onTabTap()"
+        >
+          <z-icon [zType]="tab.icon" zSize="default"></z-icon>
+          <span class="mobile-shell__tab-label">{{ tab.label }}</span>
+        </a>
+      }
+
+      <div class="mobile-shell__fab-slot" aria-hidden="true"></div>
+
+      @for (tab of rightTabs; track tab.path) {
+        <a
+          class="mobile-shell__tab"
+          [routerLink]="tab.path"
+          routerLinkActive="mobile-shell__tab--active"
+          (click)="onTabTap()"
+        >
+          <z-icon [zType]="tab.icon" zSize="default"></z-icon>
+          <span class="mobile-shell__tab-label">{{ tab.label }}</span>
+        </a>
+      }
+    </div>
+
+    <button
+      type="button"
+      class="mobile-shell__fab"
+      (click)="onFabTap()"
+      aria-label="Clock in or out"
+    >
+      <z-icon zType="plus" zSize="lg"></z-icon>
+    </button>
+  </nav>
+</div>

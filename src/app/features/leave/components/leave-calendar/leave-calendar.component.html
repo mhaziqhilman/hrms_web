@@ -100,13 +100,30 @@
             </div>
           }
 
-          <!-- Loading Overlay -->
+          <!-- Loading Skeleton -->
           @if (loading()) {
-            <div class="flex items-center justify-center py-20">
-              <div class="flex items-center gap-3 text-muted-foreground">
-                <div class="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-                <span>Loading calendar...</span>
-              </div>
+            <!-- Week Day Header Skeleton -->
+            <div class="grid grid-cols-7 mb-1">
+              @for (i of [1,2,3,4,5,6,7]; track i) {
+                <div class="text-center py-2">
+                  <z-skeleton class="h-3 w-8 mx-auto" />
+                </div>
+              }
+            </div>
+            <!-- Calendar Grid Skeleton -->
+            <div class="grid grid-cols-7 border-t border-l border-border">
+              @for (i of [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35]; track i) {
+                <div class="border-r border-b border-border min-h-[100px] p-1.5">
+                  <z-skeleton class="h-7 w-7 rounded-full mb-1" />
+                  @if (i % 4 === 0) {
+                    <z-skeleton class="h-3 w-16 rounded mt-1" />
+                  }
+                  @if (i % 5 === 0) {
+                    <z-skeleton class="h-3 w-14 rounded mt-1" />
+                    <z-skeleton class="h-3 w-12 rounded mt-0.5" />
+                  }
+                </div>
+              }
             </div>
           }
 

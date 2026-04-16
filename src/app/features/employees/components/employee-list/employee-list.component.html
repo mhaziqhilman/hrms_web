@@ -9,7 +9,7 @@
           Invite User
         </button>
       }
-      <button z-button [routerLink]="['/employees/new']" class="gap-2">
+      <button z-button (click)="openAddEmployeeDialog()" class="gap-2">
         <z-icon zType="plus" class="w-4 h-4" />
         Add New User
       </button>
@@ -313,10 +313,10 @@
                     <z-icon zType="eye" class="w-4 h-4" />
                     View
                   </a>
-                  <a z-menu-item [routerLink]="['/employees', employee.public_id, 'edit']" class="gap-2">
+                  <button z-menu-item (click)="openEditEmployeeDialog(employee)" class="gap-2">
                     <z-icon zType="pencil" class="w-4 h-4" />
                     Edit
-                  </a>
+                  </button>
                   <z-divider zSpacing="sm" />
                   <button z-menu-item (click)="deleteEmployee(employee)" class="gap-2 text-destructive">
                     <z-icon zType="trash" class="w-4 h-4" />
@@ -358,10 +358,10 @@
               <z-icon zType="eye" class="w-4 h-4" />
               View
             </a>
-            <a z-menu-item [routerLink]="['/employees', employee.public_id, 'edit']" class="gap-2">
+            <button z-menu-item (click)="openEditEmployeeDialog(employee)" class="gap-2">
               <z-icon zType="pencil" class="w-4 h-4" />
               Edit
-            </a>
+            </button>
             <z-divider zSpacing="sm" />
             <button z-menu-item (click)="deleteEmployee(employee)" class="gap-2 text-destructive">
               <z-icon zType="trash" class="w-4 h-4" />
@@ -433,7 +433,7 @@
       <z-icon zType="users" class="w-16 h-16 text-muted-foreground mb-4" />
       <h3 class="text-lg font-medium mb-2">No Users Found</h3>
       <p class="text-muted-foreground mb-4">There are no users matching your criteria</p>
-      <button z-button [routerLink]="['/employees/new']">
+      <button z-button (click)="openAddEmployeeDialog()">
         <z-icon zType="plus" class="mr-2" />
         Add New User
       </button>

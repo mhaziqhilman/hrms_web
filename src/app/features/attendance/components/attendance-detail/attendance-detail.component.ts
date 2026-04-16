@@ -12,6 +12,7 @@ import { ZardIconComponent } from '@/shared/components/icon/icon.component';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component';
 import { ZardDividerComponent } from '@/shared/components/divider/divider.component';
+import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
 
 @Component({
   selector: 'app-attendance-detail',
@@ -24,7 +25,8 @@ import { ZardDividerComponent } from '@/shared/components/divider/divider.compon
     ZardIconComponent,
     ZardBadgeComponent,
     ZardAvatarComponent,
-    ZardDividerComponent
+    ZardDividerComponent,
+    ZardSkeletonComponent
   ],
   templateUrl: './attendance-detail.component.html',
   styleUrl: './attendance-detail.component.css'

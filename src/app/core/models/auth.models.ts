@@ -55,6 +55,8 @@ export interface Employee {
   join_date: string;
   employment_type?: 'Permanent' | 'Contract' | 'Probation' | 'Intern';
   employment_status?: 'Active' | 'Resigned' | 'Terminated';
+  // If true, user may clock in as WFH without a prior WFH application.
+  wfh_flexible?: boolean;
 }
 
 export interface Company {

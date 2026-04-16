@@ -12,6 +12,10 @@ export const routes: Routes = [
         loadChildren: () => import('./features/auth/auth-module').then(m => m.AuthModule)
     },
     {
+        path: 'm',
+        loadChildren: () => import('./mobile/mobile.routes').then(m => m.MOBILE_ROUTES)
+    },
+    {
         path: 'onboarding',
         canActivate: [onboardingGuard],
         loadChildren: () => import('./features/onboarding/onboarding.routes').then(m => m.ONBOARDING_ROUTES)

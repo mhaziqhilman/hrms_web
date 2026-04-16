@@ -10,6 +10,7 @@ import { Leave, LeaveStatus } from '../../models/leave.model';
 import { LeaveService } from '../../services/leave.service';
 import { DisplayService } from '@/core/services/display.service';
 import type { ZardIcon } from '@/shared/components/icon/icons';
+import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
 
 @Component({
   selector: 'app-leave-details',
@@ -21,7 +22,8 @@ import type { ZardIcon } from '@/shared/components/icon/icons';
     ZardBadgeComponent,
     ZardButtonComponent,
     ZardIconComponent,
-    FileList
+    FileList,
+    ZardSkeletonComponent
   ],
   templateUrl: './leave-details-component.html',
   styleUrl: './leave-details-component.css',

@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject, ViewChild } from '@angular/core';
+import { Component, OnInit, signal, inject, ViewChild, ViewContainerRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -21,6 +21,8 @@ import { ZardMenuImports } from '@/shared/components/menu/menu.imports';
 import { ZardTooltipModule } from '@/shared/components/tooltip/tooltip';
 import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
 import { ZardTabGroupComponent, ZardTabComponent } from '@/shared/components/tabs/tabs.component';
+import { ZardDialogService } from '@/shared/components/dialog/dialog.service';
+import { EmployeeFormDialogComponent } from '../employee-form-dialog/employee-form-dialog.component';
 
 export type TabId = 'personal' | 'contract' | 'payroll' | 'document' | 'statutory' | 'banking';
 
@@ -73,6 +75,8 @@ export class EmployeeDetailComponent implements OnInit {
   availableYears: number[] = [];
 
   private displayService = inject(DisplayService);
+  private dialogService = inject(ZardDialogService);
+  private viewContainerRef = inject(ViewContainerRef);
 
   // Document management
   showDocumentUpload = signal<boolean>(false);
@@ -83,6 +87,9 @@ export class EmployeeDetailComponent implements OnInit {
     description: 'Document for employee'
   };
   uploadSuccess = signal<string | null>(null);
+
+  // Flexible WFH toggle
+  savingWfhFlexible = signal<boolean>(false);
 
   constructor(
     private employeeService: EmployeeService,
@@ -207,9 +214,25 @@ export class EmployeeDetailComponent implements OnInit {
   // --- Actions ---
 
   onEdit(): void {
-    if (this.employeeId()) {
-      this.router.navigate(['/employees', this.employeeId(), 'edit']);
-    }
+    const emp = this.employee();
+    if (!emp) return;
+
+    this.dialogService.create({
+      zContent: EmployeeFormDialogComponent,
+      zHideFooter: true,
+      zClosable: false,
+      zMaskClosable: false,
+      zWidth: '70vw',
+      zCustomClasses: 'p-0 gap-0 overflow-hidden !left-auto !right-4 !top-4 !bottom-4 !translate-x-0 !translate-y-0 !max-w-none h-[calc(100vh-2rem)] rounded-xl',
+      zData: {
+        employee: emp,
+        onSuccess: () => {
+          if (this.employeeId()) {
+            this.loadEmployee(this.employeeId()!);
+          }
+        }
+      }
+    });
   }
 
   onBack(): void {
@@ -221,6 +244,29 @@ export class EmployeeDetailComponent implements OnInit {
     if (emp?.email) {
       window.open(`mailto:${emp.email}`, '_self');
     }
+  }
+
+  toggleWfhFlexible(): void {
+    const emp = this.employee();
+    const id = this.employeeId();
+    if (!emp || !id || this.savingWfhFlexible()) return;
+
+    const next = !emp.wfh_flexible;
+    // Optimistic update.
+    this.employee.set({ ...emp, wfh_flexible: next });
+    this.savingWfhFlexible.set(true);
+
+    this.employeeService.setWfhFlexible(id, next).subscribe({
+      next: () => {
+        this.savingWfhFlexible.set(false);
+      },
+      error: (err) => {
+        // Revert on failure.
+        this.employee.set({ ...emp, wfh_flexible: !next });
+        this.savingWfhFlexible.set(false);
+        this.error.set(err?.message || 'Failed to update flexible WFH permission.');
+      },
+    });
   }
 
   onYearChange(year: number): void {

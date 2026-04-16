@@ -2,6 +2,7 @@ export interface Attendance {
   id: number;
   public_id?: string;
   employee_id: number;
+  date?: string;
   clock_in_time: string;
   clock_out_time?: string;
   type: 'Office' | 'WFH';

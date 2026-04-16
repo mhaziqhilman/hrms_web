@@ -15,6 +15,7 @@ import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { ZardSelectComponent } from '@/shared/components/select/select.component';
 import { ZardSelectItemComponent } from '@/shared/components/select/select-item.component';
 import { ZardInputDirective } from '@/shared/components/input/input.directive';
+import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
 
 @Component({
   selector: 'app-leave-approval',
@@ -29,7 +30,8 @@ import { ZardInputDirective } from '@/shared/components/input/input.directive';
     ZardBadgeComponent,
     ZardSelectComponent,
     ZardSelectItemComponent,
-    ZardInputDirective
+    ZardInputDirective,
+    ZardSkeletonComponent
   ],
   templateUrl: './leave-approval.component.html',
   styleUrl: './leave-approval.component.css'

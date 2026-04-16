@@ -6,14 +6,24 @@
       <p class="text-muted-foreground mt-1">Manage employee payroll records</p>
     </div>
     <div class="flex items-center gap-3">
-      <!-- Global Month Selector -->
-      <div z-menu [zMenuTriggerFor]="analyticsMonthMenu">
-        <button type="button"
-          class="flex items-center gap-1 px-3 py-2 text-sm font-medium border border-input rounded-md hover:bg-accent transition-colors"
-          [class.bg-primary/5]="selectedMonth()" [class.text-primary]="selectedMonth()" [class.border-primary]="selectedMonth()">
-          <z-icon zType="calendar" class="w-4 h-4" />
-          {{ selectedMonth() ? getSelectedMonthName() : 'All Months' }}
-          <z-icon zType="chevron-down" class="w-3 h-3 ml-1" />
+      <!-- Global Month Selector with Arrows -->
+      <div class="flex items-center border border-input rounded-md overflow-hidden">
+        <button type="button" (click)="onMonthNavigate(-1)"
+          class="px-2 self-stretch flex items-center hover:bg-accent transition-colors text-muted-foreground hover:text-foreground">
+          <z-icon zType="chevron-left" class="w-4 h-4" />
+        </button>
+        <div z-menu [zMenuTriggerFor]="analyticsMonthMenu" class="self-stretch flex">
+          <button type="button"
+            class="flex items-center gap-1 px-3 py-2 text-sm font-medium hover:bg-accent transition-colors whitespace-nowrap"
+            [class.text-primary]="selectedMonth()">
+            <z-icon zType="calendar" class="w-4 h-4" />
+            {{ selectedMonth() ? getSelectedMonthName() : 'All Months' }}
+            <z-icon zType="chevron-down" class="w-3 h-3 ml-1" />
+          </button>
+        </div>
+        <button type="button" (click)="onMonthNavigate(1)"
+          class="px-2 self-stretch flex items-center hover:bg-accent transition-colors text-muted-foreground hover:text-foreground">
+          <z-icon zType="chevron-right" class="w-4 h-4" />
         </button>
       </div>
       <ng-template #analyticsMonthMenu>
@@ -32,14 +42,14 @@
       <!-- Global Year Selector -->
       <div class="flex items-center border border-input rounded-md overflow-hidden">
         <button type="button" (click)="onGlobalYearChange(selectedYear() - 1)"
-          class="px-2 py-2 hover:bg-accent transition-colors text-muted-foreground hover:text-foreground">
+          class="px-2 self-stretch flex items-center hover:bg-accent transition-colors text-muted-foreground hover:text-foreground">
           <z-icon zType="chevron-left" class="w-4 h-4" />
         </button>
-        <span class="px-3 py-2 text-sm font-medium text-foreground bg-background min-w-[60px] text-center">
+        <span class="px-3 py-2 text-sm font-medium text-foreground min-w-[60px] text-center">
           {{ selectedYear() }}
         </span>
         <button type="button" (click)="onGlobalYearChange(selectedYear() + 1)"
-          class="px-2 py-2 hover:bg-accent transition-colors text-muted-foreground hover:text-foreground">
+          class="px-2 self-stretch flex items-center hover:bg-accent transition-colors text-muted-foreground hover:text-foreground">
           <z-icon zType="chevron-right" class="w-4 h-4" />
         </button>
       </div>

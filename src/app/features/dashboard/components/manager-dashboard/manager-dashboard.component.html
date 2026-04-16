@@ -6,12 +6,62 @@
         <p class="text-muted-foreground">Manage your team's attendance, leave requests, and claims.</p>
       </div>
 
-      <!-- Loading State -->
+      <!-- Loading Skeleton -->
       @if (loading()) {
-      <div class="flex items-center justify-center py-20">
-        <div class="text-center">
-          <z-icon zType="loader-circle" class="text-primary text-4xl animate-spin mb-3" />
-          <p class="text-muted-foreground">Loading dashboard data...</p>
+      <div class="space-y-8">
+        <!-- Stat card skeletons -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+          @for (i of [1,2,3,4]; track i) {
+          <div class="rounded-xl border bg-card p-6">
+            <div class="flex items-center">
+              <z-skeleton class="h-12 w-12 rounded-md" />
+              <div class="ml-3 space-y-2 flex-grow">
+                <z-skeleton class="h-4 w-24" />
+                <z-skeleton class="h-7 w-12" />
+              </div>
+            </div>
+          </div>
+          }
+        </div>
+        <!-- Team table + overview -->
+        <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+          <div class="xl:col-span-7 rounded-xl border bg-card p-6 space-y-3">
+            <z-skeleton class="h-5 w-44 mb-2" />
+            <z-skeleton class="h-10 w-full rounded-lg" />
+            @for (i of [1,2,3,4,5]; track i) {
+            <z-skeleton class="h-12 w-full rounded-lg" />
+            }
+          </div>
+          <div class="xl:col-span-5 rounded-xl border bg-card p-6 space-y-5">
+            <z-skeleton class="h-5 w-36" />
+            @for (i of [1,2,3,4]; track i) {
+            <div class="flex items-center gap-3">
+              <z-skeleton class="h-10 w-10 rounded-md" />
+              <div class="space-y-2 flex-grow">
+                <z-skeleton class="h-4 w-28" />
+                <z-skeleton class="h-6 w-10" />
+              </div>
+            </div>
+            }
+          </div>
+        </div>
+        <!-- Approval lists -->
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          @for (i of [1,2]; track i) {
+          <div class="rounded-xl border bg-card p-6 space-y-4">
+            <z-skeleton class="h-5 w-44" />
+            @for (j of [1,2,3]; track j) {
+            <div class="flex items-center gap-3 py-2">
+              <z-skeleton class="h-10 w-10 rounded-full" />
+              <div class="space-y-2 flex-grow">
+                <z-skeleton class="h-4 w-32" />
+                <z-skeleton class="h-3 w-48" />
+              </div>
+              <z-skeleton class="h-8 w-20 rounded-md" />
+            </div>
+            }
+          </div>
+          }
         </div>
       </div>
       }
@@ -32,6 +82,23 @@
       }
 
       @if (!loading() && !error()) {
+      <!-- Empty State: No team members -->
+      @if (teamStats.totalMembers === 0) {
+      <div class="mb-8">
+        <z-card>
+          <div class="flex flex-col items-center justify-center py-16">
+            <div class="flex items-center justify-center w-20 h-20 rounded-full bg-muted mb-4">
+              <z-icon zType="users" class="text-muted-foreground text-4xl" />
+            </div>
+            <h3 class="text-foreground font-semibold text-lg mb-2">No team data yet</h3>
+            <p class="text-muted-foreground text-sm mb-6 text-center max-w-md">You don't have any team members assigned yet. Contact your administrator to set up your team structure.</p>
+            <button z-button zType="outline" (click)="navigateTo('/employees')">
+              <z-icon zType="arrow-right" class="mr-2" /> View Employees
+            </button>
+          </div>
+        </z-card>
+      </div>
+      } @else {
       <!-- Stats Cards -->
       <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
         <!-- Team Members -->
@@ -149,9 +216,12 @@
             </div>
             }
             @if (teamAttendance.length === 0) {
-            <div class="text-center py-8">
-              <z-icon zType="users" class="text-muted-foreground text-4xl mb-3" />
-              <p class="text-muted-foreground text-sm">No team attendance records for today</p>
+            <div class="flex flex-col items-center justify-center py-8">
+              <div class="flex items-center justify-center w-14 h-14 rounded-full bg-muted mb-3">
+                <z-icon zType="clock" class="text-muted-foreground text-2xl" />
+              </div>
+              <p class="text-foreground font-medium text-sm mb-1">No attendance records yet</p>
+              <p class="text-muted-foreground text-xs">Team attendance will appear here once members clock in</p>
             </div>
             }
           </z-card>
@@ -258,9 +328,12 @@
           </div>
           }
           @if (leavePendingApproval.length === 0) {
-          <div class="text-center py-8">
-            <z-icon zType="circle-check" class="text-green-500 text-4xl mb-3" />
-            <p class="text-muted-foreground text-sm">No pending leave approvals</p>
+          <div class="flex flex-col items-center justify-center py-8">
+            <div class="flex items-center justify-center w-14 h-14 rounded-full bg-muted mb-3">
+              <z-icon zType="circle-check" class="text-green-500 text-2xl" />
+            </div>
+            <p class="text-foreground font-medium text-sm mb-1">No pending leave approvals</p>
+            <p class="text-muted-foreground text-xs">All leave requests have been processed</p>
           </div>
           }
         </z-card>
@@ -309,9 +382,12 @@
           </div>
           }
           @if (claimsPendingApproval.length === 0) {
-          <div class="text-center py-8">
-            <z-icon zType="circle-check" class="text-green-500 text-4xl mb-3" />
-            <p class="text-muted-foreground text-sm">No pending claim approvals</p>
+          <div class="flex flex-col items-center justify-center py-8">
+            <div class="flex items-center justify-center w-14 h-14 rounded-full bg-muted mb-3">
+              <z-icon zType="circle-check" class="text-green-500 text-2xl" />
+            </div>
+            <p class="text-foreground font-medium text-sm mb-1">No pending claim approvals</p>
+            <p class="text-muted-foreground text-xs">All expense claims have been reviewed</p>
           </div>
           }
         </z-card>
@@ -365,13 +441,17 @@
           </div>
           }
           @if (wfhRequests.length === 0) {
-          <div class="text-center py-8">
-            <z-icon zType="circle-check" class="text-green-500 text-4xl mb-3" />
-            <p class="text-muted-foreground text-sm">No pending WFH requests</p>
+          <div class="flex flex-col items-center justify-center py-8">
+            <div class="flex items-center justify-center w-14 h-14 rounded-full bg-muted mb-3">
+              <z-icon zType="house" class="text-green-500 text-2xl" />
+            </div>
+            <p class="text-foreground font-medium text-sm mb-1">No pending WFH requests</p>
+            <p class="text-muted-foreground text-xs">All work from home requests have been handled</p>
           </div>
           }
         </z-card>
       </div>
+      }
       }
     </div>
   </z-tab>

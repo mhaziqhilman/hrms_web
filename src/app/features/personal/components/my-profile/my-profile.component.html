@@ -126,9 +126,9 @@
           <!-- Search -->
           <div class="flex items-center justify-between gap-3">
             <div class="relative w-full sm:w-80">
-              <z-icon zType="search" class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <z-icon zType="search" class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
               <input z-input
-                class="pl-9"
+                class="!pl-9"
                 placeholder="Search team members..."
                 [(ngModel)]="teamSearch" />
             </div>

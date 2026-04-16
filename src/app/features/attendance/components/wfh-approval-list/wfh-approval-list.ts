@@ -16,6 +16,7 @@ import { ZardMenuImports } from '@/shared/components/menu/menu.imports';
 import { ZardTableImports } from '@/shared/components/table/table.imports';
 import { ZardTooltipModule } from '@/shared/components/tooltip/tooltip';
 import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-dialog.service';
+import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
 
 @Component({
   selector: 'app-wfh-approval-list',
@@ -31,7 +32,8 @@ import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-d
     ZardAvatarComponent,
     ZardMenuImports,
     ZardTableImports,
-    ZardTooltipModule
+    ZardTooltipModule,
+    ZardSkeletonComponent
   ],
   templateUrl: './wfh-approval-list.html',
   styleUrl: './wfh-approval-list.css'

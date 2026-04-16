@@ -1,0 +1,108 @@
+<div class="login">
+  <div class="login__glow"></div>
+
+  <div class="login__top">
+    <div class="login__brand">
+      <div class="login__logo">N</div>
+      <div class="login__brand-text">
+        <div class="login__brand-name">Nextura HRMS</div>
+        <div class="login__brand-tag">Workforce, reimagined</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="login__body">
+    <h1 class="login__title">
+      @if (biometricEnabled() && storedEmail()) {
+        Welcome back
+      } @else {
+        Sign in
+      }
+    </h1>
+    <p class="login__subtitle">
+      @if (biometricEnabled() && storedEmail()) {
+        {{ storedEmail() }}
+      } @else {
+        Use your Nextura account to continue
+      }
+    </p>
+
+    @if (biometricAvailable() && biometricEnabled() && storedEmail()) {
+      <button
+        type="button"
+        class="login__biometric"
+        [disabled]="unlocking()"
+        (click)="unlockWithBiometric()"
+      >
+        <span class="login__biometric-icon">
+          <z-icon [zType]="biometricIcon()" zSize="lg"></z-icon>
+        </span>
+        <span class="login__biometric-text">
+          @if (unlocking()) {
+            Authenticating…
+          } @else {
+            Unlock with {{ biometricLabel() }}
+          }
+        </span>
+      </button>
+
+      <div class="login__divider">
+        <span>or sign in manually</span>
+      </div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="login__form" novalidate>
+      <label class="login__field">
+        <span class="login__field-label">Email</span>
+        <input
+          type="email"
+          autocomplete="email"
+          inputmode="email"
+          placeholder="you@company.com"
+          formControlName="email"
+          class="login__input"
+          [class.login__input--error]="form.get('email')?.touched && form.get('email')?.invalid"
+        />
+      </label>
+
+      <label class="login__field">
+        <span class="login__field-label">Password</span>
+        <div class="login__password-wrap">
+          <input
+            [type]="showPassword() ? 'text' : 'password'"
+            autocomplete="current-password"
+            placeholder="••••••••"
+            formControlName="password"
+            class="login__input login__input--password"
+            [class.login__input--error]="form.get('password')?.touched && form.get('password')?.invalid"
+          />
+          <button type="button" class="login__eye" (click)="togglePassword()" tabindex="-1" aria-label="Toggle password visibility">
+            <z-icon [zType]="showPassword() ? 'eye-off' : 'eye'" zSize="sm"></z-icon>
+          </button>
+        </div>
+      </label>
+
+      @if (error()) {
+        <div class="login__error" role="alert">{{ error() }}</div>
+      }
+
+      <button
+        type="submit"
+        class="login__submit"
+        [disabled]="form.invalid || loading()"
+      >
+        @if (loading()) {
+          Signing in…
+        } @else {
+          Sign in
+        }
+      </button>
+    </form>
+
+    <div class="login__links">
+      <a routerLink="/auth/forgot-password" class="login__link">Forgot password?</a>
+      <span class="login__dot">·</span>
+      <a routerLink="/auth/register" class="login__link">Create account</a>
+    </div>
+  </div>
+</div>

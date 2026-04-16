@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "243461354078",
+    "project_id": "nextura-hrms-b80ac",
+    "storage_bucket": "nextura-hrms-b80ac.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:243461354078:android:2907db119d17514291bacf",
+        "android_client_info": {
+          "package_name": "com.nextura.hrms"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDJt8UtLwsDfW4G-KVsdg0vpk_0g031s5s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

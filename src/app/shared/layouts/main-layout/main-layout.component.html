@@ -140,29 +140,53 @@
               @for (item of group.items; track item.title) {
                 @if (isItemVisible(item)) {
                   @if (item.children && item.children.length > 0) {
-                    <!-- Parent item with children -->
-                    <button type="button" z-button zType="ghost" class="px-2 py-1 text-foreground/65"
-                      [class]="sidebarCollapsed() ? 'justify-center self-center !flex' : 'justify-start'"
-                      [zTooltip]="sidebarCollapsed() ? item.title : ''" zPosition="right" (click)="toggleMenuItem(item.title)">
-                      <z-icon [zType]="item.icon" [class]="sidebarCollapsed() ? '' : 'mr-1'" />
-                      @if (!sidebarCollapsed()) {
+                    @if (sidebarCollapsed()) {
+                      <!-- Collapsed: parent opens a flyout menu with children -->
+                      <div z-menu [zMenuTriggerFor]="collapsedChildren" zPlacement="rightTop"
+                        class="self-center">
+                        <button type="button" z-button zType="ghost"
+                          class="px-2 py-1 text-foreground/65 justify-center !flex"
+                          [zTooltip]="item.title" zPosition="right">
+                          <z-icon [zType]="item.icon" />
+                        </button>
+                      </div>
+                      <ng-template #collapsedChildren>
+                        <div z-menu-content class="min-w-[200px]">
+                          <div class="px-2 py-1.5">
+                            <p class="text-xs font-medium text-muted-foreground">{{ item.title }}</p>
+                          </div>
+                          <z-divider zSpacing="sm" />
+                          @for (child of item.children; track child.route) {
+                            <a [routerLink]="child.route" z-menu-item
+                              routerLinkActive="bg-primary/10 !text-primary font-medium"
+                              [routerLinkActiveOptions]="{ exact: !child.children }">
+                              <z-icon [zType]="child.icon" class="mr-2 w-4 h-4" />
+                              <span>{{ child.title }}</span>
+                            </a>
+                          }
+                        </div>
+                      </ng-template>
+                    } @else {
+                      <!-- Expanded: parent toggles inline children list -->
+                      <button type="button" z-button zType="ghost" class="px-2 py-1 text-foreground/65 justify-start"
+                        (click)="toggleMenuItem(item.title)">
+                        <z-icon [zType]="item.icon" class="mr-1" />
                         <span class="flex-1 text-left">{{ item.title }}</span>
                         <z-icon [zType]="isMenuItemExpanded(item.title) ? 'chevron-up' : 'chevron-down'" class="ml-auto w-4 h-4" />
-                      }
-                    </button>
+                      </button>
 
-                    <!-- Children items -->
-                    @if (isMenuItemExpanded(item.title) && !sidebarCollapsed()) {
-                      <div class="ml-4 space-y-1 border-l-1 px-2.5">
-                        @for (child of item.children; track child.route) {
-                          <a [routerLink]="child.route" routerLinkActive="bg-primary/10 !text-primary font-medium"
-                            [routerLinkActiveOptions]="{ exact: !child.children }" z-button zType="ghost"
-                            class="justify-start w-full pl-2 px-2 py-0 text-foreground/65">
-                            <z-icon [zType]="child.icon" class="mr-1 w-4 h-4" />
-                            <span>{{ child.title }}</span>
-                          </a>
-                        }
-                      </div>
+                      @if (isMenuItemExpanded(item.title)) {
+                        <div class="ml-4 space-y-1 border-l-1 px-2.5">
+                          @for (child of item.children; track child.route) {
+                            <a [routerLink]="child.route" routerLinkActive="bg-primary/10 !text-primary font-medium"
+                              [routerLinkActiveOptions]="{ exact: !child.children }" z-button zType="ghost"
+                              class="justify-start w-full pl-2 px-2 py-0 text-foreground/65">
+                              <z-icon [zType]="child.icon" class="mr-1 w-4 h-4" />
+                              <span>{{ child.title }}</span>
+                            </a>
+                          }
+                        </div>
+                      }
                     }
                   } @else {
                     <!-- Regular item without children -->
@@ -387,7 +411,7 @@
     </header>
 
     <!-- Page Content -->
-    <div class="p-6">
+    <div class="flex-1 p-6">
       <router-outlet></router-outlet>
     </div>
 

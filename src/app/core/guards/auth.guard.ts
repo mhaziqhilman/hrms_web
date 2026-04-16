@@ -1,6 +1,9 @@
 import { inject } from '@angular/core';
 import { Router, CanActivateFn, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
+import { Capacitor } from '@capacitor/core';
 import { AuthService } from '../services/auth.service';
+
+const loginRoute = () => (Capacitor.isNativePlatform() ? '/m/login' : '/auth/login');
 
 /**
  * Auth Guard (Functional)
@@ -14,7 +17,7 @@ export const authGuard: CanActivateFn = (
   const router = inject(Router);
 
   if (!authService.isAuthenticated()) {
-    router.navigate(['/auth/login'], {
+    router.navigate([loginRoute()], {
       queryParams: { returnUrl: state.url }
     });
     return false;
@@ -49,7 +52,7 @@ export const onboardingGuard: CanActivateFn = (
   const router = inject(Router);
 
   if (!authService.isAuthenticated()) {
-    router.navigate(['/auth/login']);
+    router.navigate([loginRoute()]);
     return false;
   }
 

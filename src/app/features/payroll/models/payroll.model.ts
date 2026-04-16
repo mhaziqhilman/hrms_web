@@ -69,7 +69,7 @@ export interface PayrollListParams {
   status?: PayrollStatus;
   year?: number;
   month?: number;
-  employee_id?: number;
+  employee_id?: number | string;
   search?: string;
 }
 
@@ -214,6 +214,23 @@ export interface BulkActionResponse {
     results: BulkActionResult[];
   };
 }
+
+export interface PayRun {
+  key: string;          // "YYYY-MM" key
+  month: number;
+  year: number;
+  label: string;        // e.g. "Run for Jan 1st - Jan 31st"
+  payrollType: string;  // "Regular"
+  checkDate: string;    // Latest payment_date in the group
+  totalEarnings: number;
+  totalDeductions: number;
+  totalPay: number;
+  employeeCount: number;
+  status: PayRunStatus;
+  payrolls: Payroll[];  // Individual records in this run
+}
+
+export type PayRunStatus = 'Completed' | 'In Progress' | 'Draft' | 'Cancelled' | 'Mixed';
 
 export const MONTH_NAMES = [
   'January', 'February', 'March', 'April', 'May', 'June',

@@ -27,6 +27,72 @@
     </div>
   }
 
+  <!-- Loading State -->
+  @if (initialLoading()) {
+    <div class="space-y-6">
+      <!-- Skeleton: Current Time Card -->
+      <div class="rounded-xl border bg-card p-8 text-center">
+        <z-skeleton class="h-12 w-52 mx-auto mb-2" />
+        <z-skeleton class="h-5 w-64 mx-auto" />
+      </div>
+      <!-- Skeleton: 2-column cards -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="rounded-xl border bg-card p-6">
+          <div class="flex items-center gap-2 mb-4">
+            <z-skeleton class="h-5 w-5 rounded" />
+            <z-skeleton class="h-5 w-24" />
+          </div>
+          <div class="mb-6">
+            <z-skeleton class="h-3 w-28 mb-2" />
+            <div class="flex gap-2">
+              <z-skeleton class="h-10 w-full rounded-md" />
+              <z-skeleton class="h-10 w-full rounded-md" />
+            </div>
+          </div>
+          <z-skeleton class="h-11 w-full rounded-md mb-6" />
+          <div class="space-y-3">
+            @for (i of [1,2,3]; track i) {
+              <div class="flex items-center justify-between py-2">
+                <z-skeleton class="h-4 w-20" />
+                <z-skeleton class="h-4 w-16" />
+              </div>
+            }
+          </div>
+        </div>
+        <div class="rounded-xl border bg-card p-6">
+          <div class="flex items-center gap-2 mb-4">
+            <z-skeleton class="h-5 w-5 rounded" />
+            <z-skeleton class="h-5 w-28" />
+          </div>
+          <div class="flex justify-center mb-6">
+            <z-skeleton class="h-7 w-28 rounded-full" />
+          </div>
+          <div class="space-y-3">
+            @for (i of [1,2,3]; track i) {
+              <div class="rounded-lg p-3">
+                <z-skeleton class="h-3 w-16 mb-1" />
+                <z-skeleton class="h-4 w-24" />
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+      <!-- Skeleton: Instructions Card -->
+      <div class="rounded-xl border bg-card p-6">
+        <z-skeleton class="h-5 w-28 mb-4" />
+        <div class="space-y-3">
+          @for (i of [1,2,3,4]; track i) {
+            <div class="flex items-start gap-3">
+              <z-skeleton class="h-4 w-4 rounded-full mt-0.5" />
+              <z-skeleton class="h-4 w-72" />
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (!initialLoading()) {
   <!-- Current Time Display Card -->
   <div z-card class="mb-6">
     <div z-card-content class="p-8 text-center">
@@ -239,4 +305,5 @@
       </ul>
     </div>
   </div>
+  }
 </div>

@@ -39,6 +39,8 @@ export interface Employee {
   employment_type?: EmploymentType;
   employment_status?: EmploymentStatus;
   work_location?: string;
+  // If true, employee may clock in as WFH without a prior WFH application.
+  wfh_flexible?: boolean;
 
   // Banking Information
   bank_name?: string;

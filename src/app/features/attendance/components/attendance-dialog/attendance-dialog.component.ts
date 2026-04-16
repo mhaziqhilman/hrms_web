@@ -18,6 +18,7 @@ import { ZardDatePickerComponent } from '@/shared/components/date-picker/date-pi
 import { ZardSelectComponent } from '@/shared/components/select/select.component';
 import { ZardSelectItemComponent } from '@/shared/components/select/select-item.component';
 import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component';
+import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
 
 @Component({
   selector: 'app-attendance-dialog',
@@ -34,7 +35,8 @@ import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component
     ZardDatePickerComponent,
     ZardSelectComponent,
     ZardSelectItemComponent,
-    ZardAvatarComponent
+    ZardAvatarComponent,
+    ZardSkeletonComponent
   ],
   templateUrl: './attendance-dialog.component.html',
   styles: [`
@@ -63,6 +65,7 @@ export class AttendanceDialogComponent implements OnInit, OnDestroy {
 
   // UI State
   loading = signal(false);
+  initialLoading = signal(true);
   error = signal<string | null>(null);
   success = signal<string | null>(null);
   activeMode = signal<string>('clock');
@@ -252,8 +255,9 @@ export class AttendanceDialogComponent implements OnInit, OnDestroy {
             this.resetState();
           }
         }
+        this.initialLoading.set(false);
       },
-      error: () => this.resetState()
+      error: () => { this.resetState(); this.initialLoading.set(false); }
     });
   }
 

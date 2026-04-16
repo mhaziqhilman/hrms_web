@@ -60,6 +60,7 @@ export class ReportsListComponent implements OnInit {
   reportData = signal<any>(null);
   showPreview = signal(false);
   sendingEmail = signal(false);
+  bulkDownloading = signal(false);
 
   ngOnInit(): void {
     this.loadAvailablePeriods();
@@ -500,6 +501,30 @@ export class ReportsListComponent implements OnInit {
   formatCurrency(amount: number | null | undefined): string {
     if (amount === null || amount === undefined) return 'RM 0.00';
     return `RM ${amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
+  }
+
+  bulkDownloadEAForms(): void {
+    const year = this.selectedYear();
+    if (!year) return;
+
+    this.bulkDownloading.set(true);
+    const toastId = toast.loading(`Generating EA Forms for all employees... This may take a moment.`);
+
+    this.reportsService.bulkDownloadEAFormPDF(year).subscribe({
+      next: (blob) => {
+        this.reportsService.downloadFile(blob, `EA_Forms_${year}.zip`);
+        this.bulkDownloading.set(false);
+        toast.success(`EA_Forms_${year}.zip downloaded successfully.`, { id: toastId });
+      },
+      error: (err) => {
+        this.bulkDownloading.set(false);
+        if (err?.status === 0) {
+          toast.success('Your download will start shortly.', { id: toastId });
+        } else {
+          toast.error('Failed to generate bulk EA Forms. Please try again.', { id: toastId });
+        }
+      }
+    });
   }
 
   sendEAFormEmail(): void {

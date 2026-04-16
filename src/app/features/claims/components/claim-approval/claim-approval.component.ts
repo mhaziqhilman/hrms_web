@@ -19,6 +19,7 @@ import { ZardCheckboxComponent } from '@/shared/components/checkbox/checkbox.com
 import { ZardSegmentedComponent, SegmentedOption } from '@/shared/components/segmented/segmented.component';
 import { ZardTableImports } from '@/shared/components/table/table.imports';
 import { ZardDividerComponent } from '@/shared/components/divider/divider.component';
+import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
 
 // Dialog Components
 import { ApprovalConfirmationDialogComponent } from './dialogs/approval-confirmation-dialog.component';
@@ -40,7 +41,8 @@ import { PaymentDialogComponent } from './dialogs/payment-dialog.component';
     ZardCheckboxComponent,
     ZardSegmentedComponent,
     ZardTableImports,
-    ZardDividerComponent
+    ZardDividerComponent,
+    ZardSkeletonComponent
   ],
   templateUrl: './claim-approval.component.html',
   styleUrl: './claim-approval.component.css'

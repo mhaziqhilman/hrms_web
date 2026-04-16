@@ -31,10 +31,91 @@
   </div>
   }
 
-  <!-- Loading Spinner -->
+  <!-- Loading Skeleton -->
   @if (loading()) {
-  <div class="flex items-center justify-center py-20">
-    <z-icon zType="loader-circle" class="w-8 h-8 animate-spin text-primary" />
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+    <!-- Left Column Skeleton -->
+    <div class="lg:col-span-1 space-y-4">
+      <!-- Claim Information Card Skeleton -->
+      <div class="rounded-xl border bg-card p-5">
+        <div class="flex items-center gap-2 mb-4">
+          <z-skeleton class="h-5 w-5 rounded" />
+          <z-skeleton class="h-5 w-36" />
+        </div>
+        <div class="space-y-4">
+          <!-- Claim Type -->
+          <div>
+            <z-skeleton class="h-4 w-24 mb-2" />
+            <z-skeleton class="h-10 w-full rounded-md" />
+          </div>
+          <!-- Date -->
+          <div class="pt-2 border-t border-border">
+            <z-skeleton class="h-4 w-28 mb-3" />
+            <div class="space-y-4">
+              <div>
+                <z-skeleton class="h-4 w-24 mb-2" />
+                <z-skeleton class="h-10 w-full rounded-md" />
+                <z-skeleton class="h-3 w-56 mt-1" />
+              </div>
+              <!-- Amount -->
+              <div>
+                <z-skeleton class="h-4 w-24 mb-2" />
+                <z-skeleton class="h-10 w-full rounded-md" />
+                <z-skeleton class="h-3 w-40 mt-1" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Details & Receipt Card Skeleton -->
+      <div class="rounded-xl border bg-card p-5">
+        <div class="flex items-center gap-2 mb-4">
+          <z-skeleton class="h-5 w-5 rounded" />
+          <z-skeleton class="h-5 w-32" />
+        </div>
+        <div class="space-y-4">
+          <!-- Description -->
+          <div>
+            <z-skeleton class="h-4 w-20 mb-2" />
+            <z-skeleton class="h-24 w-full rounded-md" />
+            <z-skeleton class="h-3 w-64 mt-1" />
+          </div>
+          <!-- Receipt URL -->
+          <div class="pt-2 border-t border-border">
+            <z-skeleton class="h-4 w-24 mb-3" />
+            <z-skeleton class="h-10 w-full rounded-md" />
+            <z-skeleton class="h-3 w-48 mt-2" />
+          </div>
+          <!-- File Upload -->
+          <div class="pt-2 border-t border-border">
+            <z-skeleton class="h-4 w-32 mb-3" />
+            <z-skeleton class="h-28 w-full rounded-lg" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Right Column Skeleton -->
+    <div class="lg:col-span-1 space-y-4">
+      <div class="pl-5">
+        <div class="flex items-center gap-2 mb-4">
+          <z-skeleton class="h-5 w-5 rounded" />
+          <z-skeleton class="h-5 w-40" />
+        </div>
+        <div class="space-y-3">
+          @for (i of [1,2,3,4,5,6,7,8]; track i) {
+            <div class="flex items-start gap-2">
+              <z-skeleton class="h-4 w-4 mt-0.5 rounded" />
+              <z-skeleton class="h-4 flex-1" />
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Form Actions Skeleton -->
+  <div class="flex items-center justify-end gap-3">
+    <z-skeleton class="h-10 w-20 rounded-md" />
+    <z-skeleton class="h-10 w-28 rounded-md" />
   </div>
   }
 

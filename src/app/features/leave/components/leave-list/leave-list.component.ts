@@ -22,6 +22,7 @@ import { ZardEmptyComponent } from '@/shared/components/empty/empty.component';
 import { ZardSegmentedComponent, SegmentedOption } from '@/shared/components/segmented/segmented.component';
 import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component';
 import { ZardDividerComponent } from '@/shared/components/divider/divider.component';
+import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
 
 @Component({
   selector: 'app-leave-list',
@@ -42,7 +43,8 @@ import { ZardDividerComponent } from '@/shared/components/divider/divider.compon
     ZardEmptyComponent,
     ZardSegmentedComponent,
     ZardAvatarComponent,
-    ZardDividerComponent
+    ZardDividerComponent,
+    ZardSkeletonComponent
   ],
   templateUrl: './leave-list.component.html',
   styleUrl: './leave-list.component.css'
