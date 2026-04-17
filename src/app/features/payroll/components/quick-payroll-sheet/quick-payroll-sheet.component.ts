@@ -1,16 +1,22 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  Output,
+  SimpleChanges,
+  inject,
+  signal
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, ActivatedRoute, RouterLink } from '@angular/router';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { PayrollService } from '../../services/payroll.service';
 import { EmployeeService } from '../../../employees/services/employee.service';
-import { Payroll, MONTH_NAMES } from '../../models/payroll.model';
+import { MONTH_NAMES } from '../../models/payroll.model';
 import { Employee } from '../../../employees/models/employee.model';
 
-// ZardUI Component Imports
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { ZardIconComponent } from '@/shared/components/icon/icon.component';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { ZardSelectComponent } from '@/shared/components/select/select.component';
 import { ZardSelectItemComponent } from '@/shared/components/select/select-item.component';
 import { ZardFormFieldComponent } from '@/shared/components/form/form-field.component';
@@ -18,94 +24,112 @@ import { ZardFormLabelComponent } from '@/shared/components/form/form-label.comp
 import { ZardFormMessageComponent } from '@/shared/components/form/form-message.component';
 import { ZardInputDirective } from '@/shared/components/input/input.directive';
 import { ZardDatePickerComponent } from '@/shared/components/date-picker/date-picker.component';
+import { ZardDividerComponent } from '@/shared/components/divider/divider.component';
+import { ZardSheetImports } from '@/shared/components/sheet/sheet.component';
 import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-dialog.service';
 
 @Component({
-  selector: 'app-payroll-form',
+  selector: 'app-quick-payroll-sheet',
   standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    RouterLink,
+    FormsModule,
+    ZardSheetImports,
     ZardButtonComponent,
     ZardIconComponent,
-    ZardCardComponent,
     ZardSelectComponent,
     ZardSelectItemComponent,
     ZardFormFieldComponent,
     ZardFormLabelComponent,
     ZardFormMessageComponent,
     ZardInputDirective,
-    ZardDatePickerComponent
+    ZardDatePickerComponent,
+    ZardDividerComponent
   ],
-  templateUrl: './payroll-form.component.html',
-  styleUrl: './payroll-form.component.css'
+  templateUrl: './quick-payroll-sheet.component.html'
 })
-export class PayrollFormComponent implements OnInit {
+export class QuickPayrollSheetComponent implements OnChanges {
+  @Input() zOpen = false;
+  @Input() zPayrollPublicId: string | null = null;
+  @Output() zOpenChange = new EventEmitter<boolean>();
+  @Output() zSaved = new EventEmitter<void>();
+
+  private fb = inject(FormBuilder);
+  private payrollService = inject(PayrollService);
+  private employeeService = inject(EmployeeService);
   private alertDialog = inject(ZardAlertDialogService);
 
   payrollForm!: FormGroup;
+
   loading = signal(false);
   submitting = signal(false);
   error = signal<string | null>(null);
-
   employees = signal<Employee[]>([]);
   loadingEmployees = signal(false);
 
   isEditMode = signal(false);
-  payrollId = signal<string | null>(null);
+  showPriorYtd = signal(false);
+  showProration = signal(false);
+  daysWorked = signal<number | null>(null);
 
-  // Constants
-  MONTH_NAMES = MONTH_NAMES;
-  currentYear = new Date().getFullYear();
-  years: number[] = [];
-  months: number[] = Array.from({ length: 12 }, (_, i) => i + 1);
-
-  // Calculated values
   calculatedGrossSalary = signal(0);
   calculatedTotalDeductions = signal(0);
   calculatedNetSalary = signal(0);
 
-  constructor(
-    private fb: FormBuilder,
-    private payrollService: PayrollService,
-    private employeeService: EmployeeService,
-    private router: Router,
-    private route: ActivatedRoute
-  ) {
-    // Generate year options (current year and 2 previous years)
-    for (let i = 0; i < 3; i++) {
-      this.years.push(this.currentYear - i);
+  MONTH_NAMES = MONTH_NAMES;
+  months: number[] = Array.from({ length: 12 }, (_, i) => i + 1);
+  years: number[] = [];
+
+  constructor() {
+    const currentYear = new Date().getFullYear();
+    for (let i = 0; i < 3; i++) this.years.push(currentYear - i);
+    this.initializeForm();
+    this.payrollForm.valueChanges.subscribe(() => this.calculateTotals());
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['zOpen'] && this.zOpen) {
+      this.resetForOpen();
     }
   }
 
-  ngOnInit(): void {
-    this.initializeForm();
+  private resetForOpen(): void {
+    this.error.set(null);
+    this.showPriorYtd.set(false);
+    this.showProration.set(false);
+    this.daysWorked.set(null);
     this.loadEmployees();
 
-    // Check if edit mode
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
+    if (this.zPayrollPublicId) {
       this.isEditMode.set(true);
-      this.payrollId.set(id);
       this.payrollForm.get('employee_id')?.disable();
-      this.loadPayrollData(id);
+      this.loadPayrollData(this.zPayrollPublicId);
+    } else {
+      this.isEditMode.set(false);
+      this.payrollForm.get('employee_id')?.enable();
+      this.payrollForm.reset({
+        employee_id: null,
+        month: new Date().getMonth() + 1,
+        year: new Date().getFullYear(),
+        basic_salary: 0,
+        allowances: 0,
+        overtime_pay: 0,
+        bonus: 0,
+        commission: 0,
+        unpaid_leave_deduction: 0,
+        other_deductions: 0,
+        prior_ytd_gross: 0,
+        prior_ytd_epf: 0,
+        prior_ytd_pcb: 0,
+        payment_date: null,
+        notes: ''
+      });
     }
-
-    // Listen to employee selection changes to auto-fill basic salary
-    this.payrollForm.get('employee_id')?.valueChanges.subscribe((value) => {
-      this.onEmployeeChange(value);
-    });
-
-    // Subscribe to form value changes for auto-calculation
-    this.payrollForm.valueChanges.subscribe(() => {
-      this.calculateTotals();
-    });
   }
 
-  initializeForm(): void {
+  private initializeForm(): void {
     const currentDate = new Date();
-
     this.payrollForm = this.fb.group({
       employee_id: [null, Validators.required],
       month: [currentDate.getMonth() + 1, [Validators.required, Validators.min(1), Validators.max(12)]],
@@ -123,44 +147,32 @@ export class PayrollFormComponent implements OnInit {
       payment_date: [null, Validators.required],
       notes: ['']
     });
+
+    this.payrollForm.get('employee_id')?.valueChanges.subscribe((value) => {
+      this.onEmployeeChange(value);
+    });
   }
 
-  loadEmployees(): void {
+  private loadEmployees(): void {
     this.loadingEmployees.set(true);
-
     this.employeeService.getEmployees({ status: 'Active', limit: 100 }).subscribe({
       next: (response) => {
-        if (response.success) {
-          this.employees.set(response.data.employees);
-        }
+        if (response.success) this.employees.set(response.data.employees);
         this.loadingEmployees.set(false);
       },
-      error: (err) => {
-        const message = err.error?.message || 'Failed to load employees';
-        this.error.set(message);
+      error: () => {
         this.loadingEmployees.set(false);
-        this.alertDialog.warning({
-          zTitle: 'Failed to Load Employees',
-          zDescription: message,
-          zOkText: 'OK'
-        });
       }
     });
   }
 
-  loadPayrollData(id: string): void {
+  private loadPayrollData(id: string): void {
     this.loading.set(true);
-    this.error.set(null);
-
     this.payrollService.getPayrollById(id).subscribe({
       next: (response) => {
         if (response.success) {
           const payroll = response.data;
-
-          const paymentDate = payroll.payment_date
-            ? new Date(payroll.payment_date)
-            : null;
-
+          const paymentDate = payroll.payment_date ? new Date(payroll.payment_date) : null;
           this.payrollForm.patchValue({
             employee_id: payroll.employee_id,
             month: payroll.month,
@@ -178,6 +190,9 @@ export class PayrollFormComponent implements OnInit {
             payment_date: paymentDate,
             notes: payroll.notes || ''
           });
+          if (Number(payroll.prior_ytd_gross) > 0 || Number(payroll.prior_ytd_epf) > 0 || Number(payroll.prior_ytd_pcb) > 0) {
+            this.showPriorYtd.set(true);
+          }
         }
         this.loading.set(false);
       },
@@ -185,73 +200,79 @@ export class PayrollFormComponent implements OnInit {
         const message = err.error?.message || 'Failed to load payroll data';
         this.error.set(message);
         this.loading.set(false);
-        this.alertDialog.warning({
-          zTitle: 'Failed to Load Payroll',
-          zDescription: message,
-          zOkText: 'OK'
-        });
       }
     });
   }
 
-  onEmployeeChange(employeeId: any): void {
+  private onEmployeeChange(employeeId: any): void {
     const employee = this.employees().find(e => (e as any).public_id === employeeId);
-
     if (employee && !this.isEditMode()) {
-      // Auto-fill basic salary for new payroll
-      this.payrollForm.patchValue({
-        basic_salary: employee.basic_salary
-      });
+      this.payrollForm.patchValue({ basic_salary: employee.basic_salary });
     }
   }
 
-  calculateTotals(): void {
+  private calculateTotals(): void {
     const values = this.payrollForm.value;
-
-    // Calculate gross salary
     const grossSalary =
       Number(values.basic_salary || 0) +
       Number(values.allowances || 0) +
       Number(values.overtime_pay || 0) +
       Number(values.bonus || 0) +
       Number(values.commission || 0);
-
     this.calculatedGrossSalary.set(grossSalary);
 
-    // Deductions (EPF, SOCSO, EIS, PCB will be calculated by backend)
-    // We only show manual deductions here
     const manualDeductions =
       Number(values.unpaid_leave_deduction || 0) +
       Number(values.other_deductions || 0);
-
-    // Estimated statutory deductions (EPF 11% + SOCSO table-based + EIS table-based)
     const estimatedEPF = Math.ceil(grossSalary * 0.11);
-    // SOCSO: approximate using ~0.5% capped at RM6,000 (actual uses official wage-band table)
     const estimatedSOCSO = grossSalary > 6000 ? 29.75 : grossSalary * 0.005;
-    // EIS: approximate using ~0.2% capped at RM6,000 (actual uses official wage-band table)
     const estimatedEIS = grossSalary > 6000 ? 11.90 : grossSalary * 0.002;
-    const estimatedStatutoryDeductions = estimatedEPF + estimatedSOCSO + estimatedEIS;
-    const totalDeductions = estimatedStatutoryDeductions + manualDeductions;
-
+    const totalDeductions = estimatedEPF + estimatedSOCSO + estimatedEIS + manualDeductions;
     this.calculatedTotalDeductions.set(totalDeductions);
+    this.calculatedNetSalary.set(grossSalary - totalDeductions);
+  }
 
-    // Calculate net salary
-    const netSalary = grossSalary - totalDeductions;
-    this.calculatedNetSalary.set(netSalary);
+  togglePriorYtd(): void {
+    this.showPriorYtd.update((v) => !v);
+  }
+
+  toggleProration(): void {
+    const next = !this.showProration();
+    this.showProration.set(next);
+    if (next && this.daysWorked() === null) {
+      this.daysWorked.set(this.daysInMonth());
+    }
+  }
+
+  daysInMonth(): number {
+    const year = Number(this.payrollForm.get('year')?.value);
+    const month = Number(this.payrollForm.get('month')?.value);
+    if (!year || !month) return 30;
+    return new Date(year, month, 0).getDate();
+  }
+
+  proratedSalary(): number {
+    const basic = Number(this.payrollForm.get('basic_salary')?.value || 0);
+    const days = Number(this.daysWorked() || 0);
+    const total = this.daysInMonth();
+    if (!total || days <= 0) return 0;
+    return Math.round(basic * (days / total) * 100) / 100;
+  }
+
+  applyProration(): void {
+    this.payrollForm.patchValue({ basic_salary: this.proratedSalary() });
+    this.showProration.set(false);
   }
 
   onSubmit(): void {
     if (this.payrollForm.invalid) {
-      this.markFormGroupTouched(this.payrollForm);
+      Object.keys(this.payrollForm.controls).forEach(k => this.payrollForm.get(k)?.markAsTouched());
       return;
     }
-
     this.submitting.set(true);
     this.error.set(null);
 
-    const raw = this.payrollForm.value;
-
-    // Ensure correct types for express-validator v7
+    const raw = this.payrollForm.getRawValue();
     const formData: any = {
       employee_id: raw.employee_id,
       month: Number(raw.month),
@@ -266,80 +287,37 @@ export class PayrollFormComponent implements OnInit {
       prior_ytd_gross: Number(raw.prior_ytd_gross || 0),
       prior_ytd_epf: Number(raw.prior_ytd_epf || 0),
       prior_ytd_pcb: Number(raw.prior_ytd_pcb || 0),
-      payment_date: raw.payment_date instanceof Date
-        ? raw.payment_date.toISOString()
-        : raw.payment_date,
+      payment_date: raw.payment_date instanceof Date ? raw.payment_date.toISOString() : raw.payment_date,
       notes: raw.notes || ''
     };
 
-    if (this.isEditMode() && this.payrollId()) {
-      // Update existing payroll
-      this.payrollService.updatePayroll(this.payrollId()!, formData).subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.alertDialog.info({
-              zTitle: 'Success',
-              zDescription: 'Payroll updated successfully',
-              zOkText: 'OK',
-              zOnOk: () => this.router.navigate(['/payroll'])
-            });
-          }
-          this.submitting.set(false);
-        },
-        error: (err) => {
-          const message = err.error?.message || 'Failed to update payroll';
-          this.error.set(message);
-          this.submitting.set(false);
-          this.alertDialog.warning({
-            zTitle: 'Failed to Update Payroll',
-            zDescription: message,
-            zOkText: 'OK'
-          });
-        }
-      });
-    } else {
-      // Calculate new payroll
-      this.payrollService.calculatePayroll(formData).subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.alertDialog.info({
-              zTitle: 'Success',
-              zDescription: 'Payroll calculated successfully',
-              zOkText: 'OK',
-              zOnOk: () => this.router.navigate(['/payroll'])
-            });
-          }
-          this.submitting.set(false);
-        },
-        error: (err) => {
-          const message = err.error?.message || 'Failed to calculate payroll';
-          this.error.set(message);
-          this.submitting.set(false);
-          this.alertDialog.warning({
-            zTitle: 'Failed to Calculate Payroll',
-            zDescription: message,
-            zOkText: 'OK'
-          });
-        }
-      });
-    }
-  }
+    const request$ = this.isEditMode() && this.zPayrollPublicId
+      ? this.payrollService.updatePayroll(this.zPayrollPublicId, formData)
+      : this.payrollService.calculatePayroll(formData);
 
-  onCancel(): void {
-    this.alertDialog.confirm({
-      zTitle: 'Cancel',
-      zDescription: 'Are you sure you want to cancel? Any unsaved changes will be lost.',
-      zOkText: 'Yes, Cancel',
-      zCancelText: 'No, Stay',
-      zOnOk: () => this.router.navigate(['/payroll'])
+    request$.subscribe({
+      next: (response) => {
+        this.submitting.set(false);
+        if (response.success) {
+          this.zSaved.emit();
+          this.close();
+        }
+      },
+      error: (err) => {
+        const message = err.error?.message || (this.isEditMode() ? 'Failed to update payroll' : 'Failed to calculate payroll');
+        this.error.set(message);
+        this.submitting.set(false);
+        this.alertDialog.warning({
+          zTitle: this.isEditMode() ? 'Failed to Update Payroll' : 'Failed to Calculate Payroll',
+          zDescription: message,
+          zOkText: 'OK'
+        });
+      }
     });
   }
 
-  private markFormGroupTouched(formGroup: FormGroup): void {
-    Object.keys(formGroup.controls).forEach(key => {
-      const control = formGroup.get(key);
-      control?.markAsTouched();
-    });
+  close(): void {
+    this.zOpenChange.emit(false);
   }
 
   isFieldInvalid(fieldName: string): boolean {
@@ -350,18 +328,16 @@ export class PayrollFormComponent implements OnInit {
   getFieldError(fieldName: string): string {
     const field = this.payrollForm.get(fieldName);
     if (field?.errors) {
-      if (field.errors['required']) return `${fieldName} is required`;
-      if (field.errors['min']) return `${fieldName} must be >= ${field.errors['min'].min}`;
-      if (field.errors['max']) return `${fieldName} must be <= ${field.errors['max'].max}`;
+      if (field.errors['required']) return 'Required';
+      if (field.errors['min']) return `Must be >= ${field.errors['min'].min}`;
+      if (field.errors['max']) return `Must be <= ${field.errors['max'].max}`;
     }
     return '';
   }
 
   formatCurrency(amount: number | string | null | undefined): string {
     const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
-    if (numAmount === null || numAmount === undefined || isNaN(numAmount)) {
-      return 'RM 0.00';
-    }
+    if (numAmount === null || numAmount === undefined || isNaN(numAmount)) return 'RM 0.00';
     return `RM ${numAmount.toFixed(2)}`;
   }
 

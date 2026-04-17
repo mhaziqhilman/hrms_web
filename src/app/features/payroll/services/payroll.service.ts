@@ -10,7 +10,13 @@ import {
   CalculatePayrollRequest,
   UpdatePayrollRequest,
   PayslipResponse,
-  BulkActionResponse
+  BulkActionResponse,
+  PayRunEligibleResponse,
+  PayRunRequest,
+  PayRunPreviewResponse,
+  PayRunResponse,
+  PayRunListResponse,
+  PayRunDetailResponse
 } from '../models/payroll.model';
 
 @Injectable({
@@ -182,6 +188,55 @@ export class PayrollService {
     return this.http.post<BulkActionResponse>(
       `${this.apiUrl}${API_CONFIG.endpoints.payroll.bulkDelete}`,
       { payroll_ids: payrollIds }
+    );
+  }
+
+  // ─── Pay Run (Bulk Payroll) ───
+
+  getPayRunEligible(year: number, month: number): Observable<PayRunEligibleResponse> {
+    const params = new HttpParams()
+      .set('year', year.toString())
+      .set('month', month.toString());
+    return this.http.get<PayRunEligibleResponse>(
+      `${this.apiUrl}${API_CONFIG.endpoints.payroll.payrunEligible}`,
+      { params }
+    );
+  }
+
+  bulkPreview(request: PayRunRequest): Observable<PayRunPreviewResponse> {
+    return this.http.post<PayRunPreviewResponse>(
+      `${this.apiUrl}${API_CONFIG.endpoints.payroll.bulkPreview}`,
+      request
+    );
+  }
+
+  bulkCalculate(request: PayRunRequest): Observable<PayRunResponse> {
+    return this.http.post<PayRunResponse>(
+      `${this.apiUrl}${API_CONFIG.endpoints.payroll.bulkCalculate}`,
+      request
+    );
+  }
+
+  // ─── Pay Runs (DB records) ───
+
+  getPayRunDetail(id: string): Observable<PayRunDetailResponse> {
+    return this.http.get<PayRunDetailResponse>(
+      `${this.apiUrl}${API_CONFIG.endpoints.payRuns.detail(id)}`
+    );
+  }
+
+  deletePayRun(id: string): Observable<{ success: boolean; message: string; data: { mode: 'deleted' | 'cancelled'; affected: number } }> {
+    return this.http.delete<{ success: boolean; message: string; data: { mode: 'deleted' | 'cancelled'; affected: number } }>(
+      `${this.apiUrl}${API_CONFIG.endpoints.payRuns.detail(id)}`
+    );
+  }
+
+  getPayRuns(year?: number): Observable<PayRunListResponse> {
+    let params = new HttpParams();
+    if (year) params = params.set('year', year.toString());
+    return this.http.get<PayRunListResponse>(
+      `${this.apiUrl}${API_CONFIG.endpoints.payRuns.base}`,
+      { params }
     );
   }
 }

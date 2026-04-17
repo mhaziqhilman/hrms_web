@@ -2,13 +2,16 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
   Directive,
   effect,
+  inject,
   input,
   output,
   signal,
   ViewEncapsulation,
 } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 
 import { mergeClasses } from '@/shared/utils/merge-classes';
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
@@ -153,6 +156,9 @@ export class ZardSheetComponent {
   protected closing = signal(false);
 
   private closeTimer: ReturnType<typeof setTimeout> | null = null;
+  private readonly document = inject(DOCUMENT);
+  private previousBodyOverflow: string | null = null;
+  private static openSheetCount = 0;
 
   constructor() {
     effect(() => {
@@ -164,6 +170,7 @@ export class ZardSheetComponent {
         }
         this.visible.set(true);
         this.closing.set(false);
+        this.lockBodyScroll();
       } else if (this.visible()) {
         this.closing.set(true);
         this.closeTimer = setTimeout(() => {
@@ -171,8 +178,31 @@ export class ZardSheetComponent {
           this.closing.set(false);
           this.closeTimer = null;
         }, 200);
+        this.unlockBodyScroll();
       }
     });
+
+    inject(DestroyRef).onDestroy(() => {
+      if (this.previousBodyOverflow !== null) this.unlockBodyScroll();
+      if (this.closeTimer) clearTimeout(this.closeTimer);
+    });
+  }
+
+  private lockBodyScroll(): void {
+    if (this.previousBodyOverflow !== null) return;
+    const body = this.document.body;
+    this.previousBodyOverflow = body.style.overflow;
+    ZardSheetComponent.openSheetCount++;
+    body.style.overflow = 'hidden';
+  }
+
+  private unlockBodyScroll(): void {
+    if (this.previousBodyOverflow === null) return;
+    ZardSheetComponent.openSheetCount = Math.max(0, ZardSheetComponent.openSheetCount - 1);
+    if (ZardSheetComponent.openSheetCount === 0) {
+      this.document.body.style.overflow = this.previousBodyOverflow;
+    }
+    this.previousBodyOverflow = null;
   }
 
   close(): void {

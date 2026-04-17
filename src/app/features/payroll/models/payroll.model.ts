@@ -51,8 +51,9 @@ export interface PayrollEmployee {
 
 export interface PayrollUser {
   id: number;
-  username: string;
-  full_name: string;
+  username?: string;
+  full_name?: string;
+  email?: string;
 }
 
 export enum PayrollStatus {
@@ -216,21 +217,151 @@ export interface BulkActionResponse {
 }
 
 export interface PayRun {
-  key: string;          // "YYYY-MM" key
+  id: number;
+  public_id: string;
+  company_id: number;
   month: number;
   year: number;
-  label: string;        // e.g. "Run for Jan 1st - Jan 31st"
-  payrollType: string;  // "Regular"
-  checkDate: string;    // Latest payment_date in the group
-  totalEarnings: number;
-  totalDeductions: number;
-  totalPay: number;
-  employeeCount: number;
+  pay_period_start: string;
+  pay_period_end: string;
+  payment_date: string;
+  total_employees: number;
+  total_gross: number;
+  total_deductions: number;
+  total_net: number;
+  total_employer_cost: number;
   status: PayRunStatus;
-  payrolls: Payroll[];  // Individual records in this run
+  notes?: string;
+  created_by?: number;
+  creator?: PayrollUser;
+  payrolls?: Payroll[];
+  created_at: string;
+  updated_at: string;
+  // Computed for display
+  key?: string;
+  label?: string;
 }
 
-export type PayRunStatus = 'Completed' | 'In Progress' | 'Draft' | 'Cancelled' | 'Mixed';
+export type PayRunStatus = 'Draft' | 'Pending' | 'Approved' | 'Paid' | 'Cancelled';
+
+export interface PayRunListResponse {
+  success: boolean;
+  data: PayRun[];
+}
+
+export interface PayRunDetailResponse {
+  success: boolean;
+  data: PayRun & { payrolls: Payroll[] };
+}
+
+// ─── Pay Run (Bulk Payroll) Interfaces ───
+
+export interface PayRunEligibleEmployee {
+  id: number;
+  public_id: string;
+  employee_id: string;
+  full_name: string;
+  department: string;
+  position: string;
+  basic_salary: number;
+  bank_name: string;
+  bank_account_no: string;
+  join_date: string;
+  has_existing_payroll: boolean;
+  unpaid_leave_days: number;
+  unpaid_leave_deduction: number;
+}
+
+export interface PayRunEligibleResponse {
+  success: boolean;
+  data: {
+    employees: PayRunEligibleEmployee[];
+    period: { year: number; month: number };
+    summary: {
+      total_active: number;
+      already_processed: number;
+      eligible: number;
+    };
+  };
+}
+
+export interface PayRunEmployeeInput {
+  employee_id: string;
+  basic_salary?: number;
+  allowances: number;
+  overtime_pay: number;
+  bonus: number;
+  commission: number;
+  unpaid_leave_deduction: number;
+  other_deductions: number;
+  prior_ytd_gross?: number;
+  prior_ytd_epf?: number;
+  prior_ytd_pcb?: number;
+  notes?: string;
+}
+
+export interface PayRunPreviewEmployee {
+  employee_id: string;
+  employee_name: string;
+  department: string;
+  basic_salary: number;
+  allowances: number;
+  overtime_pay: number;
+  bonus: number;
+  commission: number;
+  gross_salary: number;
+  epf_employee: number;
+  epf_employer: number;
+  socso_employee: number;
+  socso_employer: number;
+  eis_employee: number;
+  eis_employer: number;
+  pcb_deduction: number;
+  unpaid_leave_deduction: number;
+  other_deductions: number;
+  total_deductions: number;
+  net_salary: number;
+}
+
+export interface PayRunPreviewResponse {
+  success: boolean;
+  data: {
+    period: { year: number; month: number };
+    employees: PayRunPreviewEmployee[];
+    totals: {
+      employee_count: number;
+      total_gross: number;
+      total_deductions: number;
+      total_net: number;
+    };
+  };
+}
+
+export interface PayRunRequest {
+  year: number;
+  month: number;
+  payment_date?: string;
+  employees: PayRunEmployeeInput[];
+}
+
+export interface PayRunResult {
+  employee_id: string;
+  employee_name?: string;
+  payroll_id?: string;
+  success: boolean;
+  message?: string;
+  net_salary?: number;
+}
+
+export interface PayRunResponse {
+  success: boolean;
+  message: string;
+  data: {
+    successCount: number;
+    failCount: number;
+    results: PayRunResult[];
+  };
+}
 
 export const MONTH_NAMES = [
   'January', 'February', 'March', 'April', 'May', 'June',

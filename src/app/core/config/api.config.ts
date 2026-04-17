@@ -63,7 +63,14 @@ export const API_CONFIG = {
       bulkApprove: '/payroll/bulk-approve',
       bulkMarkPaid: '/payroll/bulk-mark-paid',
       bulkCancel: '/payroll/bulk-cancel',
-      bulkDelete: '/payroll/bulk-delete'
+      bulkDelete: '/payroll/bulk-delete',
+      payrunEligible: '/payroll/payrun-eligible',
+      bulkPreview: '/payroll/bulk-preview',
+      bulkCalculate: '/payroll/bulk-calculate'
+    },
+    payRuns: {
+      base: '/payruns',
+      detail: (id: string) => `/payruns/${id}`
     },
     leaves: {
       base: '/leaves',

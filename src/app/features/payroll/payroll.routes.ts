@@ -12,24 +12,6 @@ export const PAYROLL_ROUTES: Routes = [
     data: { title: 'Payroll Management' }
   },
   {
-    path: 'calculate',
-    canActivate: [roleGuard(['super_admin', 'admin'])],
-    loadComponent: () =>
-      import('./components/payroll-form/payroll-form.component').then(
-        (m) => m.PayrollFormComponent
-      ),
-    data: { title: 'Calculate Payroll' }
-  },
-  {
-    path: ':id/edit',
-    canActivate: [roleGuard(['super_admin', 'admin'])],
-    loadComponent: () =>
-      import('./components/payroll-form/payroll-form.component').then(
-        (m) => m.PayrollFormComponent
-      ),
-    data: { title: 'Edit Payroll' }
-  },
-  {
     path: ':id',
     canActivate: [roleGuard(['super_admin', 'admin'])],
     loadComponent: () =>

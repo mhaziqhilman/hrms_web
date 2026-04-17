@@ -1,0 +1,18 @@
+<div class="payroll-summary-chart relative rounded-xl border border-border bg-background overflow-hidden h-full">
+  <!-- Text layer: title + total + subtitle (floats top-left) -->
+  <div class="relative z-10 px-6 pt-4 pb-3 flex flex-col pointer-events-none">
+    <h3 class="text-sm font-semibold text-foreground tracking-tight">Payroll History</h3>
+    <div class="flex items-baseline gap-1.5 mt-1.5">
+      <span class="text-sm text-muted-foreground">RM</span>
+      <span class="text-xl font-semibold text-foreground tracking-tight">
+        {{ formatCurrency(totalGross()) }}
+      </span>
+    </div>
+    <p class="text-xs text-muted-foreground mt-1">{{ year() }} year-to-date payroll</p>
+  </div>
+
+  <!-- Chart layer: absolute, with breathing room below x-axis labels -->
+  <div class="absolute inset-x-0 bottom-3 z-0">
+    <highcharts-chart [options]="chartOptions()" class="block w-full"></highcharts-chart>
+  </div>
+</div>

@@ -1,49 +1,33 @@
-/* Payroll List Component - ZardUI Migration Complete */
-/* All styles are now using Tailwind CSS utility classes */
-
-/* Tab navigation scrollbar styling (from ZardUI tabs) */
-.nav-tab-scroll {
-  -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
-}
-
-.nav-tab-scroll::-webkit-scrollbar-thumb {
-  background-color: rgba(209, 209, 209, 0.2);
-  border-radius: 2px;
-}
-
-.nav-tab-scroll::-webkit-scrollbar {
-  height: 4px;
-  width: 4px;
-}
-
-.nav-tab-scroll::-webkit-scrollbar-button {
-  display: none;
-}
-
-/* Table fixed height rows with horizontal scroll */
+/* Pay Runs Table */
+.pay-runs-table-container,
 .payroll-table-container {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
 
+.pay-runs-table-container::-webkit-scrollbar,
 .payroll-table-container::-webkit-scrollbar {
-  height: 8px;
+  height: 6px;
 }
 
+.pay-runs-table-container::-webkit-scrollbar-thumb,
 .payroll-table-container::-webkit-scrollbar-thumb {
-  background-color: rgba(209, 209, 209, 0.5);
-  border-radius: 4px;
+  background-color: rgba(209, 209, 209, 0.4);
+  border-radius: 3px;
 }
 
+.pay-runs-table-container::-webkit-scrollbar-track,
 .payroll-table-container::-webkit-scrollbar-track {
-  background-color: rgba(209, 209, 209, 0.1);
+  background-color: transparent;
 }
 
+.pay-runs-table tbody tr,
 .payroll-table tbody tr {
-  height: 60px;
+  height: 56px;
 }
 
+.pay-runs-table th,
+.pay-runs-table td,
 .payroll-table th,
 .payroll-table td {
   white-space: nowrap;
@@ -54,4 +38,160 @@
 
 .payroll-table th.th-text-center {
   text-align: center !important;
+}
+
+/* ─── Month selector fade in ─── */
+.month-selector-animate {
+  animation: monthFadeIn 0.25s ease forwards;
+}
+
+@keyframes monthFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ─── Summary sub-view fade swap ─── */
+.summary-fade {
+  animation: summaryFadeIn 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes summaryFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ─── Upcoming pay run placeholder row styling ─── */
+.pay-runs-table tr.payrun-row-upcoming {
+  background: color-mix(in oklch, var(--muted), transparent 60%);
+}
+
+.pay-runs-table tr.payrun-row-upcoming td {
+  color: var(--muted-foreground);
+}
+
+.pay-runs-table tr.payrun-row-upcoming td:first-child {
+  border-left: 2px solid #10b981;
+}
+
+/* ─── Delayed pay run placeholder row styling ─── */
+.pay-runs-table tr.payrun-row-delayed {
+  background: color-mix(in oklch, #ef4444, transparent 94%);
+}
+
+.pay-runs-table tr.payrun-row-delayed td {
+  color: var(--muted-foreground);
+}
+
+.pay-runs-table tr.payrun-row-delayed td:first-child {
+  border-left: 2px solid #ef4444;
+}
+
+/* ─── Pay Run Detail Sheet ─── */
+.payrun-sheet-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  background: var(--muted);
+}
+
+.payrun-sheet-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+
+.payrun-sheet-table-wrap {
+  border-radius: 0.5rem;
+  overflow: hidden;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: hsl(0 0% 80%) transparent;
+}
+
+.payrun-sheet-table-wrap::-webkit-scrollbar {
+  height: 5px;
+}
+
+.payrun-sheet-table-wrap::-webkit-scrollbar-thumb {
+  background: hsl(0 0% 80%);
+  border-radius: 3px;
+}
+
+.payrun-sheet-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+  min-width: 600px;
+}
+
+.payrun-sheet-table th,
+.payrun-sheet-table td {
+  border: 1px solid color-mix(in oklch, var(--border), transparent 40%);
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.payrun-sheet-table th {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  font-weight: 500;
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--muted-foreground);
+  background: color-mix(in oklch, var(--muted), transparent 30%);
+}
+
+.payrun-sheet-table td {
+  padding: 0.5rem 0.75rem;
+}
+
+.payrun-sheet-table tbody tr {
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.payrun-sheet-table tbody tr:hover td {
+  background: color-mix(in oklch, var(--primary), transparent 96%);
+}
+
+.payrun-sheet-table tfoot td {
+  padding: 0.5rem 0.75rem;
+  background: color-mix(in oklch, var(--muted), transparent 30%);
+}
+
+.payrun-sheet-table tr.payrun-row-cancelled td {
+  opacity: 0.55;
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(in oklch, currentColor, transparent 40%);
+}
+
+.payrun-sheet-table tr.payrun-row-cancelled td :not(.no-strike) {
+  /* keep status badge readable */
+}
+
+.payrun-sheet-table tr.payrun-row-cancelled td:last-child {
+  text-decoration: none;
+  opacity: 1;
+}
+
+.payrun-sheet-table tr.payrun-row-cancelled:hover td {
+  background: color-mix(in oklch, var(--destructive), transparent 96%);
 }

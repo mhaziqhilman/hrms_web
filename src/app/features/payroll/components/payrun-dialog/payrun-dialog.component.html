@@ -1,0 +1,679 @@
+<div class="dialog-wrapper">
+  <div class="dialog-content-row">
+    <!-- Left Sidenav: Stepper -->
+    <div class="dialog-sidenav">
+      <div class="sidenav-header">
+        <div class="flex items-center gap-3">
+          <div class="flex items-center justify-center w-9 h-9 rounded-lg bg-primary/10">
+            <z-icon [zType]="$any('banknote')" class="text-primary" zSize="lg" />
+          </div>
+          <div>
+            <h2 class="text-sm font-medium text-foreground">Run Payroll</h2>
+            <p class="text-xs text-muted-foreground">Bulk payroll processing</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidenav-steps">
+        @for (step of steps; track step.number) {
+          <div
+            class="step-item"
+            [class.active]="currentStep() === step.number"
+            [class.disabled]="!canGoToStep(step.number)"
+            (click)="canGoToStep(step.number) && goToStep(step.number)">
+            @if (step.number < steps.length) {
+              <div class="step-connector" [class.completed]="completedSteps().has(step.number)"></div>
+            }
+            <div class="step-indicator"
+              [class.active]="currentStep() === step.number"
+              [class.completed]="completedSteps().has(step.number) && currentStep() !== step.number"
+              [class.pending]="!completedSteps().has(step.number) && currentStep() !== step.number">
+              @if (completedSteps().has(step.number) && currentStep() !== step.number) {
+                <z-icon zType="check" zSize="sm" />
+              } @else {
+                {{ step.number }}
+              }
+            </div>
+            <div class="step-text">
+              <span class="step-label">{{ step.label }}</span>
+              <span class="step-description">{{ step.description }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="dialog-main">
+      <!-- Header -->
+      <div class="dialog-header">
+        <div>
+          <h3 class="section-title">{{ steps[currentStep() - 1].label }}</h3>
+          <p class="section-description">{{ steps[currentStep() - 1].description }}</p>
+        </div>
+        <button z-button zType="ghost" zSize="sm" (click)="close()">
+          <z-icon zType="x" />
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="dialog-body">
+
+        <!-- ════════ Step 1: Pay Period ════════ -->
+        @if (activeSection() === 'period') {
+          <div class="step-content">
+            <p class="text-sm text-muted-foreground mb-6">
+              Select the pay period for this payroll run. All selected employees will be processed for the same period.
+            </p>
+
+            <div class="form-grid">
+              <z-form-field>
+                <label z-form-label [zRequired]="true">Year</label>
+                <z-form-control>
+                  <z-select [zValue]="selectedYear().toString()" (zValueChange)="selectedYear.set(+$event); onPeriodChange()">
+                    @for (y of availableYears; track y) {
+                      <z-select-item [zValue]="y.toString()">{{ y }}</z-select-item>
+                    }
+                  </z-select>
+                </z-form-control>
+              </z-form-field>
+
+              <z-form-field>
+                <label z-form-label [zRequired]="true">Month</label>
+                <z-form-control>
+                  <z-select [zValue]="selectedMonth().toString()" (zValueChange)="selectedMonth.set(+$event); onPeriodChange()">
+                    @for (m of monthNames; track $index) {
+                      <z-select-item [zValue]="($index + 1).toString()">{{ m }}</z-select-item>
+                    }
+                  </z-select>
+                </z-form-control>
+              </z-form-field>
+            </div>
+
+            <div class="form-grid" style="margin-top: 1.5rem;">
+              <z-form-field>
+                <label z-form-label>Payment Date</label>
+                <z-form-control>
+                  <z-date-picker
+                    placeholder="Pick payment date"
+                    zFormat="dd-MM-yyyy"
+                    [ngModel]="paymentDate()"
+                    (ngModelChange)="onPaymentDateChange($event)"
+                  />
+                </z-form-control>
+                <z-form-message>Date employees will receive payment</z-form-message>
+              </z-form-field>
+            </div>
+
+            <!-- Period summary -->
+            <div class="mt-8 p-4 bg-muted rounded-lg">
+              <div class="flex items-center gap-2 mb-2">
+                <z-icon [zType]="$any('info')" zSize="sm" class="text-muted-foreground" />
+                <span class="text-sm font-medium text-foreground">Pay Period Summary</span>
+              </div>
+              <div class="grid grid-cols-3 gap-4 text-sm">
+                <div>
+                  <span class="text-muted-foreground">Period:</span>
+                  <span class="ml-1 font-medium">{{ payPeriodLabel() }}</span>
+                </div>
+                <div>
+                  <span class="text-muted-foreground">Start:</span>
+                  <span class="ml-1 font-medium">1 {{ monthNames[selectedMonth() - 1] }} {{ selectedYear() }}</span>
+                </div>
+                <div>
+                  <span class="text-muted-foreground">Payment:</span>
+                  <span class="ml-1 font-medium">{{ paymentDateLabel() }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- ════════ Step 2: Employee Selection ════════ -->
+        @if (activeSection() === 'employees') {
+          <div class="step-content">
+            @if (loadingEmployees()) {
+              <div class="loading-overlay">
+                <div class="spinner"></div>
+                Loading employees...
+              </div>
+            } @else {
+              <!-- Summary badges -->
+              <div class="flex items-center gap-3 mb-4">
+                <z-badge zType="secondary">{{ eligibleSummary().total_active }} Active</z-badge>
+                @if (eligibleSummary().already_processed > 0) {
+                  <z-badge zType="outline">{{ eligibleSummary().already_processed }} Already Processed</z-badge>
+                }
+                <z-badge zType="default">{{ eligibleSummary().eligible }} Eligible</z-badge>
+              </div>
+
+              <!-- Search -->
+              <div class="search-bar">
+                <z-icon [zType]="$any('search')" zSize="sm" />
+                <input z-input type="text" placeholder="Search by name, ID, or department..."
+                  [ngModel]="employeeSearch()" (ngModelChange)="employeeSearch.set($event)" />
+              </div>
+
+              <!-- Selection info -->
+              @if (selectedCount() > 0) {
+                <div class="selection-bar">
+                  <span class="font-medium text-primary">{{ selectedCount() }} employee{{ selectedCount() > 1 ? 's' : '' }} selected</span>
+                  <button z-button zType="ghost" zSize="sm" (click)="clearSelection()">
+                    Clear selection
+                  </button>
+                </div>
+              }
+
+              <!-- Table -->
+              <div class="rounded-lg border border-border overflow-hidden">
+                <table class="employee-table">
+                  <thead>
+                    <tr>
+                      <th style="width: 40px;">
+                        <span z-checkbox [ngModel]="allSelectableSelected()" (ngModelChange)="toggleAllEmployees()"></span>
+                      </th>
+                      <th>Employee</th>
+                      <th>Department</th>
+                      <th>Position</th>
+                      <th class="text-right">Basic Salary</th>
+                      <th>Unpaid Leave</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (emp of filteredEmployees(); track trackByPublicId($index, emp)) {
+                      <tr [class.disabled]="emp.has_existing_payroll">
+                        <td>
+                          @if (!emp.has_existing_payroll) {
+                            <span z-checkbox [ngModel]="isSelected(emp.public_id)" (ngModelChange)="toggleEmployee(emp.public_id)"></span>
+                          }
+                        </td>
+                        <td>
+                          <div class="flex flex-col">
+                            <span class="font-medium text-foreground">{{ emp.full_name }}</span>
+                            <span class="text-xs text-muted-foreground">{{ emp.employee_id }}</span>
+                          </div>
+                        </td>
+                        <td>{{ emp.department || '—' }}</td>
+                        <td>{{ emp.position || '—' }}</td>
+                        <td class="text-right font-medium">{{ formatCurrency(emp.basic_salary) }}</td>
+                        <td>
+                          @if (emp.unpaid_leave_days > 0) {
+                            <span class="unpaid-badge">
+                              <z-icon [zType]="$any('alert-circle')" zSize="sm" />
+                              {{ emp.unpaid_leave_days }} day{{ emp.unpaid_leave_days > 1 ? 's' : '' }}
+                            </span>
+                          } @else {
+                            <span class="text-muted-foreground">—</span>
+                          }
+                        </td>
+                        <td>
+                          @if (emp.has_existing_payroll) {
+                            <z-badge zType="outline">Processed</z-badge>
+                          } @else {
+                            <z-badge zType="secondary">Eligible</z-badge>
+                          }
+                        </td>
+                      </tr>
+                    }
+                    @if (filteredEmployees().length === 0) {
+                      <tr>
+                        <td colspan="7" class="text-center py-8 text-muted-foreground">
+                          No employees found
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- ════════ Step 3: Adjustments ════════ -->
+        @if (activeSection() === 'adjustments') {
+          <div class="step-content">
+            <p class="text-sm text-muted-foreground mb-4">
+              Adjust earnings and deductions per employee. Click the expand button to edit details. Unpaid leave deductions are auto-calculated from approved leaves.
+            </p>
+
+            <div class="rounded-lg border border-border overflow-hidden">
+              <table class="employee-table">
+                <thead>
+                  <tr>
+                    <th style="width: 36px;"></th>
+                    <th>Employee</th>
+                    <th>Department</th>
+                    <th class="text-right">Basic Salary</th>
+                    <th class="text-right">Additions</th>
+                    <th class="text-right">Deductions</th>
+                    <th class="text-right">Est. Gross</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (row of adjustmentRows(); track trackByIndex($index); let i = $index) {
+                    <!-- Main row -->
+                    <tr [class.expanded-row]="row.expanded">
+                      <td>
+                        <button z-button zType="ghost" zSize="sm" class="!p-1" (click)="toggleExpandRow(i)">
+                          <z-icon [zType]="$any(row.expanded ? 'chevron-down' : 'chevron-right')" zSize="sm" />
+                        </button>
+                      </td>
+                      <td>
+                        <div class="flex flex-col">
+                          <span class="font-medium text-foreground">{{ row.employee.full_name }}</span>
+                          <span class="text-xs text-muted-foreground">{{ row.employee.employee_id }}</span>
+                        </div>
+                      </td>
+                      <td>{{ row.employee.department || '—' }}</td>
+                      <td class="text-right">
+                        @if (row.basic_salary_override != null) {
+                          <div class="flex flex-col items-end gap-0.5">
+                            <span class="font-medium text-foreground">{{ formatCurrency(row.basic_salary_override) }}</span>
+                            <span class="text-[11px] text-amber-600 dark:text-amber-400">prorated</span>
+                          </div>
+                        } @else {
+                          {{ formatCurrency(row.employee.basic_salary) }}
+                        }
+                      </td>
+                      <td class="text-right text-green-600">
+                        @if (row.allowances + row.overtime_pay + row.bonus + row.commission > 0) {
+                          +{{ formatCurrency(row.allowances + row.overtime_pay + row.bonus + row.commission) }}
+                        } @else {
+                          <span class="text-muted-foreground">—</span>
+                        }
+                      </td>
+                      <td class="text-right text-red-600">
+                        @if (row.unpaid_leave_deduction + row.other_deductions > 0) {
+                          -{{ formatCurrency(row.unpaid_leave_deduction + row.other_deductions) }}
+                        } @else {
+                          <span class="text-muted-foreground">—</span>
+                        }
+                      </td>
+                      <td class="text-right font-medium">{{ formatCurrency(getRowGross(row)) }}</td>
+                    </tr>
+
+                    <!-- Expansion panel -->
+                    @if (row.expanded) {
+                      <tr class="expansion-panel">
+                        <td colspan="7">
+                          <div class="px-2">
+                            <!-- Part-month proration -->
+                            <div class="mb-4">
+                              <button type="button" (click)="toggleProrationRow(i)"
+                                class="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
+                                <z-icon [zType]="$any(row.showProration ? 'chevron-down' : 'chevron-right')" zSize="sm" />
+                                Part-month
+                                <span class="text-muted-foreground/60 font-normal">(prorate for mid-month joiner/leaver)</span>
+                                @if (row.basic_salary_override != null) {
+                                  <span class="ml-2 text-[11px] font-medium text-amber-600 dark:text-amber-400">
+                                    Prorated: {{ formatCurrency(row.basic_salary_override) }}
+                                  </span>
+                                }
+                              </button>
+
+                              @if (row.showProration) {
+                                <div class="mt-2 rounded-md border border-dashed border-border bg-muted/30 p-3 max-w-xl">
+                                  <div class="grid grid-cols-[auto_1fr_auto] items-end gap-3">
+                                    <div>
+                                      <label class="text-xs font-medium text-foreground block mb-1">Days worked</label>
+                                      <input z-input type="number" min="0" [max]="daysInMonth()" step="1"
+                                        class="w-24"
+                                        [ngModel]="row.days_worked" (ngModelChange)="setDaysWorked(i, +$event)" />
+                                    </div>
+                                    <div class="text-xs text-muted-foreground pb-2.5">
+                                      of {{ daysInMonth() }}
+                                      <span class="mx-2">·</span>
+                                      Prorated:
+                                      <span class="font-medium text-foreground">{{ formatCurrency(proratedRowSalary(row)) }}</span>
+                                    </div>
+                                    <div class="flex gap-2 pb-0.5">
+                                      @if (row.basic_salary_override != null) {
+                                        <button type="button" z-button zType="ghost" zSize="sm"
+                                          (click)="clearBasicOverride(i)">Reset</button>
+                                      }
+                                      <button type="button" z-button zType="outline" zSize="sm"
+                                        (click)="applyRowProration(i)"
+                                        [disabled]="!row.days_worked || row.days_worked <= 0">
+                                        Apply
+                                      </button>
+                                    </div>
+                                  </div>
+                                  <p class="text-[11px] text-muted-foreground mt-2">
+                                    Calendar days (Malaysian convention). Formula: basic × (days worked / {{ daysInMonth() }}).
+                                  </p>
+                                </div>
+                              }
+                            </div>
+
+                            <!-- Earnings -->
+                            <p class="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Earnings</p>
+                            <div class="expansion-grid">
+                              <z-form-field>
+                                <label z-form-label>Allowances</label>
+                                <z-form-control>
+                                  <input z-input type="number" min="0" step="0.01"
+                                    [ngModel]="row.allowances" (ngModelChange)="row.allowances = +$event" />
+                                </z-form-control>
+                              </z-form-field>
+                              <z-form-field>
+                                <label z-form-label>Overtime</label>
+                                <z-form-control>
+                                  <input z-input type="number" min="0" step="0.01"
+                                    [ngModel]="row.overtime_pay" (ngModelChange)="row.overtime_pay = +$event" />
+                                </z-form-control>
+                              </z-form-field>
+                              <z-form-field>
+                                <label z-form-label>Bonus</label>
+                                <z-form-control>
+                                  <input z-input type="number" min="0" step="0.01"
+                                    [ngModel]="row.bonus" (ngModelChange)="row.bonus = +$event" />
+                                </z-form-control>
+                              </z-form-field>
+                              <z-form-field>
+                                <label z-form-label>Commission</label>
+                                <z-form-control>
+                                  <input z-input type="number" min="0" step="0.01"
+                                    [ngModel]="row.commission" (ngModelChange)="row.commission = +$event" />
+                                </z-form-control>
+                              </z-form-field>
+                            </div>
+
+                            <!-- Deductions -->
+                            <p class="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3 mt-4">Deductions</p>
+                            <div class="expansion-grid">
+                              <z-form-field>
+                                <label z-form-label>Unpaid Leave</label>
+                                <z-form-control>
+                                  <input z-input type="number" min="0" step="0.01"
+                                    [ngModel]="row.unpaid_leave_deduction" (ngModelChange)="row.unpaid_leave_deduction = +$event" />
+                                </z-form-control>
+                                @if (row.employee.unpaid_leave_days > 0) {
+                                  <z-form-message>
+                                    {{ row.employee.unpaid_leave_days }} day{{ row.employee.unpaid_leave_days > 1 ? 's' : '' }} unpaid leave detected
+                                  </z-form-message>
+                                }
+                              </z-form-field>
+                              <z-form-field>
+                                <label z-form-label>Other Deductions</label>
+                                <z-form-control>
+                                  <input z-input type="number" min="0" step="0.01"
+                                    [ngModel]="row.other_deductions" (ngModelChange)="row.other_deductions = +$event" />
+                                </z-form-control>
+                              </z-form-field>
+                            </div>
+
+                            <!-- Notes -->
+                            <div class="mt-4" style="max-width: 50%;">
+                              <z-form-field>
+                                <label z-form-label>Notes</label>
+                                <z-form-control>
+                                  <input z-input type="text" placeholder="Optional notes..."
+                                    [ngModel]="row.notes" (ngModelChange)="row.notes = $event" />
+                                </z-form-control>
+                              </z-form-field>
+                            </div>
+
+                            <!-- Prior Employment YTD (collapsible) -->
+                            <div class="mt-4">
+                              <button type="button" (click)="togglePriorYtdRow(i)"
+                                class="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
+                                <z-icon [zType]="$any(row.showPriorYtd ? 'chevron-down' : 'chevron-right')" zSize="sm" />
+                                Prior Employment YTD
+                                <span class="text-muted-foreground/60 font-normal">(for mid-year joiners)</span>
+                              </button>
+
+                              @if (row.showPriorYtd) {
+                                <p class="text-xs text-muted-foreground mt-2 mb-3 max-w-2xl">
+                                  Enter previous employer's YTD data (from CP22A or prior payslips) so PCB tax is calculated accurately for this employee.
+                                </p>
+                                <div class="expansion-grid">
+                                  <z-form-field>
+                                    <label z-form-label>Prior YTD Gross</label>
+                                    <z-form-control>
+                                      <input z-input type="number" min="0" step="0.01"
+                                        [ngModel]="row.prior_ytd_gross" (ngModelChange)="row.prior_ytd_gross = +$event" />
+                                    </z-form-control>
+                                  </z-form-field>
+                                  <z-form-field>
+                                    <label z-form-label>Prior YTD EPF</label>
+                                    <z-form-control>
+                                      <input z-input type="number" min="0" step="0.01"
+                                        [ngModel]="row.prior_ytd_epf" (ngModelChange)="row.prior_ytd_epf = +$event" />
+                                    </z-form-control>
+                                  </z-form-field>
+                                  <z-form-field>
+                                    <label z-form-label>Prior YTD PCB</label>
+                                    <z-form-control>
+                                      <input z-input type="number" min="0" step="0.01"
+                                        [ngModel]="row.prior_ytd_pcb" (ngModelChange)="row.prior_ytd_pcb = +$event" />
+                                    </z-form-control>
+                                  </z-form-field>
+                                </div>
+                              }
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    }
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        }
+
+        <!-- ════════ Step 4: Review & Confirm ════════ -->
+        @if (activeSection() === 'review') {
+          <div class="step-content">
+            @if (loadingPreview()) {
+              <div class="loading-overlay">
+                <div class="spinner"></div>
+                Calculating statutory deductions...
+              </div>
+            } @else {
+              <!-- Summary cards with colors -->
+              <div class="summary-cards">
+                <div class="summary-card card-employees">
+                  <div class="flex items-center gap-2 mb-1">
+                    <div class="summary-card-icon bg-purple-100 dark:bg-purple-900/30">
+                      <z-icon [zType]="$any('users')" zSize="sm" class="text-purple-600" />
+                    </div>
+                    <span class="summary-card-label">Employees</span>
+                  </div>
+                  <div class="summary-card-value">{{ previewTotals().employee_count }}</div>
+                </div>
+                <div class="summary-card card-gross">
+                  <div class="flex items-center gap-2 mb-1">
+                    <div class="summary-card-icon bg-blue-100 dark:bg-blue-900/30">
+                      <z-icon [zType]="$any('dollar-sign')" zSize="sm" class="text-blue-600" />
+                    </div>
+                    <span class="summary-card-label">Total Gross</span>
+                  </div>
+                  <div class="summary-card-value text-blue-600">{{ formatCurrency(previewTotals().total_gross) }}</div>
+                </div>
+                <div class="summary-card card-deductions">
+                  <div class="flex items-center gap-2 mb-1">
+                    <div class="summary-card-icon bg-red-100 dark:bg-red-900/30">
+                      <z-icon [zType]="$any('minus')" zSize="sm" class="text-red-600" />
+                    </div>
+                    <span class="summary-card-label">Total Deductions</span>
+                  </div>
+                  <div class="summary-card-value text-red-600">{{ formatCurrency(previewTotals().total_deductions) }}</div>
+                </div>
+                <div class="summary-card card-net">
+                  <div class="flex items-center gap-2 mb-1">
+                    <div class="summary-card-icon bg-green-100 dark:bg-green-900/30">
+                      <z-icon [zType]="$any('wallet')" zSize="sm" class="text-green-600" />
+                    </div>
+                    <span class="summary-card-label">Total Net Pay</span>
+                  </div>
+                  <div class="summary-card-value text-green-600">{{ formatCurrency(previewTotals().total_net) }}</div>
+                </div>
+              </div>
+
+              <!-- Period info -->
+              <div class="flex items-center gap-4 mb-4 text-sm text-muted-foreground">
+                <span>Period: <strong class="text-foreground">{{ payPeriodLabel() }}</strong></span>
+                <span>Payment Date: <strong class="text-foreground">{{ paymentDateLabel() }}</strong></span>
+                <span>Status: <z-badge zType="secondary">Draft</z-badge></span>
+              </div>
+
+              <!-- Detailed breakdown table (horizontal scrollable) -->
+              <div class="review-table-wrapper">
+                <table class="employee-table">
+                  <thead>
+                    <tr>
+                      <th class="sticky-col">Employee</th>
+                      <th>Department</th>
+                      <th class="text-right">Gross</th>
+                      <th class="text-right">EPF</th>
+                      <th class="text-right">SOCSO</th>
+                      <th class="text-right">EIS</th>
+                      <th class="text-right">PCB</th>
+                      <th class="text-right">Unpaid Leave</th>
+                      <th class="text-right">Other Ded.</th>
+                      <th class="sticky-col text-right">Net Pay</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (emp of previewData(); track emp.employee_id) {
+                      <tr>
+                        <td class="sticky-col">
+                          <span class="font-medium text-foreground">{{ emp.employee_name }}</span>
+                        </td>
+                        <td>{{ emp.department || '—' }}</td>
+                        <td class="text-right">{{ formatCurrency(emp.gross_salary) }}</td>
+                        <td class="text-right">{{ formatCurrency(emp.epf_employee) }}</td>
+                        <td class="text-right">{{ formatCurrency(emp.socso_employee) }}</td>
+                        <td class="text-right">{{ formatCurrency(emp.eis_employee) }}</td>
+                        <td class="text-right">{{ formatCurrency(emp.pcb_deduction) }}</td>
+                        <td class="text-right">{{ formatCurrency(emp.unpaid_leave_deduction) }}</td>
+                        <td class="text-right">{{ formatCurrency(emp.other_deductions) }}</td>
+                        <td class="sticky-col text-right font-semibold text-green-600">{{ formatCurrency(emp.net_salary) }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                  <tfoot>
+                    <tr class="font-semibold" style="background: var(--muted);">
+                      <td class="sticky-col">Total</td>
+                      <td></td>
+                      <td class="text-right">{{ formatCurrency(previewTotals().total_gross) }}</td>
+                      <td class="text-right" colspan="5"></td>
+                      <td class="text-right"></td>
+                      <td class="sticky-col text-right text-green-600">{{ formatCurrency(previewTotals().total_net) }}</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+
+              <!-- Before confirming -->
+              <div class="mt-6 p-4 bg-muted rounded-lg">
+                <div class="flex items-start gap-2">
+                  <z-icon [zType]="$any('info')" zSize="sm" class="text-muted-foreground mt-0.5" />
+                  <div class="text-sm text-muted-foreground">
+                    <p class="font-medium text-foreground mb-1">Before confirming</p>
+                    <ul class="list-disc list-inside space-y-0.5">
+                      <li>All payrolls will be created in <strong>Draft</strong> status</li>
+                      <li>You can still edit individual payrolls after creation</li>
+                      <li>Statutory deductions (EPF, SOCSO, EIS, PCB) are auto-calculated</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <!-- Statutory rates reference -->
+                @if (statutoryConfigs().length > 0) {
+                  <div class="mt-4 pt-4 border-t border-border">
+                    <p class="text-xs font-medium text-foreground uppercase tracking-wider mb-3">
+                      Active Statutory Rates (Company Config)
+                    </p>
+                    <div class="statutory-ref-grid">
+                      <!-- EPF -->
+                      @if (epfConfigs().length > 0) {
+                        <div class="statutory-ref-card statutory-epf">
+                          <p class="statutory-ref-title">
+                            <z-icon [zType]="$any('building')" zSize="sm" />
+                            EPF
+                          </p>
+                          @for (c of epfConfigs(); track c.id) {
+                            <div class="statutory-ref-row">
+                              <span>{{ getConfigLabel(c.config_key) }}</span>
+                              <span class="font-medium">{{ formatConfigValue(c.config_value, c.config_key) }}</span>
+                            </div>
+                          }
+                        </div>
+                      }
+                      <!-- SOCSO -->
+                      @if (socsoConfigs().length > 0) {
+                        <div class="statutory-ref-card statutory-socso">
+                          <p class="statutory-ref-title">
+                            <z-icon [zType]="$any('shield')" zSize="sm" />
+                            SOCSO
+                          </p>
+                          @for (c of socsoConfigs(); track c.id) {
+                            <div class="statutory-ref-row">
+                              <span>{{ getConfigLabel(c.config_key) }}</span>
+                              <span class="font-medium">{{ formatConfigValue(c.config_value, c.config_key) }}</span>
+                            </div>
+                          }
+                        </div>
+                      }
+                      <!-- EIS -->
+                      @if (eisConfigs().length > 0) {
+                        <div class="statutory-ref-card statutory-eis">
+                          <p class="statutory-ref-title">
+                            <z-icon [zType]="$any('briefcase')" zSize="sm" />
+                            EIS
+                          </p>
+                          @for (c of eisConfigs(); track c.id) {
+                            <div class="statutory-ref-row">
+                              <span>{{ getConfigLabel(c.config_key) }}</span>
+                              <span class="font-medium">{{ formatConfigValue(c.config_value, c.config_key) }}</span>
+                            </div>
+                          }
+                        </div>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Footer -->
+      <div class="dialog-footer">
+        <div>
+          @if (currentStep() > 1) {
+            <button z-button zType="outline" (click)="previousStep()">
+              <z-icon [zType]="$any('arrow-left')" zSize="sm" class="mr-1" />
+              Back
+            </button>
+          }
+        </div>
+        <div class="flex items-center gap-2">
+          <button z-button zType="ghost" (click)="close()">Cancel</button>
+          @if (currentStep() < 4) {
+            <button z-button zType="default" (click)="nextStep()"
+              [disabled]="(currentStep() === 2 && selectedCount() === 0)">
+              Next
+              <z-icon [zType]="$any('arrow-right')" zSize="sm" class="ml-1" />
+            </button>
+          } @else {
+            <button z-button zType="default" (click)="confirmPayRun()"
+              [disabled]="submitting() || loadingPreview()">
+              @if (submitting()) {
+                <div class="spinner mr-2" style="width: 1rem; height: 1rem;"></div>
+                Processing...
+              } @else {
+                <z-icon [zType]="$any('check')" zSize="sm" class="mr-1" />
+                Confirm Pay Run ({{ previewTotals().employee_count }})
+              }
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

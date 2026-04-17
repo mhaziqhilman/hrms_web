@@ -1,0 +1,280 @@
+<z-sheet
+  [zOpen]="zOpen"
+  (zOpenChange)="close()"
+  zSide="right"
+  zClass="sm:max-w-md w-full overflow-y-auto p-0">
+
+  <!-- Header -->
+  <div class="px-6 pt-6 pb-4">
+    <div class="pr-8">
+      <h3 class="text-lg font-semibold text-foreground">
+        {{ isEditMode() ? 'Edit Payroll' : 'Quick Payroll Run' }}
+      </h3>
+      <p class="text-xs text-muted-foreground mt-0.5">
+        {{ isEditMode() ? 'Update payroll record' : 'Calculate payroll for a single employee' }}
+      </p>
+    </div>
+  </div>
+
+  <z-divider zSpacing="none" />
+
+  <!-- Body -->
+  <div class="px-6 py-5 flex-1">
+    @if (loading()) {
+      <div class="flex flex-col items-center justify-center py-10">
+        <z-icon zType="loader-circle" class="w-8 h-8 text-primary animate-spin" />
+        <p class="text-xs text-muted-foreground mt-3">Loading payroll...</p>
+      </div>
+    } @else {
+      <form [formGroup]="payrollForm" (ngSubmit)="onSubmit()" class="space-y-5">
+
+        @if (error()) {
+          <div class="flex items-start gap-2 p-3 rounded-md border border-destructive/40 bg-destructive/5 text-destructive">
+            <z-icon zType="circle-alert" class="w-4 h-4 mt-0.5 flex-shrink-0" />
+            <span class="text-sm">{{ error() }}</span>
+          </div>
+        }
+
+        <!-- Employee -->
+        <z-form-field>
+          <label z-form-label for="employee" class="required text-xs font-medium">Employee</label>
+          <z-select id="employee" formControlName="employee_id" placeholder="Select employee">
+            @for (emp of employees(); track emp.public_id) {
+              <z-select-item [zValue]="emp.public_id">
+                {{ emp.full_name }} ({{ emp.employee_id }})
+              </z-select-item>
+            }
+          </z-select>
+          @if (isFieldInvalid('employee_id')) {
+            <z-form-message>{{ getFieldError('employee_id') }}</z-form-message>
+          }
+        </z-form-field>
+
+        <!-- Period -->
+        <div class="grid grid-cols-2 gap-3">
+          <z-form-field>
+            <label z-form-label for="month" class="required text-xs font-medium">Month</label>
+            <z-select id="month" formControlName="month">
+              @for (m of months; track m) {
+                <z-select-item [zValue]="m">{{ getMonthName(m) }}</z-select-item>
+              }
+            </z-select>
+          </z-form-field>
+          <z-form-field>
+            <label z-form-label for="year" class="required text-xs font-medium">Year</label>
+            <z-select id="year" formControlName="year">
+              @for (y of years; track y) {
+                <z-select-item [zValue]="y">{{ y }}</z-select-item>
+              }
+            </z-select>
+          </z-form-field>
+        </div>
+
+        <!-- Earnings section -->
+        <div class="space-y-3">
+          <h4 class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Earnings</h4>
+
+          <z-form-field>
+            <label z-form-label for="basic_salary" class="required text-xs font-medium">Basic Salary</label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">RM</span>
+              <input z-input type="number" id="basic_salary" formControlName="basic_salary"
+                     placeholder="0.00" step="0.01" min="0" class="pl-11" />
+            </div>
+            @if (isFieldInvalid('basic_salary')) {
+              <z-form-message>{{ getFieldError('basic_salary') }}</z-form-message>
+            }
+
+            <button type="button" (click)="toggleProration()"
+                    class="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
+              <z-icon [zType]="showProration() ? 'chevron-down' : 'chevron-right'" class="w-3.5 h-3.5" />
+              Part-month (prorate for mid-month joiner/leaver)
+            </button>
+
+            @if (showProration()) {
+              <div class="mt-2 rounded-md border border-dashed border-border bg-muted/30 p-3 space-y-2">
+                <div class="flex items-end gap-2">
+                  <div class="flex-1">
+                    <label class="text-xs font-medium text-foreground block mb-1">Days worked</label>
+                    <input z-input type="number" min="0" [max]="daysInMonth()" step="1"
+                           [ngModel]="daysWorked()" [ngModelOptions]="{ standalone: true }"
+                           (ngModelChange)="daysWorked.set(+$event)" />
+                  </div>
+                  <span class="text-xs text-muted-foreground pb-2.5">of {{ daysInMonth() }}</span>
+                </div>
+                <div class="flex items-center justify-between text-xs pt-1">
+                  <span class="text-muted-foreground">
+                    Prorated: <span class="font-medium text-foreground">{{ formatCurrency(proratedSalary()) }}</span>
+                  </span>
+                  <button type="button" z-button zType="outline" zSize="sm"
+                          (click)="applyProration()"
+                          [disabled]="!daysWorked() || daysWorked()! <= 0">
+                    Apply
+                  </button>
+                </div>
+                <p class="text-[11px] text-muted-foreground leading-relaxed pt-0.5">
+                  Calendar days (Malaysian convention). You can still edit Basic Salary manually after applying.
+                </p>
+              </div>
+            }
+          </z-form-field>
+
+          <div class="grid grid-cols-2 gap-3">
+            <z-form-field>
+              <label z-form-label for="allowances" class="text-xs font-medium">Allowances</label>
+              <div class="relative">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">RM</span>
+                <input z-input type="number" id="allowances" formControlName="allowances"
+                       placeholder="0.00" step="0.01" min="0" class="pl-11" />
+              </div>
+            </z-form-field>
+            <z-form-field>
+              <label z-form-label for="overtime_pay" class="text-xs font-medium">Overtime</label>
+              <div class="relative">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">RM</span>
+                <input z-input type="number" id="overtime_pay" formControlName="overtime_pay"
+                       placeholder="0.00" step="0.01" min="0" class="pl-11" />
+              </div>
+            </z-form-field>
+            <z-form-field>
+              <label z-form-label for="bonus" class="text-xs font-medium">Bonus</label>
+              <div class="relative">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">RM</span>
+                <input z-input type="number" id="bonus" formControlName="bonus"
+                       placeholder="0.00" step="0.01" min="0" class="pl-11" />
+              </div>
+            </z-form-field>
+            <z-form-field>
+              <label z-form-label for="commission" class="text-xs font-medium">Commission</label>
+              <div class="relative">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">RM</span>
+                <input z-input type="number" id="commission" formControlName="commission"
+                       placeholder="0.00" step="0.01" min="0" class="pl-11" />
+              </div>
+            </z-form-field>
+          </div>
+        </div>
+
+        <!-- Deductions section -->
+        <div class="space-y-3">
+          <h4 class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Deductions</h4>
+          <p class="text-xs text-muted-foreground leading-relaxed">
+            EPF, SOCSO, EIS and PCB are calculated automatically using official Malaysian rates.
+          </p>
+
+          <div class="grid grid-cols-2 gap-3">
+            <z-form-field>
+              <label z-form-label for="unpaid_leave_deduction" class="text-xs font-medium">Unpaid Leave</label>
+              <div class="relative">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">RM</span>
+                <input z-input type="number" id="unpaid_leave_deduction" formControlName="unpaid_leave_deduction"
+                       placeholder="0.00" step="0.01" min="0" class="pl-11" />
+              </div>
+            </z-form-field>
+            <z-form-field>
+              <label z-form-label for="other_deductions" class="text-xs font-medium">Other</label>
+              <div class="relative">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">RM</span>
+                <input z-input type="number" id="other_deductions" formControlName="other_deductions"
+                       placeholder="0.00" step="0.01" min="0" class="pl-11" />
+              </div>
+            </z-form-field>
+          </div>
+        </div>
+
+        <!-- Payment -->
+        <div class="space-y-3">
+          <h4 class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Payment</h4>
+
+          <z-form-field>
+            <label z-form-label for="payment_date" class="required text-xs font-medium">Payment Date</label>
+            <z-date-picker formControlName="payment_date" placeholder="Pick a date" zFormat="dd-MM-yyyy"></z-date-picker>
+            @if (isFieldInvalid('payment_date')) {
+              <z-form-message>{{ getFieldError('payment_date') }}</z-form-message>
+            }
+          </z-form-field>
+
+          <z-form-field>
+            <label z-form-label for="notes" class="text-xs font-medium">Notes</label>
+            <textarea z-input id="notes" formControlName="notes" rows="2"
+                      placeholder="Optional notes" class="resize-none"></textarea>
+          </z-form-field>
+        </div>
+
+        <!-- Prior YTD (collapsed) -->
+        <div>
+          <button type="button" (click)="togglePriorYtd()"
+                  class="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
+            <z-icon [zType]="showPriorYtd() ? 'chevron-down' : 'chevron-right'" class="w-3.5 h-3.5" />
+            Prior Employment YTD
+            <span class="text-muted-foreground/60 font-normal">(for mid-year joiners)</span>
+          </button>
+
+          @if (showPriorYtd()) {
+            <div class="mt-3 space-y-3 pl-1">
+              <z-form-field>
+                <label z-form-label for="prior_ytd_gross" class="text-xs font-medium">Prior YTD Gross</label>
+                <div class="relative">
+                  <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">RM</span>
+                  <input z-input type="number" id="prior_ytd_gross" formControlName="prior_ytd_gross"
+                         placeholder="0.00" step="0.01" min="0" class="pl-11" />
+                </div>
+              </z-form-field>
+              <div class="grid grid-cols-2 gap-3">
+                <z-form-field>
+                  <label z-form-label for="prior_ytd_epf" class="text-xs font-medium">Prior YTD EPF</label>
+                  <div class="relative">
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">RM</span>
+                    <input z-input type="number" id="prior_ytd_epf" formControlName="prior_ytd_epf"
+                           placeholder="0.00" step="0.01" min="0" class="pl-11" />
+                  </div>
+                </z-form-field>
+                <z-form-field>
+                  <label z-form-label for="prior_ytd_pcb" class="text-xs font-medium">Prior YTD PCB</label>
+                  <div class="relative">
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">RM</span>
+                    <input z-input type="number" id="prior_ytd_pcb" formControlName="prior_ytd_pcb"
+                           placeholder="0.00" step="0.01" min="0" class="pl-11" />
+                  </div>
+                </z-form-field>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Estimated summary -->
+        <div class="rounded-md border border-border bg-muted/40 p-3 space-y-1.5">
+          <div class="flex justify-between items-center text-xs">
+            <span class="text-muted-foreground">Gross</span>
+            <span class="font-medium text-foreground">{{ formatCurrency(calculatedGrossSalary()) }}</span>
+          </div>
+          <div class="flex justify-between items-center text-xs">
+            <span class="text-muted-foreground">Est. Deductions</span>
+            <span class="font-medium text-orange-600 dark:text-orange-400">{{ formatCurrency(calculatedTotalDeductions()) }}</span>
+          </div>
+          <div class="pt-1.5 border-t border-border flex justify-between items-center">
+            <span class="text-xs text-muted-foreground">Est. Net Salary</span>
+            <span class="text-sm font-semibold text-green-600 dark:text-green-400">{{ formatCurrency(calculatedNetSalary()) }}</span>
+          </div>
+        </div>
+      </form>
+    }
+  </div>
+
+  <!-- Footer -->
+  <z-divider zSpacing="none" />
+  <div z-sheet-footer class="px-6 py-4 bg-background">
+    <button type="button" z-button zType="outline" zSize="sm"
+            (click)="close()" [disabled]="submitting()">
+      Cancel
+    </button>
+    <button type="button" z-button zType="default" zSize="sm"
+            (click)="onSubmit()"
+            [disabled]="payrollForm.invalid || submitting() || loading()">
+      @if (submitting()) {
+        <z-icon zType="loader-circle" class="w-4 h-4 mr-2 animate-spin" />
+      }
+      {{ isEditMode() ? 'Update Payroll' : 'Calculate' }}
+    </button>
+  </div>
+</z-sheet>

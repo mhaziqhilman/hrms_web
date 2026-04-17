@@ -405,29 +405,6 @@ export class EmployeeListComponent implements OnInit {
     });
   }
 
-  openEditEmployeeDialog(employee: Employee): void {
-    this.employeeService.getEmployeeById(employee.public_id!).subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.dialogService.create({
-            zContent: EmployeeFormDialogComponent,
-            zHideFooter: true,
-            zClosable: false,
-            zMaskClosable: false,
-            zWidth: '70vw',
-            zCustomClasses: 'p-0 gap-0 overflow-hidden !left-auto !right-4 !top-4 !bottom-4 !translate-x-0 !translate-y-0 !max-w-none h-[calc(100vh-2rem)] rounded-xl',
-            zData: {
-              employee: res.data,
-              onSuccess: () => {
-                this.loadEmployees();
-              }
-            }
-          });
-        }
-      }
-    });
-  }
-
   private sendInvitation(email: string, role: string): void {
     this.invitationService.inviteUser(email, role).subscribe({
       next: (response) => {

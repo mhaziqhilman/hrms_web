@@ -1,0 +1,13 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.payroll-summary-chart :global(highcharts-chart) {
+  display: block;
+  width: 100%;
+}
+
+.payroll-summary-chart :global(.highcharts-container) {
+  font-family: inherit !important;
+}

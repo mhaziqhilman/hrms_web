@@ -313,10 +313,10 @@
                     <z-icon zType="eye" class="w-4 h-4" />
                     View
                   </a>
-                  <button z-menu-item (click)="openEditEmployeeDialog(employee)" class="gap-2">
+                  <a z-menu-item [routerLink]="['/employees', employee.public_id, 'edit']" class="gap-2">
                     <z-icon zType="pencil" class="w-4 h-4" />
                     Edit
-                  </button>
+                  </a>
                   <z-divider zSpacing="sm" />
                   <button z-menu-item (click)="deleteEmployee(employee)" class="gap-2 text-destructive">
                     <z-icon zType="trash" class="w-4 h-4" />
@@ -358,10 +358,10 @@
               <z-icon zType="eye" class="w-4 h-4" />
               View
             </a>
-            <button z-menu-item (click)="openEditEmployeeDialog(employee)" class="gap-2">
+            <a z-menu-item [routerLink]="['/employees', employee.public_id, 'edit']" class="gap-2">
               <z-icon zType="pencil" class="w-4 h-4" />
               Edit
-            </button>
+            </a>
             <z-divider zSpacing="sm" />
             <button z-menu-item (click)="deleteEmployee(employee)" class="gap-2 text-destructive">
               <z-icon zType="trash" class="w-4 h-4" />
