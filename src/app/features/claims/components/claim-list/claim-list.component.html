@@ -10,7 +10,7 @@
         <z-icon zType="circle-check" class="w-4 h-4" />
         Approval Dashboard
       </button>
-      <button z-button routerLink="/claims/submit" class="gap-2">
+      <button z-button (click)="openSubmitClaimSheet()" class="gap-2">
         <z-icon zType="plus" class="w-4 h-4" />
         Submit Claim
       </button>
@@ -611,15 +611,15 @@
                   </div>
                   <ng-template #claimActionMenu>
                     <div z-menu-content class="w-40">
-                      <a z-menu-item [routerLink]="['/claims', claim.public_id]" class="gap-2">
+                      <button z-menu-item (click)="openViewClaimSheet(claim)" class="gap-2">
                         <z-icon zType="eye" class="w-4 h-4" />
                         View
-                      </a>
+                      </button>
                       @if (canEdit(claim)) {
-                        <a z-menu-item [routerLink]="['/claims', claim.public_id, 'edit']" class="gap-2">
+                        <button z-menu-item (click)="openEditClaimSheet(claim)" class="gap-2">
                           <z-icon zType="pencil" class="w-4 h-4" />
                           Edit
-                        </a>
+                        </button>
                       }
                       @if (canDelete(claim)) {
                         <z-divider zSpacing="sm" />
@@ -645,7 +645,7 @@
       <z-icon zType="inbox" class="w-16 h-16 text-muted-foreground mb-4" />
       <h3 class="text-lg font-medium mb-2">No claims found</h3>
       <p class="text-muted-foreground mb-4">Try adjusting your filters or submit a new claim</p>
-      <button z-button routerLink="/claims/submit" class="gap-2">
+      <button z-button (click)="openSubmitClaimSheet()" class="gap-2">
         <z-icon zType="plus" class="w-4 h-4" />
         Submit Claim
       </button>
@@ -694,3 +694,19 @@
   }
   }
 </div>
+
+<!-- Sheets -->
+<app-claim-form-sheet
+  [open]="formSheetOpen()"
+  [claimId]="formSheetClaimId()"
+  [viewOnly]="formSheetViewOnly()"
+  (openChange)="onFormSheetClose($event)"
+  (saved)="onFormSheetSaved()">
+</app-claim-form-sheet>
+
+<app-claim-approval-sheet
+  [open]="approvalSheetOpen()"
+  [claimId]="approvalSheetClaimId()"
+  (openChange)="onApprovalSheetClose($event)"
+  (actionCompleted)="onApprovalSheetAction()">
+</app-claim-approval-sheet>

@@ -16,7 +16,7 @@
           Approvals
         </button>
       }
-      <button z-button routerLink="/leave/apply" class="gap-2">
+      <button z-button (click)="openApplyLeaveSheet()" class="gap-2">
         <z-icon zType="plus" class="w-4 h-4" />
         Apply Leave
       </button>
@@ -336,10 +336,10 @@
                         View
                       </button>
                       @if (canEdit(leave)) {
-                        <a z-menu-item [routerLink]="['/leave', leave.public_id, 'edit']" class="gap-2">
+                        <button z-menu-item (click)="openEditLeaveSheet(leave)" class="gap-2">
                           <z-icon zType="pencil" class="w-4 h-4" />
                           Edit
-                        </a>
+                        </button>
                       }
                       @if (canApprove(leave) || canReject(leave) || canCancel(leave)) {
                         <z-divider zSpacing="sm" />
@@ -427,3 +427,18 @@
   }
   }
 </div>
+
+<!-- Sheets -->
+<app-leave-form-sheet
+  [open]="formSheetOpen()"
+  [leaveId]="formSheetLeaveId()"
+  (openChange)="onFormSheetClose($event)"
+  (saved)="onFormSheetSaved()">
+</app-leave-form-sheet>
+
+<app-leave-approval-sheet
+  [open]="approvalSheetOpen()"
+  [leaveId]="approvalSheetLeaveId()"
+  (openChange)="onApprovalSheetClose($event)"
+  (actionCompleted)="onApprovalSheetAction()">
+</app-leave-approval-sheet>

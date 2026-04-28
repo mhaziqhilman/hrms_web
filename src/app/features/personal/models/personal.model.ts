@@ -56,6 +56,7 @@ export interface ChangePasswordRequest {
 
 export interface MyPayslip {
   id: number;
+  public_id: string;
   employee_id: number;
   year: number;
   month: number;

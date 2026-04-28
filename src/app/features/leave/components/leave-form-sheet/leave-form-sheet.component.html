@@ -1,0 +1,194 @@
+<z-sheet [zOpen]="open" zSide="right" zClass="sheet-panel" (zOpenChange)="handleOpenChange($event)">
+  <div class="sheet-wrapper">
+    <!-- Header -->
+    <div class="sheet-header">
+      <div class="flex items-center gap-3">
+        <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
+          <z-icon [zType]="$any(isEditMode() ? 'pencil' : 'calendar-plus')" class="text-primary" zSize="lg" />
+        </div>
+        <div>
+          <h2 class="text-base font-medium text-foreground">{{ isEditMode() ? 'Edit Leave Application' : 'Apply Leave' }}</h2>
+          <p class="text-xs text-muted-foreground">{{ isEditMode() ? 'Update leave details' : 'Submit a new leave request' }}</p>
+        </div>
+      </div>
+    </div>
+
+    <z-divider zSpacing="none" />
+
+    <!-- Body -->
+    <div class="sheet-body" [formGroup]="leaveForm">
+      @if (loading()) {
+        <div class="flex items-center justify-center py-20">
+          <z-icon zType="loader-circle" class="w-8 h-8 animate-spin text-primary" />
+        </div>
+      } @else {
+        @if (error()) {
+          <div class="mb-4 bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2 text-sm text-red-700 error-msg">
+            <z-icon zType="triangle-alert" class="w-4 h-4 mt-0.5 flex-shrink-0" />
+            <span>{{ error() }}</span>
+          </div>
+        }
+
+        <!-- Section: Leave Details -->
+        <div class="section">
+          <h3 class="section-title">Leave Details</h3>
+          <p class="section-description">Specify the leave type and period</p>
+
+          <div class="form-grid">
+            @if (!isStaff()) {
+              <z-form-field class="col-span-2">
+                <label z-form-label [zRequired]="true">Employee</label>
+                <z-form-control>
+                  <z-select formControlName="employee_id" zPlaceholder="Select employee" (ngModelChange)="onEmployeeChange($event)">
+                    @for (emp of employees(); track emp.id) {
+                      <z-select-item [zValue]="emp.public_id">{{ emp.full_name }} ({{ emp.employee_id }})</z-select-item>
+                    }
+                  </z-select>
+                </z-form-control>
+                @if (getControl('employee_id')?.hasError('required') && getControl('employee_id')?.touched) {
+                  <z-form-message zType="error" class="error-msg">Employee is required.</z-form-message>
+                }
+              </z-form-field>
+            }
+
+            <z-form-field class="col-span-2">
+              <label z-form-label [zRequired]="true">Leave Type</label>
+              <z-form-control>
+                <z-select formControlName="leave_type_id" zPlaceholder="Select leave type">
+                  @for (type of leaveTypes(); track type.id) {
+                    <z-select-item [zValue]="type.id">{{ type.name }}</z-select-item>
+                  }
+                </z-select>
+              </z-form-control>
+              @if (getControl('leave_type_id')?.hasError('required') && getControl('leave_type_id')?.touched) {
+                <z-form-message zType="error" class="error-msg">Leave type is required.</z-form-message>
+              } @else if (getSelectedLeaveType()) {
+                <div class="mt-1.5 flex items-center gap-2">
+                  <z-badge [zType]="'soft-blue'" class="text-xs">
+                    {{ getAvailableBalance() }} days available
+                  </z-badge>
+                  @if (getSelectedLeaveType()?.is_paid) {
+                    <z-badge [zType]="'soft-green'" class="text-xs">Paid Leave</z-badge>
+                  } @else {
+                    <z-badge [zType]="'soft-gray'" class="text-xs">Unpaid</z-badge>
+                  }
+                </div>
+              }
+            </z-form-field>
+
+            <z-form-field>
+              <label z-form-label [zRequired]="true">Start Date</label>
+              <z-form-control>
+                <z-date-picker formControlName="start_date" placeholder="Pick date" zFormat="dd-MM-yyyy" />
+              </z-form-control>
+              @if (getControl('start_date')?.hasError('required') && getControl('start_date')?.touched) {
+                <z-form-message zType="error" class="error-msg">Start date is required.</z-form-message>
+              }
+            </z-form-field>
+
+            <z-form-field>
+              <label z-form-label [zRequired]="true">End Date</label>
+              <z-form-control>
+                <z-date-picker formControlName="end_date" placeholder="Pick date" zFormat="dd-MM-yyyy" />
+              </z-form-control>
+              @if (getControl('end_date')?.hasError('required') && getControl('end_date')?.touched) {
+                <z-form-message zType="error" class="error-msg">End date is required.</z-form-message>
+              }
+            </z-form-field>
+
+            <z-form-field class="col-span-2">
+              <z-form-control>
+                <z-checkbox formControlName="is_half_day">
+                  Apply as half-day leave
+                </z-checkbox>
+              </z-form-control>
+            </z-form-field>
+
+            @if (getControl('is_half_day')?.value) {
+              <z-form-field class="col-span-2">
+                <label z-form-label>Half-Day Period</label>
+                <z-form-control>
+                  <z-select formControlName="half_day_period" zPlaceholder="Select period">
+                    <z-select-item zValue="AM">Morning (AM)</z-select-item>
+                    <z-select-item zValue="PM">Afternoon (PM)</z-select-item>
+                  </z-select>
+                </z-form-control>
+              </z-form-field>
+            }
+
+            @if (calculateTotalDays() > 0) {
+              <div class="col-span-2 bg-primary/5 border border-primary/20 rounded-lg p-3 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <z-icon zType="calendar-check" class="w-4 h-4 text-primary" />
+                  <span class="text-sm font-medium text-foreground">Total Leave Days</span>
+                </div>
+                <span class="text-base font-semibold text-primary">{{ calculateTotalDays() }} {{ calculateTotalDays() === 1 ? 'day' : 'days' }}</span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Section: Reason -->
+        <div class="section sub-section">
+          <h3 class="section-title">Reason</h3>
+          <p class="section-description">Provide justification for the leave</p>
+
+          <z-form-field class="mt-4">
+            <label z-form-label [zRequired]="true">Reason for Leave</label>
+            <z-form-control>
+              <textarea
+                z-input
+                formControlName="reason"
+                rows="4"
+                placeholder="Provide a detailed reason for your leave request..."
+                [zStatus]="getControl('reason')?.invalid && getControl('reason')?.touched ? 'error' : undefined"
+                class="resize-y"></textarea>
+            </z-form-control>
+            @if (getControl('reason')?.hasError('required') && getControl('reason')?.touched) {
+              <z-form-message zType="error" class="error-msg">Reason is required.</z-form-message>
+            } @else if (getControl('reason')?.hasError('minlength') && getControl('reason')?.touched) {
+              <z-form-message zType="error" class="error-msg">Please provide at least 10 characters.</z-form-message>
+            } @else {
+              <z-form-message>Min 10 characters.</z-form-message>
+            }
+          </z-form-field>
+        </div>
+
+        <!-- Section: Document -->
+        @if (requiresDocument()) {
+          <div class="section sub-section">
+            <h3 class="section-title">{{ getDocumentTitle() }}</h3>
+            <p class="section-description">Upload supporting documents for this leave type</p>
+
+            <div class="mt-4">
+              <app-file-upload
+                [metadata]="fileUploadMetadata"
+                [acceptedTypes]="getAcceptedFileTypes()"
+                [multiple]="true"
+                [maxFiles]="5"
+                [autoUpload]="false"
+                (filesSelected)="onFilesSelected($event)">
+              </app-file-upload>
+            </div>
+          </div>
+        }
+      }
+    </div>
+
+    <!-- Footer -->
+    <z-divider zSpacing="none" />
+    <div class="sheet-footer">
+      <button z-button zType="outline" class="rounded-lg" (click)="close()" [disabled]="submitting()">
+        Cancel
+      </button>
+      <button z-button class="rounded-lg" (click)="onSubmit()" [disabled]="submitting() || loading()">
+        @if (submitting()) {
+          <z-icon zType="loader-circle" zSize="sm" class="animate-spin mr-1" />
+        } @else {
+          <z-icon [zType]="$any(isEditMode() ? 'save' : 'send')" zSize="sm" class="mr-1" />
+        }
+        {{ isEditMode() ? 'Save Changes' : 'Submit Application' }}
+      </button>
+    </div>
+  </div>
+</z-sheet>

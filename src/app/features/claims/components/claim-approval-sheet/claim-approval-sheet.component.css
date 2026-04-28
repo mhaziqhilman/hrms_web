@@ -1,0 +1,322 @@
+:host ::ng-deep .sheet-panel {
+  width: 560px;
+  max-width: 95vw;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.sheet-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+.sheet-header {
+  padding: 1.25rem 1.5rem;
+  flex-shrink: 0;
+}
+
+.sheet-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.25rem 1.5rem;
+  scrollbar-width: thin;
+}
+
+.sheet-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sheet-body::-webkit-scrollbar-thumb {
+  background: hsl(0 0% 80%);
+  border-radius: 3px;
+}
+
+.sheet-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 1rem 1.5rem;
+  flex-shrink: 0;
+}
+
+.hero-card {
+  padding: 1rem;
+  background: var(--sidebar);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.hero-amount {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.amount-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  color: var(--muted-foreground);
+  font-weight: 500;
+}
+
+.amount-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.workflow {
+  display: flex;
+  align-items: center;
+  padding: 1rem 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.workflow-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.375rem;
+  flex-shrink: 0;
+}
+
+.workflow-dot {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--muted);
+  color: var(--muted-foreground);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: 1.5px solid var(--border);
+  transition: all 0.25s ease;
+}
+
+.workflow-step.active .workflow-dot {
+  background: color-mix(in oklch, var(--primary), transparent 85%);
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.workflow-step.completed .workflow-dot {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-color: var(--primary);
+}
+
+.workflow-label {
+  font-size: 0.6875rem;
+  color: var(--muted-foreground);
+  font-weight: 500;
+}
+
+.workflow-step.active .workflow-label,
+.workflow-step.completed .workflow-label {
+  color: var(--foreground);
+}
+
+.workflow-line {
+  flex: 1;
+  height: 2px;
+  background: var(--border);
+  margin: 0 0.375rem;
+  margin-bottom: 1.375rem;
+  transition: background 0.3s ease;
+}
+
+.workflow-line.completed {
+  background: var(--primary);
+}
+
+.rejected-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: color-mix(in oklch, #ef4444, transparent 92%);
+  border: 1px solid color-mix(in oklch, #ef4444, transparent 80%);
+  border-radius: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.section {
+  animation: fadeSlideIn 0.25s ease;
+}
+
+.sub-section {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.section-title {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--foreground);
+  margin-bottom: 0.75rem;
+}
+
+.section-description {
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+  margin-top: 0.125rem;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.875rem;
+}
+
+.col-span-2 {
+  grid-column: span 2;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.info-label {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.info-value {
+  font-size: 0.875rem;
+  color: var(--foreground);
+  font-weight: 400;
+}
+
+.info-value-text {
+  font-size: 0.875rem;
+  color: var(--foreground);
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.info-subvalue {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  margin-top: 0.125rem;
+}
+
+.attachment-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--foreground);
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.attachment-link:hover {
+  background: color-mix(in oklch, var(--primary), transparent 90%);
+  color: var(--primary);
+}
+
+.reject-section {
+  background: color-mix(in oklch, #ef4444, transparent 96%);
+  margin-left: -1.5rem;
+  margin-right: -1.5rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-top: 1px solid color-mix(in oklch, #ef4444, transparent 80%);
+}
+
+.approve-section {
+  background: color-mix(in oklch, #10b981, transparent 96%);
+  margin-left: -1.5rem;
+  margin-right: -1.5rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-top: 1px solid color-mix(in oklch, #10b981, transparent 80%);
+}
+
+.pay-section {
+  background: color-mix(in oklch, #3b82f6, transparent 96%);
+  margin-left: -1.5rem;
+  margin-right: -1.5rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-top: 1px solid color-mix(in oklch, #3b82f6, transparent 80%);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.875rem;
+}
+
+.field-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--foreground);
+  margin-bottom: 0.375rem;
+}
+
+:host ::ng-deep .approve-btn {
+  background: #10b981 !important;
+  color: white !important;
+}
+
+:host ::ng-deep .approve-btn:hover:not(:disabled) {
+  background: #059669 !important;
+}
+
+:host ::ng-deep .reject-btn {
+  color: #dc2626 !important;
+  border-color: #fca5a5 !important;
+}
+
+:host ::ng-deep .reject-btn:hover:not(:disabled) {
+  background: #fee2e2 !important;
+}
+
+:host ::ng-deep .reject-confirm-btn {
+  background: #dc2626 !important;
+  color: white !important;
+}
+
+:host ::ng-deep .reject-confirm-btn:hover:not(:disabled) {
+  background: #b91c1c !important;
+}
+
+:host ::ng-deep .pay-btn {
+  background: #3b82f6 !important;
+  color: white !important;
+}
+
+:host ::ng-deep .pay-btn:hover:not(:disabled) {
+  background: #2563eb !important;
+}
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}

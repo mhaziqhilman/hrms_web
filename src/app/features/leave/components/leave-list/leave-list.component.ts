@@ -23,6 +23,8 @@ import { ZardSegmentedComponent, SegmentedOption } from '@/shared/components/seg
 import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component';
 import { ZardDividerComponent } from '@/shared/components/divider/divider.component';
 import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
+import { LeaveFormSheetComponent } from '../leave-form-sheet/leave-form-sheet.component';
+import { LeaveApprovalSheetComponent } from '../leave-approval-sheet/leave-approval-sheet.component';
 
 @Component({
   selector: 'app-leave-list',
@@ -44,7 +46,9 @@ import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.com
     ZardSegmentedComponent,
     ZardAvatarComponent,
     ZardDividerComponent,
-    ZardSkeletonComponent
+    ZardSkeletonComponent,
+    LeaveFormSheetComponent,
+    LeaveApprovalSheetComponent
   ],
   templateUrl: './leave-list.component.html',
   styleUrl: './leave-list.component.css'
@@ -113,6 +117,12 @@ export class LeaveListComponent implements OnInit {
     { value: LeaveStatus.REJECTED, label: 'Rejected' },
     { value: LeaveStatus.CANCELLED, label: 'Cancelled' }
   ];
+
+  // Sheet state
+  formSheetOpen = signal(false);
+  formSheetLeaveId = signal<string | null>(null);
+  approvalSheetOpen = signal(false);
+  approvalSheetLeaveId = signal<string | null>(null);
 
   // Constants
   LeaveStatus = LeaveStatus;
@@ -553,7 +563,40 @@ export class LeaveListComponent implements OnInit {
   }
 
   viewLeaveDetails(leave: Leave): void {
-    this.router.navigate(['/leave', leave.public_id]);
+    this.approvalSheetLeaveId.set(leave.public_id || null);
+    this.approvalSheetOpen.set(true);
+  }
+
+  openApplyLeaveSheet(): void {
+    this.formSheetLeaveId.set(null);
+    this.formSheetOpen.set(true);
+  }
+
+  openEditLeaveSheet(leave: Leave): void {
+    this.formSheetLeaveId.set(leave.public_id || null);
+    this.formSheetOpen.set(true);
+  }
+
+  onFormSheetClose(open: boolean): void {
+    this.formSheetOpen.set(open);
+    if (!open) {
+      this.formSheetLeaveId.set(null);
+    }
+  }
+
+  onFormSheetSaved(): void {
+    this.loadLeaves();
+  }
+
+  onApprovalSheetClose(open: boolean): void {
+    this.approvalSheetOpen.set(open);
+    if (!open) {
+      this.approvalSheetLeaveId.set(null);
+    }
+  }
+
+  onApprovalSheetAction(): void {
+    this.loadLeaves();
   }
 
   // Sorting methods (API-side)

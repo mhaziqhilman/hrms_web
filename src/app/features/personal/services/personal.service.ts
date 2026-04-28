@@ -70,9 +70,9 @@ export class PersonalService {
   /**
    * Download payslip PDF
    */
-  downloadPayslipPdf(payrollId: number): Observable<Blob> {
+  downloadPayslipPdf(payrollId: string): Observable<Blob> {
     return this.http.get(
-      `${this.apiUrl}${API_CONFIG.endpoints.payroll.payslip(payrollId)}/pdf`,
+      `${this.apiUrl}${API_CONFIG.endpoints.payroll.downloadPayslipPdf(payrollId)}`,
       { responseType: 'blob' }
     );
   }

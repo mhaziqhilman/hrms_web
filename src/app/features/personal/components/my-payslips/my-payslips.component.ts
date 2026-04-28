@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PersonalService } from '../../services/personal.service';
 import { MyPayslip, YTDSummary } from '../../models/personal.model';
+import { PayslipPdfService } from '@/features/payroll/services/payslip-pdf.service';
 
 // ZardUI Components
 import { ZardCardComponent } from '@/shared/components/card/card.component';
@@ -28,6 +29,7 @@ import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-d
 })
 export class MyPayslipsComponent implements OnInit {
   private personalService = inject(PersonalService);
+  private payslipPdf = inject(PayslipPdfService);
   private alertDialogService = inject(ZardAlertDialogService);
 
   // Inputs
@@ -35,7 +37,7 @@ export class MyPayslipsComponent implements OnInit {
 
   // State
   loading = signal(false);
-  downloading = signal<number | null>(null);
+  downloading = signal<string | null>(null);
   payslips = signal<MyPayslip[]>([]);
   ytdSummary = signal<YTDSummary | null>(null);
 
@@ -95,24 +97,20 @@ export class MyPayslipsComponent implements OnInit {
     });
   }
 
-  downloadPayslip(payslip: MyPayslip): void {
-    this.downloading.set(payslip.id);
-
-    this.personalService.downloadPayslipPdf(payslip.id).subscribe({
-      next: (blob: Blob) => {
-        const filename = `Payslip_${payslip.year}_${String(payslip.month).padStart(2, '0')}.pdf`;
-        this.downloadFile(blob, filename);
-        this.downloading.set(null);
-      },
-      error: () => {
-        this.downloading.set(null);
-        this.alertDialogService.warning({
-          zTitle: 'Error',
-          zDescription: 'Failed to download payslip',
-          zOkText: 'OK'
-        });
-      }
-    });
+  async downloadPayslip(payslip: MyPayslip): Promise<void> {
+    this.downloading.set(payslip.public_id);
+    try {
+      const { blob, fileName } = await this.payslipPdf.generateForPayrollId(payslip.public_id);
+      this.downloadFile(blob, fileName);
+    } catch {
+      this.alertDialogService.warning({
+        zTitle: 'Error',
+        zDescription: 'Failed to download payslip',
+        zOkText: 'OK'
+      });
+    } finally {
+      this.downloading.set(null);
+    }
   }
 
   private downloadFile(blob: Blob, filename: string): void {

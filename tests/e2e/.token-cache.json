@@ -1,0 +1,169 @@
+{
+  "superAdmin": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZG1pbkBuZXh0dXJhLmNvbSIsInJvbGUiOiJzdXBlcl9hZG1pbiIsImNvbXBhbnlfaWQiOm51bGwsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpYXQiOjE3NzY5NDkxNTQsImV4cCI6MTc3NzAzNTU1NCwiYXVkIjoiSFJNUy1DbGllbnQiLCJpc3MiOiJIUk1TLUFQSSJ9.qMpkZq3lcdzeXsCixLjNAJYOZiJaJy5powsbaYiZ5iE",
+    "refreshToken": "d9d86af1dbff1f4ebb73d4caa734bbd61dd30657d0c69c567dd6bf142e9a47a19f7635f890984ddc1f5dc47aca1480cf",
+    "user": {
+      "id": 1,
+      "email": "admin@nextura.com",
+      "role": "super_admin",
+      "email_verified": true,
+      "company_id": null,
+      "employee": {
+        "id": 14,
+        "full_name": "Super Admin 1",
+        "employee_id": "AD0001",
+        "department": "Admin",
+        "position": null
+      },
+      "company": null,
+      "company_memberships": [
+        {
+          "id": 2,
+          "user_id": 1,
+          "company_id": 2,
+          "role": "admin",
+          "employee_id": 2,
+          "joined_at": "2026-02-11T04:17:08.070Z",
+          "status": "active",
+          "created_at": "2026-02-11T04:17:08.070Z",
+          "updated_at": "2026-02-11T04:17:08.070Z",
+          "company": {
+            "id": 2,
+            "name": "Averroes Data Science",
+            "registration_no": "1405681-K",
+            "logo_url": "company/2/logo.png"
+          }
+        }
+      ]
+    }
+  },
+  "admin": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjYsImVtYWlsIjoidWF0LmFkbWluQG5leHR1cmEudGVzdCIsInJvbGUiOiJhZG1pbiIsImNvbXBhbnlfaWQiOjUsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpYXQiOjE3NzY5NDkxNTQsImV4cCI6MTc3NzAzNTU1NCwiYXVkIjoiSFJNUy1DbGllbnQiLCJpc3MiOiJIUk1TLUFQSSJ9.Wf6iQ6vYIqYrcS1LLCyY9KISsHHdWUAIvJKh7zXPIDE",
+    "refreshToken": "a5633ec59146c0e38babe9db3aaa1d5d51c1272e3446af59248872b2f8b0b715e68c9169314411eddf9fb3c8da5b335a",
+    "user": {
+      "id": 26,
+      "email": "uat.admin@nextura.test",
+      "role": "admin",
+      "email_verified": true,
+      "company_id": 5,
+      "employee": {
+        "id": 43,
+        "full_name": "UAT Admin",
+        "employee_id": "UAT-ADM-001",
+        "department": "Administration",
+        "position": "HR Admin"
+      },
+      "company": {
+        "id": 5,
+        "name": "UAT Test Company",
+        "registration_no": "UAT-2026-001",
+        "logo_url": null
+      },
+      "company_memberships": [
+        {
+          "id": 27,
+          "user_id": 26,
+          "company_id": 5,
+          "role": "admin",
+          "employee_id": null,
+          "joined_at": "2026-04-22T08:30:13.339Z",
+          "status": "active",
+          "created_at": "2026-04-22T08:30:13.385Z",
+          "updated_at": "2026-04-22T08:30:13.385Z",
+          "company": {
+            "id": 5,
+            "name": "UAT Test Company",
+            "registration_no": "UAT-2026-001",
+            "logo_url": null
+          }
+        }
+      ]
+    }
+  },
+  "manager": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjcsImVtYWlsIjoidWF0Lm1hbmFnZXJAbmV4dHVyYS50ZXN0Iiwicm9sZSI6Im1hbmFnZXIiLCJjb21wYW55X2lkIjo1LCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiaWF0IjoxNzc2OTQ5MTU0LCJleHAiOjE3NzcwMzU1NTQsImF1ZCI6IkhSTVMtQ2xpZW50IiwiaXNzIjoiSFJNUy1BUEkifQ.HNqXCrgXxW_6SMl4GeJTY75In3vHNT1Uzd0nXAHSNgQ",
+    "refreshToken": "a613dffadf3eb6d5216d891ec31ffd27baa159cd26f83f783b9fd7cc400200178399e7d0c8b02e0315a5b5573844563e",
+    "user": {
+      "id": 27,
+      "email": "uat.manager@nextura.test",
+      "role": "manager",
+      "email_verified": true,
+      "company_id": 5,
+      "employee": {
+        "id": 44,
+        "full_name": "UAT Manager",
+        "employee_id": "UAT-MGR-001",
+        "department": "Engineering",
+        "position": "Engineering Manager"
+      },
+      "company": {
+        "id": 5,
+        "name": "UAT Test Company",
+        "registration_no": "UAT-2026-001",
+        "logo_url": null
+      },
+      "company_memberships": [
+        {
+          "id": 28,
+          "user_id": 27,
+          "company_id": 5,
+          "role": "manager",
+          "employee_id": null,
+          "joined_at": "2026-04-22T08:30:13.709Z",
+          "status": "active",
+          "created_at": "2026-04-22T08:30:13.742Z",
+          "updated_at": "2026-04-22T08:30:13.742Z",
+          "company": {
+            "id": 5,
+            "name": "UAT Test Company",
+            "registration_no": "UAT-2026-001",
+            "logo_url": null
+          }
+        }
+      ]
+    }
+  },
+  "staff": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjgsImVtYWlsIjoidWF0LnN0YWZmQG5leHR1cmEudGVzdCIsInJvbGUiOiJzdGFmZiIsImNvbXBhbnlfaWQiOjUsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpYXQiOjE3NzY5NDkxNTQsImV4cCI6MTc3NzAzNTU1NCwiYXVkIjoiSFJNUy1DbGllbnQiLCJpc3MiOiJIUk1TLUFQSSJ9.USjYXlT0h-RwI94LM09o3vm5SNRjgMrLRRd9KnqjGCA",
+    "refreshToken": "1305fe52715f149d0b36f803c0dd459993472ba1d9f8847c77ae95e978797438566cd5dc2cdbae26ad139a4e3e884261",
+    "user": {
+      "id": 28,
+      "email": "uat.staff@nextura.test",
+      "role": "staff",
+      "email_verified": true,
+      "company_id": 5,
+      "employee": {
+        "id": 45,
+        "full_name": "UAT Staff",
+        "employee_id": "UAT-STF-001",
+        "department": "Engineering",
+        "position": "Software Engineer"
+      },
+      "company": {
+        "id": 5,
+        "name": "UAT Test Company",
+        "registration_no": "UAT-2026-001",
+        "logo_url": null
+      },
+      "company_memberships": [
+        {
+          "id": 29,
+          "user_id": 28,
+          "company_id": 5,
+          "role": "staff",
+          "employee_id": null,
+          "joined_at": "2026-04-22T08:30:13.918Z",
+          "status": "active",
+          "created_at": "2026-04-22T08:30:13.963Z",
+          "updated_at": "2026-04-22T08:30:13.963Z",
+          "company": {
+            "id": 5,
+            "name": "UAT Test Company",
+            "registration_no": "UAT-2026-001",
+            "logo_url": null
+          }
+        }
+      ]
+    }
+  }
+}

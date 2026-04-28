@@ -29,6 +29,7 @@ import { ZardDialogService } from '@/shared/components/dialog/dialog.service';
 import { ZardIcon } from '@/shared/components/icon/icons';
 import { UserProfileService } from '@/core/services/user-profile.service';
 import { ProfilePictureCropDialogComponent } from '../profile-picture-crop-dialog/profile-picture-crop-dialog.component';
+import { PayslipPdfService } from '@/features/payroll/services/payslip-pdf.service';
 
 type SectionType = 'account' | 'payslips' | 'appearance' | 'notifications' | 'display';
 
@@ -58,6 +59,7 @@ interface PasswordStrength {
 export class SettingsPageComponent implements OnInit {
   private settingsService = inject(SettingsService);
   private personalService = inject(PersonalService);
+  private payslipPdf = inject(PayslipPdfService);
   private themeService = inject(ThemeService);
   private displayService = inject(DisplayService);
   private alertDialogService = inject(ZardAlertDialogService);
@@ -86,7 +88,7 @@ export class SettingsPageComponent implements OnInit {
 
   // Payslips state
   loadingPayslips = signal(false);
-  downloading = signal<number | null>(null);
+  downloading = signal<string | null>(null);
   payslips = signal<MyPayslip[]>([]);
   ytdSummary = signal<YTDSummary | null>(null);
   selectedYear = signal<number>(new Date().getFullYear());
@@ -459,23 +461,20 @@ export class SettingsPageComponent implements OnInit {
     });
   }
 
-  downloadPayslip(payslip: MyPayslip): void {
-    this.downloading.set(payslip.id);
-    this.personalService.downloadPayslipPdf(payslip.id).subscribe({
-      next: (blob: Blob) => {
-        const filename = `Payslip_${payslip.year}_${String(payslip.month).padStart(2, '0')}.pdf`;
-        this.downloadFile(blob, filename);
-        this.downloading.set(null);
-      },
-      error: () => {
-        this.downloading.set(null);
-        this.alertDialogService.warning({
-          zTitle: 'Error',
-          zDescription: 'Failed to download payslip',
-          zOkText: 'OK'
-        });
-      }
-    });
+  async downloadPayslip(payslip: MyPayslip): Promise<void> {
+    this.downloading.set(payslip.public_id);
+    try {
+      const { blob, fileName } = await this.payslipPdf.generateForPayrollId(payslip.public_id);
+      this.downloadFile(blob, fileName);
+    } catch {
+      this.alertDialogService.warning({
+        zTitle: 'Error',
+        zDescription: 'Failed to download payslip',
+        zOkText: 'OK'
+      });
+    } finally {
+      this.downloading.set(null);
+    }
   }
 
   private downloadFile(blob: Blob, filename: string): void {

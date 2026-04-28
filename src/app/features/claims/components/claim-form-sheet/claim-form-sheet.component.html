@@ -1,0 +1,352 @@
+<z-sheet [zOpen]="open" zSide="right" zClass="sheet-panel" (zOpenChange)="handleOpenChange($event)">
+  <div class="sheet-wrapper">
+    <!-- Header -->
+    <div class="sheet-header">
+      <div class="flex items-center gap-3">
+        <div class="header-icon" [class.header-icon-view]="isReadOnly()" [class.header-icon-edit]="isEditMode() && !isReadOnly()">
+          <z-icon [zType]="$any(isReadOnly() ? 'eye' : (isEditMode() ? 'pencil' : 'file-plus'))" class="text-primary" zSize="lg" />
+        </div>
+        <div class="flex-1 min-w-0">
+          <h2 class="text-base font-medium text-foreground">{{ isReadOnly() ? 'Claim Details' : (isEditMode() ? 'Edit Claim' : 'Submit Claim') }}</h2>
+          <p class="text-xs text-muted-foreground">{{ isReadOnly() ? 'View claim information' : (isEditMode() ? 'Update your pending claim' : 'Submit a new expense claim') }}</p>
+        </div>
+      </div>
+    </div>
+
+    <z-divider zSpacing="none" />
+
+    <!-- Body -->
+    <div class="sheet-body" [formGroup]="claimForm">
+      @if (loading()) {
+        <div class="flex items-center justify-center py-20">
+          <z-icon zType="loader-circle" class="w-8 h-8 animate-spin text-primary" />
+        </div>
+      } @else {
+        @if (error()) {
+          <div class="alert alert-error error-msg">
+            <z-icon zType="triangle-alert" class="w-4 h-4 mt-0.5 flex-shrink-0" />
+            <span>{{ error() }}</span>
+          </div>
+        }
+
+        @if (isReadOnly() && existingClaim()) {
+          <div class="alert alert-info">
+            <z-icon zType="info" class="w-4 h-4 mt-0.5 flex-shrink-0" />
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium">This claim is locked</p>
+              <p class="text-xs mt-0.5">Status: <strong>{{ existingClaim()!.status.replace('_', ' ') }}</strong> — only pending claims can be edited.</p>
+            </div>
+          </div>
+        }
+
+        @if (isEditMode() && !isReadOnly() && existingClaim()) {
+          <div class="alert alert-warning">
+            <z-icon zType="info" class="w-4 h-4 mt-0.5 flex-shrink-0" />
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium">Editing pending claim</p>
+              <p class="text-xs mt-0.5">Submitted {{ formatDateTime(existingClaim()!.created_at) }}. Changes will reset the approval flow.</p>
+            </div>
+          </div>
+        }
+
+        <!-- Amount Hero Display (view-only + edit mode shows what was submitted) -->
+        @if ((isReadOnly() || isEditMode()) && existingClaim()) {
+          <div class="hero-amount-card">
+            <div class="hero-left">
+              <span class="hero-label">{{ isReadOnly() ? 'Claim Amount' : 'Current Amount' }}</span>
+              <span class="hero-value">{{ formatCurrency(existingClaim()!.amount) }}</span>
+            </div>
+            <div class="hero-right">
+              <span class="hero-meta">{{ existingClaim()!.claimType?.name || '—' }}</span>
+              <span class="hero-meta-sub">{{ formatDate(existingClaim()!.date) }}</span>
+            </div>
+          </div>
+        }
+
+        <!-- Section: Claim Info -->
+        <div class="section">
+          <div class="section-header">
+            <div class="section-num">1</div>
+            <div>
+              <h3 class="section-title">Claim Information</h3>
+              <p class="section-description">Select type and enter claim amount</p>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <z-form-field class="col-span-2">
+              <label z-form-label [zRequired]="true">Claim Type</label>
+              <z-form-control>
+                <z-select formControlName="claim_type_id" zPlaceholder="Select claim type">
+                  @for (type of claimTypes(); track type.id) {
+                    <z-select-item [zValue]="type.id">{{ type.name }}</z-select-item>
+                  }
+                </z-select>
+              </z-form-control>
+              @if (getControl('claim_type_id')?.hasError('required') && getControl('claim_type_id')?.touched) {
+                <z-form-message zType="error" class="error-msg">Claim type is required.</z-form-message>
+              } @else if (selectedClaimType()) {
+                <div class="claim-type-preview">
+                  @if (selectedClaimType()?.description) {
+                    <p class="claim-type-desc">{{ selectedClaimType()!.description }}</p>
+                  }
+                  <div class="claim-type-badges">
+                    @if (selectedClaimType()?.max_amount) {
+                      <z-badge zType="soft-blue" class="text-xs">
+                        <z-icon zType="circle-dollar-sign" class="w-3 h-3 mr-0.5" />
+                        Max {{ formatCurrency(selectedClaimType()!.max_amount) }}
+                      </z-badge>
+                    }
+                    @if (selectedClaimType()?.requires_receipt) {
+                      <z-badge zType="soft-yellow" class="text-xs">
+                        <z-icon zType="paperclip" class="w-3 h-3 mr-0.5" />
+                        Receipt Required
+                      </z-badge>
+                    }
+                  </div>
+                </div>
+              }
+            </z-form-field>
+
+            <z-form-field>
+              <label z-form-label [zRequired]="true">Expense Date</label>
+              <z-form-control>
+                <z-date-picker formControlName="date" placeholder="Pick date" zFormat="dd-MM-yyyy" />
+              </z-form-control>
+              @if (getControl('date')?.hasError('required') && getControl('date')?.touched) {
+                <z-form-message zType="error" class="error-msg">Date is required.</z-form-message>
+              } @else {
+                <z-form-message>Within last 90 days.</z-form-message>
+              }
+              @if (!isReadOnly()) {
+                <div class="date-shortcuts">
+                  <button type="button" class="date-chip" (click)="setDateShortcut('today')">Today</button>
+                  <button type="button" class="date-chip" (click)="setDateShortcut('yesterday')">Yesterday</button>
+                  <button type="button" class="date-chip" (click)="setDateShortcut('last-week')">7d ago</button>
+                </div>
+              }
+            </z-form-field>
+
+            <z-form-field>
+              <label z-form-label [zRequired]="true">Amount (MYR)</label>
+              <z-form-control>
+                <div class="amount-input-wrapper">
+                  <span class="amount-prefix">RM</span>
+                  <input
+                    z-input
+                    type="number"
+                    formControlName="amount"
+                    placeholder="0.00"
+                    step="0.01"
+                    min="0.01"
+                    class="amount-input"
+                    [zStatus]="(getControl('amount')?.invalid && getControl('amount')?.touched) || isAmountExceeding() ? 'error' : undefined" />
+                </div>
+              </z-form-control>
+              @if (getControl('amount')?.hasError('required') && getControl('amount')?.touched) {
+                <z-form-message zType="error" class="error-msg">Amount is required.</z-form-message>
+              } @else if (getControl('amount')?.hasError('min') && getControl('amount')?.touched) {
+                <z-form-message zType="error" class="error-msg">Amount must be greater than 0.</z-form-message>
+              } @else if (isAmountExceeding()) {
+                <z-form-message zType="error" class="error-msg">Exceeds max limit of {{ formatCurrency(selectedClaimType()?.max_amount) }}.</z-form-message>
+              } @else if (getControl('amount')?.value && getAmountUsagePercent() !== null) {
+                <div class="amount-progress">
+                  <div class="amount-progress-bar">
+                    <div class="amount-progress-fill" [style.width.%]="getAmountUsagePercent()" [class.near-limit]="getAmountUsagePercent()! > 80"></div>
+                  </div>
+                  <span class="amount-progress-text">{{ getAmountUsagePercent() }}% of max</span>
+                </div>
+              } @else {
+                <z-form-message>Enter claim amount.</z-form-message>
+              }
+            </z-form-field>
+          </div>
+        </div>
+
+        <!-- Section: Description -->
+        <div class="section sub-section">
+          <div class="section-header">
+            <div class="section-num">2</div>
+            <div>
+              <h3 class="section-title">Description</h3>
+              <p class="section-description">Explain the nature of this expense</p>
+            </div>
+          </div>
+
+          <z-form-field class="mt-4">
+            <label z-form-label [zRequired]="true">Details</label>
+            <z-form-control>
+              <textarea
+                z-input
+                formControlName="description"
+                rows="4"
+                placeholder="e.g., Client dinner at XYZ restaurant for project discussion on 15 Mar..."
+                [zStatus]="getControl('description')?.invalid && getControl('description')?.touched ? 'error' : undefined"
+                class="resize-y"></textarea>
+            </z-form-control>
+            <div class="description-meta">
+              @if (getControl('description')?.hasError('required') && getControl('description')?.touched) {
+                <z-form-message zType="error" class="error-msg flex-1">Description is required.</z-form-message>
+              } @else if (getControl('description')?.hasError('minlength') && getControl('description')?.touched) {
+                <z-form-message zType="error" class="error-msg flex-1">Must be at least 10 characters.</z-form-message>
+              } @else {
+                <z-form-message class="flex-1">Be specific — helps reviewers understand.</z-form-message>
+              }
+              <span class="char-count" [class.warn]="getDescriptionLength() < 10 && getDescriptionLength() > 0">
+                {{ getDescriptionLength() }} / 10+ chars
+              </span>
+            </div>
+          </z-form-field>
+        </div>
+
+        <!-- Section: Receipt Upload (new submission) -->
+        @if (!isEditMode() && !isReadOnly()) {
+          <div class="section sub-section">
+            <div class="section-header">
+              <div class="section-num">3</div>
+              <div class="flex-1 min-w-0">
+                <h3 class="section-title flex items-center gap-2">
+                  Receipt
+                  @if (isReceiptRequired()) {
+                    <span class="text-red-500 text-sm">*</span>
+                  } @else {
+                    <span class="text-xs text-muted-foreground font-normal">(Optional)</span>
+                  }
+                </h3>
+                <p class="section-description">
+                  @if (isReceiptRequired()) {
+                    Receipt is mandatory for this claim type
+                  } @else {
+                    Supporting documents help speed up approval
+                  }
+                </p>
+              </div>
+            </div>
+
+            <div class="mt-4">
+              <app-file-upload
+                [metadata]="fileUploadMetadata"
+                acceptedTypes=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                [multiple]="true"
+                [maxFiles]="5"
+                [autoUpload]="false"
+                (filesSelected)="onFilesSelected($event)">
+              </app-file-upload>
+            </div>
+          </div>
+        }
+
+        <!-- Section: Receipt (edit/view mode) -->
+        @if ((isEditMode() || isReadOnly()) && existingClaim()?.receipt_url) {
+          <div class="section sub-section">
+            <h3 class="section-title flex items-center gap-2">
+              <z-icon zType="paperclip" class="w-4 h-4 text-muted-foreground" />
+              Attached Receipt
+            </h3>
+            <a [href]="existingClaim()!.receipt_url" target="_blank" rel="noopener" class="attachment-card mt-3">
+              <div class="attachment-icon">
+                <z-icon zType="file-text" class="w-5 h-5 text-primary" />
+              </div>
+              <div class="attachment-info flex-1 min-w-0">
+                <p class="attachment-title">View receipt</p>
+                <p class="attachment-meta">Opens in new tab</p>
+              </div>
+              <z-icon [zType]="$any('external-link')" class="w-4 h-4 text-muted-foreground flex-shrink-0" />
+            </a>
+          </div>
+        }
+
+        @if ((isEditMode() || isReadOnly()) && !existingClaim()?.receipt_url) {
+          <div class="section sub-section">
+            <div class="no-receipt">
+              <z-icon zType="paperclip" class="w-5 h-5 text-muted-foreground" />
+              <span class="text-sm text-muted-foreground">No receipt attached</span>
+            </div>
+          </div>
+        }
+
+        <!-- Section: Timeline (view/edit mode) -->
+        @if ((isEditMode() || isReadOnly()) && existingClaim()) {
+          <div class="section sub-section">
+            <h3 class="section-title flex items-center gap-2">
+              <z-icon zType="clock" class="w-4 h-4 text-muted-foreground" />
+              Timeline
+            </h3>
+            <div class="timeline">
+              <div class="timeline-item">
+                <div class="timeline-dot active"></div>
+                <div class="timeline-content">
+                  <p class="timeline-title">Submitted</p>
+                  <p class="timeline-meta">{{ formatDateTime(existingClaim()!.created_at) }}</p>
+                </div>
+              </div>
+              @if (existingClaim()!.manager_approved_at) {
+                <div class="timeline-item">
+                  <div class="timeline-dot active"></div>
+                  <div class="timeline-content">
+                    <p class="timeline-title">Manager Approved</p>
+                    <p class="timeline-meta">{{ formatDateTime(existingClaim()!.manager_approved_at!) }}</p>
+                  </div>
+                </div>
+              }
+              @if (existingClaim()!.finance_approved_at) {
+                <div class="timeline-item">
+                  <div class="timeline-dot active"></div>
+                  <div class="timeline-content">
+                    <p class="timeline-title">Finance Approved</p>
+                    <p class="timeline-meta">{{ formatDateTime(existingClaim()!.finance_approved_at!) }}</p>
+                  </div>
+                </div>
+              }
+              @if (existingClaim()!.payment_date) {
+                <div class="timeline-item">
+                  <div class="timeline-dot active success"></div>
+                  <div class="timeline-content">
+                    <p class="timeline-title">Paid</p>
+                    <p class="timeline-meta">{{ formatDate(existingClaim()!.payment_date!) }} · {{ existingClaim()!.payment_method }}</p>
+                    @if (existingClaim()!.payment_reference) {
+                      <p class="timeline-meta">Ref: {{ existingClaim()!.payment_reference }}</p>
+                    }
+                  </div>
+                </div>
+              }
+              @if (existingClaim()!.status === 'Rejected') {
+                <div class="timeline-item">
+                  <div class="timeline-dot active danger"></div>
+                  <div class="timeline-content">
+                    <p class="timeline-title text-red-600">Rejected</p>
+                    @if (existingClaim()!.rejection_reason) {
+                      <p class="timeline-meta">{{ existingClaim()!.rejection_reason }}</p>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      }
+    </div>
+
+    <!-- Footer -->
+    <z-divider zSpacing="none" />
+    <div class="sheet-footer">
+      @if (isReadOnly()) {
+        <button z-button class="rounded-lg" (click)="close()">
+          Close
+        </button>
+      } @else {
+        <button z-button zType="outline" class="rounded-lg" (click)="close()" [disabled]="submitting()">
+          Cancel
+        </button>
+        <button z-button class="rounded-lg" (click)="onSubmit()" [disabled]="submitting() || loading()">
+          @if (submitting()) {
+            <z-icon zType="loader-circle" zSize="sm" class="animate-spin mr-1" />
+          } @else {
+            <z-icon [zType]="$any(isEditMode() ? 'save' : 'send')" zSize="sm" class="mr-1" />
+          }
+          {{ isEditMode() ? 'Save Changes' : 'Submit Claim' }}
+        </button>
+      }
+    </div>
+  </div>
+</z-sheet>

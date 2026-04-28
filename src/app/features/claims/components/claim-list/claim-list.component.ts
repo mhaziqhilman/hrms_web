@@ -20,6 +20,8 @@ import { ZardTableComponent } from '@/shared/components/table/table.component';
 import { ZardEmptyComponent } from '@/shared/components/empty/empty.component';
 import { ZardDividerComponent } from '@/shared/components/divider/divider.component';
 import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
+import { ClaimFormSheetComponent } from '../claim-form-sheet/claim-form-sheet.component';
+import { ClaimApprovalSheetComponent } from '../claim-approval-sheet/claim-approval-sheet.component';
 
 @Component({
   selector: 'app-claim-list',
@@ -38,7 +40,9 @@ import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.com
     ZardTableComponent,
     ZardEmptyComponent,
     ZardDividerComponent,
-    ZardSkeletonComponent
+    ZardSkeletonComponent,
+    ClaimFormSheetComponent,
+    ClaimApprovalSheetComponent
   ],
   templateUrl: './claim-list.component.html',
   styleUrl: './claim-list.component.css'
@@ -510,5 +514,59 @@ export class ClaimListComponent implements OnInit {
     }
 
     return rangeWithDots;
+  }
+
+  // Sheet state
+  formSheetOpen = signal(false);
+  formSheetClaimId = signal<string | null>(null);
+  formSheetViewOnly = signal(false);
+  approvalSheetOpen = signal(false);
+  approvalSheetClaimId = signal<string | null>(null);
+
+  openSubmitClaimSheet(): void {
+    this.formSheetClaimId.set(null);
+    this.formSheetViewOnly.set(false);
+    this.formSheetOpen.set(true);
+  }
+
+  openEditClaimSheet(claim: Claim): void {
+    this.formSheetClaimId.set(claim.public_id || null);
+    this.formSheetViewOnly.set(false);
+    this.formSheetOpen.set(true);
+  }
+
+  openViewClaimSheet(claim: Claim): void {
+    // For pending claims, show approval sheet; for other statuses, show read-only form
+    if (claim.status === 'Pending') {
+      this.formSheetClaimId.set(claim.public_id || null);
+      this.formSheetViewOnly.set(true);
+      this.formSheetOpen.set(true);
+    } else {
+      this.approvalSheetClaimId.set(claim.public_id || null);
+      this.approvalSheetOpen.set(true);
+    }
+  }
+
+  onFormSheetClose(open: boolean): void {
+    this.formSheetOpen.set(open);
+    if (!open) {
+      this.formSheetClaimId.set(null);
+      this.formSheetViewOnly.set(false);
+    }
+  }
+
+  onFormSheetSaved(): void {
+    this.loadClaims();
+  }
+
+  onApprovalSheetClose(open: boolean): void {
+    this.approvalSheetOpen.set(open);
+    if (!open) {
+      this.approvalSheetClaimId.set(null);
+    }
+  }
+
+  onApprovalSheetAction(): void {
+    this.loadClaims();
   }
 }

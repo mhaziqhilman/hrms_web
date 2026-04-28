@@ -1,0 +1,299 @@
+<z-sheet [zOpen]="open" zSide="right" zClass="sheet-panel" (zOpenChange)="handleOpenChange($event)">
+  <div class="sheet-wrapper">
+    <!-- Header -->
+    <div class="sheet-header">
+      <div class="flex items-center gap-3">
+        <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
+          <z-icon zType="file-text" class="text-primary" zSize="lg" />
+        </div>
+        <div>
+          <h2 class="text-base font-medium text-foreground">Claim Details</h2>
+          <p class="text-xs text-muted-foreground">Review and manage this expense claim</p>
+        </div>
+      </div>
+    </div>
+
+    <z-divider zSpacing="none" />
+
+    <!-- Body -->
+    <div class="sheet-body">
+      @if (loading()) {
+        <div class="flex items-center justify-center py-20">
+          <z-icon zType="loader-circle" class="w-8 h-8 animate-spin text-primary" />
+        </div>
+      } @else if (claim()) {
+        <!-- Employee + Amount card -->
+        <div class="hero-card">
+          <div class="flex items-center gap-3">
+            <z-avatar
+              [zFallback]="claim()!.employee?.full_name?.charAt(0) || '?'"
+              class="w-12 h-12" />
+            <div class="flex-1 min-w-0">
+              <p class="font-medium text-foreground truncate">{{ claim()!.employee?.full_name }}</p>
+              <p class="text-xs text-muted-foreground truncate">{{ claim()!.employee?.employee_code }}</p>
+            </div>
+            <z-badge [zType]="$any(getStatusBadgeType(claim()!.status))" zShape="pill" class="text-xs flex-shrink-0">
+              {{ getStatusLabel(claim()!.status) }}
+            </z-badge>
+          </div>
+          <div class="hero-amount">
+            <span class="amount-label">Claim Amount</span>
+            <span class="amount-value">{{ formatCurrency(claim()!.amount) }}</span>
+          </div>
+        </div>
+
+        <!-- Workflow Progress -->
+        @if (claim()!.status !== 'Rejected') {
+          <div class="workflow">
+            <div class="workflow-step" [class.active]="getWorkflowStep() >= 1" [class.completed]="getWorkflowStep() > 1">
+              <div class="workflow-dot">
+                @if (getWorkflowStep() > 1) {
+                  <z-icon zType="check" zSize="sm" />
+                } @else {
+                  <span>1</span>
+                }
+              </div>
+              <span class="workflow-label">Submitted</span>
+            </div>
+            <div class="workflow-line" [class.completed]="getWorkflowStep() > 1"></div>
+            <div class="workflow-step" [class.active]="getWorkflowStep() >= 2" [class.completed]="getWorkflowStep() > 2">
+              <div class="workflow-dot">
+                @if (getWorkflowStep() > 2) {
+                  <z-icon zType="check" zSize="sm" />
+                } @else {
+                  <span>2</span>
+                }
+              </div>
+              <span class="workflow-label">Manager</span>
+            </div>
+            <div class="workflow-line" [class.completed]="getWorkflowStep() > 2"></div>
+            <div class="workflow-step" [class.active]="getWorkflowStep() >= 3" [class.completed]="getWorkflowStep() > 3">
+              <div class="workflow-dot">
+                @if (getWorkflowStep() > 3) {
+                  <z-icon zType="check" zSize="sm" />
+                } @else {
+                  <span>3</span>
+                }
+              </div>
+              <span class="workflow-label">Finance</span>
+            </div>
+            <div class="workflow-line" [class.completed]="getWorkflowStep() > 3"></div>
+            <div class="workflow-step" [class.active]="getWorkflowStep() >= 4" [class.completed]="getWorkflowStep() >= 4">
+              <div class="workflow-dot">
+                @if (getWorkflowStep() >= 4) {
+                  <z-icon zType="check" zSize="sm" />
+                } @else {
+                  <span>4</span>
+                }
+              </div>
+              <span class="workflow-label">Paid</span>
+            </div>
+          </div>
+        } @else {
+          <div class="rejected-banner">
+            <z-icon zType="circle-x" class="text-red-600" />
+            <div class="flex-1">
+              <p class="text-sm font-medium text-red-700">This claim was rejected</p>
+              @if (claim()!.rejection_reason) {
+                <p class="text-xs text-red-600 mt-0.5">{{ claim()!.rejection_reason }}</p>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Claim Details -->
+        <div class="section">
+          <h3 class="section-title">Claim Details</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Type</span>
+              <span class="info-value">{{ claim()!.claimType?.name || '—' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Date</span>
+              <span class="info-value">{{ formatDate(claim()!.date) }}</span>
+            </div>
+            <div class="info-item col-span-2">
+              <span class="info-label">Submitted</span>
+              <span class="info-value">{{ formatDateTime(claim()!.created_at) }}</span>
+            </div>
+            <div class="info-item col-span-2">
+              <span class="info-label">Description</span>
+              <span class="info-value-text">{{ claim()!.description }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Receipt -->
+        @if (claim()!.receipt_url) {
+          <div class="section sub-section">
+            <h3 class="section-title">Receipt</h3>
+            <a [href]="claim()!.receipt_url" target="_blank" rel="noopener" class="attachment-link mt-2">
+              <z-icon zType="paperclip" class="w-4 h-4" />
+              <span class="truncate">View attached receipt</span>
+              <z-icon [zType]="$any('external-link')" class="w-3.5 h-3.5 ml-auto flex-shrink-0" />
+            </a>
+          </div>
+        }
+
+        <!-- Approval history -->
+        @if (claim()!.manager_approved_by || claim()!.finance_approved_by || claim()!.payment_date) {
+          <div class="section sub-section">
+            <h3 class="section-title">Approval History</h3>
+            <div class="info-grid">
+              @if (claim()!.managerApprover) {
+                <div class="info-item col-span-2">
+                  <span class="info-label">Manager Approved By</span>
+                  <span class="info-value">{{ claim()!.managerApprover?.email }}</span>
+                  @if (claim()!.manager_approved_at) {
+                    <span class="info-subvalue">{{ formatDateTime(claim()!.manager_approved_at!) }}</span>
+                  }
+                </div>
+              }
+              @if (claim()!.financeApprover) {
+                <div class="info-item col-span-2">
+                  <span class="info-label">Finance Approved By</span>
+                  <span class="info-value">{{ claim()!.financeApprover?.email }}</span>
+                  @if (claim()!.finance_approved_at) {
+                    <span class="info-subvalue">{{ formatDateTime(claim()!.finance_approved_at!) }}</span>
+                  }
+                </div>
+              }
+              @if (claim()!.payment_date) {
+                <div class="info-item">
+                  <span class="info-label">Payment Date</span>
+                  <span class="info-value">{{ formatDate(claim()!.payment_date!) }}</span>
+                </div>
+              }
+              @if (claim()!.payment_method) {
+                <div class="info-item">
+                  <span class="info-label">Method</span>
+                  <span class="info-value">{{ claim()!.payment_method }}</span>
+                </div>
+              }
+              @if (claim()!.payment_reference) {
+                <div class="info-item col-span-2">
+                  <span class="info-label">Reference</span>
+                  <span class="info-value">{{ claim()!.payment_reference }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Action forms -->
+        @if (activeAction() === 'reject') {
+          <div class="section sub-section reject-section">
+            <h3 class="section-title text-red-600">Reject Claim</h3>
+            <p class="section-description">Please provide a reason for rejection</p>
+            <textarea
+              z-input
+              [(ngModel)]="rejectionReason"
+              rows="3"
+              placeholder="e.g., Missing receipt, expense not authorized..."
+              class="resize-y mt-2 w-full"></textarea>
+          </div>
+        }
+
+        @if (activeAction() === 'pay') {
+          <div class="section sub-section pay-section">
+            <h3 class="section-title">Record Payment</h3>
+            <p class="section-description">Enter payment details to complete this claim</p>
+            <div class="form-grid mt-3">
+              <div>
+                <label class="field-label">Payment Date *</label>
+                <input z-input type="date" [(ngModel)]="paymentDate" class="w-full" />
+              </div>
+              <div>
+                <label class="field-label">Payment Method *</label>
+                <z-select [(ngModel)]="paymentMethod" zPlaceholder="Select method">
+                  <z-select-item zValue="Bank Transfer">Bank Transfer</z-select-item>
+                  <z-select-item zValue="Cash">Cash</z-select-item>
+                  <z-select-item zValue="Cheque">Cheque</z-select-item>
+                </z-select>
+              </div>
+              <div class="col-span-2">
+                <label class="field-label">Reference Number</label>
+                <input z-input type="text" [(ngModel)]="paymentReference" placeholder="e.g., TXN123456" class="w-full" />
+              </div>
+            </div>
+          </div>
+        }
+
+        @if (activeAction() === 'approve') {
+          <div class="section sub-section approve-section">
+            <h3 class="section-title text-emerald-600">Confirm Approval</h3>
+            <p class="section-description">
+              {{ isManagerApproval() ? 'You are about to approve this claim as Manager. It will proceed to Finance.' : 'You are about to approve this claim as Finance. It will then need to be marked as paid.' }}
+            </p>
+          </div>
+        }
+      }
+    </div>
+
+    <!-- Footer -->
+    <z-divider zSpacing="none" />
+    <div class="sheet-footer">
+      @if (claim() && canTakeAction() && activeAction() === 'none') {
+        <button z-button zType="outline" class="rounded-lg" (click)="close()">
+          Close
+        </button>
+        @if (isManagerApproval() || isFinanceApproval()) {
+          <button z-button zType="outline" class="rounded-lg reject-btn" (click)="openReject()">
+            <z-icon zType="x" zSize="sm" class="mr-1" />
+            Reject
+          </button>
+          <button z-button class="rounded-lg approve-btn" (click)="openApproveConfirm()">
+            <z-icon zType="check" zSize="sm" class="mr-1" />
+            Approve
+          </button>
+        } @else if (canMarkAsPaid()) {
+          <button z-button class="rounded-lg pay-btn" (click)="openPayForm()">
+            <z-icon zType="dollar-sign" zSize="sm" class="mr-1" />
+            Mark as Paid
+          </button>
+        }
+      } @else if (activeAction() === 'approve') {
+        <button z-button zType="outline" class="rounded-lg" (click)="cancelAction()" [disabled]="processing()">
+          Back
+        </button>
+        <button z-button class="rounded-lg approve-btn" (click)="confirmApprove()" [disabled]="processing()">
+          @if (processing()) {
+            <z-icon zType="loader-circle" zSize="sm" class="animate-spin mr-1" />
+          } @else {
+            <z-icon zType="check" zSize="sm" class="mr-1" />
+          }
+          Confirm Approve
+        </button>
+      } @else if (activeAction() === 'reject') {
+        <button z-button zType="outline" class="rounded-lg" (click)="cancelAction()" [disabled]="processing()">
+          Back
+        </button>
+        <button z-button class="rounded-lg reject-confirm-btn" (click)="confirmReject()" [disabled]="processing() || !rejectionReason.trim()">
+          @if (processing()) {
+            <z-icon zType="loader-circle" zSize="sm" class="animate-spin mr-1" />
+          } @else {
+            <z-icon zType="x" zSize="sm" class="mr-1" />
+          }
+          Confirm Reject
+        </button>
+      } @else if (activeAction() === 'pay') {
+        <button z-button zType="outline" class="rounded-lg" (click)="cancelAction()" [disabled]="processing()">
+          Back
+        </button>
+        <button z-button class="rounded-lg pay-btn" (click)="confirmPay()" [disabled]="processing() || !paymentDate || !paymentMethod">
+          @if (processing()) {
+            <z-icon zType="loader-circle" zSize="sm" class="animate-spin mr-1" />
+          } @else {
+            <z-icon zType="dollar-sign" zSize="sm" class="mr-1" />
+          }
+          Record Payment
+        </button>
+      } @else {
+        <button z-button class="rounded-lg" (click)="close()">
+          Close
+        </button>
+      }
+    </div>
+  </div>
+</z-sheet>

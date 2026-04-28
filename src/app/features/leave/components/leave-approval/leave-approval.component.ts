@@ -12,10 +12,16 @@ import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { ZardIconComponent } from '@/shared/components/icon/icon.component';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
+import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component';
 import { ZardSelectComponent } from '@/shared/components/select/select.component';
 import { ZardSelectItemComponent } from '@/shared/components/select/select-item.component';
 import { ZardInputDirective } from '@/shared/components/input/input.directive';
 import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
+import { ZardEmptyComponent } from '@/shared/components/empty/empty.component';
+import { ZardTooltipModule } from '@/shared/components/tooltip/tooltip';
+import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-dialog.service';
+
+import { LeaveApprovalSheetComponent } from '../leave-approval-sheet/leave-approval-sheet.component';
 
 @Component({
   selector: 'app-leave-approval',
@@ -28,10 +34,14 @@ import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.com
     ZardButtonComponent,
     ZardIconComponent,
     ZardBadgeComponent,
+    ZardAvatarComponent,
     ZardSelectComponent,
     ZardSelectItemComponent,
     ZardInputDirective,
-    ZardSkeletonComponent
+    ZardSkeletonComponent,
+    ZardEmptyComponent,
+    ZardTooltipModule,
+    LeaveApprovalSheetComponent
   ],
   templateUrl: './leave-approval.component.html',
   styleUrl: './leave-approval.component.css'
@@ -50,13 +60,16 @@ export class LeaveApprovalComponent implements OnInit {
   // Pagination
   currentPage = signal(1);
   totalPages = signal(1);
-  pageSize = 10;
+  pageSize = 24;
+
+  // Sheet state
+  approvalSheetOpen = signal(false);
+  approvalSheetLeaveId = signal<string | null>(null);
 
   // Computed filtered leaves
   filteredLeaves = computed(() => {
     let leaves = this.pendingLeaves();
 
-    // Search filter
     const search = this.searchTerm().toLowerCase();
     if (search) {
       leaves = leaves.filter(leave =>
@@ -66,12 +79,10 @@ export class LeaveApprovalComponent implements OnInit {
       );
     }
 
-    // Leave type filter
     if (this.selectedLeaveType()) {
       leaves = leaves.filter(leave => leave.leave_type_id === this.selectedLeaveType());
     }
 
-    // Department filter
     if (this.selectedDepartment()) {
       leaves = leaves.filter(leave => leave.employee?.department === this.selectedDepartment());
     }
@@ -79,11 +90,34 @@ export class LeaveApprovalComponent implements OnInit {
     return leaves;
   });
 
-  private displayService = inject(DisplayService);
+  // Unique leave types and departments derived from pending leaves
+  availableLeaveTypes = computed(() => {
+    const types = new Map<number, string>();
+    this.pendingLeaves().forEach(leave => {
+      if (leave.leave_type_id && leave.leave_type?.name) {
+        types.set(leave.leave_type_id, leave.leave_type.name);
+      }
+    });
+    return Array.from(types.entries()).map(([id, name]) => ({ id, name }));
+  });
 
-  // Rejection reason for modal
-  rejectionReason = signal('');
-  rejectingLeaveId = signal<string | null>(null);
+  availableDepartments = computed(() => {
+    const departments = new Set<string>();
+    this.pendingLeaves().forEach(leave => {
+      if (leave.employee?.department) {
+        departments.add(leave.employee.department);
+      }
+    });
+    return Array.from(departments);
+  });
+
+  // Stats
+  totalPending = computed(() => this.pendingLeaves().length);
+  totalDaysRequested = computed(() => this.pendingLeaves().reduce((sum, l) => sum + (l.total_days || 0), 0));
+  uniqueEmployees = computed(() => new Set(this.pendingLeaves().map(l => l.employee_id)).size);
+
+  private displayService = inject(DisplayService);
+  private alertDialogService = inject(ZardAlertDialogService);
 
   constructor(
     private leaveService: LeaveService,
@@ -119,70 +153,56 @@ export class LeaveApprovalComponent implements OnInit {
     });
   }
 
-  approveLeave(leaveId: string): void {
-    if (!confirm('Are you sure you want to approve this leave application?')) {
-      return;
-    }
+  quickApprove(leave: Leave): void {
+    if (!leave.public_id) return;
 
-    this.processingLeaveId.set(leaveId);
-
-    this.leaveService.approveRejectLeave(leaveId, { action: 'approve' }).subscribe({
-      next: (response) => {
-        if (response.success) {
-          // Remove from pending list
-          this.pendingLeaves.update(leaves => leaves.filter(l => l.public_id !== leaveId));
-          alert('Leave application approved successfully!');
-        }
-        this.processingLeaveId.set(null);
-      },
-      error: (err) => {
-        console.error('Error approving leave:', err);
-        alert('Failed to approve leave application. Please try again.');
-        this.processingLeaveId.set(null);
+    this.alertDialogService.confirm({
+      zTitle: 'Approve Leave',
+      zDescription: `Approve ${leave.employee?.full_name}'s ${leave.leave_type?.name} request (${this.getDaysCount(leave)})?`,
+      zOkText: 'Approve',
+      zCancelText: 'Cancel',
+      zOnOk: () => {
+        this.processingLeaveId.set(leave.public_id!);
+        this.leaveService.approveRejectLeave(leave.public_id!, { action: 'approve' }).subscribe({
+          next: (response) => {
+            if (response.success) {
+              this.pendingLeaves.update(leaves => leaves.filter(l => l.public_id !== leave.public_id));
+              this.alertDialogService.info({
+                zTitle: 'Approved',
+                zDescription: 'Leave application approved successfully',
+                zOkText: 'OK'
+              });
+            }
+            this.processingLeaveId.set(null);
+          },
+          error: (err) => {
+            console.error('Error approving leave:', err);
+            this.alertDialogService.warning({
+              zTitle: 'Error',
+              zDescription: err.error?.message || 'Failed to approve leave',
+              zOkText: 'OK'
+            });
+            this.processingLeaveId.set(null);
+          }
+        });
       }
     });
   }
 
-  openRejectModal(leaveId: string): void {
-    this.rejectingLeaveId.set(leaveId);
-    this.rejectionReason.set('');
+  viewLeaveDetails(leave: Leave): void {
+    this.approvalSheetLeaveId.set(leave.public_id || null);
+    this.approvalSheetOpen.set(true);
   }
 
-  closeRejectModal(): void {
-    this.rejectingLeaveId.set(null);
-    this.rejectionReason.set('');
-  }
-
-  rejectLeave(): void {
-    const leaveId = this.rejectingLeaveId();
-    if (!leaveId) return;
-
-    if (!this.rejectionReason().trim()) {
-      alert('Please provide a reason for rejection.');
-      return;
+  onSheetOpenChange(open: boolean): void {
+    this.approvalSheetOpen.set(open);
+    if (!open) {
+      this.approvalSheetLeaveId.set(null);
     }
+  }
 
-    this.processingLeaveId.set(leaveId);
-
-    this.leaveService.approveRejectLeave(leaveId, {
-      action: 'reject',
-      rejection_reason: this.rejectionReason()
-    }).subscribe({
-      next: (response) => {
-        if (response.success) {
-          // Remove from pending list
-          this.pendingLeaves.update(leaves => leaves.filter(l => l.public_id !== leaveId));
-          this.closeRejectModal();
-          alert('Leave application rejected successfully!');
-        }
-        this.processingLeaveId.set(null);
-      },
-      error: (err) => {
-        console.error('Error rejecting leave:', err);
-        alert('Failed to reject leave application. Please try again.');
-        this.processingLeaveId.set(null);
-      }
-    });
+  onSheetActionCompleted(): void {
+    this.loadPendingLeaves();
   }
 
   getDaysCount(leave: Leave): string {
@@ -197,12 +217,35 @@ export class LeaveApprovalComponent implements OnInit {
     return this.displayService.formatDate(dateString);
   }
 
-  getLeaveTypeColor(leaveTypeName: string): 'default' | 'secondary' | 'destructive' | 'outline' {
+  formatDateShort(dateString: string): string {
+    const d = new Date(dateString);
+    return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+  }
+
+  getLeaveTypeBadge(leaveTypeName?: string): string {
+    if (!leaveTypeName) return 'soft-gray';
     const name = leaveTypeName.toLowerCase();
-    if (name.includes('medical') || name.includes('sick')) return 'destructive';
-    if (name.includes('annual') || name.includes('vacation')) return 'default';
-    if (name.includes('emergency')) return 'outline';
-    return 'secondary';
+    if (name.includes('medical') || name.includes('sick') || name.includes('hospitalization')) return 'soft-red';
+    if (name.includes('annual') || name.includes('vacation')) return 'soft-green';
+    if (name.includes('emergency')) return 'soft-orange';
+    if (name.includes('maternity') || name.includes('paternity')) return 'soft-pink';
+    if (name.includes('study')) return 'soft-blue';
+    if (name.includes('unpaid')) return 'soft-gray';
+    return 'soft-purple';
+  }
+
+  getDaysSincePending(leave: Leave): number {
+    const created = new Date(leave.created_at);
+    const now = new Date();
+    const diff = Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24));
+    return diff;
+  }
+
+  isUrgent(leave: Leave): boolean {
+    const startDate = new Date(leave.start_date);
+    const now = new Date();
+    const daysUntilStart = Math.floor((startDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    return daysUntilStart <= 3 && daysUntilStart >= 0;
   }
 
   onPageChange(page: number): void {
@@ -216,7 +259,7 @@ export class LeaveApprovalComponent implements OnInit {
     this.selectedDepartment.set('');
   }
 
-  viewLeaveDetails(leave: Leave): void {
-    this.router.navigate(['/leave', leave.public_id]);
+  hasActiveFilters(): boolean {
+    return !!(this.searchTerm() || this.selectedLeaveType() || this.selectedDepartment());
   }
 }

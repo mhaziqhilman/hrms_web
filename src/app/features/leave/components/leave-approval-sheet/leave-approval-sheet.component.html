@@ -1,0 +1,178 @@
+<z-sheet [zOpen]="open" zSide="right" zClass="sheet-panel" (zOpenChange)="handleOpenChange($event)">
+  <div class="sheet-wrapper">
+    <!-- Header -->
+    <div class="sheet-header">
+      <div class="flex items-center gap-3">
+        <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
+          <z-icon zType="file-text" class="text-primary" zSize="lg" />
+        </div>
+        <div>
+          <h2 class="text-base font-medium text-foreground">Leave Application</h2>
+          <p class="text-xs text-muted-foreground">Review and take action on this request</p>
+        </div>
+      </div>
+    </div>
+
+    <z-divider zSpacing="none" />
+
+    <!-- Body -->
+    <div class="sheet-body">
+      @if (loading()) {
+        <div class="flex items-center justify-center py-20">
+          <z-icon zType="loader-circle" class="w-8 h-8 animate-spin text-primary" />
+        </div>
+      } @else if (leave()) {
+        <!-- Employee card -->
+        <div class="employee-card">
+          <z-avatar [zSrc]="leave()!.employee?.photo_url || undefined"
+            [zFallback]="leave()!.employee?.full_name?.charAt(0) || '?'"
+            class="w-12 h-12" />
+          <div class="flex-1 min-w-0">
+            <p class="font-medium text-foreground truncate">{{ leave()!.employee?.full_name }}</p>
+            <p class="text-xs text-muted-foreground truncate">{{ leave()!.employee?.employee_id }} · {{ leave()!.employee?.department || '—' }}</p>
+            @if (leave()!.employee?.position) {
+              <p class="text-xs text-muted-foreground truncate">{{ leave()!.employee?.position }}</p>
+            }
+          </div>
+          <z-badge [zType]="$any(getStatusBadgeType(leave()!.status))" zShape="pill" class="text-xs flex-shrink-0">
+            {{ leave()!.status }}
+          </z-badge>
+        </div>
+
+        <!-- Leave Overview -->
+        <div class="section">
+          <h3 class="section-title">Leave Overview</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Leave Type</span>
+              <span class="info-value">{{ leave()!.leave_type?.name || '—' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Total Days</span>
+              <span class="info-value">{{ leave()!.total_days }} {{ leave()!.total_days === 1 ? 'day' : 'days' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Start Date</span>
+              <span class="info-value">{{ formatDate(leave()!.start_date) }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">End Date</span>
+              <span class="info-value">{{ formatDate(leave()!.end_date) }}</span>
+            </div>
+            @if (leave()!.is_half_day) {
+              <div class="info-item col-span-2">
+                <span class="info-label">Half Day Period</span>
+                <span class="info-value">{{ leave()!.half_day_period === 'AM' ? 'Morning (AM)' : 'Afternoon (PM)' }}</span>
+              </div>
+            }
+            <div class="info-item col-span-2">
+              <span class="info-label">Submitted On</span>
+              <span class="info-value">{{ formatDateTime(leave()!.created_at) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reason -->
+        <div class="section sub-section">
+          <h3 class="section-title">Reason</h3>
+          <div class="reason-block">
+            {{ leave()!.reason }}
+          </div>
+        </div>
+
+        <!-- Attachment -->
+        @if (leave()!.attachment_url) {
+          <div class="section sub-section">
+            <h3 class="section-title">Supporting Document</h3>
+            <a [href]="leave()!.attachment_url" target="_blank" rel="noopener" class="attachment-link">
+              <z-icon zType="paperclip" class="w-4 h-4" />
+              <span class="truncate">View attached document</span>
+              <z-icon [zType]="$any('external-link')" class="w-3.5 h-3.5 ml-auto flex-shrink-0" />
+            </a>
+          </div>
+        }
+
+        <!-- Approval info (if already decided) -->
+        @if (leave()!.status === LeaveStatus.APPROVED || leave()!.status === LeaveStatus.REJECTED) {
+          <div class="section sub-section">
+            <h3 class="section-title">Decision</h3>
+            <div class="info-grid">
+              @if (leave()!.approver) {
+                <div class="info-item col-span-2">
+                  <span class="info-label">{{ leave()!.status === LeaveStatus.APPROVED ? 'Approved By' : 'Rejected By' }}</span>
+                  <span class="info-value">{{ leave()!.approver?.email }}</span>
+                </div>
+              }
+              @if (leave()!.approved_at) {
+                <div class="info-item col-span-2">
+                  <span class="info-label">Decision Date</span>
+                  <span class="info-value">{{ formatDateTime(leave()!.approved_at!) }}</span>
+                </div>
+              }
+              @if (leave()!.rejection_reason) {
+                <div class="info-item col-span-2">
+                  <span class="info-label">Rejection Reason</span>
+                  <span class="info-value text-red-600">{{ leave()!.rejection_reason }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Reject input (expanded) -->
+        @if (showRejectInput()) {
+          <div class="section sub-section reject-section">
+            <h3 class="section-title text-red-600">Reject Leave</h3>
+            <p class="section-description">Please provide a reason for rejection</p>
+            <textarea
+              z-input
+              [(ngModel)]="rejectionReason"
+              rows="3"
+              placeholder="e.g., Insufficient leave balance, overlapping with team plans..."
+              class="resize-y mt-2 w-full"></textarea>
+          </div>
+        }
+      }
+    </div>
+
+    <!-- Footer with actions -->
+    <z-divider zSpacing="none" />
+    <div class="sheet-footer">
+      @if (leave() && leave()!.status === LeaveStatus.PENDING) {
+        @if (!showRejectInput()) {
+          <button z-button zType="outline" class="rounded-lg" (click)="close()" [disabled]="processing()">
+            Close
+          </button>
+          <button z-button zType="outline" class="rounded-lg reject-btn" (click)="openRejectInput()" [disabled]="processing()">
+            <z-icon zType="x" zSize="sm" class="mr-1" />
+            Reject
+          </button>
+          <button z-button class="rounded-lg approve-btn" (click)="approve()" [disabled]="processing()">
+            @if (processing()) {
+              <z-icon zType="loader-circle" zSize="sm" class="animate-spin mr-1" />
+            } @else {
+              <z-icon zType="check" zSize="sm" class="mr-1" />
+            }
+            Approve
+          </button>
+        } @else {
+          <button z-button zType="outline" class="rounded-lg" (click)="cancelReject()" [disabled]="processing()">
+            Back
+          </button>
+          <button z-button class="rounded-lg reject-confirm-btn" (click)="confirmReject()" [disabled]="processing() || !rejectionReason.trim()">
+            @if (processing()) {
+              <z-icon zType="loader-circle" zSize="sm" class="animate-spin mr-1" />
+            } @else {
+              <z-icon zType="x" zSize="sm" class="mr-1" />
+            }
+            Confirm Reject
+          </button>
+        }
+      } @else {
+        <button z-button zType="outline" class="rounded-lg" (click)="close()">
+          Close
+        </button>
+      }
+    </div>
+  </div>
+</z-sheet>

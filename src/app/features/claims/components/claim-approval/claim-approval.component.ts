@@ -20,11 +20,15 @@ import { ZardSegmentedComponent, SegmentedOption } from '@/shared/components/seg
 import { ZardTableImports } from '@/shared/components/table/table.imports';
 import { ZardDividerComponent } from '@/shared/components/divider/divider.component';
 import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
+import { ZardTooltipModule } from '@/shared/components/tooltip/tooltip';
 
 // Dialog Components
 import { ApprovalConfirmationDialogComponent } from './dialogs/approval-confirmation-dialog.component';
 import { RejectionDialogComponent } from './dialogs/rejection-dialog.component';
 import { PaymentDialogComponent } from './dialogs/payment-dialog.component';
+
+// Sheet
+import { ClaimApprovalSheetComponent } from '../claim-approval-sheet/claim-approval-sheet.component';
 
 @Component({
   selector: 'app-claim-approval',
@@ -42,7 +46,9 @@ import { PaymentDialogComponent } from './dialogs/payment-dialog.component';
     ZardSegmentedComponent,
     ZardTableImports,
     ZardDividerComponent,
-    ZardSkeletonComponent
+    ZardSkeletonComponent,
+    ZardTooltipModule,
+    ClaimApprovalSheetComponent
   ],
   templateUrl: './claim-approval.component.html',
   styleUrl: './claim-approval.component.css'
@@ -141,6 +147,69 @@ export class ClaimApprovalComponent implements OnInit {
 
   // Expose Math to template
   Math = Math;
+
+  // Sheet state
+  approvalSheetOpen = signal(false);
+  approvalSheetClaimId = signal<string | null>(null);
+
+  // Computed stats
+  totalInReview = computed(() =>
+    this.claims().filter(c => c.status === 'Pending' || c.status === 'Manager_Approved').length
+  );
+
+  totalPendingAmount = computed(() =>
+    this.claims()
+      .filter(c => c.status === 'Pending' || c.status === 'Manager_Approved' || c.status === 'Finance_Approved')
+      .reduce((sum, c) => {
+        const amt = typeof c.amount === 'string' ? parseFloat(c.amount) : (c.amount || 0);
+        return sum + amt;
+      }, 0)
+  );
+
+  readyToPayCount = computed(() =>
+    this.claims().filter(c => c.status === 'Finance_Approved').length
+  );
+
+  uniqueEmployees = computed(() =>
+    new Set(this.claims().map(c => c.employee_id)).size
+  );
+
+  viewClaimSheet(claim: Claim): void {
+    this.approvalSheetClaimId.set(claim.public_id || null);
+    this.approvalSheetOpen.set(true);
+  }
+
+  onSheetOpenChange(open: boolean): void {
+    this.approvalSheetOpen.set(open);
+    if (!open) {
+      this.approvalSheetClaimId.set(null);
+    }
+  }
+
+  onSheetActionCompleted(): void {
+    this.loadClaims();
+  }
+
+  getDaysSincePending(claim: Claim): number {
+    const created = new Date(claim.created_at);
+    const now = new Date();
+    return Math.max(0, Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24)));
+  }
+
+  getClaimTypeBadge(typeName?: string): string {
+    if (!typeName) return 'soft-gray';
+    const name = typeName.toLowerCase();
+    if (name.includes('travel') || name.includes('transport')) return 'soft-blue';
+    if (name.includes('meal') || name.includes('food')) return 'soft-orange';
+    if (name.includes('medical') || name.includes('health')) return 'soft-red';
+    if (name.includes('training') || name.includes('education')) return 'soft-purple';
+    if (name.includes('entertainment') || name.includes('client')) return 'soft-pink';
+    return 'soft-green';
+  }
+
+  hasActiveFilters(): boolean {
+    return this.activeTab() !== 'All' || !!this.searchQuery() || !!this.selectedClaimType();
+  }
 
   constructor(private claimService: ClaimService) { }
 

@@ -391,9 +391,9 @@
                       <div zCardFooter class="pt-6">
                         <button z-button zType="outline"
                           class="w-full"
-                          [disabled]="downloading() === payslip.id"
+                          [disabled]="downloading() === payslip.public_id"
                           (click)="downloadPayslip(payslip)">
-                          @if (downloading() === payslip.id) {
+                          @if (downloading() === payslip.public_id) {
                             <z-icon zType="loader-2" class="mr-2 h-4 w-4 animate-spin" />
                             Downloading...
                           } @else {
