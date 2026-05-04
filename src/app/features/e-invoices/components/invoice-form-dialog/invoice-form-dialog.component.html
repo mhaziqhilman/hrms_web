@@ -70,6 +70,33 @@
 
       <!-- Section: Invoice Details -->
       @if (activeSection === 'details') {
+        <!-- Linked Project (pre-fills buyer + line items) -->
+        <div class="mb-5 rounded-lg border border-blue-200 bg-blue-50/40 p-4">
+          <label class="block text-sm font-medium text-blue-900 mb-1">
+            Linked Project / Purchase Order
+          </label>
+          <p class="text-xs text-blue-700/70 mb-2">
+            Pick a project to auto-fill buyer name, currency and line item description from its PO.
+          </p>
+          <select
+            [ngModel]="selectedProjectId()"
+            [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="onProjectChange($event ? +$event : null)"
+            class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm bg-white">
+            <option [ngValue]="null">— No project (manual invoice) —</option>
+            @for (proj of projects(); track proj.id) {
+              <option [ngValue]="proj.id">
+                {{ proj.code }} — {{ proj.name }}{{ proj.po_number ? ' · PO ' + proj.po_number : '' }}
+              </option>
+            }
+          </select>
+          @if (projects().length === 0) {
+            <p class="text-xs text-amber-700 mt-2">
+              No projects found. Create one under Finance → Projects first.
+            </p>
+          }
+        </div>
+
         <div class="step-content" [formGroup]="detailsForm">
           <h3 class="step-title">Invoice Information</h3>
           <p class="step-description">Set the basic details for this invoice</p>

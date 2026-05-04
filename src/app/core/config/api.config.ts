@@ -221,6 +221,25 @@ export const API_CONFIG = {
       bulkSubmit: '/invoices/bulk-submit',
       validateTin: '/invoices/validate-tin'
     },
+    projects: {
+      base: '/projects',
+      detail: (id: string) => `/projects/${id}`,
+      transactions: (id: string) => `/projects/${id}/transactions`
+    },
+    bills: {
+      base: '/bills',
+      detail: (id: string) => `/bills/${id}`,
+      approve: (id: string) => `/bills/${id}/approve`,
+      cancel: (id: string) => `/bills/${id}/cancel`,
+      payments: (id: string) => `/bills/${id}/payments`,
+      deletePayment: (id: string, paymentId: number) => `/bills/${id}/payments/${paymentId}`
+    },
+    finance: {
+      pnl: '/finance/pnl',
+      sales: '/finance/sales',
+      expenses: '/finance/expenses',
+      projectsPnl: '/finance/projects-pnl'
+    },
     settings: {
       base: '/settings',
       account: '/settings/account',

@@ -1,18 +1,18 @@
 <div class="space-y-6">
   <!-- Header -->
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+  <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
     @if (!embedded()) {
       <div>
-        <h1 class="text-2xl font-semibold text-foreground">My Payslips</h1>
-        <p class="text-muted-foreground">View and download your payslips</p>
+        <h1 class="text-2xl font-semibold text-foreground">Payslips</h1>
+        <p class="text-muted-foreground">Your monthly statements and year-to-date summary</p>
       </div>
     }
-    <div class="flex items-center gap-2" [class.ml-auto]="embedded()">
-      <span class="text-sm text-muted-foreground">Year:</span>
+    <div class="flex items-center gap-2 rounded-full border bg-background pl-4 pr-1 py-1" [class.ml-auto]="embedded()">
+      <span class="text-sm text-muted-foreground">Year</span>
       <z-select
         [zValue]="selectedYear()"
         (zValueChange)="onYearChange($event)"
-        class="w-32">
+        class="w-24 [&_button]:border-0 [&_button]:shadow-none [&_button]:h-8">
         @for (year of years; track year) {
           <z-select-item [zValue]="year">{{ year }}</z-select-item>
         }
@@ -20,56 +20,33 @@
     </div>
   </div>
 
-  <!-- YTD Summary Cards -->
+  <!-- YTD Strip — single bordered container with 4 stats divided by vertical lines -->
   @if (ytdSummary()) {
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-      <z-card class="p-4">
-        <div class="flex items-center gap-3">
-          <div class="p-2 rounded-lg bg-blue-100 dark:bg-blue-900">
-            <z-icon zType="wallet" class="h-5 w-5 text-blue-600 dark:text-blue-400" />
-          </div>
-          <div>
-            <p class="text-sm text-muted-foreground">YTD Gross</p>
-            <p class="text-lg font-medium">{{ formatCurrency(ytdSummary()?.total_gross ?? 0) }}</p>
-          </div>
-        </div>
-      </z-card>
-
-      <z-card class="p-4">
-        <div class="flex items-center gap-3">
-          <div class="p-2 rounded-lg bg-green-100 dark:bg-green-900">
-            <z-icon zType="banknote" class="h-5 w-5 text-green-600 dark:text-green-400" />
-          </div>
-          <div>
-            <p class="text-sm text-muted-foreground">YTD Net</p>
-            <p class="text-lg font-medium">{{ formatCurrency(ytdSummary()?.total_net ?? 0) }}</p>
-          </div>
-        </div>
-      </z-card>
-
-      <z-card class="p-4">
-        <div class="flex items-center gap-3">
-          <div class="p-2 rounded-lg bg-purple-100 dark:bg-purple-900">
-            <z-icon zType="landmark" class="h-5 w-5 text-purple-600 dark:text-purple-400" />
-          </div>
-          <div>
-            <p class="text-sm text-muted-foreground">YTD EPF</p>
-            <p class="text-lg font-medium">{{ formatCurrency(ytdSummary()?.total_epf ?? 0) }}</p>
-          </div>
-        </div>
-      </z-card>
-
-      <z-card class="p-4">
-        <div class="flex items-center gap-3">
-          <div class="p-2 rounded-lg bg-orange-100 dark:bg-orange-900">
-            <z-icon zType="receipt-text" class="h-5 w-5 text-orange-600 dark:text-orange-400" />
-          </div>
-          <div>
-            <p class="text-sm text-muted-foreground">YTD Tax (PCB)</p>
-            <p class="text-lg font-medium">{{ formatCurrency(ytdSummary()?.total_pcb ?? 0) }}</p>
-          </div>
-        </div>
-      </z-card>
+    <div class="grid grid-cols-2 md:grid-cols-4 bg-card border border-border rounded-2xl py-5 px-1 divide-x divide-border">
+      <div class="px-6 py-1">
+        <p class="text-xs font-medium text-muted-foreground mb-2">YTD Gross</p>
+        <p class="text-[22px] font-semibold tracking-[-0.015em] leading-none">
+          <span class="text-xs font-medium text-muted-foreground mr-[3px]">RM</span>{{ formatNumber(ytdSummary()?.total_gross ?? 0) }}
+        </p>
+      </div>
+      <div class="px-6 py-1">
+        <p class="text-xs font-medium text-muted-foreground mb-2">YTD Net</p>
+        <p class="text-[22px] font-semibold tracking-[-0.015em] leading-none">
+          <span class="text-xs font-medium text-muted-foreground mr-[3px]">RM</span>{{ formatNumber(ytdSummary()?.total_net ?? 0) }}
+        </p>
+      </div>
+      <div class="px-6 py-1">
+        <p class="text-xs font-medium text-muted-foreground mb-2">EPF</p>
+        <p class="text-[22px] font-semibold tracking-[-0.015em] leading-none">
+          <span class="text-xs font-medium text-muted-foreground mr-[3px]">RM</span>{{ formatNumber(ytdSummary()?.total_epf ?? 0) }}
+        </p>
+      </div>
+      <div class="px-6 py-1">
+        <p class="text-xs font-medium text-muted-foreground mb-2">Tax (PCB)</p>
+        <p class="text-[22px] font-semibold tracking-[-0.015em] leading-none">
+          <span class="text-xs font-medium text-muted-foreground mr-[3px]">RM</span>{{ formatNumber(ytdSummary()?.total_pcb ?? 0) }}
+        </p>
+      </div>
     </div>
   }
 
@@ -79,49 +56,96 @@
       <z-icon zType="loader-2" class="h-8 w-8 animate-spin text-primary" />
     </div>
   } @else if (payslips().length > 0) {
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <!-- Section label -->
+    <p class="text-xs font-medium uppercase text-muted-foreground tracking-[0.04em] mb-3">Recent Payslips</p>
+
+    <!-- Card grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
       @for (payslip of payslips(); track payslip.id) {
-        <z-card class="hover:shadow-md transition-shadow">
-          <div zCardHeader class="pb-2">
-            <div class="flex items-center justify-between">
-              <h3 zCardTitle>{{ getMonthName(payslip.month) }} {{ payslip.year }}</h3>
-              <span
-                class="px-2 py-1 text-xs font-normal rounded-full capitalize"
-                [ngClass]="getStatusBadgeClass(payslip.status)">
-                {{ payslip.status }}
-              </span>
+        <div
+          class="bg-card border border-border rounded-[14px] pt-5 px-[22px] pb-[18px] transition-colors hover:border-foreground/30 cursor-pointer"
+          (click)="viewPayslip(payslip)">
+
+          <!-- Header: Month/Year + Status -->
+          <div class="flex items-start justify-between gap-2 mb-[18px]">
+            <div>
+              <div class="text-[15px] font-semibold tracking-[-0.01em] leading-tight">
+                {{ getMonthName(payslip.month) }}
+                <span class="font-normal text-muted-foreground ml-1">{{ payslip.year }}</span>
+              </div>
+              <div class="text-[11.5px] text-muted-foreground mt-0.5">
+                {{ formatShortDate(payslip.payment_date) }}
+              </div>
+            </div>
+            @let statusKey = (payslip.status || '').toLowerCase();
+            <div class="flex items-center gap-1.5 px-2.5 py-0.5 text-[11px] font-medium rounded-full shrink-0"
+              [ngClass]="{
+                'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300': statusKey === 'paid',
+                'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300': statusKey === 'approved',
+                'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300': statusKey === 'pending',
+                'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300': statusKey === 'rejected' || statusKey === 'cancelled',
+                'bg-muted text-foreground': statusKey === 'draft' || (statusKey !== 'paid' && statusKey !== 'approved' && statusKey !== 'pending' && statusKey !== 'rejected' && statusKey !== 'cancelled')
+              }">
+              <span class="h-1.5 w-1.5 rounded-full"
+                [ngClass]="{
+                  'bg-green-500': statusKey === 'paid',
+                  'bg-blue-500': statusKey === 'approved',
+                  'bg-yellow-500': statusKey === 'pending',
+                  'bg-red-500': statusKey === 'rejected' || statusKey === 'cancelled',
+                  'bg-gray-400': statusKey === 'draft' || (statusKey !== 'paid' && statusKey !== 'approved' && statusKey !== 'pending' && statusKey !== 'rejected' && statusKey !== 'cancelled')
+                }"></span>
+              <span class="capitalize">{{ payslip.status }}</span>
             </div>
           </div>
-          <div zCardContent class="space-y-3">
-            <div class="flex justify-between items-center">
-              <span class="text-sm text-muted-foreground">Gross Salary</span>
-              <span class="font-normal">{{ formatCurrency(payslip.gross_salary) }}</span>
+
+          <!-- Net Pay (hero) -->
+          <div class="mb-[14px]">
+            <p class="text-[11px] uppercase text-muted-foreground tracking-[0.04em] mb-1">Net Pay</p>
+            <p class="text-[26px] font-semibold tracking-[-0.018em] leading-none">
+              <span class="text-[13px] text-muted-foreground font-medium mr-[3px]">RM</span>{{ formatNumber(payslip.net_salary) }}
+            </p>
+          </div>
+
+          <!-- Mini breakdown -->
+          <div class="flex justify-between gap-2 py-2.5 border-t border-border text-[12.5px]">
+            <div class="flex flex-col gap-1 min-w-0">
+              <span class="text-muted-foreground whitespace-nowrap">Gross</span>
+              <span class="text-foreground/80 whitespace-nowrap">RM {{ formatNumber(payslip.gross_salary) }}</span>
             </div>
-            <div class="flex justify-between items-center">
-              <span class="text-sm text-muted-foreground">Total Deductions</span>
-              <span class="font-normal text-red-600">-{{ formatCurrency(payslip.total_deductions) }}</span>
-            </div>
-            <hr class="border-border">
-            <div class="flex justify-between items-center">
-              <span class="text-sm font-normal">Net Salary</span>
-              <span class="font-medium text-green-600">{{ formatCurrency(payslip.net_salary) }}</span>
+            <div class="flex flex-col gap-1 text-right min-w-0">
+              <span class="text-muted-foreground whitespace-nowrap">Deductions</span>
+              <span class="text-foreground/80 whitespace-nowrap">−RM {{ formatNumber(payslip.total_deductions) }}</span>
             </div>
           </div>
-          <div zCardFooter class="pt-0">
-            <button z-button zType="outline"
-              class="w-full"
-              [disabled]="downloading() === payslip.public_id"
-              (click)="downloadPayslip(payslip)">
-              @if (downloading() === payslip.public_id) {
-                <z-icon zType="loader-2" class="mr-2 h-4 w-4 animate-spin" />
-                Downloading...
+
+          <!-- Actions -->
+          <div class="flex gap-1.5 mt-[14px]">
+            <button
+              type="button"
+              (click)="$event.stopPropagation(); viewPayslip(payslip)"
+              [disabled]="viewing() === payslip.public_id"
+              class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-[9px] border border-border rounded-lg bg-background text-[12.5px] font-medium text-foreground hover:bg-accent transition-colors whitespace-nowrap disabled:opacity-50 disabled:pointer-events-none">
+              @if (viewing() === payslip.public_id) {
+                <z-icon zType="loader-2" class="h-3.5 w-3.5 animate-spin" />
+                Loading...
               } @else {
-                <z-icon zType="download" class="mr-2 h-4 w-4" />
-                Download PDF
+                View details
+              }
+            </button>
+            <button
+              type="button"
+              (click)="$event.stopPropagation(); downloadPayslip(payslip)"
+              [disabled]="downloading() === payslip.public_id"
+              aria-label="Download payslip"
+              class="w-9 inline-flex items-center justify-center border border-border rounded-lg bg-background text-foreground/70 hover:bg-accent transition-colors disabled:opacity-50 disabled:pointer-events-none">
+              @if (downloading() === payslip.public_id) {
+                <z-icon zType="loader-2" class="h-3.5 w-3.5 animate-spin" />
+              } @else {
+                <z-icon zType="download" class="h-3.5 w-3.5" />
               }
             </button>
           </div>
-        </z-card>
+        </div>
       }
     </div>
 

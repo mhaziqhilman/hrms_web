@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { ZardIconComponent } from '@/shared/components/icon/icon.component';
@@ -19,6 +19,8 @@ import { ZardTabGroupComponent, ZardTabComponent } from '@/shared/components/tab
 
 import { EInvoiceService } from '../../services/e-invoice.service';
 import { Invoice, TaxType, INVOICE_TYPE_LABELS } from '../../models/invoice.model';
+import { ProjectService } from '@/features/projects/services/project.service';
+import { Project } from '@/features/projects/models/project.model';
 
 interface LineItem {
   description: string;
@@ -42,6 +44,7 @@ interface LineItem {
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
+    RouterLink,
     ZardButtonComponent,
     ZardIconComponent,
     ZardDividerComponent,
@@ -62,6 +65,7 @@ interface LineItem {
 })
 export class InvoiceFormComponent implements OnInit {
   private invoiceService = inject(EInvoiceService);
+  private projectService = inject(ProjectService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private fb = inject(FormBuilder);
@@ -71,6 +75,20 @@ export class InvoiceFormComponent implements OnInit {
   saving = signal(false);
   isEditMode = signal(false);
   invoiceId = signal<string | null>(null);
+
+  // Project linkage
+  projects = signal<Project[]>([]);
+  selectedProjectId = signal<number | null>(null);
+  linkProjectEnabled = signal<boolean>(false);
+
+  toggleLinkProject() {
+    const next = !this.linkProjectEnabled();
+    this.linkProjectEnabled.set(next);
+    if (!next) {
+      // Clear selection when disabling — invoice becomes manual again
+      this.selectedProjectId.set(null);
+    }
+  }
 
   // Expand state for parties
   supplierExpanded = true;
@@ -165,6 +183,7 @@ export class InvoiceFormComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.loadProjects();
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.isEditMode.set(true);
@@ -172,6 +191,51 @@ export class InvoiceFormComponent implements OnInit {
       this.loadInvoice(id);
     } else {
       this.addItem();
+      const queryProjectId = this.route.snapshot.queryParamMap.get('project_id');
+      if (queryProjectId) {
+        this.selectedProjectId.set(+queryProjectId);
+        this.linkProjectEnabled.set(true);
+      }
+    }
+  }
+
+  loadProjects() {
+    this.projectService.list({ limit: 200 }).subscribe({
+      next: res => {
+        this.projects.set(res.data.projects);
+        // If queryParam project_id was set before list arrived, auto-fill now
+        const pid = this.selectedProjectId();
+        if (pid) this.applyProjectAutofill(pid);
+      }
+    });
+  }
+
+  onProjectChange(projectId: number | null) {
+    this.selectedProjectId.set(projectId);
+    if (projectId) this.applyProjectAutofill(projectId);
+  }
+
+  private applyProjectAutofill(projectId: number) {
+    const proj = this.projects().find(p => p.id === projectId);
+    if (!proj) return;
+
+    // Only overwrite buyer fields if they're empty (don't clobber user edits)
+    const b = this.buyerForm.value;
+    if (!b.name && proj.client_name) {
+      this.buyerForm.patchValue({ name: proj.client_name });
+    }
+
+    // Pre-fill first line item description with PO/project context if blank
+    if (this.items.length === 1 && !this.items[0].description) {
+      const month = new Date().toLocaleString('en-MY', { month: 'long', year: 'numeric' });
+      this.items[0].description = proj.po_number
+        ? `Progress claim for ${proj.name} (PO ${proj.po_number}) — ${month}`
+        : `Services rendered for ${proj.name} — ${month}`;
+    }
+
+    // Match invoice currency to project currency
+    if (proj.currency) {
+      this.detailsForm.patchValue({ currency: proj.currency });
     }
   }
 
@@ -192,6 +256,8 @@ export class InvoiceFormComponent implements OnInit {
   }
 
   populateForm(invoice: Invoice) {
+    this.selectedProjectId.set(invoice.project_id ?? null);
+    this.linkProjectEnabled.set(invoice.project_id != null);
     this.detailsForm.patchValue({
       invoiceType: invoice.invoice_type,
       currency: invoice.currency,
@@ -324,6 +390,7 @@ export class InvoiceFormComponent implements OnInit {
       payment_terms: this.paymentTerms || null,
       currency: this.currency,
       notes: this.notes || null,
+      project_id: this.selectedProjectId() || null,
       supplier_name: s.name,
       supplier_tin: s.tin || null,
       supplier_brn: s.brn || null,

@@ -133,7 +133,7 @@
         [class]="'scrollbar-custom flex-1 flex flex-col overflow-y-auto overflow-x-hidden' + (sidebarCollapsed() ? 'gap-1 p-1 pt-4' : 'gap-4 py-4 pl-4 pr-3')">
         @for (group of menuGroups; track group.label) {
           @if (isGroupVisible(group)) {
-            <z-sidebar-group>
+            <z-sidebar-group class="mb-2">
               @if (!sidebarCollapsed()) {
                 <z-sidebar-group-label>{{ group.label }}</z-sidebar-group-label>
               }

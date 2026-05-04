@@ -1,0 +1,200 @@
+<div class="p-6 space-y-4" *ngIf="!loading() && project() as p">
+  <div class="flex items-start justify-between">
+    <div>
+      <div class="text-xs text-slate-500 font-mono">{{ p.code }}</div>
+      <h1 class="text-2xl font-semibold">{{ p.name }}</h1>
+      <div class="text-sm text-slate-500 mt-1">
+        Client: {{ p.client_name || '—' }} ·
+        <span class="px-2 py-0.5 bg-slate-100 rounded-full text-xs ml-1">{{ p.status.replace('_', ' ') }}</span>
+      </div>
+    </div>
+    <div class="flex gap-2">
+      <button (click)="createInvoice()" class="px-4 py-2 bg-slate-900 text-white text-sm rounded-md hover:bg-slate-800">
+        + Create Invoice
+      </button>
+      <button (click)="createBill()" class="px-4 py-2 border border-slate-300 rounded-md text-sm">+ Bill / PO</button>
+      <button (click)="edit()" class="px-4 py-2 border border-slate-300 rounded-md text-sm">Edit</button>
+      <a routerLink="/projects" class="px-4 py-2 border border-slate-300 rounded-md text-sm">← Back</a>
+    </div>
+  </div>
+
+  <!-- Financial summary cards -->
+  <div class="grid grid-cols-4 gap-3" *ngIf="p.financials as f">
+    <div class="bg-white p-4 rounded-md border border-slate-200">
+      <div class="text-xs text-slate-500">Revenue (received)</div>
+      <div class="text-xl font-semibold mt-1 text-green-700">{{ formatMoney(f.total_received, p.currency) }}</div>
+      <div class="text-xs text-slate-400 mt-1">Invoiced: {{ formatMoney(f.total_invoiced, p.currency) }}</div>
+    </div>
+    <div class="bg-white p-4 rounded-md border border-slate-200">
+      <div class="text-xs text-slate-500">Expenses (paid)</div>
+      <div class="text-xl font-semibold mt-1 text-red-700">{{ formatMoney(f.total_paid, p.currency) }}</div>
+      <div class="text-xs text-slate-400 mt-1">Billed: {{ formatMoney(f.total_billed, p.currency) }}</div>
+    </div>
+    <div class="bg-white p-4 rounded-md border border-slate-200">
+      <div class="text-xs text-slate-500">Realized profit</div>
+      <div class="text-xl font-semibold mt-1" [class.text-green-700]="f.realized_profit >= 0" [class.text-red-700]="f.realized_profit < 0">
+        {{ formatMoney(f.realized_profit, p.currency) }}
+      </div>
+    </div>
+    <div class="bg-white p-4 rounded-md border border-slate-200">
+      <div class="text-xs text-slate-500">Unrealized profit</div>
+      <div class="text-xl font-semibold mt-1" [class.text-green-700]="f.unrealized_profit >= 0" [class.text-red-700]="f.unrealized_profit < 0">
+        {{ formatMoney(f.unrealized_profit, p.currency) }}
+      </div>
+      <div class="text-xs text-slate-400 mt-1">
+        AR {{ formatMoney(f.total_receivable, p.currency) }} − AP {{ formatMoney(f.total_payable, p.currency) }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Budget bar -->
+  <div *ngIf="p.budget" class="bg-white p-4 rounded-md border border-slate-200">
+    <div class="flex items-center justify-between text-sm mb-2">
+      <span class="text-slate-600">Budget utilisation</span>
+      <span class="font-medium">{{ budgetUsedPct() }}%</span>
+    </div>
+    <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
+      <div class="h-full" [class.bg-green-500]="budgetUsedPct() < 80" [class.bg-yellow-500]="budgetUsedPct() >= 80 && budgetUsedPct() < 100"
+           [class.bg-red-500]="budgetUsedPct() >= 100"
+           [style.width.%]="budgetUsedPct()"></div>
+    </div>
+    <div class="text-xs text-slate-400 mt-2">
+      Spent {{ formatMoney(p.financials?.total_paid || 0, p.currency) }} of {{ formatMoney(+(p.budget || 0), p.currency) }}
+    </div>
+  </div>
+
+  <!-- Purchase Order summary -->
+  @if (p.po_number) {
+    <div class="bg-blue-50/40 p-4 rounded-md border border-blue-200">
+      <div class="flex items-start justify-between gap-4">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 flex-1">
+          <div>
+            <div class="text-xs text-blue-700/70">PO Number</div>
+            <div class="text-sm font-mono font-medium text-blue-900">{{ p.po_number }}</div>
+          </div>
+          <div>
+            <div class="text-xs text-blue-700/70">PO Date</div>
+            <div class="text-sm font-medium text-blue-900">{{ p.po_date || '—' }}</div>
+          </div>
+          <div>
+            <div class="text-xs text-blue-700/70">PO Value</div>
+            <div class="text-sm font-medium text-blue-900">
+              {{ p.po_value ? ((p.po_currency || p.currency) + ' ' + (+p.po_value).toLocaleString(undefined, { minimumFractionDigits: 2 })) : '—' }}
+            </div>
+          </div>
+          <div>
+            <div class="text-xs text-blue-700/70">Duration</div>
+            <div class="text-sm font-medium text-blue-900">{{ p.po_duration_months ? (p.po_duration_months + ' months') : '—' }}</div>
+          </div>
+        </div>
+        @if (p.po_document_url) {
+          <a [href]="p.po_document_url" target="_blank"
+             class="px-3 py-1.5 text-xs border border-blue-300 text-blue-700 rounded-md hover:bg-blue-100">
+            View PO
+          </a>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Description -->
+  <div *ngIf="p.description" class="bg-white p-4 rounded-md border border-slate-200">
+    <div class="text-sm text-slate-600 whitespace-pre-wrap">{{ p.description }}</div>
+  </div>
+
+  <!-- Transactions tabs -->
+  <div class="bg-white rounded-md border border-slate-200">
+    <div class="flex border-b border-slate-200 text-sm">
+      <button class="px-4 py-2" [class.font-medium]="activeTab() === 'invoices'" [class.border-b-2]="activeTab() === 'invoices'" [class.border-slate-900]="activeTab() === 'invoices'"
+              (click)="activeTab.set('invoices')">
+        Invoices ({{ transactions().invoices.length }})
+      </button>
+      <button class="px-4 py-2" [class.font-medium]="activeTab() === 'bills'" [class.border-b-2]="activeTab() === 'bills'" [class.border-slate-900]="activeTab() === 'bills'"
+              (click)="activeTab.set('bills')">
+        Bills / POs ({{ transactions().bills.length }})
+      </button>
+      <button class="px-4 py-2" [class.font-medium]="activeTab() === 'claims'" [class.border-b-2]="activeTab() === 'claims'" [class.border-slate-900]="activeTab() === 'claims'"
+              (click)="activeTab.set('claims')">
+        Employee Claims ({{ transactions().claims.length }})
+      </button>
+    </div>
+
+    <table class="w-full text-sm" *ngIf="activeTab() === 'invoices'">
+      <thead class="bg-slate-50 text-left text-slate-600">
+        <tr>
+          <th class="p-3 font-medium">Invoice #</th>
+          <th class="p-3 font-medium">Date</th>
+          <th class="p-3 font-medium">Buyer</th>
+          <th class="p-3 font-medium text-right">Total</th>
+          <th class="p-3 font-medium text-right">Paid</th>
+          <th class="p-3 font-medium">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let inv of transactions().invoices" class="border-t border-slate-100">
+          <td class="p-3 font-mono text-xs">{{ inv.invoice_number }}</td>
+          <td class="p-3">{{ inv.invoice_date }}</td>
+          <td class="p-3">{{ inv.buyer_name }}</td>
+          <td class="p-3 text-right">{{ formatMoney(inv.total_amount, p.currency) }}</td>
+          <td class="p-3 text-right text-green-700">{{ formatMoney(inv.amount_paid, p.currency) }}</td>
+          <td class="p-3"><span class="px-2 py-0.5 bg-slate-100 rounded-full text-xs">{{ inv.status }}</span></td>
+        </tr>
+        <tr *ngIf="transactions().invoices.length === 0">
+          <td colspan="6" class="p-8 text-center text-slate-400">No invoices linked.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table class="w-full text-sm" *ngIf="activeTab() === 'bills'">
+      <thead class="bg-slate-50 text-left text-slate-600">
+        <tr>
+          <th class="p-3 font-medium">Bill #</th>
+          <th class="p-3 font-medium">Type</th>
+          <th class="p-3 font-medium">Date</th>
+          <th class="p-3 font-medium">Vendor</th>
+          <th class="p-3 font-medium text-right">Total</th>
+          <th class="p-3 font-medium text-right">Paid</th>
+          <th class="p-3 font-medium">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let b of transactions().bills" class="border-t border-slate-100">
+          <td class="p-3 font-mono text-xs">{{ b.bill_number }}</td>
+          <td class="p-3">{{ b.bill_type }}</td>
+          <td class="p-3">{{ b.bill_date }}</td>
+          <td class="p-3">{{ b.vendor_name }}</td>
+          <td class="p-3 text-right">{{ formatMoney(b.total_amount, p.currency) }}</td>
+          <td class="p-3 text-right text-red-700">{{ formatMoney(b.amount_paid, p.currency) }}</td>
+          <td class="p-3"><span class="px-2 py-0.5 bg-slate-100 rounded-full text-xs">{{ b.status }}</span></td>
+        </tr>
+        <tr *ngIf="transactions().bills.length === 0">
+          <td colspan="7" class="p-8 text-center text-slate-400">No bills/POs linked.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table class="w-full text-sm" *ngIf="activeTab() === 'claims'">
+      <thead class="bg-slate-50 text-left text-slate-600">
+        <tr>
+          <th class="p-3 font-medium">Date</th>
+          <th class="p-3 font-medium">Description</th>
+          <th class="p-3 font-medium text-right">Amount</th>
+          <th class="p-3 font-medium">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let c of transactions().claims" class="border-t border-slate-100">
+          <td class="p-3">{{ c.date }}</td>
+          <td class="p-3">{{ c.description }}</td>
+          <td class="p-3 text-right">{{ formatMoney(c.amount, p.currency) }}</td>
+          <td class="p-3"><span class="px-2 py-0.5 bg-slate-100 rounded-full text-xs">{{ c.status }}</span></td>
+        </tr>
+        <tr *ngIf="transactions().claims.length === 0">
+          <td colspan="4" class="p-8 text-center text-slate-400">No claims linked.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div *ngIf="loading()" class="p-8 text-center text-slate-400">Loading project...</div>

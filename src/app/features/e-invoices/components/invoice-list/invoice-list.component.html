@@ -10,6 +10,10 @@
         <z-icon [zType]="$any('calendar')" zSize="sm" />
         {{ getTodayDate() }}
       </span>
+      <button z-button zType="outline" (click)="navigateToCreatePage()" class="gap-1">
+        <z-icon [zType]="$any('file-plus')" zSize="sm" class="mr-0" />
+        Create (Form)
+      </button>
       <button z-button (click)="navigateToCreate()" class="gap-1">
         <z-icon [zType]="$any('plus')" zSize="sm" class="mr-0" />
         Create Invoice

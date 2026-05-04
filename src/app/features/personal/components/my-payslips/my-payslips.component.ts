@@ -25,7 +25,8 @@ import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-d
     ZardSelectComponent,
     ZardSelectItemComponent
   ],
-  templateUrl: './my-payslips.component.html'
+  templateUrl: './my-payslips.component.html',
+  styleUrls: ['./my-payslips.component.css']
 })
 export class MyPayslipsComponent implements OnInit {
   private personalService = inject(PersonalService);
@@ -38,6 +39,7 @@ export class MyPayslipsComponent implements OnInit {
   // State
   loading = signal(false);
   downloading = signal<string | null>(null);
+  viewing = signal<string | null>(null);
   payslips = signal<MyPayslip[]>([]);
   ytdSummary = signal<YTDSummary | null>(null);
 
@@ -113,6 +115,24 @@ export class MyPayslipsComponent implements OnInit {
     }
   }
 
+  async viewPayslip(payslip: MyPayslip): Promise<void> {
+    this.viewing.set(payslip.public_id);
+    try {
+      const { blob } = await this.payslipPdf.generateForPayrollId(payslip.public_id);
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, '_blank');
+      setTimeout(() => window.URL.revokeObjectURL(url), 60_000);
+    } catch {
+      this.alertDialogService.warning({
+        zTitle: 'Error',
+        zDescription: 'Failed to open payslip',
+        zOkText: 'OK'
+      });
+    } finally {
+      this.viewing.set(null);
+    }
+  }
+
   private downloadFile(blob: Blob, filename: string): void {
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -137,8 +157,21 @@ export class MyPayslipsComponent implements OnInit {
     return months[month - 1] || '';
   }
 
-  formatCurrency(amount: number): string {
-    return `RM ${amount.toLocaleString('en-MY', { minimumFractionDigits: 2 })}`;
+  formatCurrency(amount: number | string | null | undefined): string {
+    return `RM ${this.formatNumber(amount)}`;
+  }
+
+  formatNumber(amount: number | string | null | undefined): string {
+    const num = typeof amount === 'string' ? parseFloat(amount) : amount;
+    const safe = num == null || isNaN(num as number) ? 0 : (num as number);
+    return safe.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  formatShortDate(dateString: string | null | undefined): string {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return '';
+    return date.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
   }
 
   getStatusBadgeClass(status: string): string {
@@ -151,6 +184,38 @@ export class MyPayslipsComponent implements OnInit {
         return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
       default:
         return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
+    }
+  }
+
+  getStatusDotClass(status: string): string {
+    switch (status) {
+      case 'paid':
+        return 'bg-green-500';
+      case 'approved':
+        return 'bg-blue-500';
+      case 'pending':
+        return 'bg-yellow-500';
+      case 'rejected':
+      case 'cancelled':
+        return 'bg-red-500';
+      default:
+        return 'bg-gray-400';
+    }
+  }
+
+  getStatusPillClass(status: string): string {
+    switch (status) {
+      case 'paid':
+        return 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300';
+      case 'approved':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300';
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300';
+      case 'rejected':
+      case 'cancelled':
+        return 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300';
+      default:
+        return 'bg-muted text-foreground';
     }
   }
 

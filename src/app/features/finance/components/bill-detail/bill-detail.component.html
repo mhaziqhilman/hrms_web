@@ -1,0 +1,170 @@
+<div class="p-6 max-w-5xl mx-auto space-y-4" *ngIf="!loading() && bill() as b">
+  <div class="flex items-start justify-between">
+    <div>
+      <div class="text-xs text-slate-500 font-mono">{{ b.bill_number }}</div>
+      <h1 class="text-2xl font-semibold">{{ b.vendor_name }}</h1>
+      <div class="text-sm text-slate-500 mt-1">
+        {{ b.bill_type }} · {{ b.bill_date }}
+        <span *ngIf="b.due_date"> · Due {{ b.due_date }}</span>
+        <span class="px-2 py-0.5 bg-slate-100 rounded-full text-xs ml-2">{{ b.status.replace('_', ' ') }}</span>
+        <a *ngIf="b.project" [routerLink]="['/projects', b.project.public_id]" class="text-blue-600 hover:underline ml-2 text-xs font-mono">
+          {{ b.project.code }}
+        </a>
+      </div>
+    </div>
+    <div class="flex gap-2">
+      <button *ngIf="b.status === 'Draft'" (click)="edit()" class="px-3 py-2 border border-slate-300 rounded-md text-sm">Edit</button>
+      <button *ngIf="b.status === 'Draft'" (click)="approve()" class="px-3 py-2 bg-blue-600 text-white rounded-md text-sm">Approve</button>
+      <button *ngIf="['Approved','Received','Partial_Paid'].includes(b.status)" (click)="openPaymentModal()" class="px-3 py-2 bg-green-600 text-white rounded-md text-sm">Record Payment</button>
+      <button *ngIf="!['Paid','Cancelled'].includes(b.status)" (click)="cancel()" class="px-3 py-2 border border-red-300 text-red-600 rounded-md text-sm">Cancel</button>
+      <button *ngIf="b.status === 'Draft'" (click)="remove()" class="px-3 py-2 border border-red-300 text-red-600 rounded-md text-sm">Delete</button>
+      <a routerLink="/finance/bills" class="px-3 py-2 border border-slate-300 rounded-md text-sm">← Back</a>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-3 gap-3">
+    <div class="bg-white p-4 rounded-md border border-slate-200">
+      <div class="text-xs text-slate-500">Total</div>
+      <div class="text-xl font-semibold mt-1">{{ formatMoney(b.total_amount) }}</div>
+    </div>
+    <div class="bg-white p-4 rounded-md border border-slate-200">
+      <div class="text-xs text-slate-500">Paid</div>
+      <div class="text-xl font-semibold mt-1 text-green-700">{{ formatMoney(b.amount_paid) }}</div>
+    </div>
+    <div class="bg-white p-4 rounded-md border border-slate-200">
+      <div class="text-xs text-slate-500">Balance Due</div>
+      <div class="text-xl font-semibold mt-1 text-red-700">{{ formatMoney(b.balance_due) }}</div>
+    </div>
+  </div>
+
+  <div class="bg-white p-4 rounded-md border border-slate-200">
+    <h3 class="font-medium mb-3">Vendor</h3>
+    <div class="grid grid-cols-2 gap-2 text-sm">
+      <div><span class="text-slate-500">TIN:</span> {{ b.vendor_tin || '—' }}</div>
+      <div><span class="text-slate-500">Vendor Invoice #:</span> {{ b.vendor_invoice_number || '—' }}</div>
+      <div><span class="text-slate-500">Email:</span> {{ b.vendor_email || '—' }}</div>
+      <div><span class="text-slate-500">Category:</span> {{ b.category || '—' }}</div>
+      <div class="col-span-2"><span class="text-slate-500">Address:</span> {{ b.vendor_address || '—' }}</div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-md border border-slate-200 overflow-hidden">
+    <h3 class="font-medium p-4 border-b border-slate-200">Line Items</h3>
+    <table class="w-full text-sm">
+      <thead class="bg-slate-50 text-left text-slate-600">
+        <tr>
+          <th class="p-3 font-medium">#</th>
+          <th class="p-3 font-medium">Description</th>
+          <th class="p-3 font-medium text-right">Qty</th>
+          <th class="p-3 font-medium text-right">Unit Price</th>
+          <th class="p-3 font-medium text-right">Tax</th>
+          <th class="p-3 font-medium text-right">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of b.items" class="border-t border-slate-100">
+          <td class="p-3">{{ item.item_number }}</td>
+          <td class="p-3">{{ item.description }}</td>
+          <td class="p-3 text-right">{{ item.quantity }}</td>
+          <td class="p-3 text-right">{{ formatMoney(item.unit_price) }}</td>
+          <td class="p-3 text-right">{{ item.tax_rate }}% ({{ formatMoney(item.tax_amount) }})</td>
+          <td class="p-3 text-right">{{ formatMoney(item.line_total) }}</td>
+        </tr>
+      </tbody>
+      <tfoot class="bg-slate-50 text-sm">
+        <tr><td colspan="5" class="p-3 text-right text-slate-600">Subtotal</td><td class="p-3 text-right">{{ formatMoney(b.subtotal) }}</td></tr>
+        <tr><td colspan="5" class="p-3 text-right text-slate-600">Tax</td><td class="p-3 text-right">{{ formatMoney(b.total_tax) }}</td></tr>
+        <tr><td colspan="5" class="p-3 text-right font-semibold">Total</td><td class="p-3 text-right font-semibold">{{ formatMoney(b.total_amount) }}</td></tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="bg-white rounded-md border border-slate-200 overflow-hidden">
+    <h3 class="font-medium p-4 border-b border-slate-200">Payments</h3>
+    <table class="w-full text-sm">
+      <thead class="bg-slate-50 text-left text-slate-600">
+        <tr>
+          <th class="p-3 font-medium">Date</th>
+          <th class="p-3 font-medium">Method</th>
+          <th class="p-3 font-medium">Reference</th>
+          <th class="p-3 font-medium text-right">Amount</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of b.payments" class="border-t border-slate-100">
+          <td class="p-3">{{ p.payment_date }}</td>
+          <td class="p-3">{{ p.payment_method }}</td>
+          <td class="p-3">{{ p.reference_number || '—' }}</td>
+          <td class="p-3 text-right text-green-700">{{ formatMoney(p.amount) }}</td>
+          <td class="p-3 text-right">
+            <button (click)="deletePayment(p.id)" class="text-red-600 text-xs">Delete</button>
+          </td>
+        </tr>
+        <tr *ngIf="!b.payments?.length">
+          <td colspan="5" class="p-6 text-center text-slate-400">No payments recorded.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="b.notes" class="bg-white p-4 rounded-md border border-slate-200">
+    <h3 class="font-medium mb-2">Notes</h3>
+    <p class="text-sm text-slate-600 whitespace-pre-wrap">{{ b.notes }}</p>
+  </div>
+</div>
+
+<div *ngIf="loading()" class="p-8 text-center text-slate-400">Loading...</div>
+
+<!-- Payment Modal -->
+<div *ngIf="showPaymentModal()" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+  <div class="bg-white rounded-md w-full max-w-md p-6 space-y-4">
+    <h3 class="text-lg font-semibold">Record Payment</h3>
+
+    <div>
+      <label class="block text-sm font-medium mb-1">Payment Date</label>
+      <input type="date" [(ngModel)]="payment.payment_date"
+             class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm" />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium mb-1">Amount</label>
+      <input type="number" step="0.01" [(ngModel)]="payment.amount"
+             class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm" />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium mb-1">Method</label>
+      <select [(ngModel)]="payment.payment_method"
+              class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm">
+        <option value="Bank Transfer">Bank Transfer</option>
+        <option value="Cash">Cash</option>
+        <option value="Cheque">Cheque</option>
+        <option value="Credit Card">Credit Card</option>
+        <option value="E-Wallet">E-Wallet</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium mb-1">Reference #</label>
+      <input [(ngModel)]="payment.reference_number"
+             class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm" />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium mb-1">Notes</label>
+      <textarea [(ngModel)]="payment.notes" rows="2"
+                class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm"></textarea>
+    </div>
+
+    <div class="flex justify-end gap-2">
+      <button (click)="showPaymentModal.set(false)"
+              class="px-4 py-2 border border-slate-300 rounded-md text-sm">Cancel</button>
+      <button (click)="recordPayment()" [disabled]="payment.amount <= 0"
+              class="px-4 py-2 bg-green-600 text-white rounded-md text-sm disabled:opacity-50">
+        Record
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,5 @@
+/* Override card content padding to px-5 */
+:host ::ng-deep [data-slot="card-content"] {
+    padding-left: 1.15rem;
+    padding-right: 1.15rem;
+  }

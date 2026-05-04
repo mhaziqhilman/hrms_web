@@ -96,6 +96,14 @@ export const routes: Routes = [
             {
                 path: 'e-invoices',
                 loadChildren: () => import('./features/e-invoices/e-invoices.routes').then(m => m.E_INVOICES_ROUTES)
+            },
+            {
+                path: 'projects',
+                loadChildren: () => import('./features/projects/projects.routes').then(m => m.PROJECTS_ROUTES)
+            },
+            {
+                path: 'finance',
+                loadChildren: () => import('./features/finance/finance.routes').then(m => m.FINANCE_ROUTES)
             }
         ]
     },

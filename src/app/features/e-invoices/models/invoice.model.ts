@@ -58,6 +58,8 @@ export interface Invoice {
   // Source
   source_type: 'manual' | 'payroll' | 'claim' | null;
   source_id: number | null;
+  project_id: number | null;
+  project?: { id: number; public_id: string; code: string; name: string; client_name: string | null; po_number: string | null };
 
   // Audit
   notes: string | null;

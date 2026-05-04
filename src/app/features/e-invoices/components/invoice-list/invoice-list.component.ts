@@ -255,6 +255,10 @@ export class InvoiceListComponent implements OnInit, OnDestroy {
 
   // ─── Actions ─────────────────────────────────────────────
 
+  navigateToCreatePage() {
+    this.router.navigate(['/e-invoices/new']);
+  }
+
   navigateToCreate() {
     this.dialogService.create({
       zContent: InvoiceFormDialogComponent,

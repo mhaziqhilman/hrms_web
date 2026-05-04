@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, inject, signal, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import Chart from 'chart.js/auto';
 
 // ZardUI Components
@@ -21,6 +21,7 @@ import { StaffDashboardComponent } from '../staff-dashboard/staff-dashboard.comp
   standalone: true,
   imports: [
     CommonModule,
+    RouterLink,
     ZardCardComponent,
     ZardButtonComponent,
     ZardIconComponent,

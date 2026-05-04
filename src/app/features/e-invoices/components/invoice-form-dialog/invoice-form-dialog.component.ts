@@ -20,6 +20,8 @@ import { ZardSegmentedComponent, SegmentedOption } from '@/shared/components/seg
 
 import { EInvoiceService } from '../../services/e-invoice.service';
 import { Invoice, TaxType, INVOICE_TYPE_LABELS } from '../../models/invoice.model';
+import { ProjectService } from '@/features/projects/services/project.service';
+import { Project } from '@/features/projects/models/project.model';
 
 interface LineItem {
   description: string;
@@ -43,6 +45,7 @@ interface StepConfig {
 
 export interface InvoiceFormDialogData {
   invoice?: Invoice;
+  projectId?: number;
   onSuccess?: (invoice: any) => void;
 }
 
@@ -72,9 +75,14 @@ export interface InvoiceFormDialogData {
 })
 export class InvoiceFormDialogComponent implements OnInit {
   private invoiceService = inject(EInvoiceService);
+  private projectService = inject(ProjectService);
   private dialogRef = inject(ZardDialogRef);
   private dialogData = inject(Z_MODAL_DATA, { optional: true }) as InvoiceFormDialogData | null;
   private fb = inject(FormBuilder);
+
+  // Project linkage
+  projects = signal<Project[]>([]);
+  selectedProjectId = signal<number | null>(null);
 
   // Mode
   isEditMode = false;
@@ -169,12 +177,52 @@ export class InvoiceFormDialogComponent implements OnInit {
   ];
 
   ngOnInit() {
+    this.loadProjects();
     if (this.dialogData?.invoice) {
       this.isEditMode = true;
       this.invoicePublicId = this.dialogData.invoice.public_id;
       this.populateForm(this.dialogData.invoice);
     } else {
       this.addItem();
+      if (this.dialogData?.projectId) {
+        this.selectedProjectId.set(this.dialogData.projectId);
+      }
+    }
+  }
+
+  loadProjects() {
+    this.projectService.list({ limit: 200 }).subscribe({
+      next: res => {
+        this.projects.set(res.data.projects);
+        const pid = this.selectedProjectId();
+        if (pid && !this.isEditMode) this.applyProjectAutofill(pid);
+      }
+    });
+  }
+
+  onProjectChange(projectId: number | null) {
+    this.selectedProjectId.set(projectId);
+    if (projectId) this.applyProjectAutofill(projectId);
+  }
+
+  private applyProjectAutofill(projectId: number) {
+    const proj = this.projects().find(p => p.id === projectId);
+    if (!proj) return;
+
+    const b = this.buyerForm.value;
+    if (!b.name && proj.client_name) {
+      this.buyerForm.patchValue({ name: proj.client_name });
+    }
+
+    if (this.items.length === 1 && !this.items[0].description) {
+      const month = new Date().toLocaleString('en-MY', { month: 'long', year: 'numeric' });
+      this.items[0].description = proj.po_number
+        ? `Progress claim for ${proj.name} (PO ${proj.po_number}) — ${month}`
+        : `Services rendered for ${proj.name} — ${month}`;
+    }
+
+    if (proj.currency) {
+      this.detailsForm.patchValue({ currency: proj.currency });
     }
   }
 
@@ -201,6 +249,7 @@ export class InvoiceFormDialogComponent implements OnInit {
   // ─── Populate Form (Edit Mode) ────────────────────────────
 
   private populateForm(invoice: Invoice) {
+    this.selectedProjectId.set(invoice.project_id ?? null);
     this.detailsForm.patchValue({
       invoiceType: invoice.invoice_type,
       currency: invoice.currency,
@@ -395,6 +444,7 @@ export class InvoiceFormDialogComponent implements OnInit {
       payment_terms: this.paymentTerms || null,
       currency: this.currency,
       notes: this.notes || null,
+      project_id: this.selectedProjectId() || null,
       supplier_name: s.name,
       supplier_tin: s.tin || null,
       supplier_brn: s.brn || null,

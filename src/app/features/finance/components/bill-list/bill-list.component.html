@@ -1,0 +1,194 @@
+<div class="bg-background min-h-screen p-6 space-y-6">
+  <!-- Header -->
+  <div class="flex items-start justify-between gap-4 flex-wrap">
+    <div>
+      <h1 class="text-2xl font-semibold text-foreground tracking-tight">Bills & Purchase Orders</h1>
+      <p class="text-sm text-muted-foreground mt-1">Vendor invoices, POs, and expenses paid by the company.</p>
+    </div>
+    <button z-button (click)="goToCreate()" class="gap-2">
+      <z-icon zType="plus" class="w-4 h-4" />
+      New Bill / PO
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="flex items-center gap-3 flex-wrap">
+    <!-- Search -->
+    <div class="relative flex-1 min-w-[220px] max-w-md">
+      <z-icon zType="search"
+        class="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+      <input type="text"
+        [value]="searchTerm()"
+        (input)="onSearchChange($any($event.target).value)"
+        placeholder="Search bill #, vendor, vendor invoice #..."
+        class="w-full pl-9 pr-3 py-2 text-sm border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent" />
+    </div>
+
+    <!-- Type Filter -->
+    <div z-menu [zMenuTriggerFor]="typeMenu">
+      <button z-button zType="outline"
+        [class]="typeFilter()
+          ? 'gap-2 border border-solid px-3 bg-primary/5 text-primary border-primary'
+          : 'gap-2 border border-dashed px-3'">
+        <z-icon [zType]="typeFilter() ? 'circle-check' : 'circle-plus'" class="w-4 h-4" />
+        {{ typeFilter() || 'Type' }}
+      </button>
+    </div>
+    <ng-template #typeMenu>
+      <div z-menu-content class="w-44">
+        <button type="button" z-menu-item (click)="setType('')">All types</button>
+        @for (t of types; track t) {
+          <button type="button" z-menu-item (click)="setType(t)">{{ t }}</button>
+        }
+      </div>
+    </ng-template>
+
+    <!-- Status Filter -->
+    <div z-menu [zMenuTriggerFor]="statusMenu">
+      <button z-button zType="outline"
+        [class]="statusFilter()
+          ? 'gap-2 border border-solid px-3 bg-primary/5 text-primary border-primary'
+          : 'gap-2 border border-dashed px-3'">
+        <z-icon [zType]="statusFilter() ? 'circle-check' : 'circle-plus'" class="w-4 h-4" />
+        {{ statusFilter() ? statusFilter()!.replace('_', ' ') : 'Status' }}
+      </button>
+    </div>
+    <ng-template #statusMenu>
+      <div z-menu-content class="w-48">
+        <button type="button" z-menu-item (click)="setStatus('')">All statuses</button>
+        @for (s of statuses; track s) {
+          <button type="button" z-menu-item (click)="setStatus(s)">{{ s.replace('_', ' ') }}</button>
+        }
+      </div>
+    </ng-template>
+
+    <!-- Date range -->
+    <div class="flex items-center gap-2">
+      <input type="date"
+        [value]="fromDate()"
+        (input)="fromDate.set($any($event.target).value); onDateChange()"
+        class="px-2.5 py-2 text-sm border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+      <span class="text-xs text-muted-foreground">to</span>
+      <input type="date"
+        [value]="toDate()"
+        (input)="toDate.set($any($event.target).value); onDateChange()"
+        class="px-2.5 py-2 text-sm border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+    </div>
+
+    <!-- Reset -->
+    @if (hasActiveFilters()) {
+      <button type="button" z-button zType="outline" class="gap-2 border-none shadow-none px-2"
+              (click)="resetFilters()">
+        Reset
+        <z-icon zType="x" class="w-4 h-4" />
+      </button>
+    }
+  </div>
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="flex items-center justify-center py-20">
+      <z-icon zType="loader-circle" class="w-8 h-8 animate-spin text-primary" />
+    </div>
+  }
+
+  <!-- Empty -->
+  @if (!loading() && bills().length === 0) {
+    <div class="bg-card border border-border rounded-xl">
+      <div class="flex flex-col items-center justify-center py-20 text-center">
+        <div class="w-14 h-14 rounded-full bg-muted flex items-center justify-center mb-4">
+          <z-icon zType="receipt-text" class="w-7 h-7 text-muted-foreground" />
+        </div>
+        <h3 class="text-base font-medium text-foreground mb-1">No bills yet</h3>
+        <p class="text-sm text-muted-foreground mb-4">Create your first bill, PO or expense to start tracking.</p>
+        <button z-button (click)="goToCreate()" class="gap-2">
+          <z-icon zType="plus" class="w-4 h-4" />
+          New Bill / PO
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Table -->
+  @if (!loading() && bills().length > 0) {
+    <div class="rounded-xl border border-border bg-card overflow-hidden">
+      <table z-table class="w-full">
+        <thead>
+          <tr>
+            <th class="!pl-4">Bill #</th>
+            <th>Type</th>
+            <th>Date</th>
+            <th>Vendor</th>
+            <th>Project</th>
+            <th class="text-right">Total</th>
+            <th class="text-right">Paid</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (b of bills(); track b.id) {
+            <tr (click)="goToDetail(b)" class="cursor-pointer">
+              <td class="!pl-4 font-mono text-xs text-foreground">{{ b.bill_number }}</td>
+              <td>
+                <z-badge [zType]="typeBadgeType(b.bill_type)" zShape="pill" class="text-xs">
+                  {{ b.bill_type }}
+                </z-badge>
+              </td>
+              <td class="text-muted-foreground">{{ b.bill_date }}</td>
+              <td>
+                <div class="flex flex-col">
+                  <span class="text-foreground">{{ b.vendor_name }}</span>
+                  @if (b.vendor_invoice_number) {
+                    <span class="text-[11px] text-muted-foreground mt-0.5">Ref: {{ b.vendor_invoice_number }}</span>
+                  }
+                </div>
+              </td>
+              <td>
+                @if (b.project) {
+                  <span class="font-mono text-xs text-foreground">{{ b.project.code }}</span>
+                } @else {
+                  <span class="text-muted-foreground">—</span>
+                }
+              </td>
+              <td class="text-right font-medium text-foreground">{{ formatMoney(b.total_amount) }}</td>
+              <td class="text-right text-emerald-600 dark:text-emerald-400">{{ formatMoney(b.amount_paid) }}</td>
+              <td>
+                <z-badge [zType]="badgeType(b.status)" zShape="pill" class="text-xs">
+                  <span class="inline-block w-1.5 h-1.5 rounded-full" [class]="statusDot(b.status)"></span>
+                  {{ b.status.replace('_', ' ') }}
+                </z-badge>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="flex items-center justify-between mt-4 flex-wrap gap-3">
+      <div class="text-sm text-muted-foreground">
+        Showing {{ (pagination().page - 1) * pagination().limit + 1 }} to
+        {{ pagination().page * pagination().limit > pagination().totalItems ? pagination().totalItems : pagination().page * pagination().limit }}
+        of {{ pagination().totalItems }} bill{{ pagination().totalItems === 1 ? '' : 's' }}
+      </div>
+      <div class="flex items-center gap-1">
+        <button z-button zType="outline" zSize="sm"
+          (click)="load(pagination().page - 1)"
+          [disabled]="pagination().page === 1">
+          Previous
+        </button>
+        @for (p of pageRange(); track p) {
+          <button z-button [zType]="pagination().page === p ? 'default' : 'outline'" zSize="sm"
+            (click)="load(p)" class="min-w-[36px]">
+            {{ p }}
+          </button>
+        }
+        <button z-button zType="outline" zSize="sm"
+          (click)="load(pagination().page + 1)"
+          [disabled]="pagination().page === pagination().totalPages">
+          Next
+        </button>
+      </div>
+    </div>
+  }
+</div>

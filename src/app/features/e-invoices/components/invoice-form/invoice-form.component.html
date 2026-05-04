@@ -25,6 +25,66 @@
       <!-- Tab 1: Invoice Details -->
       <z-tab label="Invoice Details" [icon]="'file-text'">
         <div class="tab-body">
+          <!-- Linked Project (pre-fills buyer + line items) -->
+          <div class="mb-5 rounded-lg border border-blue-200 bg-blue-50/40 p-4">
+            <div class="flex items-center justify-between gap-4">
+              <div class="flex-1">
+                <label class="block text-sm font-medium text-blue-900">
+                  Linked Project / Purchase Order
+                </label>
+                <p class="text-xs text-blue-700/70 mt-0.5">
+                  Toggle on to link this invoice to a project — buyer, currency and line item will auto-fill from its PO.
+                </p>
+              </div>
+
+              <!-- Toggle switch -->
+              <button type="button"
+                      role="switch"
+                      [attr.aria-checked]="linkProjectEnabled()"
+                      (click)="toggleLinkProject(); $event.currentTarget && ($any($event.currentTarget)).blur()"
+                      class="relative h-5 w-9 shrink-0 cursor-pointer rounded-full transition-colors duration-200 focus:outline-none"
+                      [class.bg-blue-600]="linkProjectEnabled()"
+                      [class.bg-slate-300]="!linkProjectEnabled()">
+                <span
+                  class="pointer-events-none absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform duration-200"
+                  [class.translate-x-4]="linkProjectEnabled()">
+                </span>
+              </button>
+            </div>
+
+            <!-- Animated reveal container -->
+            <div class="overflow-hidden transition-all duration-300 ease-out"
+                 [class.max-h-0]="!linkProjectEnabled()"
+                 [class.opacity-0]="!linkProjectEnabled()"
+                 [class.max-h-96]="linkProjectEnabled()"
+                 [class.opacity-100]="linkProjectEnabled()"
+                 [class.mt-3]="linkProjectEnabled()">
+              <z-select
+                [ngModel]="selectedProjectId()"
+                [ngModelOptions]="{ standalone: true }"
+                (ngModelChange)="onProjectChange($event ? +$event : null)"
+                [zPlaceholder]="projects().length === 0 ? 'No projects available' : 'Select a project...'"
+                class="w-full">
+                @if (projects().length === 0) {
+                  <z-select-item [zValue]="null" [zDisabled]="true">
+                    No projects available — create one first
+                  </z-select-item>
+                } @else {
+                  @for (proj of projects(); track proj.id) {
+                    <z-select-item [zValue]="proj.id">
+                      {{ proj.code }} — {{ proj.name }}{{ proj.po_number ? ' · PO ' + proj.po_number : '' }}
+                    </z-select-item>
+                  }
+                }
+              </z-select>
+              @if (projects().length === 0) {
+                <p class="text-xs text-amber-700 mt-2">
+                  <a routerLink="/projects/new" class="underline">Create a project</a> to enable linking.
+                </p>
+              }
+            </div>
+          </div>
+
           <div class="step-content" [formGroup]="detailsForm">
             <h3 class="step-title">Invoice Information</h3>
             <p class="step-description">Set the basic details for this invoice</p>

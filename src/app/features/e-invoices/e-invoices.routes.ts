@@ -8,7 +8,13 @@ export const E_INVOICES_ROUTES: Routes = [
     loadComponent: () => import('./components/invoice-list/invoice-list.component').then(m => m.InvoiceListComponent),
     data: { title: 'e-Invoices' }
   },
-  // Create and Edit are both handled via dialog
+  // Page-form route — must be declared before ':id' or it gets captured as a public_id
+  {
+    path: 'new',
+    canActivate: [roleGuard(['super_admin', 'admin'])],
+    loadComponent: () => import('./components/invoice-form/invoice-form.component').then(m => m.InvoiceFormComponent),
+    data: { title: 'Invoice Form' }
+  },
   {
     path: ':id',
     canActivate: [roleGuard(['super_admin', 'admin'])],

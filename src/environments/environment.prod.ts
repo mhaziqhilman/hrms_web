@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://nextura-hrms-api.onrender.com/api',
-  baseUrl: 'https://nextura-hrms-api.onrender.com'
+  apiUrl: 'https://api.nextura.my/api',
+  baseUrl: 'https://api.nextura.my'
 };

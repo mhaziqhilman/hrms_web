@@ -70,15 +70,36 @@ const ADMIN_MENU: SidebarMenuGroup[] = [
         route: '/statutory-reports'
       },
       {
+        title: 'Analytics',
+        icon: 'bar-chart-3',
+        route: '/analytics'
+      }
+    ]
+  },
+  {
+    label: 'Finance',
+    roles: ['super_admin', 'admin', 'manager'],
+    items: [
+      {
+        title: 'Finance Dashboard',
+        icon: 'trending-up',
+        route: '/finance'
+      },
+      {
+        title: 'Projects',
+        icon: 'briefcase',
+        route: '/projects'
+      },
+      {
         title: 'e-Invoices',
         icon: 'file-spreadsheet',
         route: '/e-invoices',
         roles: ['super_admin', 'admin']
       },
       {
-        title: 'Analytics',
-        icon: 'bar-chart-3',
-        route: '/analytics'
+        title: 'Bills & POs',
+        icon: 'receipt-text',
+        route: '/finance/bills'
       }
     ]
   },
@@ -237,6 +258,26 @@ const MANAGER_MENU: SidebarMenuGroup[] = [
     ]
   },
   {
+    label: 'Finance',
+    items: [
+      {
+        title: 'Finance Dashboard',
+        icon: 'trending-up',
+        route: '/finance'
+      },
+      {
+        title: 'Projects',
+        icon: 'briefcase',
+        route: '/projects'
+      },
+      {
+        title: 'Bills & POs',
+        icon: 'receipt-text',
+        route: '/finance/bills'
+      }
+    ]
+  },
+  {
     label: 'Systems',
     items: [
       {
@@ -268,6 +309,8 @@ const MANAGER_MENU: SidebarMenuGroup[] = [
     ]
   }
 ];
+
+// (manager menu does not include e-Invoices — admin/super_admin only)
 
 /**
  * Staff menu layout — personal-focused, no management features.
