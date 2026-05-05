@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Claims · Activities · Leave — 3 Variants</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --border: 240 5.9% 90%;
+    --ring: 240 5% 64.9%;
+    font-family: 'Geist', system-ui, -apple-system, sans-serif;
+  }
+  body { font-family: 'Geist', system-ui, -apple-system, sans-serif; }
+  .font-mono { font-family: 'Geist Mono', ui-monospace, monospace; }
+  /* shadcn-y card shadow */
+  .shad-card {
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  }
+  .shad-card-lg {
+    box-shadow:
+      0 1px 2px 0 rgb(0 0 0 / 0.04),
+      0 1px 3px 0 rgb(0 0 0 / 0.06);
+  }
+  /* Subtle dotted bg for empty states */
+  .dotted-bg {
+    background-image: radial-gradient(circle, rgb(226 232 240) 1px, transparent 1px);
+    background-size: 14px 14px;
+  }
+</style>
+</head>
+<body class="bg-slate-50 min-h-screen p-10 text-slate-900">
+
+  <div class="max-w-[1280px] mx-auto">
+    <div class="mb-10">
+      <h1 class="text-xl font-semibold tracking-tight text-slate-900">Claims · Activities · Leave</h1>
+      <p class="text-[13px] text-slate-500 mt-1">3 shadcn/ui-style variants — same theme, different treatments.</p>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- VARIANT 01 — Classic shadcn: clean cards, minimal, monospace dates -->
+    <!-- ============================================================ -->
+    <section class="mb-14">
+      <div class="flex items-baseline gap-3 mb-4">
+        <h2 class="text-[13px] font-semibold text-slate-700">Variant 01</h2>
+        <span class="text-[11px] font-medium text-slate-400">Classic shadcn · minimal · mono dates</span>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+
+        <!-- Claims Pending Payment -->
+        <div class="bg-white rounded-xl border border-slate-200 shad-card">
+          <div class="p-5 border-b border-slate-200">
+            <h3 class="text-[14px] font-semibold tracking-tight text-slate-900">Claims Pending Payment</h3>
+            <p class="text-[12px] text-slate-500 mt-0.5">Approved claims awaiting payment</p>
+          </div>
+          <div class="px-5 py-10 flex flex-col items-center justify-center">
+            <div class="w-10 h-10 rounded-full bg-emerald-50 ring-1 ring-emerald-100 flex items-center justify-center mb-3">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            </div>
+            <p class="text-[13px] font-medium text-slate-800">No claims pending payment</p>
+            <p class="text-[12px] text-slate-500 mt-0.5">All claims are up to date</p>
+          </div>
+        </div>
+
+        <!-- Recent Activities -->
+        <div class="bg-white rounded-xl border border-slate-200 shad-card">
+          <div class="p-5 border-b border-slate-200">
+            <h3 class="text-[14px] font-semibold tracking-tight text-slate-900">Recent Activities</h3>
+            <p class="text-[12px] text-slate-500 mt-0.5">Latest HR activities</p>
+          </div>
+          <ul class="divide-y divide-slate-100">
+            <li class="px-5 py-4 flex items-center gap-4 hover:bg-slate-50/50 transition">
+              <span class="font-mono text-[11px] text-slate-500 w-16 shrink-0">6 d ago</span>
+              <span class="w-8 h-8 rounded-md bg-emerald-50 ring-1 ring-emerald-100 flex items-center justify-center shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+              </span>
+              <p class="text-[13px] text-slate-800">Payroll paid for April 2026</p>
+            </li>
+            <li class="px-5 py-4 flex items-center gap-4 hover:bg-slate-50/50 transition">
+              <span class="font-mono text-[11px] text-slate-500 w-16 shrink-0">8 d ago</span>
+              <span class="w-8 h-8 rounded-md bg-indigo-50 ring-1 ring-indigo-100 flex items-center justify-center shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              </span>
+              <p class="text-[13px] text-slate-800">New employee onboarded · Aisha</p>
+            </li>
+            <li class="px-5 py-4 flex items-center gap-4 hover:bg-slate-50/50 transition">
+              <span class="font-mono text-[11px] text-slate-500 w-16 shrink-0">12 d ago</span>
+              <span class="w-8 h-8 rounded-md bg-amber-50 ring-1 ring-amber-100 flex items-center justify-center shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              </span>
+              <p class="text-[13px] text-slate-800">Leave policy updated</p>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- Recent Leave Requests -->
+      <div class="bg-white rounded-xl border border-slate-200 shad-card">
+        <div class="p-5 border-b border-slate-200 flex items-start justify-between">
+          <div>
+            <h3 class="text-[14px] font-semibold tracking-tight text-slate-900">Recent Leave Requests</h3>
+            <p class="text-[12px] text-slate-500 mt-0.5">Pending approval</p>
+          </div>
+          <button class="inline-flex items-center justify-center h-8 px-3 rounded-md border border-slate-200 hover:bg-slate-50 text-[12px] font-medium text-slate-700">View all</button>
+        </div>
+        <table class="w-full">
+          <thead>
+            <tr class="text-left">
+              <th class="font-medium text-[11px] uppercase tracking-wide text-slate-500 px-5 py-2.5">Employee</th>
+              <th class="font-medium text-[11px] uppercase tracking-wide text-slate-500 px-3 py-2.5">Type</th>
+              <th class="font-medium text-[11px] uppercase tracking-wide text-slate-500 px-3 py-2.5">From</th>
+              <th class="font-medium text-[11px] uppercase tracking-wide text-slate-500 px-3 py-2.5">To</th>
+              <th class="font-medium text-[11px] uppercase tracking-wide text-slate-500 px-3 py-2.5 text-right">Days</th>
+              <th class="font-medium text-[11px] uppercase tracking-wide text-slate-500 px-5 py-2.5">Status</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <tr class="hover:bg-slate-50/50 transition">
+              <td class="px-5 py-3.5 text-[13px] text-slate-800">
+                <div class="flex items-center gap-2.5">
+                  <span class="w-7 h-7 rounded-full bg-slate-100 text-slate-600 text-[10px] font-semibold flex items-center justify-center">UM</span>
+                  <span class="truncate">Ungku Mohamed Ismail Adrian bin Ungku Abdul Rahman</span>
+                </div>
+              </td>
+              <td class="px-3 py-3.5">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-900 text-white text-[11px] font-medium">Annual Leave</span>
+              </td>
+              <td class="px-3 py-3.5 font-mono text-[12px] text-slate-700">2026-04-12</td>
+              <td class="px-3 py-3.5 font-mono text-[12px] text-slate-700">2026-04-12</td>
+              <td class="px-3 py-3.5 text-[13px] text-slate-700 text-right tabular-nums">1</td>
+              <td class="px-5 py-3.5">
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 ring-1 ring-amber-200 text-[11px] font-medium">
+                  <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Pending
+                </span>
+              </td>
+            </tr>
+            <tr class="hover:bg-slate-50/50 transition">
+              <td class="px-5 py-3.5 text-[13px] text-slate-800">
+                <div class="flex items-center gap-2.5">
+                  <span class="w-7 h-7 rounded-full bg-slate-100 text-slate-600 text-[10px] font-semibold flex items-center justify-center">UM</span>
+                  <span class="truncate">Ungku Mohamed Ismail Adrian bin Ungku Abdul Rahman</span>
+                </div>
+              </td>
+              <td class="px-3 py-3.5">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-900 text-white text-[11px] font-medium">Annual Leave</span>
+              </td>
+              <td class="px-3 py-3.5 font-mono text-[12px] text-slate-700">2026-04-15</td>
+              <td class="px-3 py-3.5 font-mono text-[12px] text-slate-700">2026-04-15</td>
+              <td class="px-3 py-3.5 text-[13px] text-slate-700 text-right tabular-nums">1</td>
+              <td class="px-5 py-3.5">
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 ring-1 ring-amber-200 text-[11px] font-medium">
+                  <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Pending
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+
+    <!-- ============================================================ -->
+    <!-- VARIANT 02 — Timeline activities, avatar-led leave rows, action buttons -->
+    <!-- ============================================================ -->
+    <section class="mb-14">
+      <div class="flex items-baseline gap-3 mb-4">
+        <h2 class="text-[13px] font-semibold text-slate-700">Variant 02</h2>
+        <span class="text-[11px] font-medium text-slate-400">Timeline activities · avatar-led leave rows · inline actions</span>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+
+        <!-- Claims — empty state with CTA -->
+        <div class="bg-white rounded-xl border border-slate-200 shad-card-lg overflow-hidden">
+          <div class="p-5 flex items-start justify-between">
+            <div>
+              <h3 class="text-[14px] font-semibold tracking-tight text-slate-900">Claims Pending Payment</h3>
+              <p class="text-[12px] text-slate-500 mt-0.5">Approved claims awaiting payment</p>
+            </div>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 text-[11px] font-medium">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>All clear
+            </span>
+          </div>
+          <div class="dotted-bg px-5 py-12 flex flex-col items-center justify-center border-t border-slate-200">
+            <div class="relative">
+              <div class="absolute inset-0 rounded-full bg-emerald-200/40 blur-md"></div>
+              <div class="relative w-12 h-12 rounded-full bg-white ring-1 ring-emerald-200 shadow-sm flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              </div>
+            </div>
+            <p class="text-[13px] font-medium text-slate-800 mt-4">No claims pending payment</p>
+            <p class="text-[12px] text-slate-500 mt-0.5">All claims are up to date</p>
+            <button class="mt-4 inline-flex items-center justify-center h-8 px-3 rounded-md border border-slate-200 bg-white hover:bg-slate-50 text-[12px] font-medium text-slate-700">View all claims</button>
+          </div>
+        </div>
+
+        <!-- Recent Activities — vertical timeline -->
+        <div class="bg-white rounded-xl border border-slate-200 shad-card-lg">
+          <div class="p-5 border-b border-slate-200 flex items-start justify-between">
+            <div>
+              <h3 class="text-[14px] font-semibold tracking-tight text-slate-900">Recent Activities</h3>
+              <p class="text-[12px] text-slate-500 mt-0.5">Latest HR activities</p>
+            </div>
+            <button class="text-[12px] font-medium text-slate-600 hover:text-slate-900">View all →</button>
+          </div>
+          <div class="p-5">
+            <ol class="relative border-l border-slate-200 ml-3 space-y-5">
+              <li class="ml-5">
+                <span class="absolute -left-[7px] w-3.5 h-3.5 rounded-full bg-emerald-500 ring-4 ring-emerald-100"></span>
+                <div class="flex items-start justify-between gap-3">
+                  <div>
+                    <p class="text-[13px] font-medium text-slate-900">Payroll paid for April 2026</p>
+                    <p class="text-[11px] text-slate-500 mt-0.5">Disbursed to 13 employees · RM 142,800</p>
+                  </div>
+                  <span class="font-mono text-[10px] text-slate-500 shrink-0 mt-0.5">6d ago</span>
+                </div>
+              </li>
+              <li class="ml-5">
+                <span class="absolute -left-[7px] w-3.5 h-3.5 rounded-full bg-indigo-500 ring-4 ring-indigo-100"></span>
+                <div class="flex items-start justify-between gap-3">
+                  <div>
+                    <p class="text-[13px] font-medium text-slate-900">New employee onboarded</p>
+                    <p class="text-[11px] text-slate-500 mt-0.5">Aisha Rahman · Engineering</p>
+                  </div>
+                  <span class="font-mono text-[10px] text-slate-500 shrink-0 mt-0.5">8d ago</span>
+                </div>
+              </li>
+              <li class="ml-5">
+                <span class="absolute -left-[7px] w-3.5 h-3.5 rounded-full bg-amber-500 ring-4 ring-amber-100"></span>
+                <div class="flex items-start justify-between gap-3">
+                  <div>
+                    <p class="text-[13px] font-medium text-slate-900">Leave policy updated</p>
+                    <p class="text-[11px] text-slate-500 mt-0.5">Annual leave entitlement revised</p>
+                  </div>
+                  <span class="font-mono text-[10px] text-slate-500 shrink-0 mt-0.5">12d ago</span>
+                </div>
+              </li>
+            </ol>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Recent Leave Requests — avatar rows + actions -->
+      <div class="bg-white rounded-xl border border-slate-200 shad-card-lg">
+        <div class="p-5 border-b border-slate-200 flex items-start justify-between">
+          <div>
+            <h3 class="text-[14px] font-semibold tracking-tight text-slate-900">Recent Leave Requests</h3>
+            <p class="text-[12px] text-slate-500 mt-0.5">Pending approval · 2 requests</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="inline-flex items-center justify-center h-8 px-3 rounded-md border border-slate-200 hover:bg-slate-50 text-[12px] font-medium text-slate-700">Filter</button>
+            <button class="inline-flex items-center justify-center h-8 px-3 rounded-md bg-slate-900 hover:bg-slate-800 text-[12px] font-medium text-white">View all</button>
+          </div>
+        </div>
+        <ul class="divide-y divide-slate-100">
+          <li class="px-5 py-4 flex items-center gap-4 hover:bg-slate-50/50 transition">
+            <span class="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 text-white text-[12px] font-semibold flex items-center justify-center shrink-0">UM</span>
+            <div class="flex-1 min-w-0">
+              <p class="text-[13px] font-medium text-slate-900 truncate">Ungku Mohamed Ismail Adrian bin Ungku Abdul Rahman</p>
+              <div class="flex items-center gap-2 mt-1 flex-wrap">
+                <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-slate-900 text-white text-[10px] font-medium">Annual Leave</span>
+                <span class="font-mono text-[11px] text-slate-500">2026-04-12 → 2026-04-12</span>
+                <span class="text-[11px] text-slate-500">· 1 day</span>
+              </div>
+            </div>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 ring-1 ring-amber-200 text-[11px] font-medium shrink-0">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Pending
+            </span>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <button class="h-8 px-2.5 rounded-md border border-slate-200 hover:bg-slate-50 text-[12px] font-medium text-slate-700">Reject</button>
+              <button class="h-8 px-2.5 rounded-md bg-emerald-600 hover:bg-emerald-700 text-[12px] font-medium text-white">Approve</button>
+            </div>
+          </li>
+          <li class="px-5 py-4 flex items-center gap-4 hover:bg-slate-50/50 transition">
+            <span class="w-9 h-9 rounded-full bg-gradient-to-br from-rose-400 to-rose-600 text-white text-[12px] font-semibold flex items-center justify-center shrink-0">UM</span>
+            <div class="flex-1 min-w-0">
+              <p class="text-[13px] font-medium text-slate-900 truncate">Ungku Mohamed Ismail Adrian bin Ungku Abdul Rahman</p>
+              <div class="flex items-center gap-2 mt-1 flex-wrap">
+                <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-slate-900 text-white text-[10px] font-medium">Annual Leave</span>
+                <span class="font-mono text-[11px] text-slate-500">2026-04-15 → 2026-04-15</span>
+                <span class="text-[11px] text-slate-500">· 1 day</span>
+              </div>
+            </div>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 ring-1 ring-amber-200 text-[11px] font-medium shrink-0">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Pending
+            </span>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <button class="h-8 px-2.5 rounded-md border border-slate-200 hover:bg-slate-50 text-[12px] font-medium text-slate-700">Reject</button>
+              <button class="h-8 px-2.5 rounded-md bg-emerald-600 hover:bg-emerald-700 text-[12px] font-medium text-white">Approve</button>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+
+    <!-- ============================================================ -->
+    <!-- VARIANT 03 — Compact density, tabs, metric chip headers -->
+    <!-- ============================================================ -->
+    <section class="mb-14">
+      <div class="flex items-baseline gap-3 mb-4">
+        <h2 class="text-[13px] font-semibold text-slate-700">Variant 03</h2>
+        <span class="text-[11px] font-medium text-slate-400">Compact · metric chip headers · tabbed activity feed</span>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+
+        <!-- Claims — metric chip + tiny breakdown -->
+        <div class="bg-white rounded-xl border border-slate-200 shad-card">
+          <div class="p-5 flex items-center justify-between">
+            <div>
+              <h3 class="text-[14px] font-semibold tracking-tight text-slate-900">Claims Pending Payment</h3>
+              <p class="text-[12px] text-slate-500 mt-0.5">Approved claims awaiting payment</p>
+            </div>
+            <div class="text-right">
+              <div class="font-mono text-2xl font-semibold tracking-tight text-slate-900 leading-none">0</div>
+              <p class="text-[10px] uppercase tracking-wide text-slate-500 mt-1">claims</p>
+            </div>
+          </div>
+          <div class="border-t border-slate-200 grid grid-cols-3 divide-x divide-slate-200">
+            <div class="px-4 py-3">
+              <p class="text-[10px] uppercase tracking-wide text-slate-500">Submitted</p>
+              <p class="font-mono text-[14px] font-semibold text-slate-900 mt-0.5">0</p>
+            </div>
+            <div class="px-4 py-3">
+              <p class="text-[10px] uppercase tracking-wide text-slate-500">Approved</p>
+              <p class="font-mono text-[14px] font-semibold text-slate-900 mt-0.5">0</p>
+            </div>
+            <div class="px-4 py-3">
+              <p class="text-[10px] uppercase tracking-wide text-slate-500">Amount</p>
+              <p class="font-mono text-[14px] font-semibold text-emerald-600 mt-0.5">RM 0</p>
+            </div>
+          </div>
+          <div class="px-5 py-3 border-t border-slate-200 bg-slate-50/50 flex items-center gap-2">
+            <span class="w-5 h-5 rounded-full bg-emerald-50 ring-1 ring-emerald-100 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            </span>
+            <p class="text-[12px] text-slate-600">All claims are up to date</p>
+          </div>
+        </div>
+
+        <!-- Recent Activities — tabbed feed -->
+        <div class="bg-white rounded-xl border border-slate-200 shad-card">
+          <div class="px-5 pt-5 pb-3 flex items-start justify-between">
+            <div>
+              <h3 class="text-[14px] font-semibold tracking-tight text-slate-900">Recent Activities</h3>
+              <p class="text-[12px] text-slate-500 mt-0.5">Latest HR activities</p>
+            </div>
+          </div>
+          <!-- Tabs -->
+          <div class="px-5 mb-1">
+            <div class="inline-flex h-8 items-center rounded-md bg-slate-100 p-0.5 text-[12px]">
+              <button class="px-2.5 h-7 rounded bg-white shadow-sm font-medium text-slate-900">All</button>
+              <button class="px-2.5 h-7 rounded text-slate-500 hover:text-slate-900">Payroll</button>
+              <button class="px-2.5 h-7 rounded text-slate-500 hover:text-slate-900">People</button>
+              <button class="px-2.5 h-7 rounded text-slate-500 hover:text-slate-900">Policy</button>
+            </div>
+          </div>
+          <ul class="px-2 pb-2">
+            <li class="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-slate-50">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+              <p class="text-[13px] text-slate-800 flex-1 truncate">Payroll paid for April 2026</p>
+              <span class="font-mono text-[11px] text-slate-500 shrink-0">6d</span>
+            </li>
+            <li class="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-slate-50">
+              <span class="w-2 h-2 rounded-full bg-indigo-500 shrink-0"></span>
+              <p class="text-[13px] text-slate-800 flex-1 truncate">New employee onboarded — Aisha</p>
+              <span class="font-mono text-[11px] text-slate-500 shrink-0">8d</span>
+            </li>
+            <li class="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-slate-50">
+              <span class="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>
+              <p class="text-[13px] text-slate-800 flex-1 truncate">Leave policy updated</p>
+              <span class="font-mono text-[11px] text-slate-500 shrink-0">12d</span>
+            </li>
+            <li class="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-slate-50">
+              <span class="w-2 h-2 rounded-full bg-slate-400 shrink-0"></span>
+              <p class="text-[13px] text-slate-800 flex-1 truncate">Q1 performance reviews closed</p>
+              <span class="font-mono text-[11px] text-slate-500 shrink-0">21d</span>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- Recent Leave Requests — compact density with metric header -->
+      <div class="bg-white rounded-xl border border-slate-200 shad-card">
+        <div class="p-5 flex items-center justify-between border-b border-slate-200">
+          <div class="flex items-center gap-3">
+            <h3 class="text-[14px] font-semibold tracking-tight text-slate-900">Recent Leave Requests</h3>
+            <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[11px] font-medium font-mono">2 pending</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="relative">
+              <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-2.5 top-1/2 -translate-y-1/2" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" placeholder="Search..." class="h-8 pl-8 pr-3 rounded-md border border-slate-200 bg-white text-[12px] text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 w-44" />
+            </div>
+            <button class="inline-flex items-center justify-center h-8 px-3 rounded-md border border-slate-200 hover:bg-slate-50 text-[12px] font-medium text-slate-700">Export</button>
+          </div>
+        </div>
+        <table class="w-full">
+          <thead>
+            <tr class="bg-slate-50/60 text-left">
+              <th class="font-medium text-[10px] uppercase tracking-wide text-slate-500 px-5 py-2">Employee</th>
+              <th class="font-medium text-[10px] uppercase tracking-wide text-slate-500 px-3 py-2">Type</th>
+              <th class="font-medium text-[10px] uppercase tracking-wide text-slate-500 px-3 py-2">Period</th>
+              <th class="font-medium text-[10px] uppercase tracking-wide text-slate-500 px-3 py-2 text-right">Days</th>
+              <th class="font-medium text-[10px] uppercase tracking-wide text-slate-500 px-5 py-2">Status</th>
+              <th class="font-medium text-[10px] uppercase tracking-wide text-slate-500 px-5 py-2 text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <tr class="hover:bg-slate-50/50 transition">
+              <td class="px-5 py-2.5 text-[13px] text-slate-800 max-w-[280px] truncate">Ungku Mohamed Ismail Adrian bin Ungku Abdul Rahman</td>
+              <td class="px-3 py-2.5">
+                <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-slate-900 text-white text-[10px] font-medium">Annual</span>
+              </td>
+              <td class="px-3 py-2.5 font-mono text-[11px] text-slate-700">04-12 → 04-12</td>
+              <td class="px-3 py-2.5 font-mono text-[12px] text-slate-700 text-right tabular-nums">1</td>
+              <td class="px-5 py-2.5">
+                <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 ring-1 ring-amber-200 text-[10px] font-medium">
+                  <span class="w-1 h-1 rounded-full bg-amber-500"></span>Pending
+                </span>
+              </td>
+              <td class="px-5 py-2.5 text-right">
+                <button class="h-7 px-2 rounded text-[11px] font-medium text-slate-600 hover:bg-slate-100">⋯</button>
+              </td>
+            </tr>
+            <tr class="hover:bg-slate-50/50 transition">
+              <td class="px-5 py-2.5 text-[13px] text-slate-800 max-w-[280px] truncate">Ungku Mohamed Ismail Adrian bin Ungku Abdul Rahman</td>
+              <td class="px-3 py-2.5">
+                <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-slate-900 text-white text-[10px] font-medium">Annual</span>
+              </td>
+              <td class="px-3 py-2.5 font-mono text-[11px] text-slate-700">04-15 → 04-15</td>
+              <td class="px-3 py-2.5 font-mono text-[12px] text-slate-700 text-right tabular-nums">1</td>
+              <td class="px-5 py-2.5">
+                <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 ring-1 ring-amber-200 text-[10px] font-medium">
+                  <span class="w-1 h-1 rounded-full bg-amber-500"></span>Pending
+                </span>
+              </td>
+              <td class="px-5 py-2.5 text-right">
+                <button class="h-7 px-2 rounded text-[11px] font-medium text-slate-600 hover:bg-slate-100">⋯</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="px-5 py-3 border-t border-slate-200 flex items-center justify-between">
+          <p class="text-[11px] text-slate-500">Showing <span class="font-mono text-slate-700">2</span> of <span class="font-mono text-slate-700">2</span> requests</p>
+          <div class="flex items-center gap-1">
+            <button class="h-7 px-2 rounded border border-slate-200 text-[11px] font-medium text-slate-400 cursor-not-allowed" disabled>Previous</button>
+            <button class="h-7 px-2 rounded border border-slate-200 text-[11px] font-medium text-slate-400 cursor-not-allowed" disabled>Next</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+</body>
+</html>

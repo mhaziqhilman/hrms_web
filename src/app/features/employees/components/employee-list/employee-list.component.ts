@@ -375,6 +375,7 @@ export class EmployeeListComponent implements OnInit {
       zTitle: 'Invite User',
       zContent: InviteUserDialogComponent,
       zViewContainerRef: this.viewContainerRef,
+      zMaskClosable: false,
       zOkText: 'Send Invitation',
       zCancelText: 'Cancel',
       zOkIcon: 'send',

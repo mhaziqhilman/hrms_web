@@ -104,42 +104,80 @@
       <!-- Charts Row: Department Distribution, Employee Type, Quick Actions -->
       <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
         <!-- Department Distribution (Bar Chart) -->
-        <z-card>
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-sm font-medium text-foreground">Department Distribution</h3>
-          </div>
-          <div class="h-[220px]">
-            @if (departmentDistribution.length > 0) {
-            <canvas #deptChart></canvas>
-            } @else {
-            <div class="flex flex-col items-center justify-center h-full">
-              <div class="flex items-center justify-center w-14 h-14 rounded-full bg-muted mb-3">
-                <z-icon zType="building-2" class="text-muted-foreground text-2xl" />
+        <z-card class="self-start">
+          <div class="relative overflow-hidden -mx-6 -my-6 px-6 py-6 rounded-xl">
+            <!-- Decorative blobs (clipped to card body) -->
+            <div class="absolute -top-12 -right-10 w-44 h-44 rounded-full bg-teal-400/15 dark:bg-teal-400/10 blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-16 -left-10 w-44 h-44 rounded-full bg-emerald-400/10 dark:bg-emerald-400/5 blur-3xl pointer-events-none"></div>
+
+            <!-- Header -->
+            <div class="relative z-10 flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2">
+                <div class="flex items-center justify-center w-7 h-7 rounded-md bg-teal-500/15 ring-1 ring-teal-500/20">
+                  <z-icon zType="building-2" class="text-teal-600 dark:text-teal-400 text-sm" />
+                </div>
+                <h3 class="text-base font-semibold text-foreground">Department Distribution</h3>
               </div>
-              <p class="text-foreground font-medium text-sm mb-1">No department data yet</p>
-              <p class="text-muted-foreground text-xs">Add departments to employees to see distribution</p>
+              @if (departmentDistribution().length > 0) {
+              <span class="text-[11px] font-medium px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-700 dark:text-teal-300 ring-1 ring-teal-500/15">
+                {{ departmentDistribution().length }} dept
+              </span>
+              }
             </div>
-            }
+
+            <!-- Chart -->
+            <div class="relative z-10">
+              @if (departmentDistribution().length > 0) {
+              <highcharts-chart [options]="deptChartOptions()" style="width:100%; display:block;"></highcharts-chart>
+              } @else {
+              <div class="h-[240px] flex flex-col items-center justify-center">
+                <div class="flex items-center justify-center w-14 h-14 rounded-full bg-muted mb-3">
+                  <z-icon zType="building-2" class="text-muted-foreground text-2xl" />
+                </div>
+                <p class="text-foreground font-medium text-sm mb-1">No department data yet</p>
+                <p class="text-muted-foreground text-xs">Add departments to employees to see distribution</p>
+              </div>
+              }
+            </div>
           </div>
         </z-card>
 
         <!-- Employee Type (Donut Chart) -->
-        <z-card>
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-sm font-medium text-foreground">Employee Type</h3>
-          </div>
-          <div class="h-[220px]">
-            @if (employeeByType.length > 0) {
-            <canvas #employeeTypeChart></canvas>
-            } @else {
-            <div class="flex flex-col items-center justify-center h-full">
-              <div class="flex items-center justify-center w-14 h-14 rounded-full bg-muted mb-3">
-                <z-icon zType="briefcase" class="text-muted-foreground text-2xl" />
+        <z-card class="self-start">
+          <div class="relative overflow-hidden -mx-6 -my-6 px-6 py-6 rounded-xl">
+            <!-- Decorative blobs -->
+            <div class="absolute -top-10 -left-10 w-44 h-44 rounded-full bg-amber-400/15 dark:bg-amber-400/10 blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-12 -right-10 w-44 h-44 rounded-full bg-violet-400/10 dark:bg-violet-400/10 blur-3xl pointer-events-none"></div>
+
+            <!-- Header -->
+            <div class="relative z-10 flex items-center justify-between mb-2">
+              <div class="flex items-center gap-2">
+                <div class="flex items-center justify-center w-7 h-7 rounded-md bg-amber-500/15 ring-1 ring-amber-500/20">
+                  <z-icon zType="briefcase" class="text-amber-600 dark:text-amber-400 text-sm" />
+                </div>
+                <h3 class="text-base font-semibold text-foreground">Employee Type</h3>
               </div>
-              <p class="text-foreground font-medium text-sm mb-1">No employee type data yet</p>
-              <p class="text-muted-foreground text-xs">Add employees to see type breakdown</p>
+              @if (employeeByType().length > 0) {
+              <span class="text-[11px] font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-300 ring-1 ring-amber-500/15">
+                {{ employeeByType().length }} types
+              </span>
+              }
             </div>
-            }
+
+            <!-- Chart -->
+            <div class="relative z-10">
+              @if (employeeByType().length > 0) {
+              <highcharts-chart [options]="employeeTypeChartOptions()" style="width:100%; display:block;"></highcharts-chart>
+              } @else {
+              <div class="h-[160px] flex flex-col items-center justify-center">
+                <div class="flex items-center justify-center w-14 h-14 rounded-full bg-muted mb-3">
+                  <z-icon zType="briefcase" class="text-muted-foreground text-2xl" />
+                </div>
+                <p class="text-foreground font-medium text-sm mb-1">No employee type data yet</p>
+                <p class="text-muted-foreground text-xs">Add employees to see type breakdown</p>
+              </div>
+              }
+            </div>
           </div>
         </z-card>
 
@@ -175,302 +213,386 @@
       </div>
 
       <!-- Stats Cards Row -->
-      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
         <!-- Total Employees -->
         <z-card>
-          <div class="p-0 flex flex-col justify-between h-full">
-            <div class="flex items-center mb-5">
-              <div class="flex items-center justify-center w-12 h-12 rounded-md bg-primary/10 mr-3">
-                <z-icon zType="users" class="text-primary text-xl" />
+          <div class="-mx-6 -my-6 p-5">
+            <!-- Header row -->
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-2">
+                <span class="w-7 h-7 rounded-lg bg-muted flex items-center justify-center text-muted-foreground">
+                  <z-icon zType="users" class="text-[15px]" />
+                </span>
+                <h3 class="text-sm font-semibold text-foreground">Total Employees</h3>
               </div>
-              <div class="flex-grow">
-                <span class="text-muted-foreground font-medium block text-sm">Total Employees</span>
-                <span class="text-foreground font-semibold block text-2xl">{{employeeStats.totalEmployees}}</span>
-              </div>
+              <span class="text-[11px] font-medium text-muted-foreground">Live</span>
             </div>
-            <div class="flex justify-between text-muted-foreground text-xs">
-              <span>Active: {{employeeStats.activeEmployees}}</span>
-              <span>New: +{{employeeStats.newHires}}</span>
+
+            <!-- Inner sub-card -->
+            <div class="bg-muted/40 border border-border/70 rounded-xl p-4 inner-card">
+              <p class="text-[11px] text-muted-foreground mb-1">Headcount</p>
+              <div class="flex items-end justify-between">
+                <p class="text-2xl font-bold text-foreground leading-none">{{employeeStats.totalEmployees}}</p>
+                <span class="text-[11px] font-medium text-emerald-600 inline-flex items-center gap-0.5">
+                  <z-icon zType="chevron-up" class="text-[10px]" />
+                  New +{{employeeStats.newHires}}
+                </span>
+              </div>
+              <div class="mt-3 pt-3 border-t border-border/70 flex items-center justify-between text-[11px] text-muted-foreground">
+                <span>Active: <span class="font-semibold text-foreground">{{employeeStats.activeEmployees}}</span></span>
+                <span>On leave: <span class="font-semibold text-foreground">{{employeeStats.onLeave}}</span></span>
+              </div>
             </div>
           </div>
         </z-card>
 
-        <!-- Attendance Today -->
+        <!-- Present Today -->
         <z-card>
-          <div class="p-0 flex flex-col justify-between h-full">
-            <div class="flex items-center mb-5">
-              <div class="flex items-center justify-center w-12 h-12 rounded-md bg-green-500/10 mr-3">
-                <z-icon zType="clock" class="text-green-600 text-xl" />
+          <div class="-mx-6 -my-6 p-5">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-2">
+                <span class="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                  <z-icon zType="clock" class="text-[15px]" />
+                </span>
+                <h3 class="text-sm font-semibold text-foreground">Present Today</h3>
               </div>
-              <div class="flex-grow">
-                <span class="text-muted-foreground font-medium block text-sm">Present Today</span>
-                <span class="text-foreground font-semibold block text-2xl">{{attendanceSummary.presentToday}}</span>
-              </div>
+              <span class="text-[11px] font-medium text-muted-foreground">Today</span>
             </div>
-            <div class="flex justify-between text-muted-foreground text-xs">
-              <span>Late: {{attendanceSummary.lateToday}}</span>
-              <span>WFH: {{attendanceSummary.wfhToday}}</span>
+
+            <div class="bg-muted/40 border border-border/70 rounded-xl p-4 inner-card">
+              <p class="text-[11px] text-muted-foreground mb-1">Checked-in</p>
+              <div class="flex items-end justify-between">
+                <p class="text-2xl font-bold text-foreground leading-none">{{attendanceSummary.presentToday}}</p>
+                <span class="text-[11px] font-medium text-muted-foreground">of {{employeeStats.totalEmployees}}</span>
+              </div>
+              <div class="mt-3 pt-3 border-t border-border/70 flex items-center justify-between text-[11px] text-muted-foreground">
+                <span>Late: <span class="font-semibold text-foreground">{{attendanceSummary.lateToday}}</span></span>
+                <span>WFH: <span class="font-semibold text-foreground">{{attendanceSummary.wfhToday}}</span></span>
+              </div>
             </div>
           </div>
         </z-card>
 
         <!-- Payroll Status -->
         <z-card>
-          <div class="p-0 flex flex-col justify-between h-full">
-            <div class="flex items-center mb-5">
-              <div class="flex items-center justify-center w-12 h-12 rounded-md bg-blue-500/10 mr-3">
-                <z-icon zType="credit-card" class="text-blue-600 text-xl" />
+          <div class="-mx-6 -my-6 p-5">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-2">
+                <span class="w-7 h-7 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                  <z-icon zType="credit-card" class="text-[15px]" />
+                </span>
+                <h3 class="text-sm font-semibold text-foreground">Payroll Status</h3>
               </div>
-              <div class="flex-grow">
-                <span class="text-muted-foreground font-medium block text-sm">Payroll Status</span>
-                <z-badge zType="secondary" class="text-xs">{{payrollSummary.status}}</z-badge>
-              </div>
+              <span class="text-[11px] font-medium text-muted-foreground">{{getMonthName(currentMonth)}} {{currentYear}}</span>
             </div>
-            <div class="text-muted-foreground text-xs">
-              <span>{{getMonthName(currentMonth)}} {{currentYear}}</span>
+
+            <div class="bg-muted/40 border border-border/70 rounded-xl p-4 inner-card">
+              <p class="text-[11px] text-muted-foreground mb-1">Current cycle</p>
+              <div class="flex items-end justify-between">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 text-amber-700 dark:text-amber-400 text-[11px] font-semibold">
+                  {{payrollSummary.status}}
+                </span>
+                <span class="text-[11px] font-medium text-muted-foreground">{{getMonthName(currentMonth)}} cycle</span>
+              </div>
+              <div class="mt-3 pt-3 border-t border-border/70 flex items-center justify-between text-[11px] text-muted-foreground">
+                <span>Processed: <span class="font-semibold text-foreground">0/{{employeeStats.totalEmployees}}</span></span>
+                <span>Approvals: <span class="font-semibold text-foreground">0</span></span>
+              </div>
             </div>
           </div>
         </z-card>
 
         <!-- Claims Pending -->
         <z-card>
-          <div class="p-0 flex flex-col justify-between h-full">
-            <div class="flex items-center mb-5">
-              <div class="flex items-center justify-center w-12 h-12 rounded-md bg-yellow-500/10 mr-3">
-                <z-icon zType="file-text" class="text-yellow-600 text-xl" />
+          <div class="-mx-6 -my-6 p-5">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-2">
+                <span class="w-7 h-7 rounded-lg bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center text-amber-600 dark:text-amber-400">
+                  <z-icon zType="file-text" class="text-[15px]" />
+                </span>
+                <h3 class="text-sm font-semibold text-foreground">Claims Pending</h3>
               </div>
-              <div class="flex-grow">
-                <span class="text-muted-foreground font-medium block text-sm">Claims Pending</span>
-                <span class="text-foreground font-semibold block text-2xl">{{claimsPendingPayment.length}}</span>
-              </div>
+              <span class="text-[11px] font-medium text-muted-foreground">Queue</span>
             </div>
-            <div class="text-muted-foreground text-xs">
-              <span>Awaiting Payment</span>
+
+            <div class="bg-muted/40 border border-border/70 rounded-xl p-4 inner-card">
+              <p class="text-[11px] text-muted-foreground mb-1">Awaiting payment</p>
+              <div class="flex items-end justify-between">
+                <p class="text-2xl font-bold text-foreground leading-none">{{claimsPendingPayment.length}}</p>
+                <span class="text-[11px] font-medium text-muted-foreground">RM {{getClaimsTotal().toFixed(2)}}</span>
+              </div>
+              <div class="mt-3 pt-3 border-t border-border/70 flex items-center justify-between text-[11px] text-muted-foreground">
+                <span>Submitted: <span class="font-semibold text-foreground">{{claimsPendingPayment.length}}</span></span>
+                <span>Approved: <span class="font-semibold text-foreground">{{claimsPendingPayment.length}}</span></span>
+              </div>
             </div>
           </div>
         </z-card>
       </div>
 
       <!-- Payroll Processing & Attendance -->
-      <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
-        <!-- Payroll Processing Card -->
-        <z-card [zTitle]="'Payroll Processing'" [zDescription]="getMonthName(currentMonth) + ' ' + currentYear"
-          [zHeaderBorder]="true">
-          <div class="flex flex-col">
+      <div class="grid grid-cols-1 xl:grid-cols-2 gap-5 mb-8">
+        <!-- Payroll Processing — compact + trend bars -->
+        <z-card>
+          <div class="-mx-6 -my-6 p-5">
+            <!-- Header -->
             <div class="flex items-center justify-between mb-4">
-              <span class="text-muted-foreground font-medium text-sm">Total Gross Salary</span>
-              <span class="text-foreground font-semibold text-lg">RM
-                {{payrollSummary.totalGrossSalary.toLocaleString()}}</span>
+              <div class="flex items-center gap-2">
+                <span class="text-foreground">
+                  <z-icon zType="layout-dashboard" class="text-[16px]" />
+                </span>
+                <h3 class="text-base font-semibold text-foreground">Payroll Processing</h3>
+              </div>
+              <span class="text-[11px] font-medium text-muted-foreground">{{ displayPeriodLabel() }}{{ selectedTrendIndex() != null ? ' · selected' : '' }}</span>
             </div>
-            <z-divider class="my-2" />
-            <div class="flex items-center justify-between mb-4">
-              <span class="text-muted-foreground font-medium text-sm">Total Statutory (EPF, SOCSO, EIS)</span>
-              <span class="text-red-600 font-semibold text-sm">- RM
-                {{payrollSummary.totalStatutory.toLocaleString()}}</span>
+
+            <!-- Hero net + trend bars (chart pinned to far right) -->
+            <div class="flex items-end justify-between mb-4">
+              <div>
+                <p class="text-[11px] text-muted-foreground mb-1">Total Net Salary</p>
+                <p class="text-3xl font-bold text-foreground leading-none">RM {{ formatCounter(netSalaryAnimated()) }}</p>
+                <p class="text-[11px] font-medium mt-1.5 inline-flex items-center gap-0.5"
+                   [class.text-emerald-600]="payrollDelta() >= 0"
+                   [class.dark:text-emerald-400]="payrollDelta() >= 0"
+                   [class.text-rose-600]="payrollDelta() < 0"
+                   [class.dark:text-rose-400]="payrollDelta() < 0">
+                  <z-icon [zType]="payrollDelta() >= 0 ? 'chevron-up' : 'chevron-down'" class="text-[10px]" />
+                  vs RM {{ formatCounter(prevNetAnimated()) }} last cycle
+                </p>
+              </div>
+              <div class="shrink-0">
+                <highcharts-chart
+                  [options]="payrollTrendChartOptions()"
+                  style="width: 200px; height: 88px; display: block;">
+                </highcharts-chart>
+                <p class="text-[10px] text-muted-foreground text-right mt-0.5">Click a bar to view that month</p>
+              </div>
             </div>
-            <z-divider class="my-2" />
-            <div class="flex items-center justify-between mb-4">
-              <span class="text-muted-foreground font-medium text-sm">Total PCB Tax</span>
-              <span class="text-red-600 font-semibold text-sm">- RM {{payrollSummary.totalPCB.toLocaleString()}}</span>
+
+            <!-- Breakdown footer -->
+            <div class="grid grid-cols-3 divide-x divide-border/70 border-t border-border/70 pt-3">
+              <div class="px-3 first:pl-0">
+                <p class="text-[10px] text-muted-foreground">Gross</p>
+                <p class="text-[13px] font-semibold text-foreground">RM {{ formatCounter(grossSalaryAnimated()) }}</p>
+              </div>
+              <div class="px-3">
+                <p class="text-[10px] text-muted-foreground">Statutory</p>
+                <p class="text-[13px] font-semibold text-rose-600 dark:text-rose-400">- RM {{ formatCounter(statutoryAnimated()) }}</p>
+              </div>
+              <div class="px-3">
+                <p class="text-[10px] text-muted-foreground">PCB Tax</p>
+                <p class="text-[13px] font-semibold text-rose-600 dark:text-rose-400">- RM {{ formatCounter(pcbAnimated()) }}</p>
+              </div>
             </div>
-            <z-divider class="my-2" />
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-foreground font-semibold text-base">Total Net Salary</span>
-              <span class="text-green-600 font-semibold text-xl">RM
-                {{payrollSummary.totalNetSalary.toLocaleString()}}</span>
-            </div>
-          </div>
-          <div class="mt-5">
-            <button z-button zType="outline" class="w-full" (click)="navigateTo('/payroll')">View Payroll</button>
           </div>
         </z-card>
 
-        <!-- Attendance Summary -->
-        <z-card [zTitle]="'Attendance Overview'" [zDescription]="'Today\'s Summary'" [zHeaderBorder]="true">
-          <div class="mb-7">
-            <div class="flex justify-between mb-2">
-              <span class="text-muted-foreground font-medium">Overall Attendance Rate</span>
-              <span class="text-foreground font-semibold">{{attendanceSummary.attendanceRate}}%</span>
+        <!-- Attendance Overview — compact + segmented bar -->
+        <z-card class="self-start">
+          <div class="-mx-6 -my-6 p-5">
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-8">
+              <div class="flex items-center gap-2">
+                <span class="text-foreground">
+                  <z-icon zType="calendar" class="text-[16px]" />
+                </span>
+                <h3 class="text-base font-semibold text-foreground">Attendance Overview</h3>
+              </div>
+              <span class="text-[11px] font-medium text-muted-foreground">Today · {{employeeStats.totalEmployees}} staff</span>
             </div>
-            <div class="w-full bg-secondary rounded-full h-2">
-              <div class="h-2 rounded-full bg-green-500" [style.width.%]="attendanceSummary.attendanceRate"></div>
+
+            <!-- Hero rate -->
+            <div class="flex items-end justify-between mb-2">
+              <div>
+                <p class="text-[11px] text-muted-foreground mb-3">Overall Attendance Rate</p>
+                <p class="text-3xl font-bold text-foreground leading-none">{{attendanceSummary.attendanceRate}}%</p>
+              </div>
+              <p class="text-[11px] text-muted-foreground">{{attendanceSummary.presentToday}} of {{employeeStats.activeEmployees}} clocked in</p>
             </div>
-          </div>
-          <div class="flex flex-col space-y-4">
-            <div class="flex items-center">
-              <div class="flex items-center justify-center w-10 h-10 rounded-md bg-green-500/10 mr-3">
-                <z-icon zType="circle-check" class="text-green-600" />
-              </div>
-              <div class="flex-grow">
-                <span class="text-muted-foreground font-medium block text-sm">Present</span>
-                <span class="text-muted-foreground text-xs">Clocked in</span>
-              </div>
-              <span class="text-foreground font-semibold text-lg">{{attendanceSummary.presentToday}}</span>
+
+            <!-- Segmented stacked bar (live) -->
+            <div class="flex h-2.5 rounded-full overflow-hidden bg-muted mb-4">
+              <div class="bg-emerald-500" [style.width.%]="getAttendancePct('present')"></div>
+              <div class="bg-amber-500" [style.width.%]="getAttendancePct('late')"></div>
+              <div class="bg-indigo-500" [style.width.%]="getAttendancePct('wfh')"></div>
+              <div class="bg-rose-500" [style.width.%]="getAttendancePct('absent')"></div>
             </div>
-            <div class="flex items-center">
-              <div class="flex items-center justify-center w-10 h-10 rounded-md bg-yellow-500/10 mr-3">
-                <z-icon zType="clock" class="text-yellow-600" />
+
+            <!-- 4 inner pill cards -->
+            <div class="grid grid-cols-4 gap-2">
+              <div class="text-center bg-muted/40 border border-border/70 rounded-lg py-2 inner-card">
+                <div class="inline-flex items-center gap-1 text-[10px] text-muted-foreground"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Present</div>
+                <p class="text-[16px] font-bold text-foreground mt-0.5 leading-none">{{attendanceSummary.presentToday}}</p>
               </div>
-              <div class="flex-grow">
-                <span class="text-muted-foreground font-medium block text-sm">Late</span>
-                <span class="text-muted-foreground text-xs">After 9:00 AM</span>
+              <div class="text-center bg-muted/40 border border-border/70 rounded-lg py-2 inner-card">
+                <div class="inline-flex items-center gap-1 text-[10px] text-muted-foreground"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Late</div>
+                <p class="text-[16px] font-bold text-amber-600 dark:text-amber-400 mt-0.5 leading-none">{{attendanceSummary.lateToday}}</p>
               </div>
-              <span class="text-yellow-600 font-semibold text-lg">{{attendanceSummary.lateToday}}</span>
-            </div>
-            <div class="flex items-center">
-              <div class="flex items-center justify-center w-10 h-10 rounded-md bg-red-500/10 mr-3">
-                <z-icon zType="circle-x" class="text-red-600" />
+              <div class="text-center bg-muted/40 border border-border/70 rounded-lg py-2 inner-card">
+                <div class="inline-flex items-center gap-1 text-[10px] text-muted-foreground"><span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>Absent</div>
+                <p class="text-[16px] font-bold text-rose-600 dark:text-rose-400 mt-0.5 leading-none">{{attendanceSummary.absentToday}}</p>
               </div>
-              <div class="flex-grow">
-                <span class="text-muted-foreground font-medium block text-sm">Absent</span>
-                <span class="text-muted-foreground text-xs">Not clocked in</span>
+              <div class="text-center bg-muted/40 border border-border/70 rounded-lg py-2 inner-card">
+                <div class="inline-flex items-center gap-1 text-[10px] text-muted-foreground"><span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>WFH</div>
+                <p class="text-[16px] font-bold text-indigo-600 dark:text-indigo-400 mt-0.5 leading-none">{{attendanceSummary.wfhToday}}</p>
               </div>
-              <span class="text-red-600 font-semibold text-lg">{{attendanceSummary.absentToday}}</span>
-            </div>
-            <div class="flex items-center">
-              <div class="flex items-center justify-center w-10 h-10 rounded-md bg-blue-500/10 mr-3">
-                <z-icon zType="house" class="text-blue-600" />
-              </div>
-              <div class="flex-grow">
-                <span class="text-muted-foreground font-medium block text-sm">Work From Home</span>
-                <span class="text-muted-foreground text-xs">Remote</span>
-              </div>
-              <span class="text-blue-600 font-semibold text-lg">{{attendanceSummary.wfhToday}}</span>
             </div>
           </div>
         </z-card>
       </div>
 
-      <!-- Claims & Recent Activities -->
+      <!-- Claims & Recent Activities (Variant 02) -->
       <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
-        <!-- Claims Pending Payment -->
-        <z-card [zTitle]="'Claims Pending Payment'" [zDescription]="'Approved claims awaiting payment'"
-          [zHeaderBorder]="true">
-          @if (claimsPendingPayment.length > 0) {
-          <div class="overflow-x-auto">
-            <table class="w-full">
-              <thead>
-                <tr class="border-b">
-                  <th class="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Employee</th>
-                  <th class="text-left py-3 px-2 text-sm font-medium text-muted-foreground">Type</th>
-                  <th class="text-left py-3 px-2 text-sm font-medium text-muted-foreground">Amount</th>
-                  <th class="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (claim of claimsPendingPayment; track claim.id) {
-                <tr class="border-b last:border-0">
-                  <td class="py-3 px-4">
-                    <span class="text-foreground font-medium block text-sm">{{claim.employee}}</span>
-                    <span class="text-muted-foreground text-xs">{{claim.date}}</span>
-                  </td>
-                  <td class="py-3 px-2">
-                    <z-badge zType="secondary">{{claim.type}}</z-badge>
-                  </td>
-                  <td class="py-3 px-2">
-                    <span class="text-foreground font-medium text-sm">RM {{claim.amount.toFixed(2)}}</span>
-                  </td>
-                  <td class="py-3 px-4 text-right">
-                    <z-badge zType="default">{{claim.status}}</z-badge>
-                  </td>
-                </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-          }
-          @if (claimsPendingPayment.length === 0) {
-          <div class="flex flex-col items-center justify-center py-8">
-            <div class="flex items-center justify-center w-14 h-14 rounded-full bg-muted mb-3">
-              <z-icon zType="circle-check" class="text-green-500 text-2xl" />
+        <!-- Claims Pending Payment — variant 02 -->
+        <div class="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+          <div class="p-5 flex items-start justify-between">
+            <div>
+              <h3 class="text-base font-semibold tracking-tight text-foreground">Claims Pending Payment</h3>
+              <p class="text-[12px] text-muted-foreground mt-0.5">Approved claims awaiting payment</p>
             </div>
-            <p class="text-foreground font-medium text-sm mb-1">No claims pending payment</p>
-            <p class="text-muted-foreground text-xs">All claims are up to date</p>
-          </div>
-          }
-        </z-card>
-
-        <!-- Recent Activities -->
-        <z-card [zTitle]="'Recent Activities'" [zDescription]="'Latest HR activities'" [zHeaderBorder]="true">
-          @if (recentActivities.length > 0) {
-          <div class="space-y-4">
-            @for (activity of recentActivities; track activity.action) {
-            <div class="flex items-start gap-3">
-              <div class="text-muted-foreground text-xs font-medium min-w-[80px]">{{getTimeAgo(activity.time)}}</div>
-              <div class="flex items-center justify-center w-8 h-8 rounded-md"
-                [class.bg-green-500/10]="activity.color === 'success'"
-                [class.bg-blue-500/10]="activity.color === 'info'" [class.bg-primary/10]="activity.color === 'primary'"
-                [class.bg-yellow-500/10]="activity.color === 'warning'">
-                <z-icon [zType]="$any(activity.icon)" [class.text-green-600]="activity.color === 'success'"
-                  [class.text-blue-600]="activity.color === 'info'" [class.text-primary]="activity.color === 'primary'"
-                  [class.text-yellow-600]="activity.color === 'warning'" />
-              </div>
-              <div class="text-foreground font-medium text-sm flex-grow">{{activity.action}}</div>
-            </div>
+            @if (claimsPendingPayment.length === 0) {
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-200 dark:ring-emerald-500/30 text-[11px] font-medium">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>All clear
+              </span>
+            } @else {
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-300 ring-1 ring-amber-200 dark:ring-amber-500/30 text-[11px] font-medium">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>{{ claimsPendingPayment.length }} pending
+              </span>
             }
           </div>
-          }
-          @if (recentActivities.length === 0) {
-          <div class="flex flex-col items-center justify-center py-8">
-            <div class="flex items-center justify-center w-14 h-14 rounded-full bg-muted mb-3">
-              <z-icon zType="activity" class="text-muted-foreground text-2xl" />
+
+          @if (claimsPendingPayment.length === 0) {
+            <div class="dotted-bg px-5 py-12 flex flex-col items-center justify-center border-t border-border">
+              <div class="relative">
+                <div class="absolute inset-0 rounded-full bg-emerald-200/40 dark:bg-emerald-400/20 blur-md"></div>
+                <div class="relative w-12 h-12 rounded-full bg-card ring-1 ring-emerald-200 dark:ring-emerald-500/40 shadow-sm flex items-center justify-center">
+                  <z-icon zType="check" class="text-emerald-600 dark:text-emerald-400 text-xl" />
+                </div>
+              </div>
+              <p class="text-[13px] font-medium text-foreground mt-4">No claims pending payment</p>
+              <p class="text-[12px] text-muted-foreground mt-0.5">All claims are up to date</p>
+              <button z-button zType="outline" zSize="sm" class="mt-4 text-[11px] h-7 px-2.5" (click)="navigateTo('/claims')">
+                View all claims
+              </button>
             </div>
-            <p class="text-foreground font-medium text-sm mb-1">No activity data yet</p>
-            <p class="text-muted-foreground text-xs">Start processing HR tasks to see activity</p>
-          </div>
+          } @else {
+            <ul class="divide-y divide-border border-t border-border">
+              @for (claim of claimsPendingPayment; track claim.id; let i = $index) {
+                <li class="px-5 py-3.5 flex items-center gap-4 hover:bg-muted/40 transition">
+                  <span class="w-9 h-9 rounded-full text-white text-[12px] font-semibold flex items-center justify-center shrink-0 bg-gradient-to-br"
+                    [class]="getAvatarGradient(i)">
+                    {{ getInitials(claim.employee) }}
+                  </span>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-[13px] font-medium text-foreground truncate">{{ claim.employee }}</p>
+                    <div class="flex items-center gap-2 mt-1 flex-wrap">
+                      <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-foreground text-background text-[10px] font-medium">{{ claim.type }}</span>
+                      <span class="font-mono text-[11px] text-muted-foreground">{{ claim.date }}</span>
+                    </div>
+                  </div>
+                  <div class="text-right shrink-0">
+                    <p class="text-[13px] font-semibold text-foreground tabular-nums">RM {{ claim.amount.toFixed(2) }}</p>
+                    <p class="text-[10px] text-muted-foreground mt-0.5">{{ claim.status }}</p>
+                  </div>
+                </li>
+              }
+            </ul>
+            <div class="px-5 py-3 border-t border-border flex items-center justify-end">
+              <button z-button zType="ghost" zSize="sm" class="text-[11px] h-7 px-2" (click)="navigateTo('/claims')">View all →</button>
+            </div>
           }
-        </z-card>
+        </div>
+
+        <!-- Recent Activities — variant 02 timeline -->
+        <div class="bg-card rounded-xl border border-border shadow-sm">
+          <div class="p-5 border-b border-border flex items-start justify-between">
+            <div>
+              <h3 class="text-base font-semibold tracking-tight text-foreground">Recent Activities</h3>
+              <p class="text-[12px] text-muted-foreground mt-0.5">Latest HR activities</p>
+            </div>
+            <button z-button zType="ghost" zSize="sm" class="text-[11px] h-7 px-2">View all →</button>
+          </div>
+          <div class="p-5">
+            @if (recentActivities.length > 0) {
+              <ol class="relative border-l border-border ml-3 space-y-5">
+                @for (activity of recentActivities; track activity.action) {
+                  <li class="ml-5">
+                    <span class="absolute -left-[7px] w-3.5 h-3.5 rounded-full ring-4"
+                      [ngClass]="[getActivityDotClass(activity.color), getActivityRingClass(activity.color)]"></span>
+                    <div class="flex items-start justify-between gap-3">
+                      <div class="min-w-0">
+                        <p class="text-[13px] font-medium text-foreground">{{ activity.action }}</p>
+                      </div>
+                      <span class="font-mono text-[10px] text-muted-foreground shrink-0 mt-0.5">{{ getTimeAgo(activity.time) }}</span>
+                    </div>
+                  </li>
+                }
+              </ol>
+            } @else {
+              <div class="flex flex-col items-center justify-center py-8">
+                <div class="flex items-center justify-center w-14 h-14 rounded-full bg-muted mb-3">
+                  <z-icon zType="activity" class="text-muted-foreground text-2xl" />
+                </div>
+                <p class="text-foreground font-medium text-sm mb-1">No activity data yet</p>
+                <p class="text-muted-foreground text-xs">Start processing HR tasks to see activity</p>
+              </div>
+            }
+          </div>
+        </div>
       </div>
 
-      <!-- Leave Requests -->
+      <!-- Recent Leave Requests — variant 02 avatar rows -->
       <div class="mb-8">
-        <z-card [zTitle]="'Recent Leave Requests'" [zDescription]="'Pending approval'" [zHeaderBorder]="true">
-          @if (recentLeaveRequests.length > 0) {
-          <div class="overflow-x-auto">
-            <table class="w-full">
-              <thead>
-                <tr class="border-b">
-                  <th class="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Employee</th>
-                  <th class="text-left py-3 px-2 text-sm font-medium text-muted-foreground">Type</th>
-                  <th class="text-left py-3 px-2 text-sm font-medium text-muted-foreground">From</th>
-                  <th class="text-left py-3 px-2 text-sm font-medium text-muted-foreground">To</th>
-                  <th class="text-left py-3 px-2 text-sm font-medium text-muted-foreground">Days</th>
-                  <th class="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (leave of recentLeaveRequests; track leave.id) {
-                <tr class="border-b last:border-0">
-                  <td class="py-3 px-4">
-                    <span class="text-foreground font-medium text-sm">{{leave.employee}}</span>
-                  </td>
-                  <td class="py-3 px-2">
-                    <z-badge>{{leave.type}}</z-badge>
-                  </td>
-                  <td class="py-3 px-2 text-sm">{{leave.from}}</td>
-                  <td class="py-3 px-2 text-sm">{{leave.to}}</td>
-                  <td class="py-3 px-2">
-                    <span class="text-foreground font-medium text-sm">{{leave.days}}</span>
-                  </td>
-                  <td class="py-3 px-4">
-                    <z-badge zType="secondary">{{leave.status}}</z-badge>
-                  </td>
-                </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-          }
-          @if (recentLeaveRequests.length === 0) {
-          <div class="flex flex-col items-center justify-center py-8">
-            <div class="flex items-center justify-center w-14 h-14 rounded-full bg-muted mb-3">
-              <z-icon zType="calendar" class="text-green-500 text-2xl" />
+        <div class="bg-card rounded-xl border border-border shadow-sm">
+          <div class="p-5 border-b border-border flex items-start justify-between">
+            <div>
+              <h3 class="text-base font-semibold tracking-tight text-foreground">Recent Leave Requests</h3>
+              <p class="text-[12px] text-muted-foreground mt-0.5">
+                Pending approval{{ recentLeaveRequests.length ? ' · ' + recentLeaveRequests.length + ' request' + (recentLeaveRequests.length === 1 ? '' : 's') : '' }}
+              </p>
             </div>
-            <p class="text-foreground font-medium text-sm mb-1">No pending leave requests</p>
-            <p class="text-muted-foreground text-xs">All leave requests have been processed</p>
+            <div class="flex items-center gap-2">
+              <button z-button zType="outline" zSize="sm" class="text-[11px] h-7 px-2.5">Filter</button>
+              <button z-button zSize="sm" class="text-[11px] h-7 px-2.5" (click)="navigateTo('/leave/approvals')">View all</button>
+            </div>
           </div>
+
+          @if (recentLeaveRequests.length === 0) {
+            <div class="flex flex-col items-center justify-center py-12">
+              <div class="flex items-center justify-center w-14 h-14 rounded-full bg-muted mb-3">
+                <z-icon zType="calendar" class="text-emerald-500 text-2xl" />
+              </div>
+              <p class="text-foreground font-medium text-sm mb-1">No pending leave requests</p>
+              <p class="text-muted-foreground text-xs">All leave requests have been processed</p>
+            </div>
+          } @else {
+            <ul class="divide-y divide-border">
+              @for (leave of recentLeaveRequests; track leave.id; let i = $index) {
+                <li class="px-5 py-4 flex items-center gap-4 hover:bg-muted/40 transition">
+                  <span class="w-9 h-9 rounded-full text-white text-[12px] font-semibold flex items-center justify-center shrink-0 bg-gradient-to-br"
+                    [class]="getAvatarGradient(i)">
+                    {{ getInitials(leave.employee) }}
+                  </span>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-[13px] font-medium text-foreground truncate">{{ leave.employee }}</p>
+                    <div class="flex items-center gap-2 mt-1 flex-wrap">
+                      <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-foreground text-background text-[10px] font-medium">{{ leave.type }}</span>
+                      <span class="font-mono text-[11px] text-muted-foreground">{{ leave.from }} → {{ leave.to }}</span>
+                      <span class="text-[11px] text-muted-foreground">· {{ leave.days }} day{{ leave.days === 1 ? '' : 's' }}</span>
+                    </div>
+                  </div>
+                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-300 ring-1 ring-amber-200 dark:ring-amber-500/30 text-[11px] font-medium shrink-0">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>{{ leave.status }}
+                  </span>
+                  <div class="flex items-center gap-1.5 shrink-0">
+                    <button z-button zType="outline" zSize="sm" class="text-[11px] h-7 px-2.5" (click)="navigateTo('/leave/approvals')">Reject</button>
+                    <button z-button zSize="sm" class="text-[11px] h-7 px-2.5 bg-emerald-600 hover:bg-emerald-700 text-white" (click)="navigateTo('/leave/approvals')">Approve</button>
+                  </div>
+                </li>
+              }
+            </ul>
           }
-        </z-card>
+        </div>
       </div>
       }
       }

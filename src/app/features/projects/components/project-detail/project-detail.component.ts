@@ -5,6 +5,8 @@ import { ProjectService } from '../../services/project.service';
 import { Project, ProjectTransactions } from '../../models/project.model';
 import { ZardDialogService } from '@/shared/components/dialog/dialog.service';
 import { InvoiceFormDialogComponent, InvoiceFormDialogData } from '@/features/e-invoices/components/invoice-form-dialog/invoice-form-dialog.component';
+import { ProjectFormDialogComponent } from '../project-form-dialog/project-form-dialog.component';
+import { BillFormDialogComponent } from '@/features/finance/components/bill-form-dialog/bill-form-dialog.component';
 
 @Component({
   selector: 'app-project-detail',
@@ -54,7 +56,19 @@ export class ProjectDetailComponent implements OnInit {
 
   edit() {
     const p = this.project();
-    if (p) this.router.navigate(['/projects', p.public_id, 'edit']);
+    if (!p) return;
+    this.dialogService.create({
+      zContent: ProjectFormDialogComponent,
+      zHideFooter: true,
+      zClosable: false,
+      zMaskClosable: false,
+      zWidth: '70vw',
+      zCustomClasses: 'p-0 gap-0 overflow-hidden !left-auto !right-4 !top-4 !bottom-4 !translate-x-0 !translate-y-0 !max-w-none h-[calc(100vh-2rem)] rounded-xl',
+      zData: {
+        project: p,
+        onSuccess: () => this.load(p.public_id)
+      }
+    });
   }
 
   createInvoice() {
@@ -62,18 +76,33 @@ export class ProjectDetailComponent implements OnInit {
     if (!p) return;
     this.dialogService.create<InvoiceFormDialogComponent, any>({
       zContent: InvoiceFormDialogComponent,
+      zHideFooter: true,
+      zClosable: false,
+      zMaskClosable: false,
+      zWidth: '70vw',
+      zCustomClasses: 'p-0 gap-0 overflow-hidden !left-auto !right-4 !top-4 !bottom-4 !translate-x-0 !translate-y-0 !max-w-none h-[calc(100vh-2rem)] rounded-xl',
       zData: {
         projectId: p.id,
         onSuccess: () => this.load(p.public_id)
-      } as InvoiceFormDialogData,
-      zCustomClasses: 'invoice-form-dialog max-w-[1280px]',
-      zMaskClosable: false
+      } as InvoiceFormDialogData
     });
   }
 
   createBill() {
     const p = this.project();
-    if (p) this.router.navigate(['/finance/bills/new'], { queryParams: { project_id: p.id } });
+    if (!p) return;
+    this.dialogService.create({
+      zContent: BillFormDialogComponent,
+      zHideFooter: true,
+      zClosable: false,
+      zMaskClosable: false,
+      zWidth: '70vw',
+      zCustomClasses: 'p-0 gap-0 overflow-hidden !left-auto !right-4 !top-4 !bottom-4 !translate-x-0 !translate-y-0 !max-w-none h-[calc(100vh-2rem)] rounded-xl',
+      zData: {
+        projectPublicId: p.public_id,
+        onSuccess: () => this.load(p.public_id)
+      }
+    });
   }
 
   formatMoney(v: number | null | undefined, currency = 'MYR') {

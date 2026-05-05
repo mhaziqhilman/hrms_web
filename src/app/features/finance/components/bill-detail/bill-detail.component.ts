@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FinanceService } from '../../services/finance.service';
 import { Bill } from '../../models/finance.model';
+import { ZardDialogService } from '@/shared/components/dialog/dialog.service';
+import { BillFormDialogComponent } from '../bill-form-dialog/bill-form-dialog.component';
 
 @Component({
   selector: 'app-bill-detail',
@@ -15,6 +17,7 @@ export class BillDetailComponent implements OnInit {
   private financeService = inject(FinanceService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private dialogService = inject(ZardDialogService);
 
   loading = signal(true);
   bill = signal<Bill | null>(null);
@@ -61,7 +64,19 @@ export class BillDetailComponent implements OnInit {
 
   edit() {
     const b = this.bill();
-    if (b) this.router.navigate(['/finance/bills', b.public_id, 'edit']);
+    if (!b) return;
+    this.dialogService.create({
+      zContent: BillFormDialogComponent,
+      zHideFooter: true,
+      zClosable: false,
+      zMaskClosable: false,
+      zWidth: '70vw',
+      zCustomClasses: 'p-0 gap-0 overflow-hidden !left-auto !right-4 !top-4 !bottom-4 !translate-x-0 !translate-y-0 !max-w-none h-[calc(100vh-2rem)] rounded-xl',
+      zData: {
+        bill: b,
+        onSuccess: () => this.load(b.public_id)
+      }
+    });
   }
 
   remove() {

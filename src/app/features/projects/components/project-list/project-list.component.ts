@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { ProjectService } from '../../services/project.service';
 import { Project, ProjectStatus } from '../../models/project.model';
 
@@ -10,6 +10,8 @@ import { ZardIconComponent } from '@/shared/components/icon/icon.component';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { ZardMenuImports } from '@/shared/components/menu/menu.imports';
 import { ZardTableImports } from '@/shared/components/table/table.imports';
+import { ZardDialogService } from '@/shared/components/dialog/dialog.service';
+import { ProjectFormDialogComponent } from '../project-form-dialog/project-form-dialog.component';
 
 type BadgeType = 'soft-gray' | 'soft-blue' | 'soft-green' | 'soft-yellow' | 'soft-red';
 
@@ -19,7 +21,6 @@ type BadgeType = 'soft-gray' | 'soft-blue' | 'soft-green' | 'soft-yellow' | 'sof
   imports: [
     CommonModule,
     FormsModule,
-    RouterLink,
     ZardButtonComponent,
     ZardIconComponent,
     ZardBadgeComponent,
@@ -31,6 +32,7 @@ type BadgeType = 'soft-gray' | 'soft-blue' | 'soft-green' | 'soft-yellow' | 'sof
 export class ProjectListComponent implements OnInit {
   private projectService = inject(ProjectService);
   private router = inject(Router);
+  private dialogService = inject(ZardDialogService);
 
   loading = signal(true);
   projects = signal<Project[]>([]);
@@ -105,11 +107,45 @@ export class ProjectListComponent implements OnInit {
   }
 
   goToCreate() {
-    this.router.navigate(['/projects/new']);
+    this.openCreateDialog('manual');
   }
 
   goToCreateFromPo() {
-    this.router.navigate(['/projects/new'], { queryParams: { source: 'po' } });
+    this.openCreateDialog('po');
+  }
+
+  private openCreateDialog(source: 'manual' | 'po') {
+    this.dialogService.create({
+      zContent: ProjectFormDialogComponent,
+      zHideFooter: true,
+      zClosable: false,
+      zMaskClosable: false,
+      zWidth: '70vw',
+      zCustomClasses: 'p-0 gap-0 overflow-hidden !left-auto !right-4 !top-4 !bottom-4 !translate-x-0 !translate-y-0 !max-w-none h-[calc(100vh-2rem)] rounded-xl',
+      zData: {
+        source,
+        onSuccess: (project: Project) => {
+          this.load(this.pagination().page);
+          this.router.navigate(['/projects', project.public_id]);
+        }
+      }
+    });
+  }
+
+  goToEdit(p: Project, ev?: MouseEvent) {
+    if (ev) ev.stopPropagation();
+    this.dialogService.create({
+      zContent: ProjectFormDialogComponent,
+      zHideFooter: true,
+      zClosable: false,
+      zMaskClosable: false,
+      zWidth: '70vw',
+      zCustomClasses: 'p-0 gap-0 overflow-hidden !left-auto !right-4 !top-4 !bottom-4 !translate-x-0 !translate-y-0 !max-w-none h-[calc(100vh-2rem)] rounded-xl',
+      zData: {
+        project: p,
+        onSuccess: () => this.load(this.pagination().page)
+      }
+    });
   }
 
   badgeType(status: ProjectStatus): BadgeType {

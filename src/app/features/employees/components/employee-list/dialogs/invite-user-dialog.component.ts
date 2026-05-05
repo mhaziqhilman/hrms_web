@@ -2,11 +2,13 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ZardDialogRef } from '@/shared/components/dialog/dialog-ref';
+import { ZardSelectComponent } from '@/shared/components/select/select.component';
+import { ZardSelectItemComponent } from '@/shared/components/select/select-item.component';
 
 @Component({
   selector: 'app-invite-user-dialog',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ZardSelectComponent, ZardSelectItemComponent],
   template: `
     <div class="space-y-4">
       <p class="text-sm text-muted-foreground">
@@ -34,18 +36,14 @@ import { ZardDialogRef } from '@/shared/components/dialog/dialog-ref';
 
       <!-- Role Dropdown -->
       <div class="space-y-2">
-        <label for="inviteRole" class="block text-sm font-normal text-foreground">
+        <label class="block text-sm font-normal text-foreground">
           Role
         </label>
-        <select
-          id="inviteRole"
-          class="flex w-full h-9 rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-          [(ngModel)]="role"
-        >
-          <option value="staff">Staff</option>
-          <option value="manager">Manager</option>
-          <option value="admin">Admin</option>
-        </select>
+        <z-select [(ngModel)]="role" zPlaceholder="Select a role">
+          <z-select-item zValue="staff">Staff</z-select-item>
+          <z-select-item zValue="manager">Manager</z-select-item>
+          <z-select-item zValue="admin">Admin</z-select-item>
+        </z-select>
       </div>
     </div>
   `

@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { ZardIconComponent } from '@/shared/components/icon/icon.component';
@@ -56,6 +57,7 @@ export interface InvoiceFormDialogData {
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
+    RouterLink,
     ZardButtonComponent,
     ZardIconComponent,
     ZardDividerComponent,
@@ -83,6 +85,15 @@ export class InvoiceFormDialogComponent implements OnInit {
   // Project linkage
   projects = signal<Project[]>([]);
   selectedProjectId = signal<number | null>(null);
+  linkProjectEnabled = signal<boolean>(false);
+
+  toggleLinkProject() {
+    const next = !this.linkProjectEnabled();
+    this.linkProjectEnabled.set(next);
+    if (!next) {
+      this.selectedProjectId.set(null);
+    }
+  }
 
   // Mode
   isEditMode = false;
@@ -186,6 +197,7 @@ export class InvoiceFormDialogComponent implements OnInit {
       this.addItem();
       if (this.dialogData?.projectId) {
         this.selectedProjectId.set(this.dialogData.projectId);
+        this.linkProjectEnabled.set(true);
       }
     }
   }
@@ -250,6 +262,7 @@ export class InvoiceFormDialogComponent implements OnInit {
 
   private populateForm(invoice: Invoice) {
     this.selectedProjectId.set(invoice.project_id ?? null);
+    this.linkProjectEnabled.set(invoice.project_id != null);
     this.detailsForm.patchValue({
       invoiceType: invoice.invoice_type,
       currency: invoice.currency,

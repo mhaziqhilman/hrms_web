@@ -32,6 +32,16 @@ export interface AdminDashboardData {
     totalPCB: number;
     totalNetSalary: number;
   };
+  payrollTrend: {
+    year: number;
+    month: number;
+    label: string;
+    total: number;
+    gross: number;
+    statutory: number;
+    pcb: number;
+    isCurrent: boolean;
+  }[];
   claimsPendingPayment: {
     id: number;
     employee: string;

@@ -11,6 +11,8 @@ import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { ZardMenuImports } from '@/shared/components/menu/menu.imports';
 import { ZardTableImports } from '@/shared/components/table/table.imports';
 import { ZardDividerComponent } from '@/shared/components/divider/divider.component';
+import { ZardDialogService } from '@/shared/components/dialog/dialog.service';
+import { BillFormDialogComponent } from '../bill-form-dialog/bill-form-dialog.component';
 
 type BadgeType = 'soft-gray' | 'soft-blue' | 'soft-purple' | 'soft-yellow' | 'soft-green' | 'soft-red';
 
@@ -33,6 +35,7 @@ type BadgeType = 'soft-gray' | 'soft-blue' | 'soft-purple' | 'soft-yellow' | 'so
 export class BillListComponent implements OnInit {
   private financeService = inject(FinanceService);
   private router = inject(Router);
+  private dialogService = inject(ZardDialogService);
 
   loading = signal(true);
   bills = signal<Bill[]>([]);
@@ -115,7 +118,41 @@ export class BillListComponent implements OnInit {
   }
 
   goToCreate() {
-    this.router.navigate(['/finance/bills/new']);
+    this.dialogService.create({
+      zContent: BillFormDialogComponent,
+      zHideFooter: true,
+      zClosable: false,
+      zMaskClosable: false,
+      zWidth: '70vw',
+      zCustomClasses: 'p-0 gap-0 overflow-hidden !left-auto !right-4 !top-4 !bottom-4 !translate-x-0 !translate-y-0 !max-w-none h-[calc(100vh-2rem)] rounded-xl',
+      zData: {
+        onSuccess: (bill: Bill) => {
+          this.load(this.pagination().page);
+          this.router.navigate(['/finance/bills', bill.public_id]);
+        }
+      }
+    });
+  }
+
+  goToEdit(b: Bill, ev?: MouseEvent) {
+    if (ev) ev.stopPropagation();
+    this.financeService.getBill(b.public_id).subscribe({
+      next: res => {
+        if (!res.success) return;
+        this.dialogService.create({
+          zContent: BillFormDialogComponent,
+          zHideFooter: true,
+          zClosable: false,
+          zMaskClosable: false,
+          zWidth: '70vw',
+          zCustomClasses: 'p-0 gap-0 overflow-hidden !left-auto !right-4 !top-4 !bottom-4 !translate-x-0 !translate-y-0 !max-w-none h-[calc(100vh-2rem)] rounded-xl',
+          zData: {
+            bill: res.data,
+            onSuccess: () => this.load(this.pagination().page)
+          }
+        });
+      }
+    });
   }
 
   formatMoney(v: number | string | null | undefined): string {

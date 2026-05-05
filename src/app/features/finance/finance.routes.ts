@@ -17,24 +17,10 @@ export const FINANCE_ROUTES: Routes = [
     data: { title: 'Bills & POs' }
   },
   {
-    path: 'bills/new',
-    canActivate: [roleGuard(['super_admin', 'admin', 'manager'])],
-    loadComponent: () => import('./components/bill-form/bill-form.component')
-      .then(m => m.BillFormComponent),
-    data: { title: 'New Bill' }
-  },
-  {
     path: 'bills/:id',
     canActivate: [roleGuard(['super_admin', 'admin', 'manager'])],
     loadComponent: () => import('./components/bill-detail/bill-detail.component')
       .then(m => m.BillDetailComponent),
     data: { title: 'Bill Detail' }
-  },
-  {
-    path: 'bills/:id/edit',
-    canActivate: [roleGuard(['super_admin', 'admin', 'manager'])],
-    loadComponent: () => import('./components/bill-form/bill-form.component')
-      .then(m => m.BillFormComponent),
-    data: { title: 'Edit Bill' }
   }
 ];
