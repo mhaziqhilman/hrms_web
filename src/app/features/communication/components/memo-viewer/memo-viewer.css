@@ -1,1 +1,139 @@
-/* Memo Viewer - ZardUI Migration Complete */
+/* Memo Viewer — Workspace split (Variant 2)
+   Scoped typography for the rendered Quill HTML, since the project
+   does not use @tailwindcss/typography. */
+
+/* Fill the routed ('full' tier) area so the header rail can stick. */
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+}
+
+/* Edge-to-edge header rail — mirrors the memo editor's .memo-sticky-bar
+   so navigating viewer <-> editor keeps the bar pinned in the same place. */
+.memo-viewer-bar {
+  position: sticky;
+  top: 64px;
+  z-index: 20;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+:host-context(.dark) .memo-viewer-bar {
+  background: rgba(15, 23, 42, 0.92);
+}
+
+.memo-body {
+  word-wrap: break-word;
+}
+
+.memo-body p {
+  margin: 0.75rem 0;
+}
+
+.memo-body p:first-child {
+  margin-top: 0;
+}
+
+.memo-body strong {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.memo-body h1,
+.memo-body h2,
+.memo-body h3 {
+  color: var(--foreground);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-top: 1.75rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.25;
+}
+
+.memo-body h1 { font-size: 1.5rem; }
+.memo-body h2 { font-size: 1.25rem; }
+.memo-body h3 { font-size: 1.0625rem; }
+
+.memo-body ul,
+.memo-body ol {
+  margin: 0.75rem 0;
+  padding-left: 1.5rem;
+}
+
+.memo-body ul { list-style: disc; }
+.memo-body ol { list-style: decimal; }
+
+.memo-body li {
+  margin: 0.25rem 0;
+}
+
+.memo-body li > p {
+  margin: 0;
+}
+
+.memo-body blockquote {
+  border-left: 3px solid var(--border);
+  padding: 0.25rem 0 0.25rem 1rem;
+  margin: 1rem 0;
+  color: var(--muted-foreground);
+  font-style: normal;
+}
+
+.memo-body a {
+  color: var(--foreground);
+  text-decoration: underline;
+  text-decoration-color: var(--border);
+  text-underline-offset: 3px;
+}
+.memo-body a:hover {
+  text-decoration-color: var(--foreground);
+}
+
+.memo-body code {
+  font-family: 'Geist Mono', ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.875em;
+  background: var(--muted);
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+}
+
+.memo-body pre {
+  background: var(--muted);
+  color: var(--foreground);
+  border-radius: 0.5rem;
+  padding: 0.875rem 1rem;
+  overflow-x: auto;
+  font-size: 0.875rem;
+  margin: 1rem 0;
+}
+
+.memo-body pre code {
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+}
+
+.memo-body hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 1.5rem 0;
+}
+
+/* Pictures display full size, bleeding edge-to-edge of the section
+   (cancels the section's p-8 = 2rem padding). ::ng-deep is required:
+   [innerHTML] content isn't tagged for view-encapsulation, and !important
+   is required to beat the editor's inline img styles. */
+:host ::ng-deep .memo-body img {
+  display: block;
+  width: calc(100% + 4rem) !important;
+  max-width: none !important;
+  height: auto !important;
+  margin: 1.5rem -2rem !important;
+  border-radius: 0 !important;
+}
+
+/* Quill class-driven alignment */
+.memo-body .ql-align-center { text-align: center; }
+.memo-body .ql-align-right  { text-align: right; }
+.memo-body .ql-align-justify { text-align: justify; }

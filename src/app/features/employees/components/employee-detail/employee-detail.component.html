@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-background">
+<div>
 
   <!-- ==================== LOADING STATE ==================== -->
   @if (loading()) {
@@ -100,11 +100,17 @@
 
       <!-- ===== IDENTITY ROW ===== -->
       <div class="flex items-center gap-4 mb-6">
-        <z-avatar
-          [zSrc]="employee()!.photo_url || employee()!.user?.avatar_url || undefined"
-          [zFallback]="employee()!.full_name.charAt(0)"
-          [zSize]="64"
-          zShape="circle" />
+        <div class="relative shrink-0">
+          @if (employee()!.photo_url || employee()!.user?.avatar_url) {
+            <img [src]="employee()!.photo_url || employee()!.user?.avatar_url"
+                 [alt]="employee()!.full_name"
+                 class="w-16 h-16 rounded-2xl object-cover" />
+          } @else {
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-700 dark:from-slate-700 dark:to-slate-800 text-white text-lg font-medium flex items-center justify-center tracking-tight">
+              {{ initials() }}
+            </div>
+          }
+        </div>
 
         <div class="flex-1 min-w-0">
           <!-- Name + badge -->
@@ -146,12 +152,31 @@
         </div>
       </div>
 
-      <!-- ===== TABS ===== -->
-      <z-tab-group #tabGroup (zTabChange)="onTabChange($event)" [zShowArrow]="false" class="mb-8">
+      <!-- ===== TAB NAVIGATION (pill segmented control) ===== -->
+      <div class="border-t border-border pt-5 mb-6">
+        <div class="bg-muted h-10 inline-flex items-center justify-center p-1 rounded-md text-muted-foreground text-sm">
+          @for (tab of tabs; track tab.id) {
+            <button
+              type="button"
+              class="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 font-normal ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 cursor-pointer"
+              [class.bg-background]="activeTab() === tab.id"
+              [class.shadow-sm]="activeTab() === tab.id"
+              [class.text-foreground]="activeTab() === tab.id"
+              [class.text-muted-foreground]="activeTab() !== tab.id"
+              [class.hover:text-foreground]="activeTab() !== tab.id"
+              (click)="setActiveTab(tab.id)">
+              {{ tab.label }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- ===== TAB CONTENT ===== -->
+      @switch (activeTab()) {
 
         <!-- ==================== PERSONAL INFORMATION TAB ==================== -->
-        <z-tab label="Personal Information" icon="user">
-          <div class="pt-6">
+        @case ('personal') {
+          <div class="pt-0">
           <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
 
             <!-- Left Column -->
@@ -351,8 +376,7 @@
                       <dd class="text-sm text-foreground">{{ employee()!.employment_type || '-' }}</dd>
                     </div>
                   </dl>
-                  <button (click)="selectTab('contract')"
-                    class="inline-flex items-center gap-1 text-xs text-primary hover:underline mt-4 cursor-pointer">
+                  <button z-button zType="link" zSize="sm" (click)="selectTab('contract')" class="mt-4">
                     View contract
                     <z-icon [zType]="$any('chevron-right')" zSize="sm" />
                   </button>
@@ -361,11 +385,11 @@
             </div>
           </div>
           </div>
-        </z-tab>
+        }
 
         <!-- ==================== CONTRACT TAB ==================== -->
-        <z-tab label="Contract" icon="file-text">
-          <div class="pt-6">
+        @case ('contract') {
+          <div class="pt-0">
           <div class="max-w-3xl">
             <div class="rounded-xl border border-border bg-card">
               <div class="flex items-center justify-between px-6 py-4 border-b border-border">
@@ -468,11 +492,11 @@
             </div>
           </div>
           </div>
-        </z-tab>
+        }
 
         <!-- ==================== PAYROLL TAB ==================== -->
-        <z-tab label="Payroll" icon="wallet">
-          <div class="pt-6">
+        @case ('payroll') {
+          <div class="pt-0">
           <div class="space-y-6">
             <div class="rounded-xl border border-border bg-card">
               <div class="flex items-center justify-between px-6 py-4 border-b border-border">
@@ -567,11 +591,11 @@
             </div>
           </div>
           </div>
-        </z-tab>
+        }
 
         <!-- ==================== DOCUMENT TAB ==================== -->
-        <z-tab label="Document" icon="folder-open">
-          <div class="pt-6 space-y-5">
+        @case ('document') {
+          <div class="pt-0 space-y-5">
 
             <!-- Header row -->
             <div class="flex items-center justify-between">
@@ -627,11 +651,11 @@
               [showActions]="true">
             </app-file-list>
           </div>
-        </z-tab>
+        }
 
         <!-- ==================== STATUTORY TAB ==================== -->
-        <z-tab label="Statutory" icon="shield">
-          <div class="pt-6">
+        @case ('statutory') {
+          <div class="pt-0">
           <div class="max-w-3xl">
             <div class="rounded-xl border border-border bg-card">
               <div class="flex items-center justify-between px-6 py-4 border-b border-border">
@@ -703,11 +727,11 @@
             </div>
           </div>
           </div>
-        </z-tab>
+        }
 
         <!-- ==================== BANKING TAB ==================== -->
-        <z-tab label="Banking" icon="landmark">
-          <div class="pt-6">
+        @case ('banking') {
+          <div class="pt-0">
           <div class="max-w-3xl">
             <div class="rounded-xl border border-border bg-card">
               <div class="flex items-center justify-between px-6 py-4 border-b border-border">
@@ -739,9 +763,9 @@
             </div>
           </div>
           </div>
-        </z-tab>
+        }
 
-      </z-tab-group>
+      }
 
     </div>
   }

@@ -1,9 +1,9 @@
-<div class="max-w-7xl mx-auto">
+<div>
   <!-- Header -->
   <div class="flex items-center justify-between mb-6">
     <div>
-      <h1 class="text-2xl font-semibold">Audit Log</h1>
-      <p class="text-muted-foreground text-sm mt-1">Track all admin actions and data changes across the system</p>
+      <h1 class="text-[28px] font-semibold tracking-tight leading-none text-foreground">Audit Log</h1>
+      <p class="text-[13px] text-muted-foreground mt-2">Track all admin actions and data changes across the system</p>
     </div>
     <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted text-muted-foreground text-xs font-normal">
       <z-icon [zType]="$any('shield-check')" class="w-3.5 h-3.5" />
@@ -17,12 +17,12 @@
       <!-- Search -->
       <div class="relative flex-1 min-w-[180px] max-w-md">
         <z-icon zType="search"
-          class="absolute left-1.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+          class="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
         <input type="text"
           [value]="actionFilter()"
           (input)="onSearch($any($event.target).value)"
           placeholder="Search by action..."
-          class="w-full pl-8 pr-2 py-2 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent" />
+          class="w-full pl-10 pr-3 py-2 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent" />
       </div>
 
       <!-- Entity Type Filter -->

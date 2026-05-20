@@ -1,7 +1,10 @@
-import { Component, OnInit, signal, computed, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { Subject, takeUntil } from 'rxjs';
 import { LeaveService } from '../../services/leave.service';
+import { LeaveRefreshService } from '../../services/leave-refresh.service';
+import { LeaveFilterService } from '../../services/leave-filter.service';
 import { AuthService } from '@/core/services/auth.service';
 import {
   Leave,
@@ -35,9 +38,27 @@ import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.com
   templateUrl: './leave-calendar.component.html',
   styleUrl: './leave-calendar.component.css'
 })
-export class LeaveCalendarComponent implements OnInit {
+export class LeaveCalendarComponent implements OnInit, OnDestroy {
   private leaveService = inject(LeaveService);
   private authService = inject(AuthService);
+  private refreshService = inject(LeaveRefreshService);
+  private filters = inject(LeaveFilterService);
+  private destroy$ = new Subject<void>();
+
+  // Admin / super_admin can scope the calendar to a single employee via the
+  // page-level staff picker. Everyone else sees the full set the backend returned.
+  private filteredLeaves = computed<Leave[]>(() => {
+    const all = this.leaves();
+    const role = this.authService.getCurrentUserValue()?.role;
+    const isPrivileged = role === 'admin' || role === 'super_admin';
+    if (!isPrivileged) return all;
+    const publicId = this.filters.selectedEmployeeId();
+    if (!publicId) return all;
+    // Leave.employee carries internal integer id, not public_id — translate.
+    const selected = this.filters.employees().find((e) => e.public_id === publicId);
+    if (!selected) return all;
+    return all.filter((l) => l.employee_id === selected.id);
+  });
 
   // State
   currentYear = signal(new Date().getFullYear());
@@ -97,7 +118,7 @@ export class LeaveCalendarComponent implements OnInit {
   // Legend items
   legendItems = computed(() => {
     const uniqueTypes = new Set<string>();
-    this.leaves().forEach(l => {
+    this.filteredLeaves().forEach(l => {
       if (l.leave_type?.name) uniqueTypes.add(l.leave_type.name);
     });
 
@@ -130,6 +151,15 @@ export class LeaveCalendarComponent implements OnInit {
   ngOnInit(): void {
     this.loadCalendarData();
     this.loadLeaveTypes();
+
+    this.refreshService.refresh$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.loadCalendarData());
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   loadCalendarData(): void {
@@ -251,11 +281,11 @@ export class LeaveCalendarComponent implements OnInit {
   }
 
   getMonthlyApprovedCount(): number {
-    return this.leaves().filter(l => l.status === LeaveStatus.APPROVED).length;
+    return this.filteredLeaves().filter(l => l.status === LeaveStatus.APPROVED).length;
   }
 
   getMonthlyPendingCount(): number {
-    return this.leaves().filter(l => l.status === LeaveStatus.PENDING).length;
+    return this.filteredLeaves().filter(l => l.status === LeaveStatus.PENDING).length;
   }
 
   getInitials(name: string): string {
@@ -318,7 +348,7 @@ export class LeaveCalendarComponent implements OnInit {
   }
 
   private getLeavesForDate(dateStr: string): Leave[] {
-    return this.leaves().filter(leave => {
+    return this.filteredLeaves().filter(leave => {
       return dateStr >= leave.start_date && dateStr <= leave.end_date;
     });
   }

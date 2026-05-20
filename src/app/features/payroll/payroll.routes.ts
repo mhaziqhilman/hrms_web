@@ -18,6 +18,6 @@ export const PAYROLL_ROUTES: Routes = [
       import('./components/payslip-view/payslip-view.component').then(
         (m) => m.PayslipViewComponent
       ),
-    data: { title: 'Payslip' }
+    data: { title: 'Payslip', layout: 'reading' }
   }
 ];

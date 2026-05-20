@@ -5,8 +5,8 @@
       <!-- Header with Last Updated -->
       <div class="flex items-center justify-between mb-8">
         <div>
-          <h1 class="text-2xl font-semibold text-foreground mb-1">HR Admin Dashboard</h1>
-          <p class="text-muted-foreground">Good morning, Here's whats going on today</p>
+          <h1 class="text-[28px] font-semibold tracking-tight leading-none text-foreground">HR Admin Dashboard</h1>
+          <p class="text-[13px] text-muted-foreground mt-2">Here's what's going on across your organization today</p>
         </div>
         @if (lastUpdated) {
         <div class="flex items-center gap-2 text-sm text-muted-foreground">
@@ -558,12 +558,18 @@
           </div>
 
           @if (recentLeaveRequests.length === 0) {
-            <div class="flex flex-col items-center justify-center py-12">
-              <div class="flex items-center justify-center w-14 h-14 rounded-full bg-muted mb-3">
-                <z-icon zType="calendar" class="text-emerald-500 text-2xl" />
+            <div class="dotted-bg px-5 py-12 flex flex-col items-center justify-center border-t border-border">
+              <div class="relative">
+                <div class="absolute inset-0 rounded-full bg-emerald-200/40 dark:bg-emerald-400/20 blur-md"></div>
+                <div class="relative w-12 h-12 rounded-full bg-card ring-1 ring-emerald-200 dark:ring-emerald-500/40 shadow-sm flex items-center justify-center">
+                  <z-icon zType="check" class="text-emerald-600 dark:text-emerald-400 text-xl" />
+                </div>
               </div>
-              <p class="text-foreground font-medium text-sm mb-1">No pending leave requests</p>
-              <p class="text-muted-foreground text-xs">All leave requests have been processed</p>
+              <p class="text-[13px] font-medium text-foreground mt-4">No pending leave requests</p>
+              <p class="text-[12px] text-muted-foreground mt-0.5">All leave requests have been processed</p>
+              <button z-button zType="outline" zSize="sm" class="mt-4 text-[11px] h-7 px-2.5" (click)="navigateTo('/leave/approvals')">
+                View all leave requests
+              </button>
             </div>
           } @else {
             <ul class="divide-y divide-border">

@@ -1,6 +1,6 @@
 <div class="mb-8">
-  <h1 class="text-2xl font-semibold text-foreground mb-2">My Dashboard</h1>
-  <p class="text-muted-foreground">Welcome back! Here's your personal overview.</p>
+  <h1 class="text-[28px] font-semibold tracking-tight leading-none text-foreground">My Dashboard</h1>
+  <p class="text-[13px] text-muted-foreground mt-2">Welcome back! Here's your personal overview.</p>
 </div>
 
 <!-- Loading Skeleton -->
@@ -22,42 +22,49 @@
         </div>
       </div>
     </div>
-    <!-- Leave balance card skeletons -->
-    <div>
-      <z-skeleton class="h-6 w-32 mb-4" />
-      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-        @for (i of [1,2,3,4]; track i) {
-        <div class="rounded-xl border bg-card p-6 space-y-3">
-          <z-skeleton class="h-4 w-24" />
-          <z-skeleton class="h-7 w-16" />
-          <z-skeleton class="h-2 w-full rounded-full" />
-          <z-skeleton class="h-3 w-32" />
-        </div>
-        }
-      </div>
-    </div>
-    <!-- Two-column content skeletons -->
-    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-      <div class="rounded-xl border bg-card p-6 space-y-3">
-        <z-skeleton class="h-5 w-36 mb-2" />
-        <z-skeleton class="h-10 w-full rounded-lg" />
-        @for (i of [1,2,3]; track i) {
-        <z-skeleton class="h-12 w-full rounded-lg" />
-        }
-      </div>
-      <div class="rounded-xl border bg-card p-6 space-y-4">
-        <z-skeleton class="h-5 w-28 mb-2" />
-        @for (i of [1,2,3]; track i) {
-        <div class="flex items-center gap-3 py-2">
-          <z-skeleton class="h-4 w-4 rounded-full" />
-          <div class="space-y-2 flex-grow">
-            <z-skeleton class="h-4 w-40" />
-            <z-skeleton class="h-3 w-24" />
+    <!-- 3-col layout skeleton -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="lg:col-span-2 space-y-6">
+        <div class="rounded-xl border bg-card p-5">
+          <z-skeleton class="h-5 w-32 mb-4" />
+          <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div class="md:col-span-2 rounded-xl border p-4 space-y-3">
+              <z-skeleton class="h-20 w-20 rounded-full" />
+              <z-skeleton class="h-4 w-full" />
+            </div>
+            <div class="md:col-span-3 grid grid-cols-2 gap-3">
+              @for (i of [1,2,3,4]; track i) {
+                <div class="rounded-lg border p-3 space-y-2">
+                  <z-skeleton class="h-4 w-20" />
+                  <z-skeleton class="h-1 w-full rounded-full" />
+                  <z-skeleton class="h-3 w-24" />
+                </div>
+              }
+            </div>
           </div>
-          <z-skeleton class="h-6 w-16 rounded-full" />
         </div>
-        }
+        <div class="rounded-xl border bg-card p-5 space-y-3">
+          <z-skeleton class="h-5 w-40" />
+          <z-skeleton class="h-8 w-full" />
+          @for (i of [1,2,3,4,5]; track i) {
+            <z-skeleton class="h-9 w-full rounded-lg" />
+          }
+        </div>
       </div>
+      <aside class="lg:col-span-1">
+        <div class="rounded-xl border bg-card p-5 space-y-4">
+          <z-skeleton class="h-5 w-36" />
+          @for (i of [1,2,3,4,5]; track i) {
+            <div class="flex gap-3">
+              <z-skeleton class="h-10 w-1 rounded-full" />
+              <div class="flex-1 space-y-2">
+                <z-skeleton class="h-3 w-20" />
+                <z-skeleton class="h-4 w-full" />
+              </div>
+            </div>
+          }
+        </div>
+      </aside>
     </div>
   </div>
 }
@@ -90,7 +97,7 @@
 
 @if (!loading() && !error() && hasProfile()) {
   <!-- Clock In/Out Card -->
-  <div class="mb-8">
+  <div class="mb-6">
     <z-card class="bg-gradient-to-r from-primary to-primary/80 border-0">
       <div class="p-10">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
@@ -102,13 +109,13 @@
 
             @if (!isClockedIn) {
               <div class="text-primary-foreground/75 text-xl mb-5">
-                Current Time: {{ currentTime | date:'hh:mm:ss a' }}
+                Current Time: {{ currentTime() | date:'hh:mm:ss a' }}
               </div>
             }
 
             @if (isClockedIn) {
               <div class="text-primary-foreground text-2xl font-semibold mb-3">
-                Working Hours: {{ workingHours }}
+                Working Hours: {{ workingHours() }}
               </div>
             }
 
@@ -144,10 +151,10 @@
           <div class="text-center">
             <div class="bg-primary-foreground/15 rounded-lg p-8">
               <h1 class="text-primary-foreground text-6xl font-semibold mb-0">
-                {{ currentTime | date:'HH:mm' }}
+                {{ currentTime() | date:'HH:mm' }}
               </h1>
               <div class="text-primary-foreground/75 text-lg mt-2">
-                {{ currentTime | appDate }}
+                {{ currentTime() | appDate }}
               </div>
             </div>
           </div>
@@ -156,253 +163,329 @@
     </z-card>
   </div>
 
-  <!-- Leave Balance Cards -->
-  <div class="mb-8">
-    <h3 class="text-xl font-semibold text-foreground mb-4">Leave Balance</h3>
-    @if (leaveBalance.length > 0) {
-      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-        @for (leave of leaveBalance; track leave.type) {
-          <z-card class="h-full">
-            <div class="p-0">
-              <div class="flex justify-between items-start mb-5">
-                <div class="flex-grow">
-                  <span class="text-muted-foreground font-medium block text-sm">{{leave.type}}</span>
-                  <span class="text-foreground font-semibold block text-3xl">{{leave.available}}</span>
-                  <span class="text-muted-foreground text-xs">days available</span>
-                </div>
-                <div class="flex items-center justify-center w-12 h-12 rounded-md bg-primary/10">
-                  <z-icon zType="calendar" class="text-primary" />
-                </div>
-              </div>
+  <!-- Variant 02 — Hero leave card + sticky feed -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
-              <div class="space-y-2">
-                <div class="flex justify-between text-xs text-muted-foreground">
-                  <span>Total: {{leave.total}}</span>
-                  <span>Used: {{leave.used}} | Pending: {{leave.pending}}</span>
-                </div>
-                <div class="w-full bg-secondary rounded-full h-1.5">
-                  <div
-                    class="h-1.5 rounded-full transition-all"
-                    [class.bg-primary]="leave.color === 'primary'"
-                    [class.bg-green-500]="leave.color === 'success'"
-                    [class.bg-yellow-500]="leave.color === 'warning'"
-                    [class.bg-red-500]="leave.color === 'danger'"
-                    [style.width.%]="getProgressPercentage(leave)">
+    <!-- LEFT 2 cols -->
+    <div class="lg:col-span-2 space-y-4">
+
+      <!-- Leave Balance card -->
+      <section class="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+
+        <!-- Header -->
+        <header class="px-6 py-5 flex items-start justify-between gap-4">
+          <div class="min-w-0">
+            <h2 class="text-[15px] font-semibold tracking-tight text-foreground">Leave Balance</h2>
+            <p class="text-[12px] text-muted-foreground mt-0.5 flex items-center gap-2 flex-wrap">
+              <span>FY {{ currentFY }}</span>
+              @if (selectedLeaveType()) {
+                <span class="inline-flex items-center gap-1 text-[11px]">
+                  <span aria-hidden="true">·</span>
+                  <span class="w-1.5 h-1.5 rounded-full" [style.background-color]="getLeaveSliceColor(selectedLeaveType()!)"></span>
+                  <span class="font-medium text-foreground">{{ selectedLeaveType() }}</span>
+                  <span class="text-muted-foreground">selected</span>
+                  <button type="button" z-button zType="ghost" zSize="sm" class="ml-0.5" (click)="selectLeaveType(selectedLeaveType()!)" aria-label="Clear selection">
+                    <z-icon zType="x" class="text-[10px]" />
+                  </button>
+                </span>
+              }
+            </p>
+          </div>
+          <div class="flex items-center gap-1 shrink-0">
+            <button z-button zType="outline" zSize="sm" (click)="navigateTo('/leave/list')">
+              <z-icon [zType]="$any('history')" class="mr-0.5 text-[12px]" /> History
+            </button>
+            <button z-button zSize="sm" (click)="openApplyLeave()">
+              <z-icon [zType]="$any('plus')" class="mr-0.5 text-[12px]" /> Apply leave
+            </button>
+          </div>
+        </header>
+
+        @if (filteredLeaveBalance().length > 0) {
+          <div class="border-t border-border grid grid-cols-1 lg:grid-cols-12">
+
+            <!-- LEFT: Donut + summary -->
+            <div class="lg:col-span-4 p-6 bg-muted/30 border-b lg:border-b-0 lg:border-r border-border">
+              <div class="flex flex-col items-center">
+                <highcharts-chart [options]="leavePieChartOptions()" style="width: 100%; max-width: 220px; display: block;"></highcharts-chart>
+
+                <!-- Quick stats below donut -->
+                <div class="w-full grid grid-cols-3 gap-2 mt-6 pt-5 border-t border-border">
+                  <div class="text-center">
+                    <p class="font-mono text-[16px] font-semibold text-foreground leading-none tabular-nums">{{ displayStats().used }}</p>
+                    <p class="text-[10px] uppercase tracking-wide text-muted-foreground mt-1.5">Used</p>
+                  </div>
+                  <div class="text-center border-x border-border">
+                    <p class="font-mono text-[16px] font-semibold text-foreground leading-none tabular-nums">{{ displayStats().pending }}</p>
+                    <p class="text-[10px] uppercase tracking-wide text-muted-foreground mt-1.5">Pending</p>
+                  </div>
+                  <div class="text-center">
+                    <p class="font-mono text-[16px] font-semibold text-foreground leading-none tabular-nums">{{ displayStats().total }}</p>
+                    <p class="text-[10px] uppercase tracking-wide text-muted-foreground mt-1.5">Entitled</p>
                   </div>
                 </div>
               </div>
             </div>
-          </z-card>
+
+            <!-- RIGHT: Leave-type cards in 2x2 grid + next holiday -->
+            <div class="lg:col-span-8 p-6">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                @for (leave of filteredLeaveBalance(); track leave.type) {
+                  <button type="button"
+                    (click)="selectLeaveType(leave.type)"
+                    class="rounded-lg border p-4 text-left transition hover:border-foreground/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    [ngClass]="getLeaveCardClass(leave)"
+                    [class.ring-1]="selectedLeaveType() === leave.type"
+                    [style.--tw-ring-color]="selectedLeaveType() === leave.type ? getLeaveSliceColor(leave.type) : null"
+                    [style.border-color]="selectedLeaveType() === leave.type ? getLeaveSliceColor(leave.type) : null"
+                    [class.shadow-md]="selectedLeaveType() === leave.type">
+                    <div class="flex items-center justify-between mb-1.5 gap-2">
+                      <div class="flex items-center gap-2 min-w-0">
+                        <span class="w-2 h-2 rounded-full shrink-0" [style.background-color]="getLeaveSliceColor(leave.type)"></span>
+                        <p class="text-[13px] font-medium truncate" [ngClass]="getLeaveCardTextClass(leave)">{{ leave.type }}</p>
+                      </div>
+                      <span class="font-mono text-[18px] font-semibold tabular-nums shrink-0" [ngClass]="getLeaveCardValueClass(leave)">{{ formatLeaveValue(leave.available) }}</span>
+                    </div>
+                    <div class="h-1.5 rounded-full overflow-hidden" [ngClass]="getLeaveBarTrackClass(leave)">
+                      <div class="h-full rounded-full transition-all" [style.background-color]="getLeaveBarColor(leave)" [style.width.%]="getLeaveBarPercent(leave)"></div>
+                    </div>
+                    <div class="flex items-center justify-between mt-2.5 text-[11px] font-mono" [ngClass]="getLeaveCardCaptionClass(leave)">
+                      <span>{{ formatLeaveValue(leave.available) }} / {{ leave.total }} available</span>
+                      <span>{{ leave.used }} used · {{ leave.pending }} pending</span>
+                    </div>
+                  </button>
+                }
+              </div>
+
+              <!-- Next public holiday (only when within 30 days) -->
+              @if (nextPublicHoliday) {
+                <div class="mt-4 px-4 py-3 rounded-lg bg-muted/40 border border-border flex items-center gap-3">
+                  <span class="w-8 h-8 rounded-md bg-card ring-1 ring-border flex flex-col items-center justify-center shrink-0">
+                    <span class="text-[8px] uppercase tracking-wide text-rose-600 dark:text-rose-400 font-semibold leading-none">{{ getHolidayMonth(nextPublicHoliday.date) }}</span>
+                    <span class="font-mono text-[12px] font-semibold text-foreground leading-none mt-0.5">{{ getHolidayDay(nextPublicHoliday.date) }}</span>
+                  </span>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-[12px] font-medium text-foreground truncate">Next public holiday — {{ nextPublicHoliday.name }}</p>
+                    <p class="text-[11px] text-muted-foreground mt-0.5 truncate">
+                      {{ nextPublicHoliday.weekday }} · {{ getHolidayDaysAwayLabel(nextPublicHoliday.daysAway) }} · Plan your leave around it
+                    </p>
+                  </div>
+                  <button type="button" z-button zType="ghost" zSize="sm" class="shrink-0" (click)="navigateTo('/leave/calendar')">Plan →</button>
+                </div>
+              } @else {
+                <div class="mt-4 px-4 py-3 rounded-lg bg-muted/30 border border-dashed border-border flex items-center gap-3">
+                  <span class="w-8 h-8 rounded-md bg-card ring-1 ring-border flex items-center justify-center shrink-0 text-muted-foreground">
+                    <z-icon zType="calendar" class="text-[14px]" />
+                  </span>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-[12px] font-medium text-foreground">No public holidays in the next 30 days</p>
+                    <p class="text-[11px] text-muted-foreground mt-0.5">You're all clear — plan ahead from the leave calendar.</p>
+                  </div>
+                  <button type="button" z-button zType="ghost" zSize="sm" class="shrink-0" (click)="navigateTo('/leave/calendar')">Calendar →</button>
+                </div>
+              }
+            </div>
+          </div>
+        } @else {
+          <div class="border-t border-border dotted-bg px-5 py-12 flex flex-col items-center justify-center">
+            <span class="w-10 h-10 rounded-full bg-card ring-1 ring-border shadow-sm flex items-center justify-center text-muted-foreground">
+              <z-icon zType="calendar" class="text-base" />
+            </span>
+            <p class="text-[14px] font-medium text-foreground mt-3">No leave entitlements yet</p>
+            <p class="text-[12px] text-muted-foreground mt-0.5">Your leave balance will appear here once entitlements are set up</p>
+          </div>
+        }
+      </section>
+
+      <!-- Recent attendance with heatmap row -->
+      <div class="bg-card rounded-xl border border-border shadow-sm">
+        <div class="p-5 border-b border-border flex items-start justify-between">
+          <div>
+            <h3 class="text-[14px] font-semibold tracking-tight text-foreground">Recent Attendance</h3>
+            <p class="text-[12px] text-muted-foreground mt-0.5">Last 5 days</p>
+          </div>
+          <div class="flex items-center gap-1.5">
+            @if (getLateCount() > 0) {
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-300 ring-1 ring-amber-200 dark:ring-amber-500/30 text-[11px] font-medium">{{ getLateCount() }} late</span>
+            } @else if (attendanceHistory.length > 0) {
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-200 dark:ring-emerald-500/30 text-[11px] font-medium">All on time</span>
+            }
+          </div>
+        </div>
+
+        @if (attendanceHistory.length > 0) {
+          <div class="px-5 pt-4 pb-1">
+            <p class="text-[11px] text-muted-foreground mb-2">Punctuality — last 30 days</p>
+            <div class="grid gap-0.5" style="grid-template-columns: repeat(30, minmax(0, 1fr));">
+              @for (cell of getHeatmapCells(); track $index) {
+                <div class="aspect-square rounded-sm" [ngClass]="getHeatmapCellClass(cell.kind)" [title]="cell.date + ' · ' + cell.kind"></div>
+              }
+            </div>
+            <div class="mt-2 flex items-center gap-3 text-[10px] text-muted-foreground">
+              <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-emerald-400"></span>On-time</span>
+              <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-amber-400"></span>Late</span>
+              <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-indigo-400"></span>WFH</span>
+              <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-slate-200 dark:bg-slate-700"></span>Off / Weekend</span>
+            </div>
+          </div>
+          <ul class="divide-y divide-border mt-2">
+            @for (a of attendanceHistory; track a.date) {
+              <li class="px-5 py-2.5 flex items-center gap-4">
+                <span class="font-mono text-[12px] text-foreground w-24 shrink-0">{{ a.date }}</span>
+                <span class="font-mono text-[12px] w-20 shrink-0" [ngClass]="a.clockIn ? 'text-foreground' : 'text-muted-foreground'">{{ a.clockIn || '—' }}</span>
+                <span class="font-mono text-[12px] w-20 shrink-0" [ngClass]="a.clockOut ? 'text-foreground' : 'text-muted-foreground'">{{ a.clockOut || '—' }}</span>
+                <span class="font-mono text-[12px] flex-1" [ngClass]="a.hours ? 'text-foreground' : 'text-muted-foreground'">{{ a.hours || '—' }}</span>
+                <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium shrink-0"
+                  [ngClass]="getAttendanceStatusClass(a.status)">
+                  <span class="w-1 h-1 rounded-full" [ngClass]="getAttendanceDotClass(a.status)"></span>
+                  {{ a.status }}
+                </span>
+              </li>
+            }
+          </ul>
+        } @else {
+          <div class="flex flex-col items-center justify-center py-12">
+            <div class="flex items-center justify-center w-14 h-14 rounded-full bg-muted mb-3">
+              <z-icon zType="clock" class="text-muted-foreground text-2xl" />
+            </div>
+            <p class="text-foreground font-medium text-sm mb-1">No attendance records yet</p>
+            <p class="text-muted-foreground text-xs">Your attendance history will appear here after you clock in</p>
+          </div>
         }
       </div>
-    }
-    @if (leaveBalance.length === 0) {
-      <z-card>
-        <div class="flex flex-col items-center justify-center py-8">
-          <div class="flex items-center justify-center w-14 h-14 rounded-full bg-muted mb-3">
-            <z-icon zType="calendar" class="text-muted-foreground text-2xl" />
-          </div>
-          <p class="text-foreground font-medium text-sm mb-1">No leave entitlements yet</p>
-          <p class="text-muted-foreground text-xs">Your leave balance will appear here once entitlements are set up</p>
-        </div>
-      </z-card>
-    }
-  </div>
 
-  <!-- Attendance & Claims -->
-  <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
-    <!-- Recent Attendance -->
-    <z-card
-      class="h-full"
-      [zTitle]="'Recent Attendance'"
-      [zDescription]="'Last 5 days'"
-      [zHeaderBorder]="true">
-      @if (attendanceHistory.length > 0) {
-        <div class="overflow-x-auto">
-          <table class="w-full">
-            <thead>
-              <tr class="border-b">
-                <th class="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Date</th>
-                <th class="text-left py-3 px-2 text-sm font-medium text-muted-foreground">Clock In</th>
-                <th class="text-left py-3 px-2 text-sm font-medium text-muted-foreground">Clock Out</th>
-                <th class="text-left py-3 px-2 text-sm font-medium text-muted-foreground">Hours</th>
-                <th class="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (attendance of attendanceHistory; track attendance.date) {
-                <tr class="border-b last:border-0">
-                  <td class="py-3 px-4">
-                    <span class="text-foreground font-medium text-sm">{{attendance.date}}</span>
-                  </td>
-                  <td class="py-3 px-2 text-sm">{{attendance.clockIn}}</td>
-                  <td class="py-3 px-2 text-sm">{{attendance.clockOut}}</td>
-                  <td class="py-3 px-2">
-                    <span class="text-foreground font-medium text-sm">{{attendance.hours}}</span>
-                  </td>
-                  <td class="py-3 px-4">
-                    <z-badge
-                      [zType]="attendance.status === 'On Time' ? 'default' : attendance.status === 'WFH' ? 'secondary' : 'outline'">
-                      {{attendance.status}}
-                    </z-badge>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      }
-      @if (attendanceHistory.length === 0) {
-        <div class="flex flex-col items-center justify-center py-8">
-          <div class="flex items-center justify-center w-14 h-14 rounded-full bg-muted mb-3">
-            <z-icon zType="clock" class="text-muted-foreground text-2xl" />
+      <!-- Claims + Upcoming side by side -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- My Claims -->
+        <div class="bg-card rounded-xl border border-border shadow-sm flex flex-col">
+          <div class="p-5 border-b border-border">
+            <h3 class="text-[14px] font-semibold tracking-tight text-foreground">My Claims</h3>
+            <p class="text-[12px] text-muted-foreground mt-0.5">Recent submissions</p>
           </div>
-          <p class="text-foreground font-medium text-sm mb-1">No attendance records yet</p>
-          <p class="text-muted-foreground text-xs">Your attendance history will appear here after you clock in</p>
-        </div>
-      }
-    </z-card>
 
-    <!-- My Claims -->
-    <z-card
-      class="h-full"
-      [zTitle]="'My Claims'"
-      [zDescription]="'Recent submissions'"
-      [zHeaderBorder]="true">
-      @if (myClaims.length > 0) {
-        <div class="space-y-4">
-          @for (claim of myClaims; track claim.id; let last = $last) {
-            <div>
-              <div class="flex items-center justify-between">
-                <div class="flex items-center flex-grow">
-                  <div class="flex items-center justify-center w-12 h-12 rounded-md bg-primary/10 mr-4">
-                    <z-icon zType="file-text" class="text-primary" />
+          @if (myClaims.length === 0) {
+            <div class="dotted-bg px-5 py-10 flex flex-col items-center justify-center flex-1">
+              <span class="w-10 h-10 rounded-full bg-card ring-1 ring-border shadow-sm flex items-center justify-center text-muted-foreground">
+                <z-icon zType="file-text" class="text-base" />
+              </span>
+              <p class="text-[13px] font-medium text-foreground mt-3">No claims yet</p>
+              <button z-button zSize="sm" class="mt-3" (click)="navigateTo('/claims')">+ New claim</button>
+            </div>
+          } @else {
+            <ul class="divide-y divide-border flex-1">
+              @for (claim of myClaims; track claim.id) {
+                <li class="px-5 py-3 flex items-center gap-3 hover:bg-muted/40 transition cursor-pointer" (click)="navigateTo('/claims')">
+                  <span class="w-8 h-8 rounded-md bg-muted flex items-center justify-center shrink-0 text-muted-foreground">
+                    <z-icon zType="file-text" class="text-[13px]" />
+                  </span>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-[13px] font-medium text-foreground truncate">{{ claim.type }}</p>
+                    <p class="font-mono text-[11px] text-muted-foreground truncate">{{ claim.date }}</p>
                   </div>
-                  <div class="flex-grow">
-                    <span class="text-foreground font-medium block text-sm">{{claim.type}}</span>
-                    <span class="text-muted-foreground text-xs block">{{claim.description}}</span>
-                    <span class="text-muted-foreground text-xs">{{claim.date}}</span>
+                  <div class="text-right shrink-0">
+                    <p class="text-[12px] font-semibold text-foreground tabular-nums">RM {{ claim.amount.toFixed(2) }}</p>
+                    <span class="text-[10px]" [ngClass]="getClaimStatusTextClass(claim.status)">{{ formatStatus(claim.status) }}</span>
                   </div>
-                </div>
-                <div class="text-right">
-                  <div class="text-foreground font-semibold text-lg mb-1">RM {{claim.amount.toFixed(2)}}</div>
-                  <z-badge
-                    [zType]="claim.status === 'Approved' || claim.status === 'Finance_Approved' ? 'default' : claim.status === 'Paid' ? 'secondary' : 'outline'">
-                    {{formatStatus(claim.status)}}
-                  </z-badge>
-                </div>
-              </div>
-              @if (!last) {
-                <z-divider class="my-4" />
+                </li>
               }
+            </ul>
+            <div class="px-5 py-2.5 border-t border-border flex items-center justify-end">
+              <button z-button zType="ghost" zSize="sm" (click)="navigateTo('/claims')">View all →</button>
             </div>
           }
         </div>
-      }
-      @if (myClaims.length === 0) {
-        <div class="flex flex-col items-center justify-center py-8">
-          <div class="flex items-center justify-center w-14 h-14 rounded-full bg-muted mb-3">
-            <z-icon zType="file-text" class="text-muted-foreground text-2xl" />
-          </div>
-          <p class="text-foreground font-medium text-sm mb-1">No claims submitted yet</p>
-          <p class="text-muted-foreground text-xs">Submit expense claims to see them listed here</p>
-        </div>
-      }
-    </z-card>
-  </div>
 
-  <!-- Upcoming Leaves & Memos -->
-  <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-    <!-- Upcoming Leaves -->
-    <z-card
-      class="h-full"
-      [zTitle]="'Upcoming Leaves'"
-      [zDescription]="'Scheduled & pending leaves'"
-      [zHeaderBorder]="true">
-      @if (upcomingLeaves.length > 0) {
-        <div class="space-y-4">
-          @for (leave of upcomingLeaves; track leave.id; let last = $last) {
-            <div>
-              <div class="flex items-center">
-                <div class="flex items-center justify-center w-12 h-12 rounded-md bg-yellow-500/10 mr-4">
-                  <z-icon zType="calendar" class="text-yellow-600" />
-                </div>
-                <div class="flex-grow">
-                  <span class="text-foreground font-medium block text-sm">{{leave.type}}</span>
-                  <span class="text-muted-foreground text-xs">{{leave.from}} to {{leave.to}}</span>
-                  <span class="text-muted-foreground text-xs block">{{leave.days}} days</span>
-                </div>
-                <z-badge
-                  [zType]="leave.status === 'Approved' ? 'default' : 'outline'">
-                  {{leave.status}}
-                </z-badge>
-              </div>
-              @if (!last) {
-                <z-divider class="my-4" />
+        <!-- Upcoming Leaves -->
+        <div class="bg-card rounded-xl border border-border shadow-sm flex flex-col">
+          <div class="p-5 border-b border-border">
+            <h3 class="text-[14px] font-semibold tracking-tight text-foreground">Upcoming Leaves</h3>
+            <p class="text-[12px] text-muted-foreground mt-0.5">Scheduled & pending</p>
+          </div>
+
+          @if (upcomingLeaves.length === 0) {
+            <div class="dotted-bg px-5 py-10 flex flex-col items-center justify-center flex-1">
+              <span class="w-10 h-10 rounded-full bg-card ring-1 ring-border shadow-sm flex items-center justify-center text-muted-foreground">
+                <z-icon zType="calendar" class="text-base" />
+              </span>
+              <p class="text-[13px] font-medium text-foreground mt-3">No upcoming leaves</p>
+              <button z-button zType="outline" zSize="sm" class="mt-3" (click)="navigateTo('/leave')">Plan leave</button>
+            </div>
+          } @else {
+            <ul class="divide-y divide-border flex-1">
+              @for (leave of upcomingLeaves; track leave.id) {
+                <li class="px-5 py-3 flex items-center gap-3 hover:bg-muted/40 transition cursor-pointer" (click)="navigateTo('/leave')">
+                  <span class="w-8 h-8 rounded-md bg-muted flex items-center justify-center shrink-0 text-muted-foreground">
+                    <z-icon zType="calendar" class="text-[13px]" />
+                  </span>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-[13px] font-medium text-foreground truncate">{{ leave.type }}</p>
+                    <p class="font-mono text-[11px] text-muted-foreground truncate">{{ leave.from }} → {{ leave.to }} · {{ leave.days }}d</p>
+                  </div>
+                  <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium shrink-0"
+                    [ngClass]="getLeaveStatusClass(leave.status)">
+                    <span class="w-1 h-1 rounded-full" [ngClass]="getLeaveStatusDotClass(leave.status)"></span>
+                    {{ leave.status }}
+                  </span>
+                </li>
               }
+            </ul>
+            <div class="px-5 py-2.5 border-t border-border flex items-center justify-end">
+              <button z-button zType="ghost" zSize="sm" (click)="navigateTo('/leave')">View all →</button>
             </div>
           }
         </div>
-      }
-      @if (upcomingLeaves.length === 0) {
-        <div class="flex flex-col items-center justify-center py-8">
-          <div class="flex items-center justify-center w-14 h-14 rounded-full bg-muted mb-3">
-            <z-icon zType="calendar" class="text-muted-foreground text-2xl" />
-          </div>
-          <p class="text-foreground font-medium text-sm mb-1">No upcoming leaves</p>
-          <p class="text-muted-foreground text-xs">Your scheduled leaves will appear here</p>
-        </div>
-      }
-    </z-card>
+      </div>
+    </div>
 
-    <!-- HR Memos -->
-    <z-card
-      class="h-full"
-      [zTitle]="'HR Memos & Announcements'"
-      [zDescription]="'Company updates'"
-      [zHeaderBorder]="true">
-      @if (recentMemos.length > 0) {
-        <div class="space-y-4">
-          @for (memo of recentMemos; track memo.id; let last = $last) {
-            <div>
-              <div class="flex items-start">
-                <div class="flex items-center justify-center w-12 h-12 rounded-md mr-4"
-                     [class.bg-red-500/10]="memo.urgent"
-                     [class.bg-primary/10]="!memo.urgent">
-                  <z-icon
-                    [zType]="memo.urgent ? 'triangle-alert' : 'bell'"
-                    [class.text-red-600]="memo.urgent"
-                    [class.text-primary]="!memo.urgent" />
-                </div>
-                <div class="flex-grow">
-                  <a class="text-foreground font-medium hover:text-primary text-sm block cursor-pointer" (click)="navigateTo('/communication/memos')">
-                    {{memo.title}}
-                    @if (!memo.read) {
-                      <span class="inline-block w-2 h-2 bg-red-500 rounded-full ml-2"></span>
+    <!-- RIGHT — sticky announcements rail -->
+    <aside class="lg:col-span-1">
+      <div class="bg-card rounded-xl border border-border shadow-sm lg:sticky lg:top-6">
+        <div class="p-5 border-b border-border flex items-center justify-between">
+          <div>
+            <h3 class="text-[14px] font-semibold tracking-tight text-foreground">Announcements</h3>
+            <p class="text-[12px] text-muted-foreground mt-0.5">HR memos · Company updates</p>
+          </div>
+          @if (recentMemos.length > 0) {
+            <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-muted text-foreground text-[11px] font-medium font-mono shrink-0">
+              {{ recentMemos.length }}
+            </span>
+          }
+        </div>
+
+        @if (recentMemos.length > 0) {
+          <ul class="divide-y divide-border">
+            @for (memo of recentMemos; track memo.id) {
+              <li class="px-5 py-3.5 flex gap-3 hover:bg-muted/40 transition cursor-pointer" (click)="navigateTo('/communication/memos')">
+                <span class="w-1 rounded-full shrink-0"
+                  [ngClass]="memo.urgent ? 'bg-rose-500' : (memo.read ? 'bg-border' : 'bg-indigo-400')"></span>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap mb-0.5">
+                    @if (memo.urgent) {
+                      <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-rose-600 text-white text-[10px] font-semibold">Urgent</span>
                     }
-                  </a>
-                  <span class="text-muted-foreground text-xs">{{memo.date}}</span>
-                  @if (memo.urgent) {
-                    <z-badge zType="destructive" class="ml-2 text-xs">Urgent</z-badge>
-                  }
+                    <span class="text-[10px] text-muted-foreground font-mono">{{ getMemoTimeAgo(memo.date) }}</span>
+                    @if (!memo.read) {
+                      <span class="inline-block w-1.5 h-1.5 rounded-full bg-rose-500" title="Unread"></span>
+                    }
+                  </div>
+                  <p class="text-[13px] font-medium text-foreground line-clamp-2">{{ memo.title }}</p>
                 </div>
-              </div>
-              @if (!last) {
-                <z-divider class="my-4" />
-              }
-            </div>
-          }
-        </div>
-      }
-      @if (recentMemos.length === 0) {
-        <div class="flex flex-col items-center justify-center py-8">
-          <div class="flex items-center justify-center w-14 h-14 rounded-full bg-muted mb-3">
-            <z-icon zType="bell" class="text-muted-foreground text-2xl" />
+              </li>
+            }
+          </ul>
+          <div class="p-3 border-t border-border">
+            <button z-button zType="ghost" zFull zSize="sm" (click)="navigateTo('/communication/memos')">View all announcements</button>
           </div>
-          <p class="text-foreground font-medium text-sm mb-1">No memos yet</p>
-          <p class="text-muted-foreground text-xs">Company announcements will appear here</p>
-        </div>
-      }
-    </z-card>
+        } @else {
+          <div class="px-5 py-10 flex flex-col items-center justify-center">
+            <div class="flex items-center justify-center w-12 h-12 rounded-full bg-muted mb-3">
+              <z-icon zType="bell" class="text-muted-foreground text-xl" />
+            </div>
+            <p class="text-[13px] font-medium text-foreground mb-1">No announcements yet</p>
+            <p class="text-[11px] text-muted-foreground text-center">Company updates will appear here</p>
+          </div>
+        }
+      </div>
+    </aside>
   </div>
 }

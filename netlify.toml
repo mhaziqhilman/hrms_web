@@ -2,14 +2,12 @@
   command = "ng build --configuration production"
   publish = "dist/HRMS_v1/browser"
 
-# HTTPS enforcement
-[[redirects]]
-  from = "http://nextura-hrms.netlify.app/*"
-  to = "https://nextura-hrms.netlify.app/:splat"
-  status = 301
-  force = true
+# HTTPS enforcement is handled by Netlify's "Force HTTPS" setting
+# (Domain management > HTTPS). Netlify also auto-redirects the
+# *.netlify.app subdomain and the www host to the primary custom
+# domain (nextura.com), so no hardcoded redirect rules are needed.
 
-# SPA routing — must come after HTTPS redirect
+# SPA routing
 [[redirects]]
   from = "/*"
   to = "/index.html"

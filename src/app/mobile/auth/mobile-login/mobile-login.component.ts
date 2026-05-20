@@ -18,6 +18,7 @@ import type { ZardIcon } from '@/shared/components/icon/icons';
 import { BiometricService, BiometryKind } from '@/mobile/services/biometric.service';
 import { NativeService } from '@/mobile/services/native.service';
 import { PushService } from '@/mobile/services/push.service';
+import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-dialog.service';
 
 @Component({
   selector: 'app-mobile-login',
@@ -36,6 +37,7 @@ export class MobileLoginComponent implements OnInit {
   protected native = inject(NativeService);
   protected biometric = inject(BiometricService);
   private push = inject(PushService);
+  private alertDialogService = inject(ZardAlertDialogService);
 
   readonly form = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -163,9 +165,16 @@ export class MobileLoginComponent implements OnInit {
   }
 
   private async offerBiometricEnrollment(refreshToken: string, email: string): Promise<void> {
-    const confirmed = window.confirm(
-      `Enable ${this.biometricLabel()} for quick sign-in next time?`,
-    );
+    const confirmed = await new Promise<boolean>((resolve) => {
+      this.alertDialogService.confirm({
+        zTitle: `Enable ${this.biometricLabel()}`,
+        zDescription: `Enable ${this.biometricLabel()} for quick sign-in next time?`,
+        zOkText: 'Enable',
+        zCancelText: 'Not Now',
+        zOnOk: () => resolve(true),
+        zOnCancel: () => resolve(false),
+      });
+    });
     if (!confirmed) return;
     const ok = await this.biometric.enrollWithToken(refreshToken, email);
     if (ok) this.biometricEnabled.set(true);

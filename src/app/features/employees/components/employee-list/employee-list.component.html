@@ -1,7 +1,10 @@
-<div class="bg-background min-h-screen">
+<div>
   <!-- Header -->
-  <div class="flex items-center justify-between mb-8">
-    <h1 class="text-2xl font-semibold text-foreground">Users</h1>
+  <div class="flex items-end justify-between mb-8 gap-4 flex-wrap">
+    <div>
+      <h1 class="text-[28px] font-semibold tracking-tight leading-none text-foreground">Users</h1>
+      <p class="text-[13px] text-muted-foreground mt-2">View, invite, and manage all employees in your organization</p>
+    </div>
     <div class="flex items-center gap-2">
       @if (isAdmin()) {
         <button z-button zType="outline" (click)="openInviteDialog()" class="gap-2">
@@ -22,10 +25,10 @@
       <!-- Search Bar -->
       <div class="relative flex-1 min-w-[180px] max-w-md">
         <z-icon zType="search"
-          class="absolute left-1.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+          class="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
         <input type="text" [value]="searchTerm()" (input)="onSearch($any($event.target).value)"
           placeholder="Search by name or email..."
-          class="w-full pl-8 pr-2 py-2 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent" />
+          class="w-full pl-10 pr-3 py-2 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent" />
       </div>
 
       <!-- Status Filter -->
@@ -182,14 +185,12 @@
 
       <!-- Right: Action Buttons -->
       <div class="flex items-center gap-2">
-        <button type="button" (click)="bulkDelete()"
-          class="inline-flex items-center gap-2 px-4 py-2 text-sm font-normal text-white bg-destructive hover:bg-destructive/90 rounded-md transition-all duration-200 shadow-sm hover:shadow-md">
+        <button type="button" z-button zType="destructive" (click)="bulkDelete()">
           <z-icon zType="user-minus" class="w-4 h-4" />
           <span>Terminate</span>
         </button>
         <div class="w-px h-6 bg-border mx-1"></div>
-        <button type="button" (click)="clearSelection()"
-          class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-normal text-muted-foreground hover:text-foreground transition-colors duration-200">
+        <button type="button" z-button zType="ghost" (click)="clearSelection()">
           <z-icon zType="x" class="w-4 h-4" />
           <span>Clear</span>
         </button>
@@ -348,7 +349,7 @@
           {{employee.employment_status}}
         </z-badge>
         <div z-menu [zMenuTriggerFor]="cardActionMenu">
-          <button z-button zType="ghost" zSize="sm" class="h-8 w-8 p-0">
+          <button z-button zType="ghost" zSize="sm">
             <z-icon zType="ellipsis" class="w-4 h-4" />
           </button>
         </div>

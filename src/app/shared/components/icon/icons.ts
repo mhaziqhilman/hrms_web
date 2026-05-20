@@ -118,6 +118,7 @@ import {
   TextAlignStart,
   Trash2,
   TrendingUp,
+  TrendingDown,
   TriangleAlert,
   Underline,
   Unlink,
@@ -161,6 +162,11 @@ import {
   Printer,
   Home,
   Play,
+  History,
+  GitBranch,
+  ListOrdered,
+  PenLine,
+  UserSearch,
 } from 'lucide-angular';
 
 const DarkMode: LucideIconData = [
@@ -226,6 +232,7 @@ export const ZARD_ICONS = {
   'file-text': FileText,
   'layout-dashboard': LayoutDashboard,
   'loader-circle': LoaderCircle,
+  'git-branch': GitBranch,
   save: Save,
   copy: Copy,
   eye: Eye,
@@ -296,6 +303,7 @@ export const ZARD_ICONS = {
   list: List,
   'list-filter': ListFilter,
   'trending-up': TrendingUp,
+  'trending-down': TrendingDown,
   wallet: Wallet,
   'bar-chart-3': BarChart3,
   'user-circle': UserCircle,
@@ -335,7 +343,11 @@ export const ZARD_ICONS = {
   'sticky-note': StickyNote,
   'printer': Printer,
   'home': Home,
-  'play': Play
+  'play': Play,
+  'history': History,
+  'list-ordered': ListOrdered,
+  'pen-line': PenLine,
+  'user-search': UserSearch
 } as const satisfies Record<string, LucideIconData>;
 
 export declare type ZardIcon = keyof typeof ZARD_ICONS | LucideIconData;

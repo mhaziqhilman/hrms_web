@@ -1,760 +1,879 @@
 <!-- Loading skeleton -->
 @if (loading()) {
-  <div class="space-y-6">
-    <!-- Header skeleton -->
-    <div class="flex items-center gap-4">
-      <z-skeleton class="h-16 w-16 rounded-full" />
-      <div class="space-y-2">
-        <z-skeleton class="h-6 w-48" />
-        <z-skeleton class="h-4 w-32" />
-      </div>
-    </div>
-    <!-- Tab skeleton -->
-    <z-skeleton class="h-10 w-full" />
-    <!-- Content skeleton -->
-    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
-      <div class="lg:col-span-3 space-y-4">
-        <z-skeleton class="h-64 w-full rounded-xl" />
-        <z-skeleton class="h-48 w-full rounded-xl" />
-      </div>
-      <div class="lg:col-span-2 space-y-4">
-        <z-skeleton class="h-48 w-full rounded-xl" />
-        <z-skeleton class="h-48 w-full rounded-xl" />
-      </div>
+<div class="space-y-6">
+  <!-- Header skeleton -->
+  <div class="flex items-center gap-4">
+    <z-skeleton class="h-16 w-16 rounded-full" />
+    <div class="space-y-2">
+      <z-skeleton class="h-6 w-48" />
+      <z-skeleton class="h-4 w-32" />
     </div>
   </div>
+  <!-- Tab skeleton -->
+  <z-skeleton class="h-10 w-full" />
+  <!-- Content skeleton -->
+  <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+    <div class="lg:col-span-3 space-y-4">
+      <z-skeleton class="h-64 w-full rounded-xl" />
+      <z-skeleton class="h-48 w-full rounded-xl" />
+    </div>
+    <div class="lg:col-span-2 space-y-4">
+      <z-skeleton class="h-48 w-full rounded-xl" />
+      <z-skeleton class="h-48 w-full rounded-xl" />
+    </div>
+  </div>
+</div>
 }
 
 <!-- No Profile State -->
 @if (!loading() && !hasProfile()) {
-  <div class="flex items-center justify-center min-h-[60vh]">
-    <div class="text-center space-y-4">
-      <div class="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto">
-        <z-icon [zType]="$any('user-x')" class="h-8 w-8 text-muted-foreground" />
-      </div>
-      <div>
-        <h2 class="text-lg font-medium text-foreground">Profile Not Set Up</h2>
-        <p class="text-sm text-muted-foreground mt-1 max-w-sm">Your employee profile has not been created yet. Please contact your administrator.</p>
-      </div>
+<div class="flex items-center justify-center min-h-[60vh]">
+  <div class="text-center space-y-4">
+    <div class="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto">
+      <z-icon [zType]="$any('user-x')" class="h-8 w-8 text-muted-foreground" />
+    </div>
+    <div>
+      <h2 class="text-lg font-medium text-foreground">Profile Not Set Up</h2>
+      <p class="text-sm text-muted-foreground mt-1 max-w-sm">Your employee profile has not been created yet. Please
+        contact your administrator.</p>
     </div>
   </div>
+</div>
 }
 
 <!-- Profile Content -->
 @if (!loading() && hasProfile() && profile()) {
-  <div class="space-y-6">
-    <!-- ===== IDENTITY ROW ===== -->
-    <div class="flex items-start justify-between gap-4">
-      <div class="flex items-center gap-4">
-        <!-- Avatar -->
-        @if (profile()?.photo_url) {
-          <z-avatar [zSrc]="profile()!.photo_url!" [zFallback]="initials()" [zSize]="64" zShape="circle" />
-        } @else {
-          <z-avatar [zFallback]="initials()" [zSize]="64" zShape="circle" />
-        }
+<div class="space-y-6">
+  <!-- ===== IDENTITY CARD (variant-01: identity block + stat strip) ===== -->
+  <div class="rounded-xl border border-border bg-card overflow-hidden">
 
-        <div>
-          <!-- Name + Status -->
-          <div class="flex items-center gap-2.5">
-            <h1 class="text-xl font-medium text-foreground">{{ profile()!.full_name }}</h1>
-            <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 dark:bg-emerald-950 px-2 py-0.5 text-xs font-normal text-emerald-700 dark:text-emerald-400 ring-1 ring-inset ring-emerald-600/20">
-              <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-              {{ profile()?.employment_status || 'Active' }}
+    <!-- Identity block -->
+    <div class="px-6 py-6 flex items-start gap-5 flex-wrap">
+      <!-- Avatar -->
+      <div class="relative shrink-0">
+        @if (profile()?.photo_url) {
+        <img [src]="profile()!.photo_url" [alt]="profile()!.full_name" class="w-20 h-20 rounded-2xl object-cover" />
+        } @else {
+        <div
+          class="w-20 h-20 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-700 dark:from-slate-700 dark:to-slate-800 text-white text-[22px] font-medium flex items-center justify-center tracking-tight">
+          {{ initials() }}
+        </div>
+        }
+        <span class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 ring-4 ring-card"></span>
+      </div>
+
+      <!-- Identity content -->
+      <div class="flex-1 min-w-0">
+        <!-- Name + status -->
+        <div class="flex items-center gap-2 flex-wrap">
+          <h2 class="text-[22px] font-medium tracking-tight text-foreground leading-none">{{ profile()!.full_name }}
+          </h2>
+          <span
+            class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 ring-1 ring-inset ring-emerald-600/20 text-[11px] font-medium">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            {{ profile()?.employment_status || 'Active' }}
+          </span>
+        </div>
+
+        <!-- Subtitle: dot-separated -->
+        <div class="mt-2 flex items-center gap-3 text-[13px] text-muted-foreground flex-wrap">
+          @if (profile()?.employee_id) {
+          <span class="font-mono">{{ profile()!.employee_id }}</span>
+          }
+          @if (profile()?.employee_id && profile()?.position) {
+          <span class="w-1 h-1 rounded-full bg-muted-foreground/40"></span>
+          }
+          @if (profile()?.position) {
+          <span>{{ profile()!.position }}</span>
+          }
+          @if (profile()?.position && profile()?.department) {
+          <span class="w-1 h-1 rounded-full bg-muted-foreground/40"></span>
+          }
+          @if (profile()?.department) {
+          <span>{{ profile()!.department }}</span>
+          }
+          @if (profile()?.department && profile()?.join_date) {
+          <span class="w-1 h-1 rounded-full bg-muted-foreground/40"></span>
+          }
+          @if (profile()?.join_date) {
+          <span>Joined {{ formatJoinShort(profile()!.join_date!) }}</span>
+          }
+        </div>
+
+        <!-- Profile completion bar -->
+        <div class="mt-5 max-w-md">
+          <div class="flex items-center justify-between text-[11px] text-muted-foreground mb-1.5">
+            <span class="font-medium">Profile completion</span>
+            <span class="font-mono">
+              <span class="font-medium text-foreground">{{ profileCompletion() }}%</span>
+              · {{ filledFieldsCount() }} of {{ totalFieldsCount() }} fields
             </span>
           </div>
+          <div class="h-1.5 rounded-full bg-muted overflow-hidden">
+            <div class="h-full rounded-full bg-foreground transition-all duration-300"
+              [style.width.%]="profileCompletion()"></div>
+          </div>
+          @if (profileCompletion() < 100) { <p class="text-[11px] text-muted-foreground mt-1.5">Keep your profile up to
+            date.</p>
+            }
+        </div>
+      </div>
 
-          <!-- Quick Meta -->
-          <div class="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
-            @if (profile()?.employee_id) {
-              <span class="flex items-center gap-1">
-                <z-icon [zType]="$any('hash')" class="h-3.5 w-3.5" />
-                {{ profile()!.employee_id }}
-              </span>
-            }
-            @if (profile()?.position) {
-              <span class="flex items-center gap-1">
-                <z-icon zType="briefcase" class="h-3.5 w-3.5" />
-                {{ profile()!.position }}
-              </span>
-            }
-            @if (profile()?.department) {
-              <span class="flex items-center gap-1">
-                <z-icon [zType]="$any('building-2')" class="h-3.5 w-3.5" />
-                {{ profile()!.department }}
-              </span>
-            }
+      <!-- Right actions -->
+      <div class="flex items-center gap-2 shrink-0">
+        <button z-button zType="outline" (click)="editFromHeader()">
+          <z-icon zType="pencil" />
+          Edit
+        </button>
+        <a z-button zType="outline" routerLink="/settings/account">
+          <z-icon zType="settings" />
+          Settings
+        </a>
+      </div>
+    </div>
+
+    <!-- Quick stat strip (4 columns, hairline gridlines) -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-px bg-border border-t border-border">
+      <!-- Tenure -->
+      <div class="bg-card px-5 py-4">
+        <p class="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">Tenure</p>
+        <p class="font-mono text-[18px] font-medium text-foreground mt-1 leading-none">
+          @if (profile()?.join_date) {
+          {{ calculateTenure(profile()!.join_date!) }}
+          } @else {
+          -
+          }
+        </p>
+        <p class="text-[10px] text-muted-foreground mt-1">
+          @if (profile()?.join_date) {
+          Since {{ formatDate(profile()!.join_date!) }}
+          } @else {
+          Not set
+          }
+        </p>
+      </div>
+
+      <!-- Direct reports (manager) / Position (non-manager) -->
+      @if (isManager()) {
+      <div class="bg-card px-5 py-4">
+        <p class="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">Direct reports</p>
+        <p class="font-mono text-[18px] font-medium text-foreground mt-1 leading-none">{{ teamMembers().length }}</p>
+        <p class="text-[10px] text-muted-foreground mt-1">team members</p>
+      </div>
+      } @else {
+      <div class="bg-card px-5 py-4">
+        <p class="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">Position</p>
+        <p class="text-[15px] font-medium text-foreground mt-1 leading-none truncate">{{ profile()?.position || '-' }}
+        </p>
+        <p class="text-[10px] text-muted-foreground mt-1 capitalize truncate">{{ profile()?.employment_type || '-' }}
+        </p>
+      </div>
+      }
+
+      <!-- Department -->
+      <div class="bg-card px-5 py-4">
+        <p class="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">Department</p>
+        <p class="text-[15px] font-medium text-foreground mt-1 leading-none truncate">{{ profile()?.department || '-' }}
+        </p>
+        <p class="text-[10px] text-muted-foreground mt-1 capitalize truncate">{{ profile()?.employment_type || '-' }}
+        </p>
+      </div>
+
+      <!-- Email -->
+      <div class="bg-card px-5 py-4">
+        <p class="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">Email</p>
+        <p class="text-[13px] font-medium text-foreground mt-1 leading-none truncate">{{ profile()?.email || '-' }}</p>
+        @if (profile()?.mobile) {
+        <p class="text-[10px] text-muted-foreground mt-1 font-mono truncate">{{ profile()!.mobile }}</p>
+        } @else {
+        <p class="text-[10px] text-muted-foreground mt-1">No phone on file</p>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TAB NAVIGATION (pill segmented control) ===== -->
+  <div class="border-t border-border pt-5">
+    <div class="bg-muted h-10 inline-flex items-center justify-center p-1 rounded-md text-muted-foreground text-sm">
+      @for (tab of tabs; track tab.id) {
+      <button
+        class="bg-background cursor-pointer disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring font-normal inline-flex items-center justify-center px-3 py-1.5 ring-offset-background rounded-sm shadow-sm text-foreground text-sm transition-all whitespace-nowrap"
+        [class.bg-background]="activeTab() === tab.id" [class.shadow-sm]="activeTab() === tab.id"
+        [class.text-foreground]="activeTab() === tab.id" [class.text-muted-foreground]="activeTab() !== tab.id"
+        [class.hover:text-foreground]="activeTab() !== tab.id" (click)="setActiveTab(tab.id)">
+        {{ tab.label }}
+      </button>
+      }
+    </div>
+  </div>
+
+  <!-- ===== TAB CONTENT ===== -->
+  @switch (activeTab()) {
+  <!-- ==================== MY TEAM TAB (Manager only) ==================== -->
+  @case ('my-team') {
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+    <!-- Manager Card (Reports to) -->
+    <div class="bg-muted/30 rounded-xl border border-border p-5 flex flex-col">
+      <p class="text-[10px] uppercase tracking-wide text-muted-foreground font-medium mb-3">Reports to</p>
+      @if (profile()?.reporting_manager_id) {
+      <div class="flex items-center gap-3">
+        <div
+          class="w-12 h-12 rounded-full bg-gradient-to-br from-primary/80 to-primary text-primary-foreground text-sm font-medium flex items-center justify-center shrink-0">
+          <z-icon [zType]="$any('user-round')" class="h-5 w-5" />
+        </div>
+        <div class="min-w-0">
+          <p class="text-sm font-medium text-foreground">Reporting Manager</p>
+          <p class="text-xs text-muted-foreground">Direct line</p>
+        </div>
+      </div>
+      } @else {
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-full bg-muted flex items-center justify-center shrink-0">
+          <z-icon [zType]="$any('user-x')" class="h-5 w-5 text-muted-foreground" />
+        </div>
+        <div class="min-w-0">
+          <p class="text-sm font-medium text-foreground">No manager assigned</p>
+          <p class="text-xs text-muted-foreground">Top-level position</p>
+        </div>
+      </div>
+      }
+    </div>
+
+    <!-- Members List (Direct reports) -->
+    <div class="lg:col-span-2 rounded-xl border border-border bg-card">
+      <div class="p-5 border-b border-border flex items-center justify-between gap-3 flex-wrap">
+        <div>
+          <p class="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">Direct reports</p>
+          <h4 class="text-sm font-medium text-foreground mt-0.5">
+            {{ filteredTeamMembers().length }} member{{ filteredTeamMembers().length !== 1 ? 's' : '' }}
+          </h4>
+        </div>
+        <div class="relative">
+          <z-icon zType="search"
+            class="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+          <input z-input class="h-8 w-48 pl-10" placeholder="Search team..." [(ngModel)]="teamSearch" />
+        </div>
+      </div>
+
+      @if (loadingTeam()) {
+      <div class="p-5 space-y-3">
+        @for (i of [1, 2, 3]; track i) {
+        <z-skeleton class="h-14 w-full rounded-lg" />
+        }
+      </div>
+      } @else if (filteredTeamMembers().length > 0) {
+      <ul class="divide-y divide-border">
+        @for (member of filteredTeamMembers(); track member.id) {
+        <li class="px-5 py-4 flex items-center gap-4 hover:bg-muted/40 transition-colors">
+          <!-- Avatar -->
+          @if (member.photo_url) {
+          <z-avatar [zSrc]="member.photo_url" [zFallback]="getTeamMemberInitials(member.full_name)" zShape="circle" />
+          } @else {
+          <z-avatar [zFallback]="getTeamMemberInitials(member.full_name)" zShape="circle" />
+          }
+
+          <!-- Info -->
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <p class="text-sm font-medium text-foreground truncate">{{ member.full_name }}</p>
+              @if (member.employee_id) {
+              <span class="font-mono text-[11px] text-muted-foreground">{{ member.employee_id }}</span>
+              }
+            </div>
+            <div class="flex items-center gap-2 mt-0.5 text-xs text-muted-foreground flex-wrap">
+              @if (member.position) {
+              <span>{{ member.position }}</span>
+              }
+              @if (member.position && member.department) {
+              <span class="w-1 h-1 rounded-full bg-muted-foreground/40"></span>
+              }
+              @if (member.department) {
+              <span>{{ member.department }}</span>
+              }
+              @if ((member.position || member.department) && member.mobile) {
+              <span class="w-1 h-1 rounded-full bg-muted-foreground/40"></span>
+              }
+              @if (member.mobile) {
+              <span class="font-mono">{{ member.mobile }}</span>
+              }
+            </div>
           </div>
 
-          <!-- Profile Completion Bar -->
-          <div class="flex items-center gap-2 mt-2">
-            <div class="w-32 h-1.5 bg-muted rounded-full overflow-hidden">
-              <div class="h-full bg-primary rounded-full transition-all duration-300" [style.width.%]="profileCompletion()"></div>
+          <!-- Type badge -->
+          <span
+            class="inline-flex items-center px-2 py-0.5 rounded-md bg-muted text-muted-foreground text-[11px] font-normal capitalize shrink-0">{{
+            member.employment_type }}</span>
+
+          <!-- Join date -->
+          @if (member.join_date) {
+          <span class="font-mono text-[11px] text-muted-foreground shrink-0 hidden md:inline">{{
+            formatDate(member.join_date) }}</span>
+          }
+        </li>
+        }
+      </ul>
+      } @else {
+      <!-- Empty state (no downline) -->
+      <div class="px-5 py-12 text-center">
+        <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-muted flex items-center justify-center">
+          <z-icon [zType]="$any('users-round')" class="h-6 w-6 text-muted-foreground" />
+        </div>
+        <p class="text-sm font-medium text-foreground mb-1">
+          @if (teamSearch) {
+          No matches found
+          } @else {
+          No downline reports
+          }
+        </p>
+        <p class="text-xs text-muted-foreground">
+          @if (teamSearch) {
+          No team members matching "{{ teamSearch }}"
+          } @else {
+          You don't have any direct reports yet
+          }
+        </p>
+      </div>
+      }
+    </div>
+  </div>
+  }
+
+  <!-- ==================== PERSONAL INFORMATION TAB ==================== -->
+  @case ('personal') {
+  <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+    <!-- Left Column (3/5) -->
+    <div class="lg:col-span-3 space-y-6">
+      <!-- Personal Information Card -->
+      <div class="rounded-xl border border-border bg-card">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-border">
+          <div class="flex items-center gap-2">
+            <z-icon zType="user" class="h-4 w-4 text-muted-foreground" />
+            <h3 class="text-sm font-medium text-foreground">Personal Information</h3>
+          </div>
+        </div>
+        <div class="px-5 py-4">
+          <div class="grid grid-cols-2 gap-x-6 gap-y-4">
+            <div>
+              <p class="text-xs text-muted-foreground mb-1">Full Name</p>
+              <p class="text-sm font-normal">{{ profile()!.full_name || '-' }}</p>
             </div>
-            <span class="text-xs text-muted-foreground">{{ profileCompletion() }}% complete</span>
+            <div>
+              <p class="text-xs text-muted-foreground mb-1">IC Number</p>
+              <p class="text-sm font-normal">{{ profile()!.ic_no || '-' }}</p>
+            </div>
+            <div>
+              <p class="text-xs text-muted-foreground mb-1">Gender</p>
+              <p class="text-sm font-normal capitalize">{{ profile()!.gender || '-' }}</p>
+            </div>
+            <div>
+              <p class="text-xs text-muted-foreground mb-1">Marital Status</p>
+              <p class="text-sm font-normal capitalize">{{ profile()!.marital_status || '-' }}</p>
+            </div>
+            <div>
+              <p class="text-xs text-muted-foreground mb-1">Religion</p>
+              <p class="text-sm font-normal">{{ profile()!.religion || '-' }}</p>
+            </div>
+            <div>
+              <p class="text-xs text-muted-foreground mb-1">Nationality</p>
+              <p class="text-sm font-normal">{{ profile()!.nationality || '-' }}</p>
+            </div>
+            <div>
+              <p class="text-xs text-muted-foreground mb-1">Race</p>
+              <p class="text-sm font-normal">{{ profile()!.race || '-' }}</p>
+            </div>
+            <div>
+              <p class="text-xs text-muted-foreground mb-1">Date of Birth</p>
+              <p class="text-sm font-normal">
+                {{ formatDate(profile()!.date_of_birth ?? null) }}
+                @if (profile()!.date_of_birth) {
+                <span class="text-muted-foreground">({{ calculateAge(profile()!.date_of_birth!) }} yrs)</span>
+                }
+              </p>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Settings link -->
-      <a z-button zType="outline" zSize="sm" routerLink="/settings/account">
-        <z-icon zType="settings" class="mr-2 h-4 w-4" />
-        Settings
-      </a>
+      <!-- Address Information Card -->
+      <div class="rounded-xl border border-border bg-card">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-border">
+          <div class="flex items-center gap-2">
+            <z-icon [zType]="$any('map-pin')" class="h-4 w-4 text-muted-foreground" />
+            <h3 class="text-sm font-medium text-foreground">Address Information</h3>
+          </div>
+        </div>
+        <div class="px-5 py-4 space-y-4">
+          <div>
+            <p class="text-xs text-muted-foreground mb-1">Residential Address</p>
+            <p class="text-sm font-normal">{{ profile()!.current_address || '-' }}</p>
+          </div>
+          <z-divider zSpacing="none" />
+          <div>
+            <p class="text-xs text-muted-foreground mb-1">Permanent Address</p>
+            <p class="text-sm font-normal">{{ profile()!.permanent_address || '-' }}</p>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- ===== TAB NAVIGATION ===== -->
-    <div class="border-b border-border">
-      <nav class="flex gap-1 -mb-px overflow-x-auto">
-        @for (tab of tabs; track tab.id) {
-          <button
-            class="tab-button flex items-center gap-1.5 px-3 py-2 text-sm font-normal whitespace-nowrap transition-colors"
-            [class.tab-active]="activeTab() === tab.id"
-            [class.tab-inactive]="activeTab() !== tab.id"
-            (click)="setActiveTab(tab.id)">
-            <z-icon [zType]="$any(tab.icon)" class="h-4 w-4" />
-            {{ tab.label }}
-          </button>
-        }
-      </nav>
-    </div>
-
-    <!-- ===== TAB CONTENT ===== -->
-    @switch (activeTab()) {
-      <!-- ==================== MY TEAM TAB (Manager only) ==================== -->
-      @case ('my-team') {
-        <div class="space-y-4">
-          <!-- Search -->
-          <div class="flex items-center justify-between gap-3">
-            <div class="relative w-full sm:w-80">
-              <z-icon zType="search" class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-              <input z-input
-                style="padding-left: 2.25rem"
-                placeholder="Search team members..."
-                [(ngModel)]="teamSearch" />
+    <!-- Right Column (2/5) -->
+    <div class="lg:col-span-2 space-y-6">
+      <!-- Contact Information Card -->
+      <div class="rounded-xl border border-border bg-card">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-border">
+          <div class="flex items-center gap-2">
+            <z-icon zType="phone" class="h-4 w-4 text-muted-foreground" />
+            <h3 class="text-sm font-medium text-foreground">Contact Information</h3>
+          </div>
+        </div>
+        <div class="px-5 py-4 space-y-3">
+          <div class="flex items-center gap-3">
+            <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-muted shrink-0">
+              <z-icon zType="phone" class="h-4 w-4 text-muted-foreground" />
             </div>
-            <span class="text-sm text-muted-foreground whitespace-nowrap">
-              {{ filteredTeamMembers().length }} member{{ filteredTeamMembers().length !== 1 ? 's' : '' }}
+            <div>
+              <p class="text-xs text-muted-foreground">Phone</p>
+              @if (profile()!.mobile) {
+              <a href="tel:{{ profile()!.mobile }}" class="text-sm font-normal text-primary hover:underline">{{
+                profile()!.mobile }}</a>
+              } @else {
+              <p class="text-sm font-normal">-</p>
+              }
+            </div>
+          </div>
+          <z-divider zSpacing="none" />
+          <div class="flex items-center gap-3">
+            <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-muted shrink-0">
+              <z-icon zType="mail" class="h-4 w-4 text-muted-foreground" />
+            </div>
+            <div>
+              <p class="text-xs text-muted-foreground">Email</p>
+              @if (profile()!.email) {
+              <a href="mailto:{{ profile()!.email }}"
+                class="text-sm font-normal text-primary hover:underline truncate block max-w-[200px]">{{
+                profile()!.email }}</a>
+              } @else {
+              <p class="text-sm font-normal">-</p>
+              }
+            </div>
+          </div>
+          <z-divider zSpacing="none" />
+          <div class="flex items-center gap-3">
+            <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-muted shrink-0">
+              <z-icon [zType]="$any('circle-alert')" class="h-4 w-4 text-muted-foreground" />
+            </div>
+            <div>
+              <p class="text-xs text-muted-foreground">Emergency Contact</p>
+              <p class="text-sm font-normal">{{ profile()!.emergency_contact_name || '-' }}</p>
+              @if (profile()!.emergency_contact_phone) {
+              <p class="text-xs text-muted-foreground">{{ profile()!.emergency_contact_phone }}</p>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Employment Overview Card -->
+      <div class="rounded-xl border border-border bg-card">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-border">
+          <div class="flex items-center gap-2">
+            <z-icon zType="briefcase" class="h-4 w-4 text-muted-foreground" />
+            <h3 class="text-sm font-medium text-foreground">Employment Overview</h3>
+          </div>
+        </div>
+        <div class="px-5 py-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-muted-foreground">Date Started</span>
+            <span class="text-sm font-normal">
+              {{ formatDate(profile()!.join_date ?? null) }}
+              @if (profile()!.join_date) {
+              <span class="text-muted-foreground">({{ calculateTenure(profile()!.join_date!) }})</span>
+              }
             </span>
           </div>
+          <z-divider zSpacing="none" />
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-muted-foreground">Position</span>
+            <span class="text-sm font-normal">{{ profile()!.position || '-' }}</span>
+          </div>
+          <z-divider zSpacing="none" />
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-muted-foreground">Department</span>
+            <span class="text-sm font-normal">{{ profile()!.department || '-' }}</span>
+          </div>
+          <z-divider zSpacing="none" />
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-muted-foreground">Employment Type</span>
+            <span class="text-sm font-normal capitalize">{{ profile()!.employment_type || '-' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  }
 
-          <!-- Loading -->
-          @if (loadingTeam()) {
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              @for (i of [1, 2, 3, 4, 5, 6]; track i) {
-                <z-skeleton class="h-36 w-full rounded-xl" />
+  <!-- ==================== EMPLOYMENT TAB ==================== -->
+  @case ('employment') {
+  <div class="space-y-6">
+    <!-- Employment Details -->
+    <div class="rounded-xl border border-border bg-card">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-border">
+        <div class="flex items-center gap-2">
+          <z-icon zType="briefcase" class="h-4 w-4 text-muted-foreground" />
+          <h3 class="text-sm font-medium text-foreground">Employment Details</h3>
+        </div>
+      </div>
+      <div class="px-5 py-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
+          <div>
+            <p class="text-xs text-muted-foreground mb-1">Employee ID</p>
+            <p class="text-sm font-normal">{{ profile()!.employee_id || '-' }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-muted-foreground mb-1">Department</p>
+            <p class="text-sm font-normal">{{ profile()!.department || '-' }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-muted-foreground mb-1">Position</p>
+            <p class="text-sm font-normal">{{ profile()!.position || '-' }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-muted-foreground mb-1">Employment Type</p>
+            <p class="text-sm font-normal capitalize">{{ profile()!.employment_type || '-' }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-muted-foreground mb-1">Employment Status</p>
+            <span
+              class="inline-flex items-center gap-1 rounded-full bg-emerald-50 dark:bg-emerald-950 px-2 py-0.5 text-xs font-normal text-emerald-700 dark:text-emerald-400 ring-1 ring-inset ring-emerald-600/20">
+              {{ profile()!.employment_status || '-' }}
+            </span>
+          </div>
+          <div>
+            <p class="text-xs text-muted-foreground mb-1">Work Location</p>
+            <p class="text-sm font-normal">{{ profile()!.work_location || '-' }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-muted-foreground mb-1">Join Date</p>
+            <p class="text-sm font-normal">{{ formatDate(profile()!.join_date ?? null) }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-muted-foreground mb-1">Confirmation Date</p>
+            <p class="text-sm font-normal">{{ formatDate(profile()!.confirmation_date ?? null) }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-muted-foreground mb-1">Tenure</p>
+            <p class="text-sm font-normal">
+              @if (profile()!.join_date) {
+              {{ calculateTenure(profile()!.join_date!) }}
+              } @else {
+              -
               }
-            </div>
-          } @else if (filteredTeamMembers().length > 0) {
-            <!-- Team Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              @for (member of filteredTeamMembers(); track member.id) {
-                <div class="rounded-xl border border-border bg-card p-4 hover:shadow-sm transition-shadow">
-                  <div class="flex items-start gap-3">
-                    <!-- Avatar -->
-                    @if (member.photo_url) {
-                      <z-avatar [zSrc]="member.photo_url" [zFallback]="getTeamMemberInitials(member.full_name)" zSize="sm" zShape="circle" />
-                    } @else {
-                      <z-avatar [zFallback]="getTeamMemberInitials(member.full_name)" zSize="sm" zShape="circle" />
-                    }
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
 
-                    <!-- Info -->
-                    <div class="flex-1 min-w-0">
-                      <p class="font-normal text-sm truncate">{{ member.full_name }}</p>
-                      <p class="text-xs text-muted-foreground truncate">{{ member.position || 'No position' }}</p>
-                      @if (member.employee_id) {
-                        <p class="text-xs text-muted-foreground mt-0.5">
-                          <z-icon [zType]="$any('hash')" class="inline h-3 w-3" />
-                          {{ member.employee_id }}
-                        </p>
-                      }
-                    </div>
-                  </div>
+    <!-- Compensation & Banking -->
+    <div class="rounded-xl border border-border bg-card">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-border">
+        <div class="flex items-center gap-2">
+          <z-icon zType="wallet" class="h-4 w-4 text-muted-foreground" />
+          <h3 class="text-sm font-medium text-foreground">Compensation & Banking</h3>
+        </div>
+      </div>
+      <div class="px-5 py-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+          <div>
+            <p class="text-xs text-muted-foreground mb-1">Basic Salary</p>
+            <p class="text-sm font-normal">{{ formatCurrency(profile()!.basic_salary ?? 0) }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-muted-foreground mb-1">Bank Name</p>
+            <p class="text-sm font-normal">{{ profile()!.bank_name || '-' }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-muted-foreground mb-1">Bank Account No</p>
+            <p class="text-sm font-normal">{{ profile()!.bank_account_no || '-' }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-muted-foreground mb-1">Account Holder</p>
+            <p class="text-sm font-normal">{{ profile()!.bank_account_holder || '-' }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  }
 
-                  <!-- Details -->
-                  <div class="mt-3 pt-3 border-t border-border space-y-1.5">
-                    @if (member.department) {
-                      <div class="flex items-center gap-2 text-xs text-muted-foreground">
-                        <z-icon [zType]="$any('building-2')" class="h-3.5 w-3.5 shrink-0" />
-                        <span class="truncate">{{ member.department }}</span>
-                      </div>
-                    }
-                    @if (member.email) {
-                      <div class="flex items-center gap-2 text-xs text-muted-foreground">
-                        <z-icon zType="mail" class="h-3.5 w-3.5 shrink-0" />
-                        <span class="truncate">{{ member.email }}</span>
-                      </div>
-                    }
-                    @if (member.mobile) {
-                      <div class="flex items-center gap-2 text-xs text-muted-foreground">
-                        <z-icon zType="phone" class="h-3.5 w-3.5 shrink-0" />
-                        <span>{{ member.mobile }}</span>
-                      </div>
-                    }
-                  </div>
+  <!-- ==================== CONTACT TAB (EDITABLE) ==================== -->
+  @case ('contact') {
+  <div class="space-y-6">
+    <!-- Edit Mode Actions -->
+    @if (editMode()) {
+    <div class="flex justify-end gap-2">
+      <button z-button zType="outline" zSize="sm" (click)="toggleEditMode()">
+        <z-icon zType="x" class="mr-2 h-4 w-4" />
+        Cancel
+      </button>
+      <button z-button zSize="sm" (click)="saveProfile()" [disabled]="saving()">
+        @if (saving()) {
+        <z-icon zType="loader-2" class="mr-2 h-4 w-4 animate-spin" />
+        Saving...
+        } @else {
+        <z-icon zType="save" class="mr-2 h-4 w-4" />
+        Save Changes
+        }
+      </button>
+    </div>
+    }
 
-                  <!-- Footer badge -->
-                  <div class="mt-3 flex items-center justify-between">
-                    <span class="text-[11px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-normal capitalize">{{ member.employment_type }}</span>
-                    @if (member.join_date) {
-                      <span class="text-[11px] text-muted-foreground">Joined {{ formatDate(member.join_date) }}</span>
-                    }
-                  </div>
-                </div>
-              }
-            </div>
+    <!-- Contact Details Card -->
+    <div class="rounded-xl border border-border bg-card">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-border">
+        <div class="flex items-center gap-2">
+          <z-icon zType="phone" class="h-4 w-4 text-muted-foreground" />
+          <h3 class="text-sm font-medium text-foreground">Contact Details</h3>
+        </div>
+        @if (!editMode()) {
+        <button z-button zType="ghost" zSize="sm" (click)="toggleEditMode()">
+          <z-icon zType="pencil" class="mr-2 h-4 w-4" />
+          Edit
+        </button>
+        }
+      </div>
+      <div class="px-5 py-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+          <div>
+            <p class="text-xs text-muted-foreground mb-1">Mobile Number</p>
+            @if (editMode()) {
+            <input z-input [(ngModel)]="formData.mobile" placeholder="Enter mobile number">
+            } @else {
+            <p class="text-sm font-normal">{{ profile()!.mobile || '-' }}</p>
+            }
+          </div>
+          <div>
+            <p class="text-xs text-muted-foreground mb-1">Email Address</p>
+            @if (editMode()) {
+            <input z-input [(ngModel)]="formData.email" type="email" placeholder="Enter email address">
+            } @else {
+            <p class="text-sm font-normal">{{ profile()!.email || '-' }}</p>
+            }
+          </div>
+          <div class="md:col-span-2">
+            <p class="text-xs text-muted-foreground mb-1">Current Address</p>
+            @if (editMode()) {
+            <input z-input [(ngModel)]="formData.current_address" placeholder="Enter current address">
+            } @else {
+            <p class="text-sm font-normal">{{ profile()!.current_address || '-' }}</p>
+            }
+          </div>
+          <div class="md:col-span-2">
+            <p class="text-xs text-muted-foreground mb-1">Permanent Address</p>
+            @if (editMode()) {
+            <input z-input [(ngModel)]="formData.permanent_address" placeholder="Enter permanent address">
+            } @else {
+            <p class="text-sm font-normal">{{ profile()!.permanent_address || '-' }}</p>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Emergency Contact Card -->
+    <div class="rounded-xl border border-border bg-card">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-border">
+        <div class="flex items-center gap-2">
+          <z-icon [zType]="$any('circle-alert')" class="h-4 w-4 text-muted-foreground" />
+          <h3 class="text-sm font-medium text-foreground">Emergency Contact</h3>
+        </div>
+        @if (!editMode()) {
+        <button z-button zType="ghost" zSize="sm" (click)="toggleEditMode()">
+          <z-icon zType="pencil" class="mr-2 h-4 w-4" />
+          Edit
+        </button>
+        }
+      </div>
+      <div class="px-5 py-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+          <div>
+            <p class="text-xs text-muted-foreground mb-1">Contact Name</p>
+            @if (editMode()) {
+            <input z-input [(ngModel)]="formData.emergency_contact_name" placeholder="Enter contact name">
+            } @else {
+            <p class="text-sm font-normal">{{ profile()!.emergency_contact_name || '-' }}</p>
+            }
+          </div>
+          <div>
+            <p class="text-xs text-muted-foreground mb-1">Contact Phone</p>
+            @if (editMode()) {
+            <input z-input [(ngModel)]="formData.emergency_contact_phone" placeholder="Enter contact phone">
+            } @else {
+            <p class="text-sm font-normal">{{ profile()!.emergency_contact_phone || '-' }}</p>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- ==================== PAYSLIPS TAB ==================== -->
+  @case ('payslips') {
+  <app-my-payslips [embedded]="true" />
+  }
+
+  <!-- ==================== DOCUMENTS TAB ==================== -->
+  @case ('documents') {
+  <div class="space-y-4">
+    <!-- Search & Sort Bar -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+      <div class="relative w-full sm:w-80">
+        <z-icon zType="search"
+          class="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+        <input z-input class="pl-10" placeholder="Search files..." [(ngModel)]="docSearch"
+          (keyup.enter)="onDocSearch()" />
+      </div>
+      <div class="flex items-center gap-1 text-sm text-muted-foreground">
+        <span>Sort:</span>
+        <button z-button zType="ghost" zSize="sm"
+          [class]="docSort === 'original_filename' ? 'font-medium text-foreground' : ''"
+          (click)="onDocSort('original_filename')">
+          Name
+          @if (docSort === 'original_filename') {
+          <z-icon [zType]="$any(docOrder === 'ASC' ? 'arrow-up' : 'arrow-down')" class="inline h-3 w-3" />
+          }
+        </button>
+        <button z-button zType="ghost" zSize="sm"
+          [class]="docSort === 'uploaded_at' ? 'font-medium text-foreground' : ''"
+          (click)="onDocSort('uploaded_at')">
+          Date
+          @if (docSort === 'uploaded_at') {
+          <z-icon [zType]="$any(docOrder === 'ASC' ? 'arrow-up' : 'arrow-down')" class="inline h-3 w-3" />
+          }
+        </button>
+        <button z-button zType="ghost" zSize="sm"
+          [class]="docSort === 'file_size' ? 'font-medium text-foreground' : ''"
+          (click)="onDocSort('file_size')">
+          Size
+          @if (docSort === 'file_size') {
+          <z-icon [zType]="$any(docOrder === 'ASC' ? 'arrow-up' : 'arrow-down')" class="inline h-3 w-3" />
+          }
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    @if (loadingDocuments()) {
+    <div class="space-y-2">
+      @for (i of [1, 2, 3]; track i) {
+      <z-skeleton class="h-16 w-full rounded-lg" />
+      }
+    </div>
+    } @else if (documents().length > 0) {
+    <!-- File List -->
+    <div class="rounded-xl border border-border divide-y divide-border bg-card">
+      @for (doc of documents(); track doc.id) {
+      <div class="flex items-center gap-4 px-4 py-3 hover:bg-muted/40 transition-colors group">
+        <!-- File Icon -->
+        <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-muted/60 shrink-0">
+          <z-icon [zType]="$any(getFileIcon(doc.mime_type))" class="h-5 w-5"
+            [ngClass]="getFileIconColor(doc.mime_type)" />
+        </div>
+
+        <!-- File Info -->
+        <div class="flex-1 min-w-0">
+          <p class="font-normal text-sm truncate" [title]="doc.original_filename">{{ doc.original_filename }}</p>
+          <div class="flex items-center gap-2 mt-0.5">
+            <span class="text-xs px-1.5 py-0.5 rounded-full font-normal" [ngClass]="getCategoryColor(doc.category)">{{
+              getCategoryLabel(doc.category) }}</span>
+            @if (doc.is_verified) {
+            <span class="flex items-center gap-0.5 text-xs text-green-600 dark:text-green-400">
+              <z-icon [zType]="$any('badge-check')" class="h-3 w-3" />
+              Verified
+            </span>
+            }
+          </div>
+        </div>
+
+        <!-- Date -->
+        <div class="hidden md:block text-sm text-muted-foreground whitespace-nowrap">
+          {{ formatDate(doc.uploaded_at) }}
+        </div>
+
+        <!-- Size -->
+        <div class="hidden sm:block text-sm text-muted-foreground whitespace-nowrap w-16 text-right tabular-nums">
+          {{ formatFileSize(doc.file_size) }}
+        </div>
+
+        <!-- Download -->
+        <button z-button zType="ghost" zSize="sm" class="opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+          [disabled]="downloadingDoc() === doc.id" (click)="downloadDocument(doc)">
+          @if (downloadingDoc() === doc.id) {
+          <z-icon zType="loader-2" class="h-4 w-4 animate-spin" />
           } @else {
-            <!-- Empty State -->
-            <div class="rounded-xl border border-border bg-card py-12 text-center">
-              <z-icon [zType]="$any('users')" class="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 class="text-lg font-medium mb-1">No Team Members</h3>
-              <p class="text-sm text-muted-foreground">
-                @if (teamSearch) {
-                  No team members matching "{{ teamSearch }}"
-                } @else {
-                  You don't have any direct reports assigned yet.
-                }
-              </p>
-            </div>
+          <z-icon zType="download" class="h-4 w-4" />
           }
-        </div>
+        </button>
+      </div>
       }
+    </div>
 
-      <!-- ==================== PERSONAL INFORMATION TAB ==================== -->
-      @case ('personal') {
-        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
-          <!-- Left Column (3/5) -->
-          <div class="lg:col-span-3 space-y-6">
-            <!-- Personal Information Card -->
-            <div class="rounded-xl border border-border bg-card">
-              <div class="flex items-center justify-between px-5 py-4 border-b border-border">
-                <div class="flex items-center gap-2">
-                  <z-icon zType="user" class="h-4 w-4 text-muted-foreground" />
-                  <h3 class="text-sm font-medium text-foreground">Personal Information</h3>
-                </div>
-              </div>
-              <div class="px-5 py-4">
-                <div class="grid grid-cols-2 gap-x-6 gap-y-4">
-                  <div>
-                    <p class="text-xs text-muted-foreground mb-1">Full Name</p>
-                    <p class="text-sm font-normal">{{ profile()!.full_name || '-' }}</p>
-                  </div>
-                  <div>
-                    <p class="text-xs text-muted-foreground mb-1">IC Number</p>
-                    <p class="text-sm font-normal">{{ profile()!.ic_no || '-' }}</p>
-                  </div>
-                  <div>
-                    <p class="text-xs text-muted-foreground mb-1">Gender</p>
-                    <p class="text-sm font-normal capitalize">{{ profile()!.gender || '-' }}</p>
-                  </div>
-                  <div>
-                    <p class="text-xs text-muted-foreground mb-1">Marital Status</p>
-                    <p class="text-sm font-normal capitalize">{{ profile()!.marital_status || '-' }}</p>
-                  </div>
-                  <div>
-                    <p class="text-xs text-muted-foreground mb-1">Religion</p>
-                    <p class="text-sm font-normal">{{ profile()!.religion || '-' }}</p>
-                  </div>
-                  <div>
-                    <p class="text-xs text-muted-foreground mb-1">Nationality</p>
-                    <p class="text-sm font-normal">{{ profile()!.nationality || '-' }}</p>
-                  </div>
-                  <div>
-                    <p class="text-xs text-muted-foreground mb-1">Race</p>
-                    <p class="text-sm font-normal">{{ profile()!.race || '-' }}</p>
-                  </div>
-                  <div>
-                    <p class="text-xs text-muted-foreground mb-1">Date of Birth</p>
-                    <p class="text-sm font-normal">
-                      {{ formatDate(profile()!.date_of_birth ?? null) }}
-                      @if (profile()!.date_of_birth) {
-                        <span class="text-muted-foreground">({{ calculateAge(profile()!.date_of_birth!) }} yrs)</span>
-                      }
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Address Information Card -->
-            <div class="rounded-xl border border-border bg-card">
-              <div class="flex items-center justify-between px-5 py-4 border-b border-border">
-                <div class="flex items-center gap-2">
-                  <z-icon [zType]="$any('map-pin')" class="h-4 w-4 text-muted-foreground" />
-                  <h3 class="text-sm font-medium text-foreground">Address Information</h3>
-                </div>
-              </div>
-              <div class="px-5 py-4 space-y-4">
-                <div>
-                  <p class="text-xs text-muted-foreground mb-1">Residential Address</p>
-                  <p class="text-sm font-normal">{{ profile()!.current_address || '-' }}</p>
-                </div>
-                <z-divider zSpacing="none" />
-                <div>
-                  <p class="text-xs text-muted-foreground mb-1">Permanent Address</p>
-                  <p class="text-sm font-normal">{{ profile()!.permanent_address || '-' }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Right Column (2/5) -->
-          <div class="lg:col-span-2 space-y-6">
-            <!-- Contact Information Card -->
-            <div class="rounded-xl border border-border bg-card">
-              <div class="flex items-center justify-between px-5 py-4 border-b border-border">
-                <div class="flex items-center gap-2">
-                  <z-icon zType="phone" class="h-4 w-4 text-muted-foreground" />
-                  <h3 class="text-sm font-medium text-foreground">Contact Information</h3>
-                </div>
-              </div>
-              <div class="px-5 py-4 space-y-3">
-                <div class="flex items-center gap-3">
-                  <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-muted shrink-0">
-                    <z-icon zType="phone" class="h-4 w-4 text-muted-foreground" />
-                  </div>
-                  <div>
-                    <p class="text-xs text-muted-foreground">Phone</p>
-                    @if (profile()!.mobile) {
-                      <a href="tel:{{ profile()!.mobile }}" class="text-sm font-normal text-primary hover:underline">{{ profile()!.mobile }}</a>
-                    } @else {
-                      <p class="text-sm font-normal">-</p>
-                    }
-                  </div>
-                </div>
-                <z-divider zSpacing="none" />
-                <div class="flex items-center gap-3">
-                  <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-muted shrink-0">
-                    <z-icon zType="mail" class="h-4 w-4 text-muted-foreground" />
-                  </div>
-                  <div>
-                    <p class="text-xs text-muted-foreground">Email</p>
-                    @if (profile()!.email) {
-                      <a href="mailto:{{ profile()!.email }}" class="text-sm font-normal text-primary hover:underline truncate block max-w-[200px]">{{ profile()!.email }}</a>
-                    } @else {
-                      <p class="text-sm font-normal">-</p>
-                    }
-                  </div>
-                </div>
-                <z-divider zSpacing="none" />
-                <div class="flex items-center gap-3">
-                  <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-muted shrink-0">
-                    <z-icon [zType]="$any('circle-alert')" class="h-4 w-4 text-muted-foreground" />
-                  </div>
-                  <div>
-                    <p class="text-xs text-muted-foreground">Emergency Contact</p>
-                    <p class="text-sm font-normal">{{ profile()!.emergency_contact_name || '-' }}</p>
-                    @if (profile()!.emergency_contact_phone) {
-                      <p class="text-xs text-muted-foreground">{{ profile()!.emergency_contact_phone }}</p>
-                    }
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Employment Overview Card -->
-            <div class="rounded-xl border border-border bg-card">
-              <div class="flex items-center justify-between px-5 py-4 border-b border-border">
-                <div class="flex items-center gap-2">
-                  <z-icon zType="briefcase" class="h-4 w-4 text-muted-foreground" />
-                  <h3 class="text-sm font-medium text-foreground">Employment Overview</h3>
-                </div>
-              </div>
-              <div class="px-5 py-4 space-y-3">
-                <div class="flex items-center justify-between">
-                  <span class="text-xs text-muted-foreground">Date Started</span>
-                  <span class="text-sm font-normal">
-                    {{ formatDate(profile()!.join_date ?? null) }}
-                    @if (profile()!.join_date) {
-                      <span class="text-muted-foreground">({{ calculateTenure(profile()!.join_date!) }})</span>
-                    }
-                  </span>
-                </div>
-                <z-divider zSpacing="none" />
-                <div class="flex items-center justify-between">
-                  <span class="text-xs text-muted-foreground">Position</span>
-                  <span class="text-sm font-normal">{{ profile()!.position || '-' }}</span>
-                </div>
-                <z-divider zSpacing="none" />
-                <div class="flex items-center justify-between">
-                  <span class="text-xs text-muted-foreground">Department</span>
-                  <span class="text-sm font-normal">{{ profile()!.department || '-' }}</span>
-                </div>
-                <z-divider zSpacing="none" />
-                <div class="flex items-center justify-between">
-                  <span class="text-xs text-muted-foreground">Employment Type</span>
-                  <span class="text-sm font-normal capitalize">{{ profile()!.employment_type || '-' }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      }
-
-      <!-- ==================== EMPLOYMENT TAB ==================== -->
-      @case ('employment') {
-        <div class="space-y-6">
-          <!-- Employment Details -->
-          <div class="rounded-xl border border-border bg-card">
-            <div class="flex items-center justify-between px-5 py-4 border-b border-border">
-              <div class="flex items-center gap-2">
-                <z-icon zType="briefcase" class="h-4 w-4 text-muted-foreground" />
-                <h3 class="text-sm font-medium text-foreground">Employment Details</h3>
-              </div>
-            </div>
-            <div class="px-5 py-4">
-              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
-                <div>
-                  <p class="text-xs text-muted-foreground mb-1">Employee ID</p>
-                  <p class="text-sm font-normal">{{ profile()!.employee_id || '-' }}</p>
-                </div>
-                <div>
-                  <p class="text-xs text-muted-foreground mb-1">Department</p>
-                  <p class="text-sm font-normal">{{ profile()!.department || '-' }}</p>
-                </div>
-                <div>
-                  <p class="text-xs text-muted-foreground mb-1">Position</p>
-                  <p class="text-sm font-normal">{{ profile()!.position || '-' }}</p>
-                </div>
-                <div>
-                  <p class="text-xs text-muted-foreground mb-1">Employment Type</p>
-                  <p class="text-sm font-normal capitalize">{{ profile()!.employment_type || '-' }}</p>
-                </div>
-                <div>
-                  <p class="text-xs text-muted-foreground mb-1">Employment Status</p>
-                  <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 dark:bg-emerald-950 px-2 py-0.5 text-xs font-normal text-emerald-700 dark:text-emerald-400 ring-1 ring-inset ring-emerald-600/20">
-                    {{ profile()!.employment_status || '-' }}
-                  </span>
-                </div>
-                <div>
-                  <p class="text-xs text-muted-foreground mb-1">Work Location</p>
-                  <p class="text-sm font-normal">{{ profile()!.work_location || '-' }}</p>
-                </div>
-                <div>
-                  <p class="text-xs text-muted-foreground mb-1">Join Date</p>
-                  <p class="text-sm font-normal">{{ formatDate(profile()!.join_date ?? null) }}</p>
-                </div>
-                <div>
-                  <p class="text-xs text-muted-foreground mb-1">Confirmation Date</p>
-                  <p class="text-sm font-normal">{{ formatDate(profile()!.confirmation_date ?? null) }}</p>
-                </div>
-                <div>
-                  <p class="text-xs text-muted-foreground mb-1">Tenure</p>
-                  <p class="text-sm font-normal">
-                    @if (profile()!.join_date) {
-                      {{ calculateTenure(profile()!.join_date!) }}
-                    } @else {
-                      -
-                    }
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Compensation & Banking -->
-          <div class="rounded-xl border border-border bg-card">
-            <div class="flex items-center justify-between px-5 py-4 border-b border-border">
-              <div class="flex items-center gap-2">
-                <z-icon zType="wallet" class="h-4 w-4 text-muted-foreground" />
-                <h3 class="text-sm font-medium text-foreground">Compensation & Banking</h3>
-              </div>
-            </div>
-            <div class="px-5 py-4">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                <div>
-                  <p class="text-xs text-muted-foreground mb-1">Basic Salary</p>
-                  <p class="text-sm font-normal">{{ formatCurrency(profile()!.basic_salary ?? 0) }}</p>
-                </div>
-                <div>
-                  <p class="text-xs text-muted-foreground mb-1">Bank Name</p>
-                  <p class="text-sm font-normal">{{ profile()!.bank_name || '-' }}</p>
-                </div>
-                <div>
-                  <p class="text-xs text-muted-foreground mb-1">Bank Account No</p>
-                  <p class="text-sm font-normal">{{ profile()!.bank_account_no || '-' }}</p>
-                </div>
-                <div>
-                  <p class="text-xs text-muted-foreground mb-1">Account Holder</p>
-                  <p class="text-sm font-normal">{{ profile()!.bank_account_holder || '-' }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      }
-
-      <!-- ==================== CONTACT TAB (EDITABLE) ==================== -->
-      @case ('contact') {
-        <div class="space-y-6">
-          <!-- Edit Mode Actions -->
-          @if (editMode()) {
-            <div class="flex justify-end gap-2">
-              <button z-button zType="outline" zSize="sm" (click)="toggleEditMode()">
-                <z-icon zType="x" class="mr-2 h-4 w-4" />
-                Cancel
-              </button>
-              <button z-button zSize="sm" (click)="saveProfile()" [disabled]="saving()">
-                @if (saving()) {
-                  <z-icon zType="loader-2" class="mr-2 h-4 w-4 animate-spin" />
-                  Saving...
-                } @else {
-                  <z-icon zType="save" class="mr-2 h-4 w-4" />
-                  Save Changes
-                }
-              </button>
-            </div>
-          }
-
-          <!-- Contact Details Card -->
-          <div class="rounded-xl border border-border bg-card">
-            <div class="flex items-center justify-between px-5 py-4 border-b border-border">
-              <div class="flex items-center gap-2">
-                <z-icon zType="phone" class="h-4 w-4 text-muted-foreground" />
-                <h3 class="text-sm font-medium text-foreground">Contact Details</h3>
-              </div>
-              @if (!editMode()) {
-                <button z-button zType="ghost" zSize="sm" (click)="toggleEditMode()">
-                  <z-icon zType="pencil" class="mr-2 h-4 w-4" />
-                  Edit
-                </button>
-              }
-            </div>
-            <div class="px-5 py-4">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                <div>
-                  <p class="text-xs text-muted-foreground mb-1">Mobile Number</p>
-                  @if (editMode()) {
-                    <input z-input [(ngModel)]="formData.mobile" placeholder="Enter mobile number">
-                  } @else {
-                    <p class="text-sm font-normal">{{ profile()!.mobile || '-' }}</p>
-                  }
-                </div>
-                <div>
-                  <p class="text-xs text-muted-foreground mb-1">Email Address</p>
-                  @if (editMode()) {
-                    <input z-input [(ngModel)]="formData.email" type="email" placeholder="Enter email address">
-                  } @else {
-                    <p class="text-sm font-normal">{{ profile()!.email || '-' }}</p>
-                  }
-                </div>
-                <div class="md:col-span-2">
-                  <p class="text-xs text-muted-foreground mb-1">Current Address</p>
-                  @if (editMode()) {
-                    <input z-input [(ngModel)]="formData.current_address" placeholder="Enter current address">
-                  } @else {
-                    <p class="text-sm font-normal">{{ profile()!.current_address || '-' }}</p>
-                  }
-                </div>
-                <div class="md:col-span-2">
-                  <p class="text-xs text-muted-foreground mb-1">Permanent Address</p>
-                  @if (editMode()) {
-                    <input z-input [(ngModel)]="formData.permanent_address" placeholder="Enter permanent address">
-                  } @else {
-                    <p class="text-sm font-normal">{{ profile()!.permanent_address || '-' }}</p>
-                  }
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Emergency Contact Card -->
-          <div class="rounded-xl border border-border bg-card">
-            <div class="flex items-center justify-between px-5 py-4 border-b border-border">
-              <div class="flex items-center gap-2">
-                <z-icon [zType]="$any('circle-alert')" class="h-4 w-4 text-muted-foreground" />
-                <h3 class="text-sm font-medium text-foreground">Emergency Contact</h3>
-              </div>
-              @if (!editMode()) {
-                <button z-button zType="ghost" zSize="sm" (click)="toggleEditMode()">
-                  <z-icon zType="pencil" class="mr-2 h-4 w-4" />
-                  Edit
-                </button>
-              }
-            </div>
-            <div class="px-5 py-4">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                <div>
-                  <p class="text-xs text-muted-foreground mb-1">Contact Name</p>
-                  @if (editMode()) {
-                    <input z-input [(ngModel)]="formData.emergency_contact_name" placeholder="Enter contact name">
-                  } @else {
-                    <p class="text-sm font-normal">{{ profile()!.emergency_contact_name || '-' }}</p>
-                  }
-                </div>
-                <div>
-                  <p class="text-xs text-muted-foreground mb-1">Contact Phone</p>
-                  @if (editMode()) {
-                    <input z-input [(ngModel)]="formData.emergency_contact_phone" placeholder="Enter contact phone">
-                  } @else {
-                    <p class="text-sm font-normal">{{ profile()!.emergency_contact_phone || '-' }}</p>
-                  }
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      }
-
-      <!-- ==================== PAYSLIPS TAB ==================== -->
-      @case ('payslips') {
-        <app-my-payslips [embedded]="true" />
-      }
-
-      <!-- ==================== DOCUMENTS TAB ==================== -->
-      @case ('documents') {
-        <div class="space-y-4">
-          <!-- Search & Sort Bar -->
-          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <div class="relative w-full sm:w-80">
-              <z-icon zType="search" class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <input z-input
-                class="pl-9"
-                placeholder="Search files..."
-                [(ngModel)]="docSearch"
-                (keyup.enter)="onDocSearch()" />
-            </div>
-            <div class="flex items-center gap-1 text-sm text-muted-foreground">
-              <span>Sort:</span>
-              <button class="px-2 py-1 rounded hover:bg-muted transition-colors"
-                [class.font-medium]="docSort === 'original_filename'"
-                [class.text-foreground]="docSort === 'original_filename'"
-                (click)="onDocSort('original_filename')">
-                Name
-                @if (docSort === 'original_filename') {
-                  <z-icon [zType]="$any(docOrder === 'ASC' ? 'arrow-up' : 'arrow-down')" class="inline h-3 w-3" />
-                }
-              </button>
-              <button class="px-2 py-1 rounded hover:bg-muted transition-colors"
-                [class.font-medium]="docSort === 'uploaded_at'"
-                [class.text-foreground]="docSort === 'uploaded_at'"
-                (click)="onDocSort('uploaded_at')">
-                Date
-                @if (docSort === 'uploaded_at') {
-                  <z-icon [zType]="$any(docOrder === 'ASC' ? 'arrow-up' : 'arrow-down')" class="inline h-3 w-3" />
-                }
-              </button>
-              <button class="px-2 py-1 rounded hover:bg-muted transition-colors"
-                [class.font-medium]="docSort === 'file_size'"
-                [class.text-foreground]="docSort === 'file_size'"
-                (click)="onDocSort('file_size')">
-                Size
-                @if (docSort === 'file_size') {
-                  <z-icon [zType]="$any(docOrder === 'ASC' ? 'arrow-up' : 'arrow-down')" class="inline h-3 w-3" />
-                }
-              </button>
-            </div>
-          </div>
-
-          <!-- Loading -->
-          @if (loadingDocuments()) {
-            <div class="space-y-2">
-              @for (i of [1, 2, 3]; track i) {
-                <z-skeleton class="h-16 w-full rounded-lg" />
-              }
-            </div>
-          } @else if (documents().length > 0) {
-            <!-- File List -->
-            <div class="rounded-xl border border-border divide-y divide-border bg-card">
-              @for (doc of documents(); track doc.id) {
-                <div class="flex items-center gap-4 px-4 py-3 hover:bg-muted/40 transition-colors group">
-                  <!-- File Icon -->
-                  <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-muted/60 shrink-0">
-                    <z-icon [zType]="$any(getFileIcon(doc.mime_type))" class="h-5 w-5" [ngClass]="getFileIconColor(doc.mime_type)" />
-                  </div>
-
-                  <!-- File Info -->
-                  <div class="flex-1 min-w-0">
-                    <p class="font-normal text-sm truncate" [title]="doc.original_filename">{{ doc.original_filename }}</p>
-                    <div class="flex items-center gap-2 mt-0.5">
-                      <span class="text-xs px-1.5 py-0.5 rounded-full font-normal" [ngClass]="getCategoryColor(doc.category)">{{ getCategoryLabel(doc.category) }}</span>
-                      @if (doc.is_verified) {
-                        <span class="flex items-center gap-0.5 text-xs text-green-600 dark:text-green-400">
-                          <z-icon [zType]="$any('badge-check')" class="h-3 w-3" />
-                          Verified
-                        </span>
-                      }
-                    </div>
-                  </div>
-
-                  <!-- Date -->
-                  <div class="hidden md:block text-sm text-muted-foreground whitespace-nowrap">
-                    {{ formatDate(doc.uploaded_at) }}
-                  </div>
-
-                  <!-- Size -->
-                  <div class="hidden sm:block text-sm text-muted-foreground whitespace-nowrap w-16 text-right tabular-nums">
-                    {{ formatFileSize(doc.file_size) }}
-                  </div>
-
-                  <!-- Download -->
-                  <button z-button zType="ghost" zSize="sm"
-                    class="opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
-                    [disabled]="downloadingDoc() === doc.id"
-                    (click)="downloadDocument(doc)">
-                    @if (downloadingDoc() === doc.id) {
-                      <z-icon zType="loader-2" class="h-4 w-4 animate-spin" />
-                    } @else {
-                      <z-icon zType="download" class="h-4 w-4" />
-                    }
-                  </button>
-                </div>
-              }
-            </div>
-
-            <!-- File Count -->
-            <p class="text-xs text-muted-foreground text-right">{{ documents().length }} file(s)</p>
-          } @else {
-            <!-- Empty State -->
-            <div class="rounded-xl border border-border bg-card py-12 text-center">
-              <z-icon [zType]="$any('folder-open')" class="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 class="text-lg font-medium mb-1">No Documents</h3>
-              <p class="text-sm text-muted-foreground">
-                @if (docSearch) {
-                  No files matching "{{ docSearch }}"
-                } @else {
-                  Your documents will appear here once uploaded.
-                }
-              </p>
-            </div>
-          }
-        </div>
-      }
-
-      <!-- ==================== STATUTORY TAB ==================== -->
-      @case ('statutory') {
-        <div class="space-y-6">
-          <!-- Statutory Numbers -->
-          <div class="rounded-xl border border-border bg-card">
-            <div class="flex items-center justify-between px-5 py-4 border-b border-border">
-              <div class="flex items-center gap-2">
-                <z-icon zType="shield" class="h-4 w-4 text-muted-foreground" />
-                <h3 class="text-sm font-medium text-foreground">Statutory Contributions</h3>
-              </div>
-            </div>
-            <div class="px-5 py-4">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                <div>
-                  <p class="text-xs text-muted-foreground mb-1">EPF Number</p>
-                  <p class="text-sm font-normal">{{ profile()!.epf_no || '-' }}</p>
-                </div>
-                <div>
-                  <p class="text-xs text-muted-foreground mb-1">SOCSO Number</p>
-                  <p class="text-sm font-normal">{{ profile()!.socso_no || '-' }}</p>
-                </div>
-                <div>
-                  <p class="text-xs text-muted-foreground mb-1">Tax Number</p>
-                  <p class="text-sm font-normal">{{ profile()!.tax_no || '-' }}</p>
-                </div>
-                <div>
-                  <p class="text-xs text-muted-foreground mb-1">Tax Category</p>
-                  <p class="text-sm font-normal">{{ profile()!.tax_category || '-' }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      }
+    <!-- File Count -->
+    <p class="text-xs text-muted-foreground text-right">{{ documents().length }} file(s)</p>
+    } @else {
+    <!-- Empty State -->
+    <div class="rounded-xl border border-border bg-card py-12 text-center">
+      <z-icon [zType]="$any('folder-open')" class="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+      <h3 class="text-lg font-medium mb-1">No Documents</h3>
+      <p class="text-sm text-muted-foreground">
+        @if (docSearch) {
+        No files matching "{{ docSearch }}"
+        } @else {
+        Your documents will appear here once uploaded.
+        }
+      </p>
+    </div>
     }
   </div>
+  }
+
+  <!-- ==================== STATUTORY TAB ==================== -->
+  @case ('statutory') {
+  <div class="space-y-6">
+    <!-- Statutory Numbers -->
+    <div class="rounded-xl border border-border bg-card">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-border">
+        <div class="flex items-center gap-2">
+          <z-icon zType="shield" class="h-4 w-4 text-muted-foreground" />
+          <h3 class="text-sm font-medium text-foreground">Statutory Contributions</h3>
+        </div>
+      </div>
+      <div class="px-5 py-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+          <div>
+            <p class="text-xs text-muted-foreground mb-1">EPF Number</p>
+            <p class="text-sm font-normal">{{ profile()!.epf_no || '-' }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-muted-foreground mb-1">SOCSO Number</p>
+            <p class="text-sm font-normal">{{ profile()!.socso_no || '-' }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-muted-foreground mb-1">Tax Number</p>
+            <p class="text-sm font-normal">{{ profile()!.tax_no || '-' }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-muted-foreground mb-1">Tax Category</p>
+            <p class="text-sm font-normal">{{ profile()!.tax_category || '-' }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  }
+  }
+</div>
 }

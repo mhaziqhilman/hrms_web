@@ -56,7 +56,9 @@
         <h4 class="text-base font-medium text-foreground">Selected Files ({{ selectedFiles().length }})</h4>
         <button
           type="button"
-          class="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          z-button
+          zType="ghost"
+          zSize="sm"
           (click)="clearFiles()"
           [disabled]="uploading()"
         >
@@ -92,12 +94,15 @@
             <!-- Remove Button -->
             <button
               type="button"
-              class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-md hover:bg-muted transition-colors"
+              z-button
+              zType="ghost"
+              zSize="sm"
+              class="shrink-0"
               (click)="removeFile(i)"
               [disabled]="uploading()"
               title="Remove file"
             >
-              <svg class="w-4 h-4 text-muted-foreground hover:text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
               </svg>
             </button>
@@ -110,7 +115,8 @@
         <div class="mt-4">
           <button
             type="button"
-            class="w-full inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-normal text-white bg-primary rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            z-button
+            zFull
             (click)="upload()"
             [disabled]="uploading() || selectedFiles().length === 0"
           >

@@ -1,9 +1,9 @@
-<div class="bg-background min-h-screen p-6 space-y-6">
+<div class="space-y-6">
   <!-- Header -->
   <div class="flex items-start justify-between gap-4 flex-wrap">
     <div>
-      <h1 class="text-2xl font-semibold text-foreground tracking-tight">Bills & Purchase Orders</h1>
-      <p class="text-sm text-muted-foreground mt-1">Vendor invoices, POs, and expenses paid by the company.</p>
+      <h1 class="text-[28px] font-semibold tracking-tight leading-none text-foreground">Bills & Purchase Orders</h1>
+      <p class="text-[13px] text-muted-foreground mt-2">Vendor invoices, POs, and expenses paid by the company.</p>
     </div>
     <button z-button (click)="goToCreate()" class="gap-2">
       <z-icon zType="plus" class="w-4 h-4" />
@@ -16,12 +16,12 @@
     <!-- Search -->
     <div class="relative flex-1 min-w-[220px] max-w-md">
       <z-icon zType="search"
-        class="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+        class="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
       <input type="text"
         [value]="searchTerm()"
         (input)="onSearchChange($any($event.target).value)"
         placeholder="Search bill #, vendor, vendor invoice #..."
-        class="w-full pl-9 pr-3 py-2 text-sm border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent" />
+        class="w-full pl-10 pr-3 py-2 text-sm border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent" />
     </div>
 
     <!-- Type Filter -->
@@ -64,15 +64,19 @@
 
     <!-- Date range -->
     <div class="flex items-center gap-2">
-      <input type="date"
-        [value]="fromDate()"
-        (input)="fromDate.set($any($event.target).value); onDateChange()"
-        class="px-2.5 py-2 text-sm border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+      <z-date-picker
+        placeholder="From date"
+        zFormat="dd-MM-yyyy"
+        [(ngModel)]="fromDateValue"
+        (dateChange)="onFromDateChange($event)">
+      </z-date-picker>
       <span class="text-xs text-muted-foreground">to</span>
-      <input type="date"
-        [value]="toDate()"
-        (input)="toDate.set($any($event.target).value); onDateChange()"
-        class="px-2.5 py-2 text-sm border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+      <z-date-picker
+        placeholder="To date"
+        zFormat="dd-MM-yyyy"
+        [(ngModel)]="toDateValue"
+        (dateChange)="onToDateChange($event)">
+      </z-date-picker>
     </div>
 
     <!-- Reset -->

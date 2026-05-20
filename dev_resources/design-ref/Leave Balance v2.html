@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Leave Balance · 2027</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { font-family: 'Geist', system-ui, -apple-system, sans-serif; }
+  .font-mono { font-family: 'Geist Mono', ui-monospace, monospace; }
+  .shad-card { box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.04); }
+  .shad-card-lg { box-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 1px 3px rgb(0 0 0 / 0.06); }
+  .grid-bg {
+    background-image:
+      linear-gradient(to right, rgb(255 255 255 / 0.06) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(255 255 255 / 0.06) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+  .sparkline-bar { transform-origin: bottom; }
+  .ring-track { stroke: rgb(241 245 249); }
+  .ring-fill  { stroke: rgb(15 23 42); transition: stroke-dashoffset .6s ease; }
+</style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-900">
+
+<div class="max-w-[1280px] mx-auto p-8">
+
+  <!-- ======================================================== -->
+  <!-- Page header                                               -->
+  <!-- ======================================================== -->
+  <header class="mb-6 flex items-end justify-between flex-wrap gap-4">
+    <div>
+      <div class="flex items-center gap-2 text-[12px] text-slate-500 mb-2">
+        <a href="#" class="hover:text-slate-700">HR</a>
+        <span class="text-slate-300">/</span>
+        <a href="#" class="hover:text-slate-700">People</a>
+        <span class="text-slate-300">/</span>
+        <span class="text-slate-700">Leave balance</span>
+      </div>
+      <h1 class="text-[24px] font-semibold tracking-tight text-slate-900 leading-none">Leave balance</h1>
+      <p class="text-[13px] text-slate-500 mt-2">Track entitlements, usage and pending approvals across all leave types.</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <button class="inline-flex items-center justify-center h-9 px-3 rounded-md border border-slate-200 hover:bg-slate-50 text-[13px] font-medium text-slate-700">
+        <svg xmlns="http://www.w3.org/2000/svg" class="mr-1.5" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Back to list
+      </button>
+      <button class="inline-flex items-center justify-center h-9 px-3 rounded-md border border-slate-200 hover:bg-slate-50 text-[13px] font-medium text-slate-700">
+        <svg xmlns="http://www.w3.org/2000/svg" class="mr-1.5" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export
+      </button>
+      <button class="inline-flex items-center justify-center h-9 px-3 rounded-md bg-slate-900 hover:bg-slate-800 text-white text-[13px] font-medium">
+        <svg xmlns="http://www.w3.org/2000/svg" class="mr-1.5" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Apply leave
+      </button>
+    </div>
+  </header>
+
+  <!-- ======================================================== -->
+  <!-- Filter / context bar                                      -->
+  <!-- ======================================================== -->
+  <div class="bg-white rounded-2xl border border-slate-200 shad-card p-4 mb-4 flex items-center gap-3 flex-wrap">
+    <div class="relative pr-3 mr-1 border-r border-slate-200" id="staff-picker">
+      <button id="staff-trigger" type="button" class="flex items-center gap-3 min-w-0 max-w-[360px] h-12 pl-1 pr-3 rounded-lg hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-900/10 transition group">
+        <div id="trig-avatar" class="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-violet-700 text-white text-[12px] font-semibold flex items-center justify-center shrink-0">HE</div>
+        <div class="min-w-0 text-left">
+          <div class="flex items-center gap-1.5">
+            <p id="trig-name" class="text-[13px] font-semibold text-slate-900 truncate">Hanis Ezzati bin Abdul Rahman</p>
+            <svg xmlns="http://www.w3.org/2000/svg" class="text-slate-400 group-hover:text-slate-700 shrink-0 transition" id="trig-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="flex items-center gap-1.5 text-[11px] text-slate-500">
+            <span id="trig-id" class="font-mono">VLX-011</span>
+            <span class="w-1 h-1 rounded-full bg-slate-300"></span>
+            <span id="trig-role">HR Manager</span>
+            <span class="w-1 h-1 rounded-full bg-slate-300"></span>
+            <span class="inline-flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Active
+            </span>
+          </div>
+        </div>
+      </button>
+
+      <!-- Dropdown panel -->
+      <div id="staff-menu" class="hidden absolute top-full left-0 mt-2 z-30 w-[420px] bg-white rounded-xl border border-slate-200 shadow-lg overflow-hidden">
+        <!-- Search -->
+        <div class="p-3 border-b border-slate-100 relative">
+          <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-6 top-1/2 -translate-y-1/2" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input id="staff-search" type="text" placeholder="Search by name, ID, role…" autocomplete="off" class="w-full h-9 pl-9 pr-16 rounded-md border border-slate-200 bg-white text-[13px] text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10" />
+          <kbd class="absolute right-5 top-1/2 -translate-y-1/2 font-mono text-[10px] text-slate-400 bg-slate-50 ring-1 ring-slate-200 rounded px-1.5 py-0.5">⌘K</kbd>
+        </div>
+
+        <!-- Department filter chips -->
+        <div class="px-3 py-2 border-b border-slate-100 flex items-center gap-1.5 overflow-x-auto">
+          <button data-dept="all"  class="dept-chip h-6 px-2 rounded-full text-[11px] font-medium bg-slate-900 text-white shrink-0">All <span class="font-mono opacity-70">8</span></button>
+          <button data-dept="hr"   class="dept-chip h-6 px-2 rounded-full text-[11px] font-medium text-slate-600 hover:bg-slate-100 shrink-0">HR</button>
+          <button data-dept="eng"  class="dept-chip h-6 px-2 rounded-full text-[11px] font-medium text-slate-600 hover:bg-slate-100 shrink-0">Engineering</button>
+          <button data-dept="mgmt" class="dept-chip h-6 px-2 rounded-full text-[11px] font-medium text-slate-600 hover:bg-slate-100 shrink-0">Management</button>
+          <button data-dept="fin"  class="dept-chip h-6 px-2 rounded-full text-[11px] font-medium text-slate-600 hover:bg-slate-100 shrink-0">Finance</button>
+        </div>
+
+        <!-- Scrollable list -->
+        <div class="max-h-[340px] overflow-y-auto">
+          <p class="px-3 pt-3 pb-1.5 text-[10px] uppercase tracking-wide text-slate-500 font-medium">Recent</p>
+          <ul id="staff-list" class="px-1.5 pb-2">
+            <!-- populated by JS -->
+          </ul>
+          <p id="empty-state" class="hidden px-4 py-8 text-center text-[12px] text-slate-500">No staff match your search.</p>
+        </div>
+
+        <!-- Footer -->
+        <div class="border-t border-slate-100 px-3 py-2 flex items-center justify-between bg-slate-50/60">
+          <div class="flex items-center gap-3 text-[10px] text-slate-500 font-mono">
+            <span><kbd class="bg-white ring-1 ring-slate-200 rounded px-1">↑↓</kbd> navigate</span>
+            <span><kbd class="bg-white ring-1 ring-slate-200 rounded px-1">↵</kbd> select</span>
+            <span><kbd class="bg-white ring-1 ring-slate-200 rounded px-1">esc</kbd> close</span>
+          </div>
+          <button class="text-[11px] font-medium text-slate-700 hover:text-slate-900">All staff →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <label class="relative">
+      <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px] uppercase tracking-wide text-slate-400 font-medium">Year</span>
+      <select class="h-9 pl-12 pr-8 rounded-md border border-slate-200 bg-white text-[13px] font-medium text-slate-700 appearance-none focus:outline-none focus:ring-2 focus:ring-slate-900/10">
+        <option>2026</option><option>2025</option><option>2024</option>
+      </select>
+      <svg xmlns="http://www.w3.org/2000/svg" class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </label>
+
+    <label class="relative">
+      <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px] uppercase tracking-wide text-slate-400 font-medium">Period</span>
+      <select class="h-9 pl-14 pr-8 rounded-md border border-slate-200 bg-white text-[13px] font-medium text-slate-700 appearance-none focus:outline-none focus:ring-2 focus:ring-slate-900/10">
+        <option>Calendar year</option><option>Q1</option><option>Q2</option><option>YTD</option>
+      </select>
+      <svg xmlns="http://www.w3.org/2000/svg" class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </label>
+
+    <div class="ml-auto inline-flex h-9 items-center rounded-md bg-slate-100 p-1 text-[12px]">
+      <button class="h-7 px-3 rounded font-medium text-slate-900 bg-white shadow-sm">Bento</button>
+      <button class="h-7 px-3 rounded font-medium text-slate-500 hover:text-slate-900">List</button>
+      <button class="h-7 px-3 rounded font-medium text-slate-500 hover:text-slate-900">Calendar</button>
+    </div>
+  </div>
+
+
+  <!-- ============================================================== -->
+  <!-- Bento grid                                                       -->
+  <!-- 12 cols × 6 rows                                                 -->
+  <!-- ============================================================== -->
+  <div class="grid grid-cols-12 auto-rows-[100px] gap-4">
+
+    <!-- ──────────────────────────────────────────────────────────── -->
+    <!-- HERO: Annual Leave (largest tile)                             -->
+    <!-- ──────────────────────────────────────────────────────────── -->
+    <div class="col-span-12 lg:col-span-6 row-span-3 bg-slate-900 text-white rounded-2xl p-7 relative overflow-hidden">
+      <div class="absolute inset-0 grid-bg opacity-50"></div>
+      <div class="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-gradient-to-br from-violet-500/30 to-fuchsia-500/10 blur-3xl"></div>
+
+      <div class="relative h-full flex flex-col">
+        <div class="flex items-start justify-between">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/10 ring-1 ring-white/15 text-[11px] font-medium text-white/80">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>Primary entitlement
+              </span>
+            </div>
+            <h2 class="mt-3 text-[22px] font-semibold tracking-tight leading-none">Annual leave</h2>
+            <p class="text-[12px] text-white/60 mt-1.5">Paid · resets 31 Dec 2026</p>
+          </div>
+          <button class="text-white/60 hover:text-white"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></button>
+        </div>
+
+        <!-- Big donut + numbers -->
+        <div class="mt-auto flex items-end gap-7">
+          <div class="relative shrink-0">
+            <svg width="156" height="156" viewBox="0 0 156 156">
+              <circle cx="78" cy="78" r="64" fill="none" stroke="rgb(255 255 255 / 0.08)" stroke-width="14"/>
+              <circle cx="78" cy="78" r="64" fill="none" stroke="white" stroke-width="14" stroke-linecap="round" stroke-dasharray="402.1" stroke-dashoffset="229.2" transform="rotate(-90 78 78)"/>
+            </svg>
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+              <p class="font-mono text-[36px] font-semibold leading-none">8</p>
+              <p class="text-[11px] text-white/60 mt-1">days left</p>
+            </div>
+          </div>
+
+          <div class="flex-1 grid grid-cols-3 gap-x-1 gap-y-3 pb-1">
+            <div>
+              <p class="text-[10px] uppercase tracking-wide text-white/50 font-medium">Total</p>
+              <p class="font-mono text-[20px] font-semibold mt-1 leading-none">14</p>
+            </div>
+            <div>
+              <p class="text-[10px] uppercase tracking-wide text-white/50 font-medium">Used</p>
+              <p class="font-mono text-[20px] font-semibold mt-1 leading-none">6</p>
+            </div>
+            <div>
+              <p class="text-[10px] uppercase tracking-wide text-white/50 font-medium">Pending</p>
+              <p class="font-mono text-[20px] font-semibold mt-1 leading-none">0</p>
+            </div>
+
+            <div class="col-span-3 mt-2">
+              <div class="flex items-center justify-between text-[11px] text-white/60 mb-1.5">
+                <span>43% used</span>
+                <span class="font-mono">6 / 14</span>
+              </div>
+              <div class="h-1.5 rounded-full bg-white/10 overflow-hidden flex gap-px">
+                <div class="bg-white" style="width:43%"></div>
+                <div class="bg-amber-400/70" style="width:0%"></div>
+              </div>
+              <p class="text-[11px] text-white/50 mt-2">Next holiday window: <span class="text-white">Hari Raya · 20–24 Mar</span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ──────────────────────────────────────────────────────────── -->
+    <!-- Summary: total balance across all types                       -->
+    <!-- ──────────────────────────────────────────────────────────── -->
+    <div class="col-span-6 lg:col-span-3 row-span-2 bg-white rounded-2xl border border-slate-200 shad-card p-5 flex flex-col justify-between">
+      <div>
+        <p class="text-[11px] uppercase tracking-wide text-slate-500 font-medium">Total balance</p>
+        <div class="flex items-baseline gap-1.5 mt-1.5">
+          <p class="font-mono text-[44px] font-semibold text-slate-900 leading-none">37</p>
+          <p class="text-[13px] text-slate-500">days</p>
+        </div>
+        <p class="text-[12px] text-slate-500 mt-2">Across 5 leave types</p>
+      </div>
+      <!-- Stacked bar -->
+      <div>
+        <div class="h-2 rounded-full bg-slate-100 overflow-hidden flex">
+          <div class="bg-slate-900" style="width:21.6%" title="Annual"></div>
+          <div class="bg-violet-500" style="width:37.8%" title="Medical"></div>
+          <div class="bg-amber-500" style="width:13.5%" title="Emergency"></div>
+          <div class="bg-rose-500" style="width:0%" title="Unpaid"></div>
+          <div class="bg-emerald-500" style="width:27%" title="Hospitalization"></div>
+        </div>
+        <div class="grid grid-cols-2 gap-y-1 mt-3 text-[11px] text-slate-500">
+          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-slate-900"></span>Annual</span>
+          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-violet-500"></span>Medical</span>
+          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-500"></span>Emergency</span>
+          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>Hospital.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick stat: Used YTD -->
+    <div class="col-span-6 lg:col-span-3 row-span-1 bg-white rounded-2xl border border-slate-200 shad-card p-5 flex items-center justify-between">
+      <div>
+        <p class="text-[11px] uppercase tracking-wide text-slate-500 font-medium">Used YTD</p>
+        <p class="font-mono text-[24px] font-semibold text-slate-900 mt-1 leading-none">6 <span class="text-[12px] text-slate-500 font-normal">days</span></p>
+      </div>
+      <div class="flex items-end gap-0.5 h-10">
+        <div class="w-1.5 rounded-sm bg-slate-200" style="height:30%"></div>
+        <div class="w-1.5 rounded-sm bg-slate-200" style="height:50%"></div>
+        <div class="w-1.5 rounded-sm bg-slate-200" style="height:25%"></div>
+        <div class="w-1.5 rounded-sm bg-slate-300" style="height:60%"></div>
+        <div class="w-1.5 rounded-sm bg-slate-300" style="height:40%"></div>
+        <div class="w-1.5 rounded-sm bg-slate-400" style="height:70%"></div>
+        <div class="w-1.5 rounded-sm bg-slate-500" style="height:80%"></div>
+        <div class="w-1.5 rounded-sm bg-slate-700" style="height:55%"></div>
+        <div class="w-1.5 rounded-sm bg-slate-900" style="height:90%"></div>
+      </div>
+    </div>
+
+    <!-- Quick stat: Pending -->
+    <div class="col-span-6 lg:col-span-3 row-span-1 bg-white rounded-2xl border border-slate-200 shad-card p-5 flex items-center justify-between">
+      <div>
+        <p class="text-[11px] uppercase tracking-wide text-slate-500 font-medium">Pending</p>
+        <p class="font-mono text-[24px] font-semibold text-slate-900 mt-1 leading-none">0 <span class="text-[12px] text-slate-500 font-normal">requests</span></p>
+      </div>
+      <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 text-[11px] font-medium">
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        All clear
+      </span>
+    </div>
+
+    <!-- ──────────────────────────────────────────────────────────── -->
+    <!-- Medical Leave                                                  -->
+    <!-- ──────────────────────────────────────────────────────────── -->
+    <div class="col-span-6 lg:col-span-3 row-span-2 bg-white rounded-2xl border border-slate-200 shad-card p-5 flex flex-col">
+      <div class="flex items-start justify-between">
+        <div class="flex items-center gap-2">
+          <span class="w-7 h-7 rounded-md bg-violet-50 ring-1 ring-violet-100 flex items-center justify-center text-violet-600">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+          </span>
+          <h3 class="text-[14px] font-semibold tracking-tight text-slate-900">Medical</h3>
+        </div>
+        <span class="text-[11px] text-slate-500 font-mono">14d</span>
+      </div>
+
+      <div class="mt-4 flex items-center gap-3">
+        <div class="relative shrink-0">
+          <svg width="56" height="56" viewBox="0 0 56 56">
+            <circle cx="28" cy="28" r="22" fill="none" stroke="#f1f5f9" stroke-width="6"/>
+            <circle cx="28" cy="28" r="22" fill="none" stroke="#7c3aed" stroke-width="6" stroke-linecap="round" stroke-dasharray="138.2" stroke-dashoffset="138.2" transform="rotate(-90 28 28)"/>
+          </svg>
+          <div class="absolute inset-0 flex items-center justify-center font-mono text-[12px] font-semibold text-slate-900">0%</div>
+        </div>
+        <div>
+          <p class="font-mono text-[20px] font-semibold text-slate-900 leading-none">14</p>
+          <p class="text-[11px] text-slate-500 mt-1">days left</p>
+        </div>
+      </div>
+
+      <div class="mt-auto pt-4 border-t border-slate-100 grid grid-cols-3 gap-2 text-center">
+        <div><p class="text-[10px] uppercase tracking-wide text-slate-500">Total</p><p class="font-mono text-[13px] font-semibold text-slate-900 mt-0.5">14</p></div>
+        <div><p class="text-[10px] uppercase tracking-wide text-slate-500">Used</p><p class="font-mono text-[13px] font-semibold text-slate-900 mt-0.5">0</p></div>
+        <div><p class="text-[10px] uppercase tracking-wide text-slate-500">Pending</p><p class="font-mono text-[13px] font-semibold text-slate-900 mt-0.5">0</p></div>
+      </div>
+    </div>
+
+    <!-- ──────────────────────────────────────────────────────────── -->
+    <!-- Recent activity (tall tile)                                   -->
+    <!-- ──────────────────────────────────────────────────────────── -->
+    <div class="col-span-12 lg:col-span-3 row-span-3 bg-white rounded-2xl border border-slate-200 shad-card p-5 flex flex-col">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-[11px] uppercase tracking-wide text-slate-500 font-medium">Recent activity</p>
+          <h3 class="text-[14px] font-semibold tracking-tight text-slate-900 mt-0.5">Last 90 days</h3>
+        </div>
+        <button class="text-[11px] font-medium text-slate-700 hover:text-slate-900">All →</button>
+      </div>
+
+      <ol class="mt-4 relative space-y-4 before:absolute before:left-[7px] before:top-2 before:bottom-2 before:w-px before:bg-slate-200">
+        <li class="relative pl-6">
+          <span class="absolute left-0 top-1 w-3.5 h-3.5 rounded-full bg-white ring-2 ring-emerald-500"></span>
+          <p class="text-[13px] font-medium text-slate-900 leading-tight">Annual · 3 days approved</p>
+          <p class="text-[11px] text-slate-500 mt-0.5">12–14 Mar 2026 · by S. Nurhaliza</p>
+        </li>
+        <li class="relative pl-6">
+          <span class="absolute left-0 top-1 w-3.5 h-3.5 rounded-full bg-white ring-2 ring-emerald-500"></span>
+          <p class="text-[13px] font-medium text-slate-900 leading-tight">Annual · 2 days approved</p>
+          <p class="text-[11px] text-slate-500 mt-0.5">04–05 Feb 2026</p>
+        </li>
+        <li class="relative pl-6">
+          <span class="absolute left-0 top-1 w-3.5 h-3.5 rounded-full bg-white ring-2 ring-slate-300"></span>
+          <p class="text-[13px] font-medium text-slate-900 leading-tight">Annual · 1 day used</p>
+          <p class="text-[11px] text-slate-500 mt-0.5">15 Jan 2026 · half-day AM</p>
+        </li>
+        <li class="relative pl-6">
+          <span class="absolute left-0 top-1 w-3.5 h-3.5 rounded-full bg-white ring-2 ring-amber-500"></span>
+          <p class="text-[13px] font-medium text-slate-900 leading-tight">Carry-forward credited</p>
+          <p class="text-[11px] text-slate-500 mt-0.5">01 Jan 2026 · +2 days from 2025</p>
+        </li>
+      </ol>
+
+      <button class="mt-auto pt-4 inline-flex items-center justify-center h-9 rounded-md border border-slate-200 hover:bg-slate-50 text-[12px] font-medium text-slate-700 w-full">View full ledger</button>
+    </div>
+
+    <!-- ──────────────────────────────────────────────────────────── -->
+    <!-- Emergency Leave                                                -->
+    <!-- ──────────────────────────────────────────────────────────── -->
+    <div class="col-span-6 lg:col-span-3 row-span-2 bg-white rounded-2xl border border-slate-200 shad-card p-5 flex flex-col">
+      <div class="flex items-start justify-between">
+        <div class="flex items-center gap-2">
+          <span class="w-7 h-7 rounded-md bg-amber-50 ring-1 ring-amber-100 flex items-center justify-center text-amber-600">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </span>
+          <h3 class="text-[14px] font-semibold tracking-tight text-slate-900">Emergency</h3>
+        </div>
+        <span class="text-[11px] text-slate-500 font-mono">5d</span>
+      </div>
+
+      <div class="mt-4 flex items-center gap-3">
+        <div class="relative shrink-0">
+          <svg width="56" height="56" viewBox="0 0 56 56">
+            <circle cx="28" cy="28" r="22" fill="none" stroke="#f1f5f9" stroke-width="6"/>
+            <circle cx="28" cy="28" r="22" fill="none" stroke="#f59e0b" stroke-width="6" stroke-linecap="round" stroke-dasharray="138.2" stroke-dashoffset="138.2" transform="rotate(-90 28 28)"/>
+          </svg>
+          <div class="absolute inset-0 flex items-center justify-center font-mono text-[12px] font-semibold text-slate-900">0%</div>
+        </div>
+        <div>
+          <p class="font-mono text-[20px] font-semibold text-slate-900 leading-none">5</p>
+          <p class="text-[11px] text-slate-500 mt-1">days left</p>
+        </div>
+      </div>
+
+      <div class="mt-auto pt-4 border-t border-slate-100 grid grid-cols-3 gap-2 text-center">
+        <div><p class="text-[10px] uppercase tracking-wide text-slate-500">Total</p><p class="font-mono text-[13px] font-semibold text-slate-900 mt-0.5">5</p></div>
+        <div><p class="text-[10px] uppercase tracking-wide text-slate-500">Used</p><p class="font-mono text-[13px] font-semibold text-slate-900 mt-0.5">0</p></div>
+        <div><p class="text-[10px] uppercase tracking-wide text-slate-500">Pending</p><p class="font-mono text-[13px] font-semibold text-slate-900 mt-0.5">0</p></div>
+      </div>
+    </div>
+
+    <!-- ──────────────────────────────────────────────────────────── -->
+    <!-- Hospitalization Leave                                          -->
+    <!-- ──────────────────────────────────────────────────────────── -->
+    <div class="col-span-6 lg:col-span-3 row-span-2 bg-white rounded-2xl border border-slate-200 shad-card p-5 flex flex-col">
+      <div class="flex items-start justify-between">
+        <div class="flex items-center gap-2">
+          <span class="w-7 h-7 rounded-md bg-emerald-50 ring-1 ring-emerald-100 flex items-center justify-center text-emerald-600">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          </span>
+          <h3 class="text-[14px] font-semibold tracking-tight text-slate-900">Hospitalization</h3>
+        </div>
+        <span class="text-[11px] text-slate-500 font-mono">10d</span>
+      </div>
+
+      <div class="mt-4 flex items-center gap-3">
+        <div class="relative shrink-0">
+          <svg width="56" height="56" viewBox="0 0 56 56">
+            <circle cx="28" cy="28" r="22" fill="none" stroke="#f1f5f9" stroke-width="6"/>
+            <circle cx="28" cy="28" r="22" fill="none" stroke="#10b981" stroke-width="6" stroke-linecap="round" stroke-dasharray="138.2" stroke-dashoffset="138.2" transform="rotate(-90 28 28)"/>
+          </svg>
+          <div class="absolute inset-0 flex items-center justify-center font-mono text-[12px] font-semibold text-slate-900">0%</div>
+        </div>
+        <div>
+          <p class="font-mono text-[20px] font-semibold text-slate-900 leading-none">10</p>
+          <p class="text-[11px] text-slate-500 mt-1">days left</p>
+        </div>
+      </div>
+
+      <div class="mt-auto pt-4 border-t border-slate-100 grid grid-cols-3 gap-2 text-center">
+        <div><p class="text-[10px] uppercase tracking-wide text-slate-500">Total</p><p class="font-mono text-[13px] font-semibold text-slate-900 mt-0.5">10</p></div>
+        <div><p class="text-[10px] uppercase tracking-wide text-slate-500">Used</p><p class="font-mono text-[13px] font-semibold text-slate-900 mt-0.5">0</p></div>
+        <div><p class="text-[10px] uppercase tracking-wide text-slate-500">Pending</p><p class="font-mono text-[13px] font-semibold text-slate-900 mt-0.5">0</p></div>
+      </div>
+    </div>
+
+    <!-- ──────────────────────────────────────────────────────────── -->
+    <!-- Unpaid Leave                                                   -->
+    <!-- ──────────────────────────────────────────────────────────── -->
+    <div class="col-span-6 lg:col-span-3 row-span-2 bg-white rounded-2xl border border-slate-200 shad-card p-5 flex flex-col">
+      <div class="flex items-start justify-between">
+        <div class="flex items-center gap-2">
+          <span class="w-7 h-7 rounded-md bg-slate-100 flex items-center justify-center text-slate-500">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+          </span>
+          <h3 class="text-[14px] font-semibold tracking-tight text-slate-900">Unpaid</h3>
+        </div>
+        <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-slate-900 text-white text-[10px] font-medium">No quota</span>
+      </div>
+
+      <div class="mt-4 flex items-center gap-3">
+        <div class="relative shrink-0">
+          <svg width="56" height="56" viewBox="0 0 56 56">
+            <circle cx="28" cy="28" r="22" fill="none" stroke="#f1f5f9" stroke-width="6" stroke-dasharray="3 4"/>
+          </svg>
+          <div class="absolute inset-0 flex items-center justify-center font-mono text-[12px] font-semibold text-slate-400">—</div>
+        </div>
+        <div>
+          <p class="font-mono text-[20px] font-semibold text-slate-400 leading-none">0</p>
+          <p class="text-[11px] text-slate-500 mt-1">days available</p>
+        </div>
+      </div>
+
+      <div class="mt-auto pt-4 border-t border-slate-100">
+        <p class="text-[11px] text-slate-500 leading-snug">Apply through HR with prior approval. Counted against base salary.</p>
+      </div>
+    </div>
+
+    <!-- ──────────────────────────────────────────────────────────── -->
+    <!-- Policy / Carry-forward                                         -->
+    <!-- ──────────────────────────────────────────────────────────── -->
+    <div class="col-span-12 lg:col-span-6 row-span-2 bg-white rounded-2xl border border-slate-200 shad-card p-5">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <p class="text-[11px] uppercase tracking-wide text-slate-500 font-medium">Policy</p>
+          <h3 class="text-[14px] font-semibold tracking-tight text-slate-900 mt-0.5">Carry-forward & accrual</h3>
+        </div>
+        <a href="#" class="text-[11px] font-medium text-slate-700 hover:text-slate-900">Open handbook →</a>
+      </div>
+
+      <div class="grid grid-cols-3 gap-px bg-slate-200 rounded-lg overflow-hidden border border-slate-200">
+        <div class="bg-white p-3.5">
+          <p class="text-[10px] uppercase tracking-wide text-slate-500 font-medium">Accrual</p>
+          <p class="font-mono text-[15px] font-semibold text-slate-900 mt-1 leading-none">1.17 d/mo</p>
+          <p class="text-[11px] text-slate-500 mt-1">14 days/year</p>
+        </div>
+        <div class="bg-white p-3.5">
+          <p class="text-[10px] uppercase tracking-wide text-slate-500 font-medium">Carry-forward cap</p>
+          <p class="font-mono text-[15px] font-semibold text-slate-900 mt-1 leading-none">5 days</p>
+          <p class="text-[11px] text-slate-500 mt-1">Use by 31 Mar</p>
+        </div>
+        <div class="bg-white p-3.5">
+          <p class="text-[10px] uppercase tracking-wide text-slate-500 font-medium">Encashable</p>
+          <p class="font-mono text-[15px] font-semibold text-slate-900 mt-1 leading-none">3 days</p>
+          <p class="text-[11px] text-slate-500 mt-1">Year-end only</p>
+        </div>
+      </div>
+
+      <div class="mt-4 rounded-lg bg-amber-50 ring-1 ring-amber-200 px-3.5 py-2.5 flex items-start gap-2.5">
+        <svg xmlns="http://www.w3.org/2000/svg" class="text-amber-600 mt-0.5" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <div class="min-w-0">
+          <p class="text-[12px] font-medium text-amber-900">2 carry-forward days expire on 31 Mar 2026</p>
+          <p class="text-[11px] text-amber-800/80 mt-0.5">Plan annual leave before quota resets — currently <span class="font-mono font-semibold">8 days</span> available.</p>
+        </div>
+        <button class="ml-auto inline-flex items-center justify-center h-7 px-2.5 rounded-md bg-white ring-1 ring-amber-300 hover:bg-amber-100 text-[11px] font-medium text-amber-900 shrink-0">Plan now</button>
+      </div>
+    </div>
+
+    <!-- ──────────────────────────────────────────────────────────── -->
+    <!-- Year strip / heatmap                                           -->
+    <!-- ──────────────────────────────────────────────────────────── -->
+    <div class="col-span-12 lg:col-span-6 row-span-2 bg-white rounded-2xl border border-slate-200 shad-card p-5">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <p class="text-[11px] uppercase tracking-wide text-slate-500 font-medium">Usage map</p>
+          <h3 class="text-[14px] font-semibold tracking-tight text-slate-900 mt-0.5">2026 — by month</h3>
+        </div>
+        <div class="flex items-center gap-2 text-[11px] text-slate-500">
+          <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-slate-100"></span>0</span>
+          <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-slate-300"></span>1–2</span>
+          <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-slate-700"></span>3+</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-12 gap-1.5">
+        <!-- 12 month cells; 4 rows of 4 weeks each (small heatmap) -->
+        <div class="space-y-1">
+          <p class="text-[10px] text-slate-500 font-mono text-center">J</p>
+          <div class="grid grid-rows-4 gap-1"><span class="h-3 rounded bg-slate-300"></span><span class="h-3 rounded bg-slate-100"></span><span class="h-3 rounded bg-slate-100"></span><span class="h-3 rounded bg-slate-100"></span></div>
+        </div>
+        <div class="space-y-1">
+          <p class="text-[10px] text-slate-500 font-mono text-center">F</p>
+          <div class="grid grid-rows-4 gap-1"><span class="h-3 rounded bg-slate-100"></span><span class="h-3 rounded bg-slate-300"></span><span class="h-3 rounded bg-slate-100"></span><span class="h-3 rounded bg-slate-100"></span></div>
+        </div>
+        <div class="space-y-1">
+          <p class="text-[10px] text-slate-700 font-mono text-center font-semibold">M</p>
+          <div class="grid grid-rows-4 gap-1"><span class="h-3 rounded bg-slate-100"></span><span class="h-3 rounded bg-slate-100"></span><span class="h-3 rounded bg-slate-700"></span><span class="h-3 rounded bg-slate-100"></span></div>
+        </div>
+        <div class="space-y-1">
+          <p class="text-[10px] text-slate-500 font-mono text-center">A</p>
+          <div class="grid grid-rows-4 gap-1"><span class="h-3 rounded bg-slate-100"></span><span class="h-3 rounded bg-slate-100"></span><span class="h-3 rounded bg-slate-100"></span><span class="h-3 rounded bg-slate-100"></span></div>
+        </div>
+        <div class="space-y-1">
+          <p class="text-[10px] text-slate-500 font-mono text-center">M</p>
+          <div class="grid grid-rows-4 gap-1"><span class="h-3 rounded bg-slate-100"></span><span class="h-3 rounded bg-slate-100"></span><span class="h-3 rounded bg-slate-100"></span><span class="h-3 rounded bg-slate-100"></span></div>
+        </div>
+        <div class="space-y-1">
+          <p class="text-[10px] text-slate-500 font-mono text-center">J</p>
+          <div class="grid grid-rows-4 gap-1"><span class="h-3 rounded bg-slate-100"></span><span class="h-3 rounded bg-slate-100"></span><span class="h-3 rounded bg-slate-100"></span><span class="h-3 rounded bg-slate-100"></span></div>
+        </div>
+        <div class="space-y-1">
+          <p class="text-[10px] text-slate-500 font-mono text-center">J</p>
+          <div class="grid grid-rows-4 gap-1"><span class="h-3 rounded bg-slate-100"></span><span class="h-3 rounded bg-slate-100"></span><span class="h-3 rounded bg-slate-100"></span><span class="h-3 rounded bg-slate-100"></span></div>
+        </div>
+        <div class="space-y-1">
+          <p class="text-[10px] text-slate-500 font-mono text-center">A</p>
+          <div class="grid grid-rows-4 gap-1"><span class="h-3 rounded bg-slate-100"></span><span class="h-3 rounded bg-slate-100"></span><span class="h-3 rounded bg-slate-100"></span><span class="h-3 rounded bg-slate-100"></span></div>
+        </div>
+        <div class="space-y-1">
+          <p class="text-[10px] text-slate-500 font-mono text-center">S</p>
+          <div class="grid grid-rows-4 gap-1"><span class="h-3 rounded bg-slate-100"></span><span class="h-3 rounded bg-slate-100"></span><span class="h-3 rounded bg-slate-100"></span><span class="h-3 rounded bg-slate-100"></span></div>
+        </div>
+        <div class="space-y-1">
+          <p class="text-[10px] text-slate-500 font-mono text-center">O</p>
+          <div class="grid grid-rows-4 gap-1"><span class="h-3 rounded bg-slate-100"></span><span class="h-3 rounded bg-slate-100"></span><span class="h-3 rounded bg-slate-100"></span><span class="h-3 rounded bg-slate-100"></span></div>
+        </div>
+        <div class="space-y-1">
+          <p class="text-[10px] text-slate-500 font-mono text-center">N</p>
+          <div class="grid grid-rows-4 gap-1"><span class="h-3 rounded bg-slate-100"></span><span class="h-3 rounded bg-slate-100"></span><span class="h-3 rounded bg-slate-100"></span><span class="h-3 rounded bg-slate-100"></span></div>
+        </div>
+        <div class="space-y-1">
+          <p class="text-[10px] text-slate-500 font-mono text-center">D</p>
+          <div class="grid grid-rows-4 gap-1"><span class="h-3 rounded bg-slate-100"></span><span class="h-3 rounded bg-slate-100"></span><span class="h-3 rounded bg-slate-100"></span><span class="h-3 rounded bg-slate-100"></span></div>
+        </div>
+      </div>
+
+      <div class="mt-4 grid grid-cols-3 gap-3 text-[12px]">
+        <div class="rounded-md bg-slate-50 px-3 py-2">
+          <p class="text-slate-500 text-[11px]">Peak month</p>
+          <p class="font-medium text-slate-900 mt-0.5">March · 3 days</p>
+        </div>
+        <div class="rounded-md bg-slate-50 px-3 py-2">
+          <p class="text-slate-500 text-[11px]">Avg / month</p>
+          <p class="font-medium text-slate-900 mt-0.5">0.5 days</p>
+        </div>
+        <div class="rounded-md bg-slate-50 px-3 py-2">
+          <p class="text-slate-500 text-[11px]">Streak without leave</p>
+          <p class="font-medium text-slate-900 mt-0.5">42 days</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="mt-10 flex items-center justify-between text-[11px] text-slate-400">
+    <span>2027 © HRMS</span>
+    <span class="font-mono">Last sync · 2 min ago</span>
+  </footer>
+</div>
+
+<script>
+(() => {
+  const staff = [
+    { id:'VLX-011', name:'Hanis Ezzati bin Abdul Rahman', role:'HR Manager',         dept:'hr',   initials:'HE', color:'from-violet-500 to-violet-700',   active:true,  recent:true,  bal:'8d' },
+    { id:'DA-001',  name:'Haziq Hilman',                  role:'Director · Demo',     dept:'mgmt', initials:'HA', color:'from-slate-900 to-slate-700',     active:true,  recent:true,  bal:'12d' },
+    { id:'DM-001',  name:'Ahmad Razak bin Ibrahim',       role:'Engineering Manager', dept:'eng',  initials:'AI', color:'from-indigo-500 to-indigo-700',   active:true,  recent:true,  bal:'5d' },
+    { id:'DM-002',  name:'Siti Nurhaliza binti Abdullah', role:'HR & Finance Manager',dept:'hr',   initials:'SA', color:'from-rose-500 to-rose-700',       active:true,  recent:false, bal:'9d' },
+    { id:'VLX-014', name:'Nur Aisyah binti Kamal',        role:'Senior Engineer',     dept:'eng',  initials:'NA', color:'from-sky-500 to-sky-700',         active:true,  recent:false, bal:'14d' },
+    { id:'VLX-021', name:'Tan Wei Ming',                  role:'Finance Analyst',     dept:'fin',  initials:'TW', color:'from-emerald-500 to-emerald-700', active:true,  recent:false, bal:'11d' },
+    { id:'VLX-024', name:'Rajesh Kumar a/l Suresh',       role:'DevOps Engineer',     dept:'eng',  initials:'RK', color:'from-amber-500 to-amber-700',     active:true,  recent:false, bal:'3d' },
+    { id:'VLX-030', name:'Faridah binti Mohd Yusof',      role:'Payroll Specialist',  dept:'hr',   initials:'FM', color:'from-fuchsia-500 to-fuchsia-700', active:false, recent:false, bal:'—' },
+  ];
+
+  const trigger = document.getElementById('staff-trigger');
+  const menu    = document.getElementById('staff-menu');
+  const search  = document.getElementById('staff-search');
+  const list    = document.getElementById('staff-list');
+  const empty   = document.getElementById('empty-state');
+  const chev    = document.getElementById('trig-chevron');
+  let dept = 'all';
+  let activeIdx = 0;
+  let filtered = [];
+
+  const render = () => {
+    const q = search.value.trim().toLowerCase();
+    filtered = staff.filter(s => {
+      const matchesDept = dept === 'all' || s.dept === dept;
+      const matchesQ = !q || s.name.toLowerCase().includes(q) || s.id.toLowerCase().includes(q) || s.role.toLowerCase().includes(q);
+      return matchesDept && matchesQ;
+    });
+    if (activeIdx >= filtered.length) activeIdx = 0;
+    list.innerHTML = filtered.map((s,i) => `
+      <li>
+        <button data-idx="${i}" class="staff-row w-full flex items-center gap-3 px-2 py-2 rounded-md text-left ${i===activeIdx?'bg-slate-100':''} hover:bg-slate-100 transition">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br ${s.color} text-white text-[11px] font-semibold flex items-center justify-center shrink-0">${s.initials}</div>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-1.5">
+              <p class="text-[13px] font-medium text-slate-900 truncate">${s.name}</p>
+              ${s.active ? '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>' : '<span class="w-1.5 h-1.5 rounded-full bg-slate-300 shrink-0"></span>'}
+            </div>
+            <p class="text-[11px] text-slate-500 truncate"><span class="font-mono">${s.id}</span> · ${s.role}</p>
+          </div>
+          <span class="font-mono text-[11px] text-slate-500 shrink-0">${s.bal}</span>
+        </button>
+      </li>
+    `).join('');
+    empty.classList.toggle('hidden', filtered.length > 0);
+    list.classList.toggle('hidden', filtered.length === 0);
+
+    list.querySelectorAll('.staff-row').forEach(btn => {
+      btn.addEventListener('click', () => select(filtered[+btn.dataset.idx]));
+      btn.addEventListener('mouseenter', () => { activeIdx = +btn.dataset.idx; updateActive(); });
+    });
+  };
+
+  const updateActive = () => {
+    list.querySelectorAll('.staff-row').forEach((b,i) => b.classList.toggle('bg-slate-100', i===activeIdx));
+  };
+
+  const select = (s) => {
+    if (!s) return;
+    document.getElementById('trig-name').textContent = s.name;
+    document.getElementById('trig-id').textContent = s.id;
+    document.getElementById('trig-role').textContent = s.role;
+    const av = document.getElementById('trig-avatar');
+    av.textContent = s.initials;
+    av.className = `w-10 h-10 rounded-full bg-gradient-to-br ${s.color} text-white text-[12px] font-semibold flex items-center justify-center shrink-0`;
+    close();
+  };
+
+  const open = () => {
+    menu.classList.remove('hidden');
+    chev.style.transform = 'rotate(180deg)';
+    search.value = '';
+    activeIdx = 0;
+    render();
+    setTimeout(() => search.focus(), 10);
+  };
+  const close = () => { menu.classList.add('hidden'); chev.style.transform = ''; };
+
+  trigger.addEventListener('click', () => menu.classList.contains('hidden') ? open() : close());
+  search.addEventListener('input', () => { activeIdx = 0; render(); });
+  document.addEventListener('click', (e) => {
+    if (!document.getElementById('staff-picker').contains(e.target)) close();
+  });
+  document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); open(); return; }
+    if (menu.classList.contains('hidden')) return;
+    if (e.key === 'Escape') { close(); }
+    else if (e.key === 'ArrowDown') { e.preventDefault(); activeIdx = Math.min(filtered.length-1, activeIdx+1); updateActive(); }
+    else if (e.key === 'ArrowUp')   { e.preventDefault(); activeIdx = Math.max(0, activeIdx-1); updateActive(); }
+    else if (e.key === 'Enter')     { e.preventDefault(); select(filtered[activeIdx]); }
+  });
+
+  document.querySelectorAll('.dept-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      dept = chip.dataset.dept;
+      document.querySelectorAll('.dept-chip').forEach(c => {
+        const on = c.dataset.dept === dept;
+        c.classList.toggle('bg-slate-900', on);
+        c.classList.toggle('text-white', on);
+        c.classList.toggle('text-slate-600', !on);
+        c.classList.toggle('hover:bg-slate-100', !on);
+      });
+      activeIdx = 0;
+      render();
+    });
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

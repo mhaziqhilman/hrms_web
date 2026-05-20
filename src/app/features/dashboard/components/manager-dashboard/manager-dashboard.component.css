@@ -1,3 +1,13 @@
 .card-flush {
   box-shadow: 0 0 20px 0 rgba(76, 87, 125, 0.02);
 }
+
+/* Variant 02 — empty state dotted background */
+.dotted-bg {
+  background-image: radial-gradient(circle, rgb(226 232 240) 1px, transparent 1px);
+  background-size: 14px 14px;
+}
+
+:host-context(.dark) .dotted-bg {
+  background-image: radial-gradient(circle, rgb(51 65 85) 1px, transparent 1px);
+}

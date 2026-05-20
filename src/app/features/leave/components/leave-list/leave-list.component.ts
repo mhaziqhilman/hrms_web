@@ -1,8 +1,11 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, effect, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { Subject, takeUntil } from 'rxjs';
 import { LeaveService } from '../../services/leave.service';
+import { LeaveRefreshService } from '../../services/leave-refresh.service';
+import { LeaveFilterService } from '../../services/leave-filter.service';
 import { AuthService } from '@/core/services/auth.service';
 import { DisplayService } from '@/core/services/display.service';
 import { Leave, LeaveStatus, LEAVE_STATUS_COLORS, LEAVE_STATUS_ICONS } from '../../models/leave.model';
@@ -13,16 +16,16 @@ import { ZardButtonComponent } from '@/shared/components/button/button.component
 import { ZardIconComponent } from '@/shared/components/icon/icon.component';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { ZardMenuImports } from '@/shared/components/menu/menu.imports';
-import { ZardDatePickerComponent } from '@/shared/components/date-picker/date-picker.component';
 import { ZardTableImports } from '@/shared/components/table/table.imports';
 import { ZardTooltipModule } from '@/shared/components/tooltip/tooltip';
 import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-dialog.service';
 import { ZardCheckboxComponent } from '@/shared/components/checkbox/checkbox.component';
 import { ZardEmptyComponent } from '@/shared/components/empty/empty.component';
-import { ZardSegmentedComponent, SegmentedOption } from '@/shared/components/segmented/segmented.component';
 import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component';
 import { ZardDividerComponent } from '@/shared/components/divider/divider.component';
 import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
+import { ZardSegmentedComponent, SegmentedOption } from '@/shared/components/segmented/segmented.component';
+import { ZardDatePickerComponent } from '@/shared/components/date-picker/date-picker.component';
 import { LeaveFormSheetComponent } from '../leave-form-sheet/leave-form-sheet.component';
 import { LeaveApprovalSheetComponent } from '../leave-approval-sheet/leave-approval-sheet.component';
 
@@ -31,34 +34,36 @@ import { LeaveApprovalSheetComponent } from '../leave-approval-sheet/leave-appro
   standalone: true,
   imports: [
     CommonModule,
-    RouterLink,
     FormsModule,
     ZardCardComponent,
     ZardButtonComponent,
     ZardIconComponent,
     ZardBadgeComponent,
     ZardMenuImports,
-    ZardDatePickerComponent,
     ZardTableImports,
     ZardTooltipModule,
     ZardCheckboxComponent,
     ZardEmptyComponent,
-    ZardSegmentedComponent,
     ZardAvatarComponent,
     ZardDividerComponent,
     ZardSkeletonComponent,
+    ZardSegmentedComponent,
+    ZardDatePickerComponent,
     LeaveFormSheetComponent,
     LeaveApprovalSheetComponent
   ],
   templateUrl: './leave-list.component.html',
   styleUrl: './leave-list.component.css'
 })
-export class LeaveListComponent implements OnInit {
+export class LeaveListComponent implements OnInit, OnDestroy {
   private leaveService = inject(LeaveService);
   private router = inject(Router);
   private alertDialogService = inject(ZardAlertDialogService);
   private authService = inject(AuthService);
   private displayService = inject(DisplayService);
+  private refreshService = inject(LeaveRefreshService);
+  filters = inject(LeaveFilterService);
+  private destroy$ = new Subject<void>();
 
   leaves = signal<Leave[]>([]);
   loading = signal(false);
@@ -73,15 +78,28 @@ export class LeaveListComponent implements OnInit {
   limit = signal(10);
   total = signal(0);
 
-  // Filters
-  selectedStatus = signal<LeaveStatus | ''>('');
+  // Filters now live in the shared LeaveFilterService — these expose them for the template.
+  selectedStatus = this.filters.status;
+  startDateFilter = this.filters.startDate;
+  endDateFilter = this.filters.endDate;
   selectedLeaveType = signal<number | ''>('');
-  startDateFilter = signal<string>('');
-  endDateFilter = signal<string>('');
 
-  // Date picker values
+  // Date-picker two-way bindings (component-local; service holds the ISO string)
   startDateValue: Date | null = null;
   endDateValue: Date | null = null;
+
+  // Bumped by Reset → forces z-segmented to remount so its internal state
+  // realigns with the service's cleared value.
+  resetToken = signal(0);
+
+  // Status filter options
+  statusOptions: SegmentedOption[] = [
+    { value: '', label: 'All' },
+    { value: LeaveStatus.PENDING, label: 'Pending' },
+    { value: LeaveStatus.APPROVED, label: 'Approved' },
+    { value: LeaveStatus.REJECTED, label: 'Rejected' },
+    { value: LeaveStatus.CANCELLED, label: 'Cancelled' }
+  ];
 
   // Sorting
   sortColumn = signal<string>('');
@@ -109,15 +127,6 @@ export class LeaveListComponent implements OnInit {
     { key: 'status', label: 'Status' }
   ];
 
-  // Status filter options
-  statusOptions: SegmentedOption[] = [
-    { value: '', label: 'All' },
-    { value: LeaveStatus.PENDING, label: 'Pending' },
-    { value: LeaveStatus.APPROVED, label: 'Approved' },
-    { value: LeaveStatus.REJECTED, label: 'Rejected' },
-    { value: LeaveStatus.CANCELLED, label: 'Cancelled' }
-  ];
-
   // Sheet state
   formSheetOpen = signal(false);
   formSheetLeaveId = signal<string | null>(null);
@@ -129,6 +138,29 @@ export class LeaveListComponent implements OnInit {
   LEAVE_STATUS_COLORS = LEAVE_STATUS_COLORS;
   LEAVE_STATUS_ICONS = LEAVE_STATUS_ICONS;
   Math = Math;
+
+  constructor() {
+    // Reload whenever any shared filter (status / start / end date) changes.
+    effect(() => {
+      this.filters.status();
+      this.filters.startDate();
+      this.filters.endDate();
+      if (this.hasProfile()) {
+        this.currentPage.set(1);
+        this.loadLeaves();
+      }
+    });
+
+    // Mirror local row selection into the shared filter service so the
+    // leave-page card can render bulk-action buttons + enable/disable them
+    // based on the statuses of the selected leaves.
+    effect(() => {
+      const ids = this.selectedLeaves();
+      const all = this.leaves();
+      const selected = all.filter((l) => ids.has(l.id));
+      this.filters.setSelectedLeaves(selected);
+    });
+  }
 
   ngOnInit(): void {
     const user = this.authService.getCurrentUserValue();
@@ -156,6 +188,27 @@ export class LeaveListComponent implements OnInit {
         }
       });
     }
+
+    this.refreshService.refresh$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.loadLeaves());
+
+    // Bulk actions dispatched from the parent leave-page card
+    this.filters.bulkAction$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((action) => {
+        if (action === 'approve') this.bulkApprove();
+        else if (action === 'reject') this.bulkReject();
+        else if (action === 'clear') this.clearSelection();
+      });
+  }
+
+  ngOnDestroy(): void {
+    // Selection only makes sense while the list is mounted — drop it so the
+    // bulk-action area in the parent card hides when leaving the tab.
+    this.filters.clearSelection();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   // Sort column mapping (frontend key → backend field)
@@ -209,11 +262,6 @@ export class LeaveListComponent implements OnInit {
     });
   }
 
-  onStatusChange(value: string): void {
-    this.selectedStatus.set(value as LeaveStatus | '');
-    this.onFilterChange();
-  }
-
   onFilterChange(): void {
     this.currentPage.set(1);
     this.loadLeaves();
@@ -224,15 +272,30 @@ export class LeaveListComponent implements OnInit {
     this.loadLeaves();
   }
 
-  clearFilters(): void {
-    this.selectedStatus.set('');
-    this.selectedLeaveType.set('');
-    this.startDateFilter.set('');
-    this.endDateFilter.set('');
+  onStatusChange(value: string): void {
+    this.filters.setStatus(value as LeaveStatus | '');
+  }
+
+  onStartDateChange(date: Date | null): void {
+    this.filters.setStartDate(date ? this.toIsoDate(date) : '');
+  }
+
+  onEndDateChange(date: Date | null): void {
+    this.filters.setEndDate(date ? this.toIsoDate(date) : '');
+  }
+
+  resetListFilters(): void {
     this.startDateValue = null;
     this.endDateValue = null;
-    this.currentPage.set(1);
-    this.loadLeaves();
+    this.filters.clearListFilters();
+    this.resetToken.update((v) => v + 1);
+  }
+
+  private toIsoDate(date: Date): string {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
   }
 
   // Get selected count for bulk actions
@@ -360,11 +423,14 @@ export class LeaveListComponent implements OnInit {
   }
 
   bulkApprove(): void {
-    const selected = Array.from(this.selectedLeaves());
-    if (selected.length === 0) {
+    const pending = this.filters
+      .selectedLeaves()
+      .filter((l) => l.status === LeaveStatus.PENDING);
+
+    if (pending.length === 0) {
       this.alertDialogService.warning({
-        zTitle: 'No Selection',
-        zDescription: 'Please select leave applications to approve',
+        zTitle: 'Nothing to approve',
+        zDescription: 'Only Pending leaves can be approved. Adjust your selection.',
         zOkText: 'OK'
       });
       return;
@@ -372,28 +438,27 @@ export class LeaveListComponent implements OnInit {
 
     this.alertDialogService.confirm({
       zTitle: 'Approve Selected Leaves',
-      zDescription: `Are you sure you want to approve ${selected.length} leave application(s)?`,
+      zDescription: `Approve ${pending.length} pending leave application(s)?`,
       zOkText: 'Approve All',
       zCancelText: 'Cancel',
-      zOnOk: () => {
-        this.alertDialogService.info({
-          zTitle: 'Success',
-          zDescription: `${selected.length} leave application(s) approved successfully`,
-          zOkText: 'OK'
-        });
-        this.selectedLeaves.set(new Set());
-        this.selectAll = false;
-        this.loadLeaves();
-      }
+      zOnOk: () =>
+        this.runBulk(
+          pending,
+          (l) => this.leaveService.approveRejectLeave(l.public_id!, { action: 'approve' }),
+          'approved'
+        )
     });
   }
 
   bulkReject(): void {
-    const selected = Array.from(this.selectedLeaves());
-    if (selected.length === 0) {
+    const pending = this.filters
+      .selectedLeaves()
+      .filter((l) => l.status === LeaveStatus.PENDING);
+
+    if (pending.length === 0) {
       this.alertDialogService.warning({
-        zTitle: 'No Selection',
-        zDescription: 'Please select leave applications to reject',
+        zTitle: 'Nothing to reject',
+        zDescription: 'Only Pending leaves can be rejected. Adjust your selection.',
         zOkText: 'OK'
       });
       return;
@@ -401,21 +466,68 @@ export class LeaveListComponent implements OnInit {
 
     this.alertDialogService.confirm({
       zTitle: 'Reject Selected Leaves',
-      zDescription: `Are you sure you want to reject ${selected.length} leave application(s)?`,
+      zDescription: `Reject ${pending.length} pending leave application(s)?`,
       zOkText: 'Reject All',
       zCancelText: 'Cancel',
       zOkDestructive: true,
       zOnOk: () => {
-        this.alertDialogService.info({
-          zTitle: 'Success',
-          zDescription: `${selected.length} leave application(s) rejected successfully`,
-          zOkText: 'OK'
-        });
-        this.selectedLeaves.set(new Set());
-        this.selectAll = false;
-        this.loadLeaves();
+        const reason = prompt('Please provide a reason for rejection:');
+        if (!reason) return;
+        this.runBulk(
+          pending,
+          (l) =>
+            this.leaveService.approveRejectLeave(l.public_id!, {
+              action: 'reject',
+              rejection_reason: reason
+            }),
+          'rejected'
+        );
       }
     });
+  }
+
+  private runBulk(
+    leaves: Leave[],
+    op: (l: Leave) => import('rxjs').Observable<unknown>,
+    pastTense: 'approved' | 'rejected'
+  ): void {
+    let done = 0;
+    let failed = 0;
+    leaves.forEach((leave) => {
+      op(leave).subscribe({
+        next: () => {
+          done++;
+          if (done + failed === leaves.length) this.finalizeBulk(pastTense, done, failed);
+        },
+        error: (err) => {
+          failed++;
+          console.error(`Bulk ${pastTense} failed for leave ${leave.id}:`, err);
+          if (done + failed === leaves.length) this.finalizeBulk(pastTense, done, failed);
+        }
+      });
+    });
+  }
+
+  private finalizeBulk(
+    pastTense: 'approved' | 'rejected',
+    done: number,
+    failed: number
+  ): void {
+    if (failed === 0) {
+      this.alertDialogService.info({
+        zTitle: 'Success',
+        zDescription: `${done} leave(s) ${pastTense}.`,
+        zOkText: 'OK'
+      });
+    } else {
+      this.alertDialogService.warning({
+        zTitle: 'Partial result',
+        zDescription: `${done} ${pastTense}, ${failed} failed. Check the console for details.`,
+        zOkText: 'OK'
+      });
+    }
+    this.clearSelection();
+    this.loadLeaves();
   }
 
   getStatusBadgeClass(status: LeaveStatus): string {
@@ -523,39 +635,6 @@ export class LeaveListComponent implements OnInit {
     return iconMap[LEAVE_STATUS_ICONS[status]] || 'circle';
   }
 
-  // Date handling for ZardUI date picker
-  onStartDateChange(date: Date | null): void {
-    if (date) {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      this.startDateFilter.set(`${year}-${month}-${day}`);
-    } else {
-      this.startDateFilter.set('');
-    }
-    this.onFilterChange();
-  }
-
-  onEndDateChange(date: Date | null): void {
-    if (date) {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      this.endDateFilter.set(`${year}-${month}-${day}`);
-    } else {
-      this.endDateFilter.set('');
-    }
-    this.onFilterChange();
-  }
-
-  getStartDateAsDate(): Date | null {
-    return this.startDateFilter() ? new Date(this.startDateFilter()) : null;
-  }
-
-  getEndDateAsDate(): Date | null {
-    return this.endDateFilter() ? new Date(this.endDateFilter()) : null;
-  }
-
   getStatusDisplayName(): string {
     const status = this.selectedStatus();
     if (!status) return 'Status';
@@ -565,11 +644,6 @@ export class LeaveListComponent implements OnInit {
   viewLeaveDetails(leave: Leave): void {
     this.approvalSheetLeaveId.set(leave.public_id || null);
     this.approvalSheetOpen.set(true);
-  }
-
-  openApplyLeaveSheet(): void {
-    this.formSheetLeaveId.set(null);
-    this.formSheetOpen.set(true);
   }
 
   openEditLeaveSheet(leave: Leave): void {

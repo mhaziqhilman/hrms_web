@@ -562,9 +562,16 @@ export class LeaveFormComponent implements OnInit {
   }
 
   onCancel(): void {
-    if (confirm('Are you sure you want to cancel? Any unsaved changes will be lost.')) {
-      this.router.navigate(['/leave']);
-    }
+    this.alertDialogService.confirm({
+      zTitle: 'Discard Changes',
+      zDescription: 'Are you sure you want to cancel? Any unsaved changes will be lost.',
+      zOkText: 'Discard',
+      zCancelText: 'Stay',
+      zOkDestructive: true,
+      zOnOk: () => {
+        this.router.navigate(['/leave']);
+      }
+    });
   }
 
   private markFormGroupTouched(formGroup: FormGroup): void {

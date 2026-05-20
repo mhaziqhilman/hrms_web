@@ -2,8 +2,8 @@
   <!-- Header -->
   <div class="flex items-center justify-between mb-6">
     <div>
-      <h1 class="text-2xl font-semibold">User Feedback</h1>
-      <p class="text-muted-foreground text-sm mt-1">Review and manage feedback submitted by users</p>
+      <h1 class="text-[28px] font-semibold tracking-tight leading-none text-foreground">User Feedback</h1>
+      <p class="text-[13px] text-muted-foreground mt-2">Review and manage feedback submitted by users</p>
     </div>
     @if (stats()) {
       <div class="flex items-center gap-2">
@@ -33,12 +33,12 @@
   <div class="flex items-center gap-3 mb-5">
     <!-- Search -->
     <div class="relative flex-1 max-w-sm">
-      <z-icon zType="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
+      <z-icon zType="search" class="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" />
       <input type="text"
         [value]="searchTerm()"
         (input)="onSearch($any($event.target).value)"
         placeholder="Search feedback..."
-        class="w-full pl-9 pr-3 py-2 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent" />
+        class="w-full pl-10 pr-3 py-2 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent" />
     </div>
 
     <!-- Status Filter -->

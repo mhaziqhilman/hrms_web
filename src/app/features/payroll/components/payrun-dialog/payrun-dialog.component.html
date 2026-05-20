@@ -300,8 +300,8 @@
                           <div class="px-2">
                             <!-- Part-month proration -->
                             <div class="mb-4">
-                              <button type="button" (click)="toggleProrationRow(i)"
-                                class="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
+                              <button type="button" z-button zType="ghost" zSize="sm" (click)="toggleProrationRow(i)"
+                                class="text-muted-foreground">
                                 <z-icon [zType]="$any(row.showProration ? 'chevron-down' : 'chevron-right')" zSize="sm" />
                                 Part-month
                                 <span class="text-muted-foreground/60 font-normal">(prorate for mid-month joiner/leaver)</span>
@@ -416,8 +416,8 @@
 
                             <!-- Prior Employment YTD (collapsible) -->
                             <div class="mt-4">
-                              <button type="button" (click)="togglePriorYtdRow(i)"
-                                class="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
+                              <button type="button" z-button zType="ghost" zSize="sm" (click)="togglePriorYtdRow(i)"
+                                class="text-muted-foreground">
                                 <z-icon [zType]="$any(row.showPriorYtd ? 'chevron-down' : 'chevron-right')" zSize="sm" />
                                 Prior Employment YTD
                                 <span class="text-muted-foreground/60 font-normal">(for mid-year joiners)</span>

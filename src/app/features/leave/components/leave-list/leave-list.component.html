@@ -1,43 +1,4 @@
-<div class="bg-background min-h-screen">
-  <!-- Header -->
-  <div class="flex items-center justify-between mb-6">
-    <div>
-      <h1 class="text-2xl font-semibold text-foreground">Leave Management</h1>
-      <p class="text-muted-foreground">View and track all leave applications</p>
-    </div>
-    <div class="flex gap-2">
-      <button z-button zType="outline" routerLink="/leave/balance" class="gap-2">
-        <z-icon zType="activity" class="w-4 h-4" />
-        View Balance
-      </button>
-      @if (!isStaff()) {
-        <button z-button zType="outline" routerLink="/leave/approvals" class="gap-2">
-          <z-icon zType="circle-check" class="w-4 h-4" />
-          Approvals
-        </button>
-      }
-      <button z-button (click)="openApplyLeaveSheet()" class="gap-2">
-        <z-icon zType="plus" class="w-4 h-4" />
-        Apply Leave
-      </button>
-    </div>
-  </div>
-
-  <!-- View Toggle -->
-  <div class="flex items-center gap-1 mb-6 bg-muted rounded-lg p-1 w-fit">
-    <button
-      class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-normal transition-colors bg-background text-foreground shadow-sm">
-      <z-icon zType="list" class="w-4 h-4" />
-      List
-    </button>
-    <button
-      routerLink="/leave/calendar"
-      class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-normal transition-colors text-muted-foreground hover:text-foreground">
-      <z-icon zType="calendar-check" class="w-4 h-4" />
-      Calendar
-    </button>
-  </div>
-
+<div>
   <!-- No Profile State -->
   @if (!loading() && !hasProfile()) {
     <z-card>
@@ -49,17 +10,19 @@
   }
 
   @if (hasProfile()) {
-  <!-- Filters -->
-  <div class="flex items-center gap-3 mb-6 flex-wrap justify-between">
+  <!-- List filter row: status pills + date range on the left, View toggle on the right.
+       Bulk-action buttons render in the parent leave-page card once rows are selected. -->
+  <div class="flex items-center gap-3 mb-4 flex-wrap justify-between">
     <div class="flex items-center gap-3 flex-1 flex-wrap">
-      <!-- Status Filter -->
-      <z-segmented
-        [zOptions]="statusOptions"
-        zDefaultValue=""
-        (zChange)="onStatusChange($event)">
-      </z-segmented>
+      <!-- Status pills — wrapped in @for w/ resetToken so Reset re-mounts and re-reads zDefaultValue -->
+      @for (k of [resetToken()]; track k) {
+        <z-segmented
+          [zOptions]="statusOptions"
+          [zDefaultValue]="selectedStatus()"
+          (zChange)="onStatusChange($event)">
+        </z-segmented>
+      }
 
-      <!-- Start Date Filter -->
       <z-date-picker
         placeholder="From Date"
         zFormat="dd-MM-yyyy"
@@ -68,7 +31,6 @@
         [class]="startDateFilter() ? 'has-value' : ''">
       </z-date-picker>
 
-      <!-- End Date Filter -->
       <z-date-picker
         placeholder="To Date"
         zFormat="dd-MM-yyyy"
@@ -77,20 +39,19 @@
         [class]="endDateFilter() ? 'has-value' : ''">
       </z-date-picker>
 
-      <!-- Clear Filters -->
-      <button
-        *ngIf="startDateFilter() || endDateFilter()"
-        type="button"
-        z-button
-        zType="outline"
-        class="gap-2 border-none shadow-none px-2"
-        (click)="clearFilters()">
-        Reset
-        <z-icon zType="x" class="w-4 h-4" />
-      </button>
+      @if (selectedStatus() || startDateFilter() || endDateFilter()) {
+        <button
+          type="button"
+          z-button
+          zType="outline"
+          class="gap-2 border-none shadow-none px-2"
+          (click)="resetListFilters()">
+          Reset
+          <z-icon zType="x" class="w-4 h-4" />
+        </button>
+      }
     </div>
 
-    <!-- Column Toggle - Right Side -->
     <div z-menu [zMenuTriggerFor]="columnMenu">
       <button z-button zType="outline" class="gap-2 px-2">
         <z-icon zType="eye" class="w-4 h-4" />
@@ -159,43 +120,6 @@
     </div>
   }
 
-  <!-- Bulk Actions Bar - Modern SaaS Style (Manager/Admin only) -->
-  @if (!isStaff() && getSelectedCount() > 0) {
-    <div class="mb-4 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 backdrop-blur-sm border-l-4 border-primary shadow-sm">
-      <div class="flex items-center justify-between px-6 py-3 gap-4">
-        <!-- Left: Selection Info -->
-        <div class="flex items-center gap-3">
-          <div class="flex items-center justify-center w-8 h-8 rounded-full bg-primary/20">
-            <z-icon zType="check-circle" class="w-4 h-4 text-primary" />
-          </div>
-          <div class="flex flex-col">
-            <span class="text-sm font-medium text-foreground">{{ getSelectedCount() }} Selected</span>
-            <span class="text-xs text-muted-foreground">Bulk actions available</span>
-          </div>
-        </div>
-
-        <!-- Right: Action Buttons -->
-        <div class="flex items-center gap-2">
-          <button type="button" (click)="bulkApprove()"
-            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-normal text-white bg-primary hover:bg-primary/90 rounded-md transition-all duration-200 shadow-sm hover:shadow-md">
-            <z-icon zType="circle-check" class="w-4 h-4" />
-            <span>Approve</span>
-          </button>
-          <button type="button" (click)="bulkReject()"
-            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-normal text-white bg-destructive hover:bg-destructive/90 rounded-md transition-all duration-200 shadow-sm hover:shadow-md">
-            <z-icon zType="circle-x" class="w-4 h-4" />
-            <span>Reject</span>
-          </button>
-          <div class="w-px h-6 bg-border mx-1"></div>
-          <button type="button" (click)="clearSelection()"
-            class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-normal text-muted-foreground hover:text-foreground transition-colors duration-200">
-            <z-icon zType="x" class="w-4 h-4" />
-            <span>Clear</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  }
 
   <!-- Table -->
   @if (!loading() && !error()) {
@@ -379,7 +303,7 @@
           <z-icon zType="inbox" class="w-16 h-16 text-muted-foreground mb-4" />
           <h3 class="text-lg font-medium mb-2">No Leave Applications Found</h3>
           <p class="text-muted-foreground mb-4">No leave applications match your current filters.</p>
-          <button z-button zType="outline" (click)="clearFilters()">
+          <button z-button zType="outline" (click)="filters.clearListFilters()">
             Clear Filters
           </button>
         </div>
@@ -442,3 +366,4 @@
   (openChange)="onApprovalSheetClose($event)"
   (actionCompleted)="onApprovalSheetAction()">
 </app-leave-approval-sheet>
+

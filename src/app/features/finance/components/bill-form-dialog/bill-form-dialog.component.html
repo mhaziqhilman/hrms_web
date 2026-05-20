@@ -160,7 +160,7 @@
 
           <div class="space-y-6 mt-5">
             <div class="rounded-lg border border-border overflow-hidden">
-              <button type="button" class="w-full flex items-center justify-between px-4 py-3 bg-muted/50 hover:bg-muted transition-colors" (click)="vendorExpanded = !vendorExpanded">
+              <button type="button" z-button zType="ghost" zFull (click)="vendorExpanded = !vendorExpanded" class="justify-between px-4 py-3 bg-muted/50 hover:bg-muted">
                 <div class="flex items-center gap-2">
                   <z-icon [zType]="$any('building')" zSize="sm" class="text-primary" />
                   <span class="text-sm font-medium text-foreground">Vendor Details</span>
@@ -224,7 +224,7 @@
               <h3 class="step-title">Line Items</h3>
               <p class="step-description">List the products or services covered by this bill</p>
             </div>
-            <button type="button" class="inline-flex items-center gap-1.5 text-sm font-normal text-primary hover:text-primary/80 transition-colors cursor-pointer" (click)="addItem()">
+            <button type="button" z-button zType="ghost" zSize="sm" (click)="addItem()" class="text-primary hover:text-primary/80">
               <z-icon [zType]="$any('plus')" zSize="sm" />
               <span class="underline underline-offset-2 text-sm">Add item</span>
             </button>
@@ -250,7 +250,7 @@
                   <tr class="border-b border-border/50">
                     @if (items.length > 1) {
                       <td class="py-2">
-                        <button type="button" class="text-red-400 hover:text-red-600 transition-colors cursor-pointer" [zTooltip]="'Remove item'" (click)="removeItem(i)">
+                        <button type="button" z-button zType="ghost" zSize="sm" [zTooltip]="'Remove item'" (click)="removeItem(i)" class="text-red-400 hover:text-red-600">
                           <z-icon [zType]="$any('x')" zSize="sm" />
                         </button>
                       </td>

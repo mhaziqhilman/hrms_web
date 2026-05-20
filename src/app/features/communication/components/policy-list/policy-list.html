@@ -1,301 +1,295 @@
-<div class="max-w-7xl mx-auto p-6">
+<div>
   <!-- Page Header -->
-  <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
-    <div>
-      <h2 class="text-2xl font-semibold text-foreground flex items-center gap-2">
-        <z-icon zType="file-text" class="w-8 h-8 text-primary" />
-        Company Policies
-      </h2>
-      <p class="text-muted-foreground mt-1">Browse and manage company policies and procedures</p>
+  <header class="mb-10">
+    <div class="flex items-start justify-between gap-4 flex-wrap">
+      <div>
+        <h1 class="text-3xl font-semibold tracking-tight text-foreground">Company Policies</h1>
+        <p class="text-muted-foreground mt-2 text-sm">
+          Find the guidelines, procedures, and standards that keep us aligned.
+        </p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          z-button
+          zType="ghost"
+          zSize="default"
+          (click)="refreshPolicies()"
+          [disabled]="loading()"
+          [zTooltip]="'Refresh policies'"
+          class="flex items-center gap-2"
+        >
+          <z-icon zType="refresh-cw" class="w-4 h-4" [class.animate-spin]="loading()" />
+          <span class="hidden sm:inline">Refresh</span>
+        </button>
+        <a
+          routerLink="/communication/policies/new"
+          z-button
+          zType="default"
+          zSize="default"
+          class="flex items-center gap-2"
+        >
+          <z-icon zType="plus" class="w-4 h-4" />
+          New Policy
+        </a>
+      </div>
     </div>
-    <div class="flex gap-3">
-      <button
-        type="button"
-        z-button
-        zType="outline"
-        (click)="refreshPolicies()"
-        [disabled]="loading()"
-        class="flex items-center gap-2"
-      >
-        <z-icon zType="refresh-cw" class="w-4 h-4" />
-        Refresh
-      </button>
-      <a
-        routerLink="/communication/policies/new"
-        z-button
-        zType="default"
-        class="flex items-center gap-2"
-      >
-        <z-icon zType="plus-circle" class="w-4 h-4" />
-        New Policy
-      </a>
-    </div>
+  </header>
+
+  <!-- Search -->
+  <div class="relative mb-5">
+    <z-icon
+      zType="search"
+      class="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none"
+    />
+    <input
+      z-input
+      type="text"
+      class="w-full h-12 pl-11 pr-4 text-base rounded-xl border-border bg-background focus-visible:ring-2 focus-visible:ring-primary/20"
+      placeholder="Search policies by code, title, or keyword..."
+      [(ngModel)]="searchQuery"
+      (ngModelChange)="onSearchChange()"
+    />
   </div>
 
-  <!-- Search and Filters -->
-  <div class="flex items-center gap-3 mb-6 flex-wrap">
-    <!-- Search -->
-    <div class="relative flex-1 min-w-[300px]">
-      <z-icon zType="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-      <input
-        z-input
-        type="text"
-        class="w-full pl-10"
-        placeholder="Search by policy code, title, or description..."
-        [(ngModel)]="searchQuery"
-        (ngModelChange)="onSearchChange()"
-      />
-    </div>
-
-    <!-- Status Filter -->
-    <z-select
-      [(ngModel)]="selectedStatus"
-      (ngModelChange)="onFilterChange()"
-      placeholder="All Statuses"
-      class="w-[160px]"
-    >
-      <z-select-item zValue="">All Statuses</z-select-item>
-      <z-select-item zValue="Active">Active</z-select-item>
-      <z-select-item zValue="Draft">Draft</z-select-item>
-      <z-select-item zValue="Archived">Archived</z-select-item>
-      <z-select-item zValue="Superseded">Superseded</z-select-item>
-    </z-select>
-
-    <!-- Category Filter -->
-    <z-select
-      [(ngModel)]="selectedCategory"
-      (ngModelChange)="onFilterChange()"
-      placeholder="All Categories"
-      class="w-[160px]"
-    >
-      <z-select-item zValue="">All Categories</z-select-item>
-      <z-select-item zValue="HR">HR</z-select-item>
-      <z-select-item zValue="IT">IT</z-select-item>
-      <z-select-item zValue="Finance">Finance</z-select-item>
-      <z-select-item zValue="Safety">Safety</z-select-item>
-      <z-select-item zValue="Compliance">Compliance</z-select-item>
-      <z-select-item zValue="Operations">Operations</z-select-item>
-      <z-select-item zValue="Other">Other</z-select-item>
-    </z-select>
-
-    <!-- Clear Filters -->
+  <!-- Quick Filter Chips -->
+  <div class="flex items-center gap-2 flex-wrap mb-2">
+    <span class="text-xs font-medium text-muted-foreground uppercase tracking-wider mr-1">Category</span>
     <button
       type="button"
-      z-button
-      zType="outline"
-      (click)="clearFilters()"
-      [zTooltip]="'Clear all filters'"
-      class="flex items-center gap-2"
+      (click)="selectedCategory.set(''); onFilterChange()"
+      class="px-3 py-1.5 text-xs font-medium rounded-full border transition-colors"
+      [class.bg-foreground]="selectedCategory() === ''"
+      [class.text-background]="selectedCategory() === ''"
+      [class.border-foreground]="selectedCategory() === ''"
+      [class.bg-transparent]="selectedCategory() !== ''"
+      [class.text-muted-foreground]="selectedCategory() !== ''"
+      [class.border-border]="selectedCategory() !== ''"
+      [class.hover:text-foreground]="selectedCategory() !== ''"
     >
-      <z-icon zType="circle-x" class="w-4 h-4" />
-      Clear
+      All
+    </button>
+    <button
+      *ngFor="let cat of ['HR', 'IT', 'Finance', 'Safety', 'Compliance', 'Operations', 'Other']"
+      type="button"
+      (click)="selectedCategory.set($any(cat)); onFilterChange()"
+      class="px-3 py-1.5 text-xs font-medium rounded-full border transition-colors"
+      [class.bg-foreground]="selectedCategory() === cat"
+      [class.text-background]="selectedCategory() === cat"
+      [class.border-foreground]="selectedCategory() === cat"
+      [class.bg-transparent]="selectedCategory() !== cat"
+      [class.text-muted-foreground]="selectedCategory() !== cat"
+      [class.border-border]="selectedCategory() !== cat"
+      [class.hover:text-foreground]="selectedCategory() !== cat"
+    >
+      {{ cat }}
+    </button>
+  </div>
+
+  <div class="flex items-center gap-2 flex-wrap mb-8">
+    <span class="text-xs font-medium text-muted-foreground uppercase tracking-wider mr-1">Status</span>
+    <button
+      *ngFor="let st of [{v: '', l: 'All'}, {v: 'Active', l: 'Active'}, {v: 'Draft', l: 'Draft'}, {v: 'Archived', l: 'Archived'}, {v: 'Superseded', l: 'Superseded'}]"
+      type="button"
+      (click)="selectedStatus.set($any(st.v)); onFilterChange()"
+      class="px-3 py-1.5 text-xs font-medium rounded-full border transition-colors"
+      [class.bg-foreground]="selectedStatus() === st.v"
+      [class.text-background]="selectedStatus() === st.v"
+      [class.border-foreground]="selectedStatus() === st.v"
+      [class.bg-transparent]="selectedStatus() !== st.v"
+      [class.text-muted-foreground]="selectedStatus() !== st.v"
+      [class.border-border]="selectedStatus() !== st.v"
+      [class.hover:text-foreground]="selectedStatus() !== st.v"
+    >
+      {{ st.l }}
+    </button>
+
+    <button
+      *ngIf="selectedStatus() || selectedCategory() || searchQuery()"
+      type="button"
+      z-button
+      zType="ghost"
+      zSize="sm"
+      class="ml-auto"
+      (click)="clearFilters()"
+    >
+      <z-icon zType="x" class="w-3 h-3" />
+      Clear filters
     </button>
   </div>
 
   <!-- Results Summary -->
-  <div class="mb-4" *ngIf="!loading() && policies().length > 0">
-    <p class="text-sm text-muted-foreground">
-      Showing {{ (currentPage() - 1) * limit + 1 }} -
-      {{ Math.min(currentPage() * limit, totalItems()) }} of {{ totalItems() }} policies
+  <div class="flex items-center justify-between mb-4" *ngIf="!loading() && policies().length > 0">
+    <p class="text-xs text-muted-foreground">
+      {{ (currentPage() - 1) * limit + 1 }}–{{ Math.min(currentPage() * limit, totalItems()) }}
+      of <span class="text-foreground font-medium">{{ totalItems() }}</span> policies
     </p>
   </div>
 
-  <!-- Error Message -->
-  <z-card *ngIf="error()" class="mb-6 border-destructive">
-    <div class="flex items-center gap-2 text-destructive">
-      <z-icon zType="triangle-alert" class="w-5 h-5" />
-      <span>{{ error() }}</span>
+  <!-- Error -->
+  <div *ngIf="error()" class="mb-6 p-4 rounded-lg bg-destructive/5 border border-destructive/20 flex items-center gap-3">
+    <z-icon zType="triangle-alert" class="w-5 h-5 text-destructive flex-shrink-0" />
+    <span class="text-sm text-destructive">{{ error() }}</span>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading()" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div *ngFor="let i of [1,2,3,4]" class="p-5 rounded-xl border border-border bg-card animate-pulse">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="h-5 w-16 bg-muted rounded-full"></div>
+        <div class="h-5 w-14 bg-muted rounded-full"></div>
+      </div>
+      <div class="h-5 w-3/4 bg-muted rounded mb-2"></div>
+      <div class="h-4 w-1/2 bg-muted rounded mb-4"></div>
+      <div class="h-3 w-full bg-muted rounded mb-1.5"></div>
+      <div class="h-3 w-2/3 bg-muted rounded"></div>
     </div>
-  </z-card>
+  </div>
 
-  <!-- Loading Spinner -->
-  <z-card *ngIf="loading()" class="mb-6">
-    <div class="flex flex-col items-center justify-center py-16">
-      <z-icon zType="loader-circle" class="w-12 h-12 text-primary animate-spin" />
-      <p class="text-muted-foreground mt-4">Loading policies...</p>
-    </div>
-  </z-card>
-
-  <!-- Policies Table -->
-  <z-card *ngIf="!loading() && policies().length > 0" class="overflow-hidden">
-    <div class="overflow-x-auto">
-      <table z-table>
-        <thead>
-          <tr>
-            <th>Policy Code</th>
-            <th>Title</th>
-            <th>Category</th>
-            <th>Version</th>
-            <th>Status</th>
-            <th>Effective From</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let policy of policies()" [class.bg-yellow-50]="isExpired(policy)" [class.opacity-70]="isExpired(policy)">
-            <!-- Policy Code -->
-            <td>
-              <span class="font-mono font-medium text-primary">{{ policy.policy_code }}</span>
-            </td>
-
-            <!-- Title -->
-            <td>
-              <div class="flex flex-col gap-1">
-                <a
-                  [routerLink]="['/communication/policies', policy.public_id]"
-                  class="font-normal text-foreground hover:text-primary hover:underline"
-                >
-                  {{ policy.title }}
-                </a>
-                <small class="text-sm text-muted-foreground" *ngIf="policy.description">
-                  {{ policy.description }}
-                </small>
-                <div class="flex gap-2 mt-1">
-                  <z-badge zType="default" *ngIf="policy.requires_acknowledgment">
-                    <z-icon zType="check-square" class="w-3 h-3 mr-1" />
-                    Requires Ack
-                  </z-badge>
-                  <z-badge zType="destructive" *ngIf="isExpired(policy)">
-                    <z-icon zType="clock" class="w-3 h-3 mr-1" />
-                    Expired
-                  </z-badge>
-                </div>
-              </div>
-            </td>
-
-            <!-- Category -->
-            <td>
-              <z-badge [zType]="getCategoryBadgeType(policy.category)">
-                {{ policy.category }}
-              </z-badge>
-            </td>
-
-            <!-- Version -->
-            <td>
-              <div class="flex flex-col gap-1">
-                <span class="font-mono text-sm bg-muted px-2 py-1 rounded inline-block w-fit">
-                  v{{ policy.version }}
-                </span>
-                <span class="text-xs text-muted-foreground" *ngIf="policy.parent_policy_id">
-                  <z-icon zType="arrow-right" class="w-3 h-3 inline" />
-                  Updated from v{{ policy.parent?.version }}
-                </span>
-              </div>
-            </td>
-
-            <!-- Status -->
-            <td>
-              <z-badge [zType]="getStatusBadgeType(policy.status)">
-                {{ policy.status }}
-              </z-badge>
-            </td>
-
-            <!-- Effective From -->
-            <td>
-              <span *ngIf="policy.effective_from">
-                {{ policy.effective_from | appDate }}
-              </span>
-              <span *ngIf="!policy.effective_from" class="text-muted-foreground">-</span>
-            </td>
-
-            <!-- Actions -->
-            <td>
-              <div class="flex gap-2">
-                <a
-                  [routerLink]="['/communication/policies', policy.public_id]"
-                  z-button
-                  zType="outline"
-                  zSize="sm"
-                  [zTooltip]="'View Policy'"
-                >
-                  <z-icon zType="eye" class="w-4 h-4" />
-                </a>
-                <a
-                  [routerLink]="['/communication/policies', policy.public_id, 'edit']"
-                  z-button
-                  zType="outline"
-                  zSize="sm"
-                  [zTooltip]="'Edit Policy'"
-                >
-                  <z-icon zType="pencil" class="w-4 h-4" />
-                </a>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </z-card>
-
-  <!-- Empty State -->
-  <div *ngIf="!loading() && policies().length === 0 && !error()" class="flex flex-col items-center justify-center py-16 px-4 text-center">
-    <z-icon zType="file-text" class="w-16 h-16 text-muted-foreground/50 mb-4" />
-    <h3 class="text-lg font-medium text-foreground mb-2">No Policies Found</h3>
-    <p class="text-muted-foreground mb-6" *ngIf="selectedStatus() || selectedCategory() || searchQuery()">
-      Try adjusting your filters or search query
-    </p>
-    <p class="text-muted-foreground mb-6" *ngIf="!selectedStatus() && !selectedCategory() && !searchQuery()">
-      No policies have been created yet
-    </p>
+  <!-- Policy Cards Grid -->
+  <div *ngIf="!loading() && policies().length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <a
-      routerLink="/communication/policies/new"
-      z-button
-      zType="default"
-      class="flex items-center gap-2"
+      *ngFor="let policy of policies()"
+      [routerLink]="['/communication/policies', policy.public_id]"
+      class="group relative block p-5 rounded-xl border border-border bg-card hover:border-foreground/20 hover:shadow-sm transition-all"
+      [class.opacity-60]="isExpired(policy)"
     >
-      <z-icon zType="plus-circle" class="w-4 h-4" />
-      Create First Policy
+      <!-- Top row: Category + Status + Expired -->
+      <div class="flex items-center justify-between gap-2 mb-3">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="inline-flex items-center px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider rounded-md bg-muted text-muted-foreground">
+            {{ policy.category }}
+          </span>
+          <span class="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+            <span
+              class="w-1.5 h-1.5 rounded-full"
+              [class.bg-emerald-500]="policy.status === 'Active'"
+              [class.bg-amber-500]="policy.status === 'Draft'"
+              [class.bg-slate-400]="policy.status === 'Archived'"
+              [class.bg-rose-500]="policy.status === 'Superseded'"
+            ></span>
+            {{ policy.status }}
+          </span>
+          <span *ngIf="isExpired(policy)" class="inline-flex items-center gap-1 text-xs font-medium text-rose-600">
+            <z-icon zType="clock" class="w-3 h-3" />
+            Expired
+          </span>
+        </div>
+        <span class="font-mono text-[10px] text-muted-foreground">{{ policy.policy_code }}</span>
+      </div>
+
+      <!-- Title -->
+      <h3 class="text-base font-semibold text-foreground leading-snug mb-1.5 line-clamp-2 group-hover:text-primary transition-colors">
+        {{ policy.title }}
+      </h3>
+
+      <!-- Description -->
+      <p *ngIf="policy.description" class="text-sm text-muted-foreground leading-relaxed line-clamp-2 mb-4">
+        {{ policy.description }}
+      </p>
+
+      <!-- Metadata row -->
+      <div class="flex items-center justify-between gap-3 pt-3 border-t border-border/60">
+        <div class="flex items-center gap-3 text-xs text-muted-foreground min-w-0">
+          <span class="inline-flex items-center gap-1 font-mono">
+            v{{ policy.version }}
+          </span>
+          <span *ngIf="policy.effective_from" class="inline-flex items-center gap-1 truncate">
+            <z-icon zType="calendar" class="w-3 h-3 flex-shrink-0" />
+            {{ policy.effective_from | appDate }}
+          </span>
+          <span *ngIf="policy.requires_acknowledgment" class="inline-flex items-center gap-1 text-amber-600 font-medium">
+            <z-icon zType="check-square" class="w-3 h-3" />
+            Ack required
+          </span>
+        </div>
+
+        <!-- Edit action (hover reveal) -->
+        <a
+          [routerLink]="['/communication/policies', policy.public_id, 'edit']"
+          (click)="$event.stopPropagation()"
+          [zTooltip]="'Edit'"
+          z-button
+          zType="ghost"
+          zSize="sm"
+          class="opacity-0 group-hover:opacity-100"
+        >
+          <z-icon zType="pencil" class="w-3.5 h-3.5" />
+        </a>
+      </div>
     </a>
   </div>
 
-  <!-- Pagination -->
-  <div *ngIf="!loading() && policies().length > 0 && totalPages() > 1" class="mt-8 pt-6 border-t border-border">
-    <nav class="flex justify-center" aria-label="Policy pagination">
-      <div class="flex items-center gap-2">
-        <!-- Previous Button -->
-        <button
-          z-button
-          zType="outline"
-          zSize="sm"
-          (click)="previousPage()"
-          [disabled]="currentPage() === 1"
-          class="flex items-center gap-1"
-        >
-          <z-icon zType="chevron-left" class="w-4 h-4" />
-          Previous
-        </button>
-
-        <!-- Page Numbers -->
-        <button
-          *ngFor="let page of [].constructor(totalPages()); let i = index"
-          z-button
-          [zType]="currentPage() === i + 1 ? 'default' : 'outline'"
-          zSize="sm"
-          (click)="goToPage(i + 1)"
-          [class.hidden]="totalPages() > 7 && (i + 1 < currentPage() - 2 || i + 1 > currentPage() + 2) && i !== 0 && i !== totalPages() - 1"
-        >
-          {{ i + 1 }}
-        </button>
-
-        <!-- Next Button -->
-        <button
-          z-button
-          zType="outline"
-          zSize="sm"
-          (click)="nextPage()"
-          [disabled]="currentPage() === totalPages()"
-          class="flex items-center gap-1"
-        >
-          Next
-          <z-icon zType="chevron-right" class="w-4 h-4" />
-        </button>
-      </div>
-    </nav>
-
-    <div class="text-center mt-4">
-      <small class="text-sm text-muted-foreground">
-        Page {{ currentPage() }} of {{ totalPages() }}
-      </small>
+  <!-- Empty State -->
+  <div *ngIf="!loading() && policies().length === 0 && !error()" class="flex flex-col items-center justify-center py-20 px-4 text-center">
+    <div class="w-14 h-14 rounded-full bg-muted flex items-center justify-center mb-5">
+      <z-icon zType="file-text" class="w-7 h-7 text-muted-foreground" />
     </div>
+    <h3 class="text-base font-semibold text-foreground mb-1.5">No policies found</h3>
+    <p class="text-sm text-muted-foreground mb-6 max-w-sm" *ngIf="selectedStatus() || selectedCategory() || searchQuery()">
+      Try adjusting your search or filters to find what you're looking for.
+    </p>
+    <p class="text-sm text-muted-foreground mb-6 max-w-sm" *ngIf="!selectedStatus() && !selectedCategory() && !searchQuery()">
+      Get started by creating your first company policy.
+    </p>
+    <a
+      *ngIf="!selectedStatus() && !selectedCategory() && !searchQuery()"
+      routerLink="/communication/policies/new"
+      z-button
+      zType="default"
+      zSize="sm"
+      class="flex items-center gap-2"
+    >
+      <z-icon zType="plus" class="w-4 h-4" />
+      Create policy
+    </a>
+    <button
+      *ngIf="selectedStatus() || selectedCategory() || searchQuery()"
+      type="button"
+      z-button
+      zType="outline"
+      zSize="sm"
+      (click)="clearFilters()"
+      class="flex items-center gap-2"
+    >
+      Clear filters
+    </button>
   </div>
+
+  <!-- Pagination -->
+  <nav
+    *ngIf="!loading() && policies().length > 0 && totalPages() > 1"
+    class="mt-10 flex items-center justify-between"
+    aria-label="Policy pagination"
+  >
+    <button
+      type="button"
+      z-button
+      zType="ghost"
+      zSize="sm"
+      (click)="previousPage()"
+      [disabled]="currentPage() === 1"
+      class="flex items-center gap-1.5"
+    >
+      <z-icon zType="chevron-left" class="w-4 h-4" />
+      Previous
+    </button>
+
+    <span class="text-xs text-muted-foreground">
+      Page <span class="text-foreground font-medium">{{ currentPage() }}</span> of {{ totalPages() }}
+    </span>
+
+    <button
+      type="button"
+      z-button
+      zType="ghost"
+      zSize="sm"
+      (click)="nextPage()"
+      [disabled]="currentPage() === totalPages()"
+      class="flex items-center gap-1.5"
+    >
+      Next
+      <z-icon zType="chevron-right" class="w-4 h-4" />
+    </button>
+  </nav>
 </div>

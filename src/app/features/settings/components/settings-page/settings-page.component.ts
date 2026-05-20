@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SettingsService } from '../../services/settings.service';
 import { PersonalService } from '@/features/personal/services/personal.service';
-import { ThemeService, ThemePreference, BorderRadiusPreset } from '@/core/services/theme';
+import { ThemeService, ThemePreference, BorderRadiusPreset, FontFamilyPreset } from '@/core/services/theme';
 import { DisplayService } from '@/core/services/display.service';
 import { MyPayslip, YTDSummary } from '@/features/personal/models/personal.model';
 import {
@@ -103,6 +103,13 @@ export class SettingsPageComponent implements OnInit {
   sidebarCollapsed = false;
   compactMode = false;
   selectedBorderRadius: BorderRadiusPreset = 'default';
+  selectedFontFamily: FontFamilyPreset = 'plus-jakarta-sans';
+
+  fontFamilies: { value: FontFamilyPreset; label: string; previewStyle: string }[] = [
+    { value: 'plus-jakarta-sans', label: 'Plus Jakarta Sans', previewStyle: "'Plus Jakarta Sans', sans-serif" },
+    { value: 'geist', label: 'Geist', previewStyle: "'Geist', sans-serif" },
+    { value: 'figtree', label: 'Figtree', previewStyle: "'Figtree', sans-serif" }
+  ];
 
   // Display form
   selectedLanguage = 'en';
@@ -216,6 +223,7 @@ export class SettingsPageComponent implements OnInit {
           this.sidebarCollapsed = this.themeService.sidebarCollapsed();
           this.compactMode = this.themeService.compactMode();
           this.selectedBorderRadius = this.themeService.borderRadius();
+          this.selectedFontFamily = this.themeService.fontFamily();
           // Populate display form and sync DisplayService
           this.selectedLanguage = s.language;
           this.selectedTimezone = s.timezone;
@@ -275,6 +283,11 @@ export class SettingsPageComponent implements OnInit {
     this.themeService.setBorderRadius(preset);
   }
 
+  setFontFamily(preset: FontFamilyPreset): void {
+    this.selectedFontFamily = preset;
+    this.themeService.setFontFamily(preset);
+  }
+
   onSidebarCollapsedChange(): void {
     this.themeService.setSidebarCollapsed(this.sidebarCollapsed);
   }
@@ -292,6 +305,7 @@ export class SettingsPageComponent implements OnInit {
     this.themeService.setTheme(this.selectedTheme);
     this.themeService.setCompactMode(this.compactMode);
     this.themeService.setBorderRadius(this.selectedBorderRadius);
+    this.themeService.setFontFamily(this.selectedFontFamily);
     this.themeService.setSidebarCollapsed(this.sidebarCollapsed);
 
     this.settingsService.updateAppearance(data).subscribe({

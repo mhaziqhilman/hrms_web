@@ -3,8 +3,8 @@
   <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
     @if (!embedded()) {
       <div>
-        <h1 class="text-2xl font-semibold text-foreground">Payslips</h1>
-        <p class="text-muted-foreground">Your monthly statements and year-to-date summary</p>
+        <h1 class="text-[28px] font-semibold tracking-tight leading-none text-foreground">Payslips</h1>
+        <p class="text-[13px] text-muted-foreground mt-2">Your monthly statements and year-to-date summary</p>
       </div>
     }
     <div class="flex items-center gap-2 rounded-full border bg-background pl-4 pr-1 py-1" [class.ml-auto]="embedded()">
@@ -121,10 +121,10 @@
           <!-- Actions -->
           <div class="flex gap-1.5 mt-[14px]">
             <button
-              type="button"
+              type="button" z-button zType="outline"
               (click)="$event.stopPropagation(); viewPayslip(payslip)"
               [disabled]="viewing() === payslip.public_id"
-              class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-[9px] border border-border rounded-lg bg-background text-[12.5px] font-medium text-foreground hover:bg-accent transition-colors whitespace-nowrap disabled:opacity-50 disabled:pointer-events-none">
+              class="flex-1">
               @if (viewing() === payslip.public_id) {
                 <z-icon zType="loader-2" class="h-3.5 w-3.5 animate-spin" />
                 Loading...
@@ -133,11 +133,10 @@
               }
             </button>
             <button
-              type="button"
+              type="button" z-button zType="outline"
               (click)="$event.stopPropagation(); downloadPayslip(payslip)"
               [disabled]="downloading() === payslip.public_id"
-              aria-label="Download payslip"
-              class="w-9 inline-flex items-center justify-center border border-border rounded-lg bg-background text-foreground/70 hover:bg-accent transition-colors disabled:opacity-50 disabled:pointer-events-none">
+              aria-label="Download payslip">
               @if (downloading() === payslip.public_id) {
                 <z-icon zType="loader-2" class="h-3.5 w-3.5 animate-spin" />
               } @else {

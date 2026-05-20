@@ -1,0 +1,437 @@
+<div>
+  <!-- No Profile State -->
+  @if (!loading() && !hasProfile()) {
+    <z-card>
+      <z-empty
+        [zIcon]="$any('user-x')"
+        zTitle="Profile Not Set Up"
+        zDescription="Your employee profile has not been created yet. Please contact your administrator or HR department to set up your profile before you can access leave management." />
+    </z-card>
+  }
+
+  @if (hasProfile()) {
+
+  <!-- Error -->
+  @if (error()) {
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-2 text-red-800 mb-6">
+      <z-icon zType="triangle-alert" class="w-5 h-5" />
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  <!-- Loading skeleton -->
+  @if (loading()) {
+    <div class="grid grid-cols-12 auto-rows-[100px] gap-4">
+      <div class="col-span-12 lg:col-span-6 row-span-3">
+        <z-skeleton class="h-full w-full rounded-2xl" />
+      </div>
+      <div class="col-span-6 lg:col-span-3 row-span-2"><z-skeleton class="h-full w-full rounded-2xl" /></div>
+      <div class="col-span-6 lg:col-span-3 row-span-1"><z-skeleton class="h-full w-full rounded-2xl" /></div>
+      <div class="col-span-6 lg:col-span-3 row-span-1"><z-skeleton class="h-full w-full rounded-2xl" /></div>
+      <div class="col-span-6 lg:col-span-3 row-span-2"><z-skeleton class="h-full w-full rounded-2xl" /></div>
+      <div class="col-span-12 lg:col-span-3 row-span-4"><z-skeleton class="h-full w-full rounded-2xl" /></div>
+      <div class="col-span-6 lg:col-span-3 row-span-2"><z-skeleton class="h-full w-full rounded-2xl" /></div>
+      <div class="col-span-6 lg:col-span-3 row-span-2"><z-skeleton class="h-full w-full rounded-2xl" /></div>
+      <div class="col-span-12 lg:col-span-6 row-span-2"><z-skeleton class="h-full w-full rounded-2xl" /></div>
+      <div class="col-span-12 lg:col-span-6 row-span-2"><z-skeleton class="h-full w-full rounded-2xl" /></div>
+    </div>
+  }
+
+  <!-- Bento grid -->
+  @if (!loading() && balanceData()) {
+    <div class="grid grid-cols-12 auto-rows-[100px] gap-4">
+
+      <!-- HERO: Primary entitlement -->
+      @if (heroTile(); as hero) {
+        <div class="col-span-12 lg:col-span-6 row-span-3 bg-slate-900 dark:bg-slate-950 text-white rounded-2xl p-7 relative overflow-hidden">
+          <div class="absolute inset-0 grid-bg opacity-50"></div>
+          <div class="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-gradient-to-br from-violet-500/30 to-fuchsia-500/10 blur-3xl"></div>
+
+          <div class="relative h-full flex flex-col">
+            <div class="flex items-start justify-between">
+              <div>
+                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/10 ring-1 ring-white/15 text-[11px] font-medium text-white/80">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>Primary entitlement
+                </span>
+                <h2 class="mt-3 text-[22px] font-semibold tracking-tight leading-none">{{ hero.name }}</h2>
+                <p class="text-[12px] text-white/60 mt-1.5">
+                  {{ hero.isPaid ? 'Paid' : 'Unpaid' }} · resets 31 Dec {{ selectedYear() }}
+                </p>
+              </div>
+            </div>
+
+            <div class="mt-auto flex items-end gap-7 flex-wrap">
+              <div class="relative shrink-0">
+                <svg width="156" height="156" viewBox="0 0 156 156">
+                  <circle cx="78" cy="78" r="64" fill="none" stroke="rgb(255 255 255 / 0.08)" stroke-width="14"/>
+                  <circle
+                    cx="78" cy="78" r="64" fill="none" stroke="white" stroke-width="14" stroke-linecap="round"
+                    stroke-dasharray="402.1"
+                    [attr.stroke-dashoffset]="donutDashOffset(hero.percentUsed, 402.1)"
+                    transform="rotate(-90 78 78)"/>
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                  <p class="font-mono text-[36px] font-semibold leading-none">{{ hero.balance }}</p>
+                  <p class="text-[11px] text-white/60 mt-1">days left</p>
+                </div>
+              </div>
+
+              <div class="flex-1 min-w-[180px] grid grid-cols-3 gap-x-1 gap-y-3 pb-1">
+                <div>
+                  <p class="text-[10px] uppercase tracking-wide text-white/50 font-medium">Total</p>
+                  <p class="font-mono text-[20px] font-semibold mt-1 leading-none">{{ hero.total }}</p>
+                </div>
+                <div>
+                  <p class="text-[10px] uppercase tracking-wide text-white/50 font-medium">Used</p>
+                  <p class="font-mono text-[20px] font-semibold mt-1 leading-none">{{ hero.used }}</p>
+                </div>
+                <div>
+                  <p class="text-[10px] uppercase tracking-wide text-white/50 font-medium">Pending</p>
+                  <p class="font-mono text-[20px] font-semibold mt-1 leading-none">{{ hero.pending }}</p>
+                </div>
+
+                <div class="col-span-3 mt-2">
+                  <div class="flex items-center justify-between text-[11px] text-white/60 mb-1.5">
+                    <span>{{ hero.percentUsed }}% used</span>
+                    <span class="font-mono">{{ hero.used }} / {{ hero.total }}</span>
+                  </div>
+                  <div class="h-1.5 rounded-full bg-white/10 overflow-hidden">
+                    <div class="h-full bg-white" [style.width.%]="hero.percentUsed"></div>
+                  </div>
+                  @if (hero.carry > 0) {
+                    <p class="text-[11px] text-white/50 mt-2">
+                      Carry-forward credited: <span class="text-white font-mono">+{{ hero.carry }}</span> days from previous year
+                    </p>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Total balance summary -->
+      <div class="col-span-6 lg:col-span-3 row-span-2 bg-card rounded-2xl border shad-card p-5 flex flex-col justify-between">
+        <div>
+          <p class="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">Total balance</p>
+          <div class="flex items-baseline gap-1.5 mt-1.5">
+            <p class="font-mono text-[44px] font-semibold text-foreground leading-none">{{ totalBalance() }}</p>
+            <p class="text-[13px] text-muted-foreground">days</p>
+          </div>
+          <p class="text-[12px] text-muted-foreground mt-2">Across {{ tiles().length }} leave type{{ tiles().length === 1 ? '' : 's' }}</p>
+        </div>
+        @if (stackedSegments().length > 0) {
+          <div>
+            <div class="h-2 rounded-full bg-muted overflow-hidden flex">
+              @for (seg of stackedSegments(); track seg.name) {
+                <div [style.width.%]="seg.width" [style.background-color]="seg.color" [title]="seg.name"></div>
+              }
+            </div>
+            <div class="grid grid-cols-2 gap-y-1 mt-3 text-[11px] text-muted-foreground">
+              @for (seg of stackedSegments(); track seg.name) {
+                <span class="flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full shrink-0" [style.background-color]="seg.color"></span>
+                  <span class="truncate">{{ seg.name }}</span>
+                </span>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Used YTD -->
+      <div class="col-span-6 lg:col-span-3 row-span-1 bg-card rounded-2xl border shad-card p-5 flex items-center justify-between">
+        <div>
+          <p class="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">Used YTD</p>
+          <p class="font-mono text-[24px] font-semibold text-foreground mt-1 leading-none">
+            {{ totalUsed() }} <span class="text-[12px] text-muted-foreground font-normal">days</span>
+          </p>
+        </div>
+        <div class="flex items-end gap-0.5 h-10">
+          @for (m of monthlyHeatmap(); track m.month) {
+            <div
+              class="w-1.5 rounded-sm"
+              [class]="heatmapShade(m.total)"
+              [style.height.%]="sparkHeight(m.total)">
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Pending -->
+      <div class="col-span-6 lg:col-span-3 row-span-1 bg-card rounded-2xl border shad-card p-5 flex items-center justify-between">
+        <div>
+          <p class="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">Pending</p>
+          <p class="font-mono text-[24px] font-semibold text-foreground mt-1 leading-none">
+            {{ totalPending() }} <span class="text-[12px] text-muted-foreground font-normal">days</span>
+          </p>
+        </div>
+        @if (totalPending() === 0) {
+          <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 text-[11px] font-medium dark:bg-emerald-900/30 dark:text-emerald-300 dark:ring-emerald-800">
+            <z-icon zType="check" class="w-3 h-3" />
+            All clear
+          </span>
+        } @else {
+          <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-amber-50 text-amber-700 ring-1 ring-amber-200 text-[11px] font-medium dark:bg-amber-900/30 dark:text-amber-300 dark:ring-amber-800">
+            <z-icon zType="clock" class="w-3 h-3" />
+            Awaiting
+          </span>
+        }
+      </div>
+
+      <!-- Reusable entitlement tile template -->
+      <ng-template #otherTileTpl let-tile>
+        <div class="col-span-6 lg:col-span-3 row-span-2 bg-card rounded-2xl border shad-card p-5 flex flex-col">
+          <div class="flex items-start justify-between">
+            <div class="flex items-center gap-2 min-w-0">
+              <span
+                class="w-7 h-7 rounded-md flex items-center justify-center shrink-0"
+                [style.background-color]="tile.color + '1A'"
+                [style.color]="tile.color">
+                <z-icon [zType]="$any(iconFor(tile.name))" class="w-3.5 h-3.5" />
+              </span>
+              <h3 class="text-[14px] font-semibold tracking-tight text-foreground truncate">{{ tile.name }}</h3>
+            </div>
+            @if (tile.total === 0) {
+              <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-foreground text-background text-[10px] font-medium shrink-0">No quota</span>
+            } @else {
+              <span class="text-[11px] text-muted-foreground font-mono shrink-0">{{ tile.total }}d</span>
+            }
+          </div>
+
+          <div class="mt-4 flex items-center gap-3">
+            <div class="relative shrink-0">
+              <svg width="56" height="56" viewBox="0 0 56 56">
+                <circle cx="28" cy="28" r="22" fill="none" stroke="hsl(var(--muted))" stroke-width="6"/>
+                @if (tile.total > 0) {
+                  <circle
+                    cx="28" cy="28" r="22" fill="none" stroke-width="6" stroke-linecap="round"
+                    [attr.stroke]="tile.color"
+                    stroke-dasharray="138.2"
+                    [attr.stroke-dashoffset]="donutDashOffset(tile.percentUsed, 138.2)"
+                    transform="rotate(-90 28 28)"/>
+                }
+              </svg>
+              <div class="absolute inset-0 flex items-center justify-center font-mono text-[12px] font-semibold text-foreground">
+                {{ tile.total > 0 ? tile.percentUsed + '%' : '—' }}
+              </div>
+            </div>
+            <div>
+              @if (tile.total === 0) {
+                <!-- No-quota types (e.g. Unpaid): "balance" is misleading because it's
+                     simply -used. Show what was actually taken instead. -->
+                <p class="font-mono text-[20px] font-semibold leading-none text-foreground">
+                  {{ tile.used }}
+                </p>
+                <p class="text-[11px] text-muted-foreground mt-1">taken</p>
+              } @else {
+                <p class="font-mono text-[20px] font-semibold leading-none text-foreground">
+                  {{ tile.balance }}
+                </p>
+                <p class="text-[11px] text-muted-foreground mt-1">days left</p>
+              }
+            </div>
+          </div>
+
+          <div class="mt-auto pt-4 border-t border-border grid grid-cols-3 gap-2 text-center">
+            <div>
+              <p class="text-[10px] uppercase tracking-wide text-muted-foreground">Total</p>
+              <p class="font-mono text-[13px] font-semibold text-foreground mt-0.5">{{ tile.total }}</p>
+            </div>
+            <div>
+              <p class="text-[10px] uppercase tracking-wide text-muted-foreground">Used</p>
+              <p class="font-mono text-[13px] font-semibold text-foreground mt-0.5">{{ tile.used }}</p>
+            </div>
+            <div>
+              <p class="text-[10px] uppercase tracking-wide text-muted-foreground">Pending</p>
+              <p class="font-mono text-[13px] font-semibold text-foreground mt-0.5">{{ tile.pending }}</p>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+
+      <!-- First "other" entitlement tile (rendered before Recent activity to match design layout) -->
+      @if (firstOtherTile(); as tile) {
+        <ng-container *ngTemplateOutlet="otherTileTpl; context: { $implicit: tile }"></ng-container>
+      }
+
+      <!-- Recent activity (tall tile) -->
+      <div class="col-span-12 lg:col-span-3 row-span-4 bg-card rounded-2xl border shad-card p-5 flex flex-col">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">Recent activity</p>
+            <h3 class="text-[14px] font-semibold tracking-tight text-foreground mt-0.5">Latest leaves</h3>
+          </div>
+          <button z-button zType="ghost" zSize="sm" (click)="goToList()">All →</button>
+        </div>
+
+        @if (recentActivity().length > 0) {
+          <ol class="mt-4 flex-1 relative space-y-4 before:absolute before:left-[7px] before:top-2 before:bottom-2 before:w-px before:bg-border">
+            @for (lv of recentActivity(); track lv.id) {
+              <li class="relative pl-6">
+                <span
+                  class="absolute left-0 top-1 w-3.5 h-3.5 rounded-full bg-card ring-2"
+                  [class.ring-emerald-500]="lv.status === 'Approved'"
+                  [class.ring-amber-500]="lv.status === 'Pending'"
+                  [class.ring-rose-500]="lv.status === 'Rejected'"
+                  [class.ring-slate-300]="lv.status === 'Cancelled'"></span>
+                <p class="text-[13px] font-medium text-foreground leading-tight">
+                  {{ lv.leave_type?.name }} · {{ lv.total_days }} day{{ lv.total_days === 1 ? '' : 's' }} {{ lv.status.toLowerCase() }}
+                </p>
+                <p class="text-[11px] text-muted-foreground mt-0.5">
+                  {{ formatShortDate(lv.start_date) }}@if (lv.start_date !== lv.end_date) {–{{ formatShortDate(lv.end_date) }}}
+                  @if (lv.is_half_day) {
+                    · half-day {{ lv.half_day_period }}
+                  }
+                </p>
+              </li>
+            }
+          </ol>
+        } @else {
+          <div class="mt-4 flex flex-col items-center justify-center text-center py-6 flex-1">
+            <z-icon zType="inbox" class="w-8 h-8 text-muted-foreground mb-2" />
+            <p class="text-[12px] text-muted-foreground">No recent activity</p>
+          </div>
+        }
+
+        <button
+          z-button zType="outline" zSize="sm"
+          class="mt-auto w-full"
+          (click)="goToList()">
+          View full ledger
+        </button>
+      </div>
+
+      <!-- Remaining entitlement tiles (rendered after Recent activity to match design layout) -->
+      @for (tile of restOtherTiles(); track tile.id) {
+        <ng-container *ngTemplateOutlet="otherTileTpl; context: { $implicit: tile }"></ng-container>
+      }
+
+      <!-- Policy / Carry-forward -->
+      <div class="col-span-12 lg:col-span-6 row-span-2 min-h-[240px] bg-card rounded-2xl border shad-card p-5">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <p class="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">Policy</p>
+            <h3 class="text-[14px] font-semibold tracking-tight text-foreground mt-0.5">Carry-forward & accrual</h3>
+          </div>
+        </div>
+
+        @if (heroTile(); as hero) {
+          <div class="grid grid-cols-3 gap-px bg-border rounded-lg overflow-hidden border">
+            <div class="bg-card p-3">
+              <p class="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">Accrual</p>
+              <p class="font-mono text-[15px] font-semibold text-foreground mt-1 leading-none">
+                {{ (hero.total / 12).toFixed(2) }} d/mo
+              </p>
+              <p class="text-[11px] text-muted-foreground mt-1">{{ hero.total }} days/year</p>
+            </div>
+            <div class="bg-card p-3">
+              <p class="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">Carry-forward</p>
+              <p class="font-mono text-[15px] font-semibold text-foreground mt-1 leading-none">
+                {{ carryForwardTotal() }} days
+              </p>
+              <p class="text-[11px] text-muted-foreground mt-1">From previous year</p>
+            </div>
+            <div class="bg-card p-3">
+              <p class="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">Total entitled</p>
+              <p class="font-mono text-[15px] font-semibold text-foreground mt-1 leading-none">{{ totalEntitled() }} days</p>
+              <p class="text-[11px] text-muted-foreground mt-1">Across all types</p>
+            </div>
+          </div>
+        }
+
+        @if (heroTile(); as hero) {
+          @if (hero.balance > 0 && hero.percentUsed < 50) {
+            <div class="mt-3 rounded-lg bg-amber-50 ring-1 ring-amber-200 px-3.5 py-2 flex items-start gap-2.5 dark:bg-amber-900/20 dark:ring-amber-800">
+              <z-icon zType="info" class="text-amber-600 mt-0.5 w-3.5 h-3.5 dark:text-amber-400" />
+              <div class="min-w-0">
+                <p class="text-[12px] font-medium text-amber-900 dark:text-amber-200">
+                  Plan your annual leave before the year-end reset
+                </p>
+                <p class="text-[11px] text-amber-800/80 mt-0.5 dark:text-amber-300/80">
+                  Currently <span class="font-mono font-semibold">{{ hero.balance }} days</span> available — only {{ hero.percentUsed }}% used so far.
+                </p>
+              </div>
+              <button
+                z-button
+                zType="outline"
+                zSize="sm"
+                class="ml-auto shrink-0"
+                (click)="openApplyLeaveSheet()">
+                Plan now
+              </button>
+            </div>
+          }
+        }
+      </div>
+
+      <!-- Year heatmap -->
+      <div class="col-span-12 lg:col-span-6 row-span-2 min-h-[230px] bg-card rounded-2xl border shad-card p-5">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <p class="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">Usage map</p>
+            <h3 class="text-[14px] font-semibold tracking-tight text-foreground mt-0.5">{{ selectedYear() }} — by month</h3>
+          </div>
+          <div class="flex items-center gap-2 text-[11px] text-muted-foreground">
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-slate-100"></span>0</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-slate-300"></span>1–2</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-slate-700"></span>3+</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-12 gap-1.5">
+          @for (m of monthlyHeatmap(); track m.month) {
+            <div class="space-y-1">
+              <p
+                class="text-[10px] font-mono text-center"
+                [class.text-foreground]="m.total > 0"
+                [class.font-semibold]="m.total > 0"
+                [class.text-muted-foreground]="m.total === 0">
+                {{ m.letter }}
+              </p>
+              <div class="grid grid-rows-4 gap-1">
+                @for (w of m.weeks; track $index) {
+                  <span class="h-3 rounded" [class]="heatmapShade(w)"></span>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="mt-3 grid grid-cols-3 gap-3 text-[12px]">
+          <div class="rounded-md bg-muted px-3 py-1.5">
+            <p class="text-muted-foreground text-[11px]">Peak month</p>
+            <p class="font-medium text-foreground mt-0.5">
+              @if (peakMonth(); as peak) {
+                {{ peak.label }} · {{ peak.days }} day{{ peak.days === 1 ? '' : 's' }}
+              } @else {
+                None yet
+              }
+            </p>
+          </div>
+          <div class="rounded-md bg-muted px-3 py-1.5">
+            <p class="text-muted-foreground text-[11px]">Avg / month</p>
+            <p class="font-medium text-foreground mt-0.5">{{ avgPerMonth() }} days</p>
+          </div>
+          <div class="rounded-md bg-muted px-3 py-1.5">
+            <p class="text-muted-foreground text-[11px]">Total used</p>
+            <p class="font-medium text-foreground mt-0.5">{{ totalUsed() }} days</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  }
+
+  <!-- Empty state for no entitlements -->
+  @if (!loading() && balanceData() && tiles().length === 0) {
+    <z-card>
+      <z-empty
+        [zIcon]="$any('inbox')"
+        zTitle="No leave entitlements"
+        zDescription="No leave entitlements found for this employee in {{ selectedYear() }}." />
+    </z-card>
+  }
+
+  }
+</div>

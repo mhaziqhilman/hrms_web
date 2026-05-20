@@ -180,9 +180,11 @@ export const API_CONFIG = {
       base: '/memos',
       detail: (id: number | string) => `/memos/${id}`,
       pinned: '/memos/pinned',
+      thisWeekStats: '/memos/stats/this-week',
       togglePin: (id: number | string) => `/memos/${id}/toggle-pin`,
       acknowledge: (id: number | string) => `/memos/${id}/acknowledge`,
-      statistics: (id: number | string) => `/memos/${id}/statistics`
+      statistics: (id: number | string) => `/memos/${id}/statistics`,
+      remind: (id: number | string) => `/memos/${id}/remind`
     },
     announcementCategories: {
       base: '/announcement-categories',

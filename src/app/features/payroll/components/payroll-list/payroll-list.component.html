@@ -1,9 +1,9 @@
-<div class="max-w-8xl mx-auto">
+<div>
   <!-- Header -->
   <div class="flex justify-between items-start mb-8 flex-wrap gap-4">
     <div>
-      <h2 class="text-2xl font-semibold text-foreground tracking-tight">Payroll Management</h2>
-      <p class="text-sm text-muted-foreground mt-1">Manage and process company payroll</p>
+      <h1 class="text-[28px] font-semibold tracking-tight leading-none text-foreground">Payroll Management</h1>
+      <p class="text-[13px] text-muted-foreground mt-2">Manage and process company payroll</p>
     </div>
     <div class="flex items-center gap-2">
       <!-- Month Selector (hidden on Summary tab) -->
@@ -14,8 +14,7 @@
             <z-icon zType="chevron-left" class="w-4 h-4" />
           </button>
           <div z-menu [zMenuTriggerFor]="headerMonthMenu" class="self-stretch flex">
-            <button type="button"
-              class="flex items-center gap-1.5 px-2.5 py-2 text-sm font-medium hover:bg-accent transition-colors whitespace-nowrap"
+            <button type="button" z-button zType="ghost"
               [class.text-primary]="selectedMonth()">
               <z-icon zType="calendar" class="w-4 h-4" />
               {{ selectedMonth() ? getSelectedMonthName() : 'All Months' }}
@@ -129,7 +128,7 @@
   <div class="mb-6">
     <z-segmented
       [zOptions]="viewTabOptions"
-      [zDefaultValue]="'summary'"
+      [zDefaultValue]="activeViewTab()"
       (zChange)="onViewTabChange($event)">
     </z-segmented>
   </div>
@@ -196,26 +195,24 @@
         </div>
         <div class="flex items-center gap-2">
           <button *ngIf="getAvailablePayRunBulkActions().submit"
-            type="button" (click)="bulkSubmitPayRuns()" [disabled]="bulkPayRunProcessing()"
-            class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50">
+            type="button" z-button zSize="sm" (click)="bulkSubmitPayRuns()" [disabled]="bulkPayRunProcessing()"
+            class="bg-blue-600 hover:bg-blue-700 text-white">
             <z-icon [zType]="$any('send')" class="w-3.5 h-3.5" />
             Submit
           </button>
           <button *ngIf="getAvailablePayRunBulkActions().approve"
-            type="button" (click)="bulkApprovePayRuns()" [disabled]="bulkPayRunProcessing()"
-            class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-primary hover:bg-primary/90 rounded-lg transition-colors disabled:opacity-50">
+            type="button" z-button zSize="sm" (click)="bulkApprovePayRuns()" [disabled]="bulkPayRunProcessing()">
             <z-icon zType="circle-check" class="w-3.5 h-3.5" />
             Approve
           </button>
           <button *ngIf="getAvailablePayRunBulkActions().markPaid"
-            type="button" (click)="bulkMarkPayRunsPaid()" [disabled]="bulkPayRunProcessing()"
-            class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors disabled:opacity-50">
+            type="button" z-button zSize="sm" (click)="bulkMarkPayRunsPaid()" [disabled]="bulkPayRunProcessing()"
+            class="bg-green-600 hover:bg-green-700 text-white">
             <z-icon [zType]="$any('dollar-sign')" class="w-3.5 h-3.5" />
             Mark Paid
           </button>
           <div class="w-px h-5 bg-border mx-1"></div>
-          <button type="button" (click)="clearPayRunSelection()"
-            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <button type="button" z-button zType="ghost" zSize="sm" (click)="clearPayRunSelection()">
             <z-icon zType="x" class="w-3.5 h-3.5" />
             Clear
           </button>
@@ -456,38 +453,35 @@
         </div>
         <div class="flex items-center gap-2">
           <button *ngIf="getAvailableBulkActions().submit"
-            type="button" (click)="bulkSubmit()" [disabled]="bulkProcessing()"
-            class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50">
+            type="button" z-button zSize="sm" (click)="bulkSubmit()" [disabled]="bulkProcessing()"
+            class="bg-blue-600 hover:bg-blue-700 text-white">
             <z-icon [zType]="$any('send')" class="w-3.5 h-3.5" />
             Submit
           </button>
           <button *ngIf="getAvailableBulkActions().approve"
-            type="button" (click)="bulkApprove()" [disabled]="bulkProcessing()"
-            class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-primary hover:bg-primary/90 rounded-lg transition-colors disabled:opacity-50">
+            type="button" z-button zSize="sm" (click)="bulkApprove()" [disabled]="bulkProcessing()">
             <z-icon zType="circle-check" class="w-3.5 h-3.5" />
             Approve
           </button>
           <button *ngIf="getAvailableBulkActions().markPaid"
-            type="button" (click)="bulkMarkPaid()" [disabled]="bulkProcessing()"
-            class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors disabled:opacity-50">
+            type="button" z-button zSize="sm" (click)="bulkMarkPaid()" [disabled]="bulkProcessing()"
+            class="bg-green-600 hover:bg-green-700 text-white">
             <z-icon [zType]="$any('dollar-sign')" class="w-3.5 h-3.5" />
             Mark Paid
           </button>
           <button *ngIf="getAvailableBulkActions().cancel"
-            type="button" (click)="bulkCancel()" [disabled]="bulkProcessing()"
-            class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 rounded-lg transition-colors disabled:opacity-50">
+            type="button" z-button zSize="sm" (click)="bulkCancel()" [disabled]="bulkProcessing()"
+            class="bg-orange-600 hover:bg-orange-700 text-white">
             <z-icon [zType]="$any('circle-x')" class="w-3.5 h-3.5" />
             Cancel
           </button>
           <button *ngIf="getAvailableBulkActions().delete"
-            type="button" (click)="bulkDelete()" [disabled]="bulkProcessing()"
-            class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-destructive hover:bg-destructive/90 rounded-lg transition-colors disabled:opacity-50">
+            type="button" z-button zType="destructive" zSize="sm" (click)="bulkDelete()" [disabled]="bulkProcessing()">
             <z-icon zType="trash" class="w-3.5 h-3.5" />
             Delete
           </button>
           <div class="w-px h-5 bg-border mx-1"></div>
-          <button type="button" (click)="clearSelection()"
-            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <button type="button" z-button zType="ghost" zSize="sm" (click)="clearSelection()">
             <z-icon zType="x" class="w-3.5 h-3.5" />
             Clear
           </button>
@@ -499,13 +493,13 @@
     <div class="flex items-center gap-3 mb-5 flex-wrap justify-between">
       <div class="flex items-center gap-3 flex-1 flex-wrap">
         <div class="relative flex-1 min-w-[180px] max-w-sm">
-          <z-icon zType="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+          <z-icon zType="search" class="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
           <input
             type="text"
             [ngModel]="searchEmployeeId()"
             (ngModelChange)="searchEmployeeId.set($event); onFilterChange()"
             placeholder="Search employee..."
-            class="w-full pl-9 pr-3 py-2 text-sm border border-input rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+            class="w-full pl-10 pr-3 py-2 text-sm border border-input rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
           />
         </div>
         <!-- Status Filter -->
@@ -829,8 +823,7 @@
             {{ run.total_employees }} active
             @if (cancelledPayrollCount() > 0) {
               &middot;
-              <button type="button"
-                class="text-red-600 hover:underline transition-all"
+              <button type="button" z-button zType="link" class="text-red-600"
                 (click)="showCancelledInSheet.set(!showCancelledInSheet())">
                 {{ cancelledPayrollCount() }} cancelled
                 <span class="text-xs ml-0.5">({{ showCancelledInSheet() ? 'hide' : 'show' }})</span>

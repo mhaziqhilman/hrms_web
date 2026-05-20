@@ -1,391 +1,530 @@
-<!-- Page Header -->
-<div class="flex items-center justify-between mb-6 max-w-7xl mx-auto">
-  <h1 class="text-2xl font-semibold">Announcement</h1>
-  <div class="flex items-center gap-3">
-    <!-- Date Range Filter -->
-    <z-date-picker placeholder="From date" zFormat="dd-MM-yyyy" zType="outline" zSize="default" [ngModel]="dateFrom()"
-      (dateChange)="onDateFromChange($event)"></z-date-picker>
-    <z-date-picker placeholder="To date" zFormat="dd-MM-yyyy" zType="outline" zSize="default" [ngModel]="dateTo()"
-      [minDate]="dateFrom() ?? undefined" (dateChange)="onDateToChange($event)"></z-date-picker>
+<div class="flex flex-col flex-1">
 
-    <!-- Sort Filter -->
-    <div z-menu [zMenuTriggerFor]="sortMenu">
-      <button z-button zType="outline" [class]="sortBy() !== 'newest'
-          ? 'gap-2 border border-solid px-2 bg-primary/5 text-primary border-primary'
-          : 'gap-2 border border-dashed px-2'">
-        <z-icon [zType]="sortBy() !== 'newest' ? $any('circle-check') : $any('circle-plus')" class="w-4 h-4" />
-        {{ getSortLabel() }}
-      </button>
+    <!-- Sticky page-header bar (edge-to-edge, aligned with the memo editor) -->
+    <div class="memo-list-bar border-b border-border px-6 py-4 flex items-end justify-between gap-4 flex-wrap">
+      <div>
+        <h3 class="text-[24px] font-semibold tracking-tight leading-none text-foreground">Announcement</h3>
+        <p class="text-[12.5px] text-muted-foreground mt-1.5">
+          <span class="font-mono tabular-nums text-foreground">{{ totalItems() }}</span> posts ·
+          <span class="font-mono tabular-nums text-foreground">{{ pinnedCount }}</span> pinned
+          @if (lastUpdated) {
+          · updated <span class="font-mono tabular-nums text-foreground">{{ lastUpdated }}</span>
+          }
+        </p>
+      </div>
+      <div class="flex items-center gap-2">
+        <!-- Date Range Filter -->
+        <z-date-picker placeholder="From date" zFormat="dd-MM-yyyy" zType="outline" zSize="default"
+          [ngModel]="dateFrom()" (dateChange)="onDateFromChange($event)"></z-date-picker>
+        <z-date-picker placeholder="To date" zFormat="dd-MM-yyyy" zType="outline" zSize="default" [ngModel]="dateTo()"
+          [minDate]="dateFrom() ?? undefined" (dateChange)="onDateToChange($event)"></z-date-picker>
+
+        <!-- Sort Filter -->
+        <div z-menu [zMenuTriggerFor]="sortMenu">
+          <button type="button" z-button zType="outline"
+            [class]="sortBy() !== 'newest' ? 'border-primary bg-primary/5 text-primary' : ''">
+            <z-icon [zType]="sortBy() !== 'newest' ? $any('circle-check') : $any('arrow-up-down')" class="w-3.5 h-3.5" />
+            {{ getSortLabel() }}
+          </button>
+        </div>
+        <ng-template #sortMenu>
+          <div z-menu-content class="w-48">
+            <button type="button" z-menu-item (click)="sortBy.set('newest'); onSortChange()">
+              Newest First
+            </button>
+            <button type="button" z-menu-item (click)="sortBy.set('oldest'); onSortChange()">
+              Oldest First
+            </button>
+            <button type="button" z-menu-item (click)="sortBy.set('priority'); onSortChange()">
+              Priority
+            </button>
+          </div>
+        </ng-template>
+
+        <!-- Status Filter -->
+        <div z-menu [zMenuTriggerFor]="statusMenu">
+          <button type="button" z-button zType="outline"
+            [class]="statusFilter() !== 'Published' ? 'border-primary bg-primary/5 text-primary' : ''">
+            <z-icon [zType]="$any('list-filter')" class="w-3.5 h-3.5" />
+            {{ getStatusLabel() }}
+          </button>
+        </div>
+        <ng-template #statusMenu>
+          <div z-menu-content class="w-48">
+            <button type="button" z-menu-item (click)="statusFilter.set('Published'); onStatusChange()">
+              Published
+            </button>
+            <button type="button" z-menu-item (click)="statusFilter.set('Draft'); onStatusChange()">
+              Drafts
+            </button>
+            <button type="button" z-menu-item (click)="statusFilter.set('Archived'); onStatusChange()">
+              Archived
+            </button>
+          </div>
+        </ng-template>
+
+        <!-- Reset Filters -->
+        @if (dateFrom() || dateTo() || sortBy() !== 'newest' || statusFilter() !== 'Published') {
+        <button type="button" z-button zType="ghost" (click)="resetFilters()">
+          Reset
+          <z-icon [zType]="$any('x')" class="w-3.5 h-3.5" />
+        </button>
+        }
+
+        <!-- New Post -->
+        @if (canCreate) {
+        <button type="button" z-button (click)="navigateToCreate()">
+          <z-icon [zType]="$any('plus')" class="w-3.5 h-3.5" />
+          New post
+        </button>
+        }
+      </div>
     </div>
-    <ng-template #sortMenu>
-      <div z-menu-content class="w-48">
-        <button type="button" z-menu-item (click)="sortBy.set('newest'); onSortChange()">
-          Newest First
-        </button>
-        <button type="button" z-menu-item (click)="sortBy.set('oldest'); onSortChange()">
-          Oldest First
-        </button>
-        <button type="button" z-menu-item (click)="sortBy.set('priority'); onSortChange()">
-          Priority
-        </button>
-      </div>
-    </ng-template>
 
-    <!-- Reset Filters -->
-    @if (dateFrom() || dateTo() || sortBy() !== 'newest') {
-    <button type="button" z-button zType="outline" class="gap-2 border-none shadow-none px-2" (click)="resetFilters()">
-      Reset
-      <z-icon [zType]="$any('x')" class="w-4 h-4" />
-    </button>
-    }
-  </div>
-</div>
+    <!-- 3 column body -->
+    <div class="grid grid-cols-12 gap-6 px-6 py-6">
 
-<!-- 3-Column Layout -->
-<div class="flex gap-6 items-start max-w-7xl mx-auto">
+      <!-- ============== CATEGORY RAIL ============== -->
+      <aside class="col-span-12 md:col-span-3">
+        <div class="bg-muted/40 rounded-xl border border-border p-4">
+          <div class="flex items-center justify-between mb-3">
+            <p class="text-[12.5px] font-semibold text-foreground">Category</p>
+            @if (canManageCategories) {
+            <button type="button" z-button zType="ghost" zSize="sm"
+              (click)="toggleAddCategory()">
+              <z-icon [zType]="$any('plus')" class="w-2.5 h-2.5" />
+              Add new
+            </button>
+            }
+          </div>
 
-  <!-- LEFT COLUMN: Category Sidebar -->
-  <aside class="w-60 shrink-0 sticky top-6 hidden md:block">
-    <z-card class="py-4 border-0 bg-sidebar rounded-md">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="font-medium text-sm">Category</h3>
-        @if (canManageCategories) {
-        <button z-button zType="ghost" zSize="sm" class="text-xs text-primary" (click)="toggleAddCategory()">
-          + Add New
-        </button>
-        }
-      </div>
-
-      <!-- Add Category Form -->
-      @if (showAddCategory()) {
-      <div class="mb-3 p-2 rounded-md border bg-muted/30">
-        <input z-input [ngModel]="newCategoryName()" (ngModelChange)="newCategoryName.set($event)"
-          placeholder="Category name" class="text-sm mb-2" />
-        <div class="flex items-center gap-2">
-          <input type="color" [ngModel]="newCategoryColor()" (ngModelChange)="newCategoryColor.set($event)"
-            class="w-8 h-8 rounded cursor-pointer border-0 p-0" />
-          <button z-button zSize="sm" (click)="addCategory()" class="flex-1 text-xs">Add</button>
-          <button z-button zType="ghost" zSize="sm" (click)="toggleAddCategory()" class="text-xs">Cancel</button>
-        </div>
-      </div>
-      }
-
-      <!-- All Announcement -->
-      <button class="w-full flex items-center justify-between px-3 py-2 rounded-md text-sm transition-colors mb-1"
-        [class.bg-primary/10]="!selectedCategory()" [class.text-primary]="!selectedCategory()"
-        [class.font-normal]="!selectedCategory()" [class.hover:bg-muted]="selectedCategory()"
-        (click)="filterByCategory(null)">
-        <span>All Announcement</span>
-        <z-badge zType="secondary" zShape="pill" class="text-xs px-2 bg-primary text-white">
-          {{ totalPublishedCount() }}
-        </z-badge>
-      </button>
-
-      <!-- Category List -->
-      @for (cat of categories(); track cat.id) {
-      @if (editingCategory()?.id === cat.id) {
-      <!-- Inline Edit Form -->
-      <div class="mb-1 p-2 rounded-md border bg-muted/30">
-        <input z-input [ngModel]="editingCategory()!.name" (ngModelChange)="updateEditingCategoryName($event)"
-          placeholder="Category name" class="text-sm mb-2" />
-        <div class="flex items-center gap-2">
-          <input type="color" [ngModel]="editingCategory()!.color || '#6B7280'"
-            (ngModelChange)="updateEditingCategoryColor($event)" class="w-8 h-8 rounded cursor-pointer border-0 p-0" />
-          <button z-button zSize="sm" (click)="saveEditCategory()" class="flex-1 text-xs">Save</button>
-          <button z-button zType="ghost" zSize="sm" (click)="cancelEditCategory()" class="text-xs">Cancel</button>
-        </div>
-      </div>
-      } @else {
-      <div
-        class="group w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors mb-0.5 cursor-pointer"
-        [class.bg-primary/10]="selectedCategory()?.id === cat.id"
-        [class.text-primary]="selectedCategory()?.id === cat.id" [class.font-normal]="selectedCategory()?.id === cat.id"
-        [class.hover:bg-muted]="selectedCategory()?.id !== cat.id" (click)="filterByCategory(cat)">
-        <span class="w-2 h-2 rounded-full shrink-0" [style.background-color]="cat.color || '#6B7280'"></span>
-        <span class="flex-1 text-left truncate">{{ cat.name }}</span>
-        @if (canManageCategories) {
-        <div class="hidden group-hover:flex items-center gap-0.5 shrink-0">
-          <button z-button zType="ghost" zSize="sm" class="h-6 w-6 p-0" (click)="startEditCategory(cat, $event)"
-            [zTooltip]="'Edit'">
-            <z-icon [zType]="$any('pencil')" class="w-3 h-3" />
-          </button>
-          <button z-button zType="ghost" zSize="sm" class="h-6 w-6 p-0 text-destructive"
-            (click)="deleteCategory(cat, $event)" [zTooltip]="'Delete'">
-            <z-icon [zType]="$any('trash-2')" class="w-3 h-3" />
-          </button>
-        </div>
-        } @else if (cat.memo_count) {
-        <span class="text-xs text-muted-foreground">{{ cat.memo_count }}</span>
-        }
-      </div>
-      }
-      }
-    </z-card>
-  </aside>
-
-  <!-- CENTER COLUMN: Feed -->
-  <main class="flex-1 min-w-0">
-
-    <!-- Create Announcement Box -->
-    @if (canCreate) {
-    <z-card class="!py-4 mb-5">
-      @if (!showQuickPost()) {
-      <!-- Collapsed: click to expand -->
-      <div class="flex items-center gap-3 cursor-pointer" (click)="toggleQuickPost()">
-        <z-avatar [zSrc]="getCurrentUserPhoto()" [zFallback]="getCurrentUserInitials()" zSize="default"
-            class="mt-1" />
-        <div
-          class="flex-1 bg-muted rounded-md px-4 py-2.5 text-muted-foreground text-sm hover:bg-muted/80 transition-colors">
-          Write an announcement...
-        </div>
-      </div>
-      } @else {
-      <!-- Expanded: inline quick post form -->
-      <form [formGroup]="quickPostForm" class="space-y-3">
-        <div class="flex items-start gap-3">
-          <z-avatar [zSrc]="getCurrentUserPhoto()" [zFallback]="getCurrentUserInitials()" zSize="default"
-            class="mt-1" />
-          <div class="flex-1 space-y-3">
-            <input z-input type="text" formControlName="title" placeholder="Announcement title..." class="font-normal"
-              [class.border-destructive]="quickPostForm.get('title')?.invalid && quickPostForm.get('title')?.touched" />
-            <textarea z-input formControlName="content" placeholder="What would you like to announce?" rows="3"
-              class="resize-none"
-              [class.border-destructive]="quickPostForm.get('content')?.invalid && quickPostForm.get('content')?.touched"></textarea>
-
-            <!-- Category + Priority row -->
-            <div class="flex items-center gap-3">
-              <z-select formControlName="category_id" placeholder="Category" zSize="sm" class="w-40">
-                @for (cat of categories(); track cat.id) {
-                <z-select-item [zValue]="cat.id">{{ cat.name }}</z-select-item>
-                }
-              </z-select>
-              <z-select formControlName="priority" placeholder="Priority" zSize="sm" class="w-36">
-                @for (p of priorities; track p) {
-                <z-select-item [zValue]="p">{{ p }}</z-select-item>
-                }
-              </z-select>
+          <!-- Add Category Form -->
+          @if (showAddCategory()) {
+          <div class="mb-3 p-2 rounded-md border border-border bg-card">
+            <input z-input [ngModel]="newCategoryName()" (ngModelChange)="newCategoryName.set($event)"
+              placeholder="Category name" class="text-sm mb-2" />
+            <div class="flex items-center gap-2">
+              <input type="color" [ngModel]="newCategoryColor()" (ngModelChange)="newCategoryColor.set($event)"
+                class="w-8 h-8 rounded cursor-pointer border-0 p-0" />
+              <button z-button zSize="sm" (click)="addCategory()" class="flex-1 text-xs">Add</button>
+              <button z-button zType="ghost" zSize="sm" (click)="toggleAddCategory()" class="text-xs">Cancel</button>
             </div>
+          </div>
+          }
 
-            <!-- Action buttons -->
-            <div class="flex items-center justify-between pt-1">
-              <button z-button zType="link" zSize="sm" type="button" class="text-xs text-muted-foreground px-0"
-                (click)="navigateToCreate()">
-                <z-icon [zType]="$any('settings')" class="w-3.5 h-3.5 mr-1" />
-                More options
+          <ul class="space-y-0.5">
+            <!-- All Announcement -->
+            <li>
+              <button type="button"
+                class="w-full flex items-center justify-between px-2.5 h-8 rounded-md transition-colors"
+                [class.bg-accent]="!selectedCategory()"
+                [class.text-foreground]="!selectedCategory()"
+                [class.hover:bg-card]="selectedCategory()"
+                [class.text-muted-foreground]="selectedCategory()"
+                (click)="filterByCategory(null)">
+                <span class="text-[13px] font-medium">All Announcement</span>
+                <span
+                  class="inline-flex items-center justify-center min-w-[20px] h-[18px] px-1.5 rounded-md text-[10.5px] font-semibold font-mono tabular-nums"
+                  [class.bg-primary]="!selectedCategory()"
+                  [class.text-primary-foreground]="!selectedCategory()"
+                  [class.text-muted-foreground]="selectedCategory()">
+                  {{ totalPublishedCount() }}
+                </span>
               </button>
-              <div class="flex items-center gap-2">
-                <button z-button zType="ghost" zSize="sm" type="button" (click)="toggleQuickPost()"
-                  [disabled]="quickPostSaving()" class="text-sm text-muted-foreground">
-                  Cancel
-                </button>
-                <button z-button zType="outline" zSize="sm" type="button" (click)="submitQuickPost('Draft')"
-                  [disabled]="quickPostSaving()" class="text-sm">
-                  @if (quickPostSaving()) {
-                  <z-icon [zType]="$any('loader-circle')" class="w-3.5 h-3.5 mr-1 animate-spin" />
+            </li>
+
+            <!-- Category List -->
+            @for (cat of categories(); track cat.id) {
+            <li>
+              @if (editingCategory()?.id === cat.id) {
+              <!-- Inline Edit Form -->
+              <div class="my-1 p-2 rounded-md border border-border bg-card">
+                <input z-input [ngModel]="editingCategory()!.name" (ngModelChange)="updateEditingCategoryName($event)"
+                  placeholder="Category name" class="text-sm mb-2" />
+                <div class="flex items-center gap-2">
+                  <input type="color" [ngModel]="editingCategory()!.color || '#6B7280'"
+                    (ngModelChange)="updateEditingCategoryColor($event)"
+                    class="w-8 h-8 rounded cursor-pointer border-0 p-0" />
+                  <button z-button zSize="sm" (click)="saveEditCategory()" class="flex-1 text-xs">Save</button>
+                  <button z-button zType="ghost" zSize="sm" (click)="cancelEditCategory()"
+                    class="text-xs">Cancel</button>
+                </div>
+              </div>
+              } @else {
+              <button type="button"
+                class="group w-full flex items-center justify-between px-2.5 h-8 rounded-md transition-colors"
+                [class.bg-accent]="selectedCategory()?.id === cat.id"
+                [class.text-foreground]="selectedCategory()?.id === cat.id"
+                [class.hover:bg-card]="selectedCategory()?.id !== cat.id"
+                [class.text-muted-foreground]="selectedCategory()?.id !== cat.id"
+                (click)="filterByCategory(cat)">
+                <span class="flex items-center gap-2.5 min-w-0">
+                  <span class="w-2 h-2 rounded-full shrink-0" [style.background-color]="cat.color || '#6B7280'"></span>
+                  <span class="text-[13px] truncate">{{ cat.name }}</span>
+                </span>
+                <span class="flex items-center gap-1 shrink-0">
+                  @if (canManageCategories) {
+                  <span class="hidden group-hover:inline-flex items-center gap-0.5">
+                    <span
+                      class="h-5 w-5 rounded text-muted-foreground hover:bg-accent hover:text-foreground inline-flex items-center justify-center cursor-pointer"
+                      (click)="startEditCategory(cat, $event)" [zTooltip]="'Edit'">
+                      <z-icon [zType]="$any('pencil')" class="w-2.5 h-2.5" />
+                    </span>
+                    <span
+                      class="h-5 w-5 rounded text-muted-foreground hover:bg-accent hover:text-destructive inline-flex items-center justify-center cursor-pointer"
+                      (click)="deleteCategory(cat, $event)" [zTooltip]="'Delete'">
+                      <z-icon [zType]="$any('trash-2')" class="w-2.5 h-2.5" />
+                    </span>
+                  </span>
+                  <span class="text-[11px] font-mono tabular-nums text-muted-foreground"
+                    [class.group-hover:hidden]="canManageCategories">
+                    {{ cat.memo_count ?? 0 }}
+                  </span>
                   }
-                  Draft
-                </button>
-                <button z-button zSize="sm" type="button" (click)="submitQuickPost('Published')"
-                  [disabled]="quickPostSaving()">
-                  @if (quickPostSaving()) {
-                  <z-icon [zType]="$any('loader-circle')" class="w-3.5 h-3.5 mr-1 animate-spin" />
-                  } @else {
-                  <z-icon [zType]="$any('send')" class="w-3.5 h-3.5 mr-1" />
+                  @if (!canManageCategories) {
+                  <span class="text-[11px] font-mono tabular-nums text-muted-foreground">{{ cat.memo_count ?? 0 }}</span>
                   }
-                  Post
-                </button>
+                </span>
+              </button>
+              }
+            </li>
+            }
+          </ul>
+        </div>
+      </aside>
+
+      <!-- ============== FEED ============== -->
+      <div class="col-span-12 md:col-span-9 lg:col-span-6 space-y-4">
+
+        <!-- Create Announcement Box -->
+        @if (canCreate) {
+        <z-card class="!py-3 mb-5">
+          @if (!showQuickPost()) {
+          <!-- Collapsed: minimal composer bar -->
+          <div class="flex items-center gap-3">
+            <z-avatar [zSrc]="getCurrentUserPhoto()" [zFallback]="getCurrentUserInitials()" zSize="default" />
+            <button type="button"
+              class="flex-1 text-left h-10 px-3.5 rounded-md bg-muted hover:bg-muted/70 border border-border text-sm text-muted-foreground transition-colors"
+              (click)="toggleQuickPost()">
+              Write an announcement…
+            </button>
+            <button z-button zSize="default" class="h-10 w-10 p-0" (click)="toggleQuickPost()" [zTooltip]="'New post'">
+              <z-icon [zType]="$any('send')" class="w-4 h-4" />
+            </button>
+          </div>
+          } @else {
+          <!-- Expanded: inline quick post form -->
+          <form [formGroup]="quickPostForm" class="space-y-3">
+            <div class="flex items-start gap-3">
+              <z-avatar [zSrc]="getCurrentUserPhoto()" [zFallback]="getCurrentUserInitials()" zSize="default"
+                class="mt-1" />
+              <div class="flex-1 space-y-3">
+                <input z-input type="text" formControlName="title" placeholder="Announcement title..."
+                  class="font-normal"
+                  [class.border-destructive]="quickPostForm.get('title')?.invalid && quickPostForm.get('title')?.touched" />
+                <textarea z-input formControlName="content" placeholder="What would you like to announce?" rows="3"
+                  class="resize-none"
+                  [class.border-destructive]="quickPostForm.get('content')?.invalid && quickPostForm.get('content')?.touched"></textarea>
+
+                <!-- Category + Priority row -->
+                <div class="flex items-center gap-3">
+                  <z-select formControlName="category_id" placeholder="Category" zSize="sm" class="w-40">
+                    @for (cat of categories(); track cat.id) {
+                    <z-select-item [zValue]="cat.id">{{ cat.name }}</z-select-item>
+                    }
+                  </z-select>
+                  <z-select formControlName="priority" placeholder="Priority" zSize="sm" class="w-36">
+                    @for (p of priorities; track p) {
+                    <z-select-item [zValue]="p">{{ p }}</z-select-item>
+                    }
+                  </z-select>
+                </div>
+
+                <!-- Action buttons -->
+                <div class="flex items-center justify-between pt-1">
+                  <button z-button zType="link" zSize="sm" type="button" class="text-xs text-muted-foreground px-0"
+                    (click)="navigateToCreate()">
+                    <z-icon [zType]="$any('settings')" class="w-3.5 h-3.5 mr-1" />
+                    More options
+                  </button>
+                  <div class="flex items-center gap-2">
+                    <button z-button zType="ghost" zSize="sm" type="button" (click)="toggleQuickPost()"
+                      [disabled]="quickPostSaving()" class="text-xs text-muted-foreground">
+                      Cancel
+                    </button>
+                    <button z-button zType="outline" zSize="sm" type="button" (click)="submitQuickPost('Draft')"
+                      [disabled]="quickPostSaving()" class="text-xs">
+                      @if (quickPostSaving()) {
+                      <z-icon [zType]="$any('loader-circle')" class="w-3.5 h-3.5 mr-1 animate-spin" />
+                      }
+                      Draft
+                    </button>
+                    <button z-button zSize="sm" type="button" (click)="submitQuickPost('Published')"
+                      [disabled]="quickPostSaving()">
+                      @if (quickPostSaving()) {
+                      <z-icon [zType]="$any('loader-circle')" class="w-3.5 h-3.5 mr-1 animate-spin" />
+                      } @else {
+                      <z-icon [zType]="$any('send')" class="w-3.5 h-3.5 mr-1" />
+                      }
+                      Post
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+          }
+        </z-card>
+        }
+
+        <!-- Loading State -->
+        @if (loading()) {
+        <div class="flex items-center justify-center py-12">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+        }
+
+        <!-- Feed Cards -->
+        @if (!loading()) {
+        @if (memos().length === 0) {
+        <article class="rounded-xl border border-border bg-card shadow-sm p-8 text-center">
+          <z-icon [zType]="$any('megaphone')" class="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+          <h3 class="text-[15px] font-medium text-foreground mb-1">No announcements yet</h3>
+          <p class="text-[13px] text-muted-foreground">
+            @if (selectedCategory()) {
+            No announcements found in this category.
+            } @else {
+            Be the first to share an announcement with your team.
+            }
+          </p>
+        </article>
+        }
+
+        @for (memo of memos(); track memo.id) {
+        <article
+          class="rounded-xl border border-border bg-card shadow-sm overflow-hidden transition-colors hover:bg-muted/40">
+          <div class="p-5">
+            <div class="flex items-start gap-3">
+              @if (getAuthorPhoto(memo)) {
+              <z-avatar [zSrc]="getAuthorPhoto(memo)" zSize="default" class="shrink-0" />
+              } @else {
+              <z-avatar [zFallback]="getInitials(getAuthorName(memo))" zSize="default" class="shrink-0" />
+              }
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between gap-2">
+                  <div class="min-w-0">
+                    <p class="text-[13.5px] font-semibold text-foreground leading-tight truncate">
+                      {{ getAuthorName(memo) }}
+                    </p>
+                    <p class="text-[11.5px] text-muted-foreground mt-0.5 font-mono tabular-nums">
+                      @if (getAuthorPosition(memo)) {<span>{{ getAuthorPosition(memo) }} · </span>}
+                      {{ formatDateTime(memo.published_at || memo.created_at) }}
+                    </p>
+                  </div>
+                  <div class="flex items-center gap-1 shrink-0">
+                    @if (memo.is_pinned) {
+                    <span
+                      class="h-7 w-7 rounded-md text-muted-foreground inline-flex items-center justify-center"
+                      [zTooltip]="'Pinned'">
+                      <z-icon [zType]="$any('pin')" class="w-3.5 h-3.5 rotate-[20deg]" />
+                    </span>
+                    }
+                    @if (canEditMemo(memo)) {
+                    <div z-menu [zMenuTriggerFor]="memoActions">
+                      <button type="button" z-button zType="ghost" zSize="sm">
+                        <z-icon [zType]="$any('ellipsis')" class="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                    <ng-template #memoActions>
+                      <div z-menu-content class="w-44">
+                        @if (canPin) {
+                        <button z-menu-item (click)="togglePin(memo)">
+                          <z-icon [zType]="$any('pin')" class="w-4 h-4 mr-2" />
+                          {{ memo.is_pinned ? 'Unpin' : 'Pin' }}
+                        </button>
+                        }
+                        <button z-menu-item (click)="editPost(memo.public_id)">
+                          <z-icon [zType]="$any('pencil')" class="w-4 h-4 mr-2" />
+                          Edit
+                        </button>
+                        @if (memo.status === 'Draft') {
+                        <button z-menu-item (click)="publishMemo(memo)">
+                          <z-icon [zType]="$any('send')" class="w-4 h-4 mr-2" />
+                          Publish
+                        </button>
+                        }
+                        @if (memo.status !== 'Archived') {
+                        <button z-menu-item (click)="archiveMemo(memo)">
+                          <z-icon [zType]="$any('archive')" class="w-4 h-4 mr-2" />
+                          Archive
+                        </button>
+                        }
+                        @if (memo.status === 'Archived') {
+                        <button z-menu-item (click)="publishMemo(memo)">
+                          <z-icon [zType]="$any('refresh-cw')" class="w-4 h-4 mr-2" />
+                          Restore
+                        </button>
+                        }
+                        <button z-menu-item class="text-destructive" (click)="deleteMemo(memo)">
+                          <z-icon [zType]="$any('trash-2')" class="w-4 h-4 mr-2" />
+                          Delete
+                        </button>
+                      </div>
+                    </ng-template>
+                    }
+                  </div>
+                </div>
+
+                <!-- Category chip -->
+                @if (memo.category) {
+                <div class="mt-3 inline-flex items-center gap-1.5 px-2 h-6 rounded-md"
+                  [style.background-color]="getCategoryChipBg(memo.category.color)"
+                  [style.color]="getCategoryChipText(memo.category.color)">
+                  <span class="w-2 h-2 rounded-full shrink-0"
+                    [style.background-color]="memo.category.color || '#6B7280'"></span>
+                  <span class="text-[11px] font-semibold tracking-wide uppercase">{{ memo.category.name }}</span>
+                </div>
+                }
+
+                <!-- Title -->
+                <h4 class="text-[18px] font-semibold tracking-tight text-foreground mt-3 leading-snug">{{ memo.title }}
+                </h4>
+
+                <!-- Content preview -->
+                <p class="text-[13.5px] text-muted-foreground mt-1.5 leading-relaxed line-clamp-2">
+                  {{ getContentPreview(memo) }}
+                </p>
               </div>
             </div>
           </div>
-        </div>
-      </form>
-      }
-    </z-card>
-    }
 
-    <!-- Loading State -->
-    @if (loading()) {
-    <div class="flex items-center justify-center py-12">
-      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-    </div>
-    }
-
-    <!-- Feed Cards -->
-    @if (!loading()) {
-    @if (memos().length === 0) {
-    <z-card class="p-8 text-center">
-      <z-icon [zType]="$any('megaphone')" class="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-      <h3 class="font-normal text-lg mb-1">No announcements yet</h3>
-      <p class="text-muted-foreground text-sm">
-        @if (selectedCategory()) {
-        No announcements found in this category.
-        } @else {
-        Be the first to share an announcement with your team.
-        }
-      </p>
-    </z-card>
-    }
-
-    @for (memo of memos(); track memo.id) {
-    <z-card class="py-4 mb-4">
-      <!-- Card Header: Author info + pin + menu -->
-      <div class="flex items-start justify-between mb-3">
-        <div class="flex items-center gap-3">
-          @if (getAuthorPhoto(memo)) {
-          <z-avatar [zSrc]="getAuthorPhoto(memo)" zSize="default" />
+          <!-- Cover image — full-bleed 1:1 square (object-fill cropped) -->
+          @if (getMemoImage(memo); as memoImg) {
+          <img [src]="memoImg" [alt]="memo.title"
+            class="block w-full aspect-square object-cover bg-muted" />
           } @else {
-          <z-avatar [zFallback]="getInitials(getAuthorName(memo))" zSize="default" />
+          <div class="h-px bg-border mx-5"></div>
           }
-          <div>
-            <p class="font-normal text-sm">{{ getAuthorName(memo) }}</p>
-            <p class="text-xs text-muted-foreground">
-              {{ getAuthorPosition(memo) }}
-              @if (getAuthorPosition(memo)) { &middot; }
-              {{ formatDateTime(memo.published_at || memo.created_at) }}
-            </p>
-          </div>
-        </div>
-        <div class="flex items-center gap-1">
-          @if (memo.is_pinned) {
-          <z-icon [zType]="$any('pin')" class="w-4 h-4 text-primary" [zTooltip]="'Pinned'" />
-          }
-          @if (canEditMemo(memo)) {
-          <div z-menu [zMenuTriggerFor]="memoActions">
-            <button z-button zType="ghost" zSize="sm" class="h-8 w-8 p-0">
-              <z-icon [zType]="$any('ellipsis')" class="w-4 h-4" />
+
+          <!-- Footer -->
+          <div class="px-5 py-3 flex items-center justify-between text-[12px] text-muted-foreground">
+            <div class="flex items-center gap-4">
+              <span class="inline-flex items-center gap-1.5">
+                <z-icon [zType]="$any('eye')" class="w-3.5 h-3.5" />
+                <span class="font-mono tabular-nums">{{ memo.view_count || 0 }}</span> views
+              </span>
+              @if (memo.is_pinned) {
+              <span class="inline-flex items-center gap-1.5 text-muted-foreground">
+                <z-icon [zType]="$any('pin')" class="w-3.5 h-3.5 rotate-[20deg]" />
+                Pinned
+              </span>
+              }
+            </div>
+            <button type="button" z-button zType="ghost" zSize="sm"
+              (click)="viewPost(memo.public_id)">
+              View full post
+              <z-icon [zType]="$any('arrow-right')" class="w-3 h-3" />
             </button>
           </div>
-          <ng-template #memoActions>
-            <div z-menu-content class="w-44">
-              @if (canPin) {
-              <button z-menu-item (click)="togglePin(memo)">
-                <z-icon [zType]="$any('pin')" class="w-4 h-4 mr-2" />
-                {{ memo.is_pinned ? 'Unpin' : 'Pin' }}
-              </button>
-              }
-              <button z-menu-item (click)="editPost(memo.public_id)">
-                <z-icon [zType]="$any('pencil')" class="w-4 h-4 mr-2" />
-                Edit
-              </button>
-              <button z-menu-item (click)="archiveMemo(memo)">
-                <z-icon [zType]="$any('archive')" class="w-4 h-4 mr-2" />
-                Archive
-              </button>
-              <button z-menu-item class="text-destructive" (click)="deleteMemo(memo)">
-                <z-icon [zType]="$any('trash-2')" class="w-4 h-4 mr-2" />
-                Delete
-              </button>
-            </div>
-          </ng-template>
-          }
-        </div>
-      </div>
-
-      <!-- Category Badge -->
-      @if (memo.category) {
-      <div class="mb-2">
-        <span class="inline-flex items-center gap-1.5 text-xs font-normal px-2.5 py-1 rounded-md text-white"
-          [style.background-color]="memo.category.color || '#6B7280'">
-          {{ memo.category.name }}
-        </span>
-      </div>
-      }
-
-      <!-- Title -->
-      <h3 class="text-lg font-medium mb-1.5">{{ memo.title }}</h3>
-
-      <!-- Content Preview -->
-      <p class="text-muted-foreground text-sm leading-relaxed line-clamp-3">
-        {{ getContentPreview(memo) }}
-      </p>
-
-      <!-- Footer / Action Bar -->
-      <div class="mt-4 pt-3 border-t flex items-center justify-between">
-        <div class="flex items-center gap-4 text-xs text-muted-foreground">
-          @if (memo.view_count > 0) {
-          <span class="flex items-center gap-1">
-            <z-icon [zType]="$any('eye')" class="w-3.5 h-3.5" />
-            {{ memo.view_count }} views
-          </span>
-          }
-        </div>
-        <button z-button zType="ghost" zSize="sm" class="text-primary text-sm font-normal" (click)="viewPost(memo.public_id)">
-          View Full Post
-          <z-icon [zType]="$any('arrow-right')" class="w-4 h-4 ml-1" />
-        </button>
-      </div>
-    </z-card>
-    }
-
-    <!-- Pagination -->
-    @if (totalPages() > 1) {
-    <div class="flex items-center justify-center gap-2 mt-6">
-      <button z-button zType="outline" zSize="sm" [disabled]="currentPage() === 1"
-        (click)="goToPage(currentPage() - 1)">
-        <z-icon [zType]="$any('chevron-left')" class="w-4 h-4" />
-      </button>
-      <span class="text-sm text-muted-foreground px-3">
-        Page {{ currentPage() }} of {{ totalPages() }}
-      </span>
-      <button z-button zType="outline" zSize="sm" [disabled]="currentPage() === totalPages()"
-        (click)="goToPage(currentPage() + 1)">
-        <z-icon [zType]="$any('chevron-right')" class="w-4 h-4" />
-      </button>
-    </div>
-    }
-    }
-  </main>
-
-  <!-- RIGHT COLUMN: Pinned Announcements -->
-  <aside class="w-72 shrink-0 sticky top-6 hidden lg:block">
-    <z-card class="py-4">
-      <h3 class="font-medium text-sm mb-4">Pinned Announcement</h3>
-
-      @if (pinnedMemos().length === 0) {
-      <p class="text-sm text-muted-foreground text-center py-4">No pinned announcements</p>
-      }
-
-      @for (pinned of pinnedMemos(); track pinned.id; let last = $last) {
-      <div class="group" [class.mb-3]="!last" [class.pb-3]="!last" [class.border-b]="!last">
-        <!-- Author + Pinned Badge -->
-        <div class="flex items-center gap-2 mb-1.5">
-          @if (getAuthorPhoto(pinned)) {
-          <z-avatar [zSrc]="getAuthorPhoto(pinned)" zSize="sm" />
-          } @else {
-          <z-avatar [zFallback]="getInitials(getAuthorName(pinned))" zSize="sm" />
-          }
-          <span class="text-sm font-normal truncate flex-1">{{ getAuthorName(pinned) }}</span>
-          <z-badge zType="secondary" zShape="pill" class="text-[10px] px-1.5 shrink-0">
-            <z-icon [zType]="$any('pin')" class="w-3 h-3 mr-0.5" />
-            Pinned
-          </z-badge>
-        </div>
-
-        <!-- Category -->
-        @if (pinned.category) {
-        <span class="inline-flex text-[10px] font-normal px-2 py-0.5 rounded text-white mb-1"
-          [style.background-color]="pinned.category.color || '#6B7280'">
-          {{ pinned.category.name }}
-        </span>
+        </article>
         }
 
-        <!-- Title Preview -->
-        <h4 class="text-sm font-normal line-clamp-2 mb-0.5">{{ pinned.title }}</h4>
-
-        <!-- Content Preview -->
-        <p class="text-xs text-muted-foreground line-clamp-2 mb-1.5">
-          {{ getContentPreview(pinned) }}
-        </p>
-
-        <!-- View Post Link -->
-        <a [routerLink]="['/communication/memos', pinned.public_id]"
-          class="text-primary text-xs font-normal hover:underline inline-flex items-center gap-1">
-          View post
-          <z-icon [zType]="$any('chevron-right')" class="w-3 h-3" />
-        </a>
+        <!-- Pagination -->
+        @if (totalPages() > 1) {
+        <div class="flex items-center justify-center gap-2 mt-6">
+          <button type="button" z-button zType="outline" zSize="sm"
+            [disabled]="currentPage() === 1" (click)="goToPage(currentPage() - 1)">
+            <z-icon [zType]="$any('chevron-left')" class="w-3.5 h-3.5" />
+          </button>
+          <span class="text-[12.5px] text-muted-foreground px-3 font-mono tabular-nums">
+            Page {{ currentPage() }} of {{ totalPages() }}
+          </span>
+          <button type="button" z-button zType="outline" zSize="sm"
+            [disabled]="currentPage() === totalPages()" (click)="goToPage(currentPage() + 1)">
+            <z-icon [zType]="$any('chevron-right')" class="w-3.5 h-3.5" />
+          </button>
+        </div>
+        }
+        }
       </div>
-      }
-    </z-card>
-  </aside>
 
+      <!-- ============== PINNED RAIL ============== -->
+      <aside class="col-span-12 lg:col-span-3 space-y-4">
+
+        <!-- Pinned Panel -->
+        <div class="rounded-xl border border-border bg-card shadow-sm p-4">
+          <div class="flex items-center justify-between mb-3">
+            <p class="text-[12.5px] font-semibold text-foreground inline-flex items-center gap-1.5">
+              <z-icon [zType]="$any('pin')" class="w-3 h-3 rotate-[20deg]" />
+              Pinned
+            </p>
+            <span class="text-[10.5px] font-mono tabular-nums text-muted-foreground uppercase tracking-wide">
+              {{ pinnedCount }} {{ pinnedCount === 1 ? 'item' : 'items' }}
+            </span>
+          </div>
+
+          @if (pinnedMemos().length === 0) {
+          <p class="text-[12px] text-muted-foreground text-center py-4">No pinned announcements</p>
+          }
+
+          @for (pinned of pinnedMemos(); track pinned.id; let last = $last; let first = $first) {
+          @if (!first) {
+          <div class="h-px bg-border"></div>
+          }
+          <a class="block rounded-lg hover:bg-muted/50 p-2 -mx-2 cursor-pointer transition-colors"
+            [class.mb-2]="!last" [class.mt-2]="!first" (click)="viewPost(pinned.public_id)">
+            <div class="flex items-center gap-2">
+              @if (getAuthorPhoto(pinned)) {
+              <z-avatar [zSrc]="getAuthorPhoto(pinned)" zSize="sm" />
+              } @else {
+              <z-avatar [zFallback]="getInitials(getAuthorName(pinned))" zSize="sm" />
+              }
+              <div class="min-w-0 flex-1">
+                <p class="text-[12px] font-medium text-foreground truncate">{{ getAuthorName(pinned) }}</p>
+              </div>
+            </div>
+
+            @if (pinned.category) {
+            <div class="mt-2 inline-flex items-center gap-1.5 px-1.5 h-5 rounded-md"
+              [style.background-color]="getCategoryChipBg(pinned.category.color)"
+              [style.color]="getCategoryChipText(pinned.category.color)">
+              <span class="text-[10px] font-semibold tracking-wide uppercase">{{ pinned.category.name }}</span>
+            </div>
+            }
+
+            <p class="text-[13px] font-semibold text-foreground leading-snug mt-2 line-clamp-2">{{ pinned.title }}</p>
+
+            <p class="text-[12px] text-muted-foreground leading-relaxed mt-1 line-clamp-2">
+              {{ getContentPreview(pinned) }}
+            </p>
+
+            <p class="text-[11.5px] font-medium text-foreground mt-2 inline-flex items-center gap-1">
+              View post
+              <z-icon [zType]="$any('chevron-right')" class="w-2.5 h-2.5" />
+            </p>
+          </a>
+          }
+        </div>
+
+        <!-- Quick stats -->
+        <div class="rounded-xl border border-border bg-card shadow-sm p-4">
+          <p class="text-[12.5px] font-semibold text-foreground mb-3">This week</p>
+          <div class="space-y-2.5">
+            <div class="flex items-center justify-between">
+              <span class="text-[12px] text-muted-foreground">Posts</span>
+              <span class="font-mono tabular-nums text-[13px] font-semibold text-foreground">
+                {{ thisWeekStats()?.posts ?? 0 }}
+              </span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-[12px] text-muted-foreground">Reach</span>
+              <span class="font-mono tabular-nums text-[13px] font-semibold text-foreground">
+                {{ thisWeekStats()?.reach ?? 0 }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+    </div>
 </div>

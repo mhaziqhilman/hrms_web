@@ -7,7 +7,6 @@ import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { ZardIconComponent } from '@/shared/components/icon/icon.component';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
-import { ZardDividerComponent } from '@/shared/components/divider/divider.component';
 import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component';
 import { ZardTabGroupComponent, ZardTabComponent } from '@/shared/components/tabs/tabs.component';
 import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
@@ -24,7 +23,6 @@ import { StaffDashboardComponent } from '../staff-dashboard/staff-dashboard.comp
     ZardButtonComponent,
     ZardIconComponent,
     ZardBadgeComponent,
-    ZardDividerComponent,
     ZardAvatarComponent,
     ZardTabGroupComponent,
     ZardTabComponent,
@@ -119,5 +117,27 @@ export class ManagerDashboardComponent implements OnInit {
 
   navigateTo(route: string): void {
     this.router.navigate([route]);
+  }
+
+  // ─── Variant 02 helpers ─────────────────────────────────
+  private readonly avatarGradients = [
+    'from-indigo-400 to-indigo-600',
+    'from-rose-400 to-rose-600',
+    'from-emerald-400 to-emerald-600',
+    'from-amber-400 to-amber-600',
+    'from-violet-400 to-violet-600',
+    'from-sky-400 to-sky-600'
+  ];
+
+  getAvatarGradient(idx: number): string {
+    return this.avatarGradients[idx % this.avatarGradients.length];
+  }
+
+  getInitials(name: string): string {
+    if (!name) return '—';
+    const parts = name.trim().split(/\s+/);
+    const first = parts[0]?.[0] || '';
+    const second = parts.length > 1 ? parts[parts.length - 1][0] : (parts[0]?.[1] || '');
+    return (first + second).toUpperCase();
   }
 }

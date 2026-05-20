@@ -1,9 +1,9 @@
-<div class="bg-background min-h-screen">
+<div>
   <!-- Header -->
   <div class="flex items-center justify-between mb-8">
     <div>
-      <h1 class="text-2xl font-semibold text-foreground">User Management</h1>
-      <p class="text-muted-foreground mt-1">Manage user accounts, roles, and employee linking</p>
+      <h1 class="text-[28px] font-semibold tracking-tight leading-none text-foreground">User Management</h1>
+      <p class="text-[13px] text-muted-foreground mt-2">Manage user accounts, roles, and employee linking</p>
     </div>
   </div>
 
@@ -13,10 +13,10 @@
       <!-- Search Bar -->
       <div class="relative flex-1 min-w-[180px] max-w-md">
         <z-icon zType="search"
-          class="absolute left-1.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+          class="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
         <input type="text" [value]="searchTerm()" (input)="onSearch($any($event.target).value)"
           placeholder="Search by email..."
-          class="w-full pl-8 pr-2 py-2 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent" />
+          class="w-full pl-10 pr-3 py-2 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent" />
       </div>
 
       <!-- Role Filter -->
@@ -354,10 +354,10 @@
       <div class="px-6 pt-4 flex-shrink-0">
         <div class="relative">
           <z-icon zType="search"
-            class="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+            class="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
           <input type="text" [value]="employeeSearchTerm()" (input)="employeeSearchTerm.set($any($event.target).value)"
             placeholder="Search employees..."
-            class="w-full pl-9 pr-3 py-2 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring" />
+            class="w-full pl-10 pr-3 py-2 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring" />
         </div>
       </div>
 

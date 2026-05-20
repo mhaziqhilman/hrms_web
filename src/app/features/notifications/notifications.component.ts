@@ -49,10 +49,10 @@ import { TimeAgoPipe } from '@/shared/pipes/time-ago.pipe';
           <!-- Search Bar -->
           <div class="relative flex-1 min-w-[180px] max-w-md">
             <z-icon zType="search"
-              class="absolute left-1.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+              class="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
             <input type="text" [value]="searchTerm()" (input)="onSearch($any($event.target).value)"
               placeholder="Search notifications..."
-              class="w-full pl-8 pr-2 py-2 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent" />
+              class="w-full pl-10 pr-3 py-2 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent" />
           </div>
 
           <!-- Status Filter -->

@@ -1,4 +1,440 @@
-/* Memo Form Styles */
+/* Memo Form — V1 Document editor (mockup-matched) */
 :host {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+}
+
+/* Sticky top bar with blur backdrop — sits below the app header (h-16) */
+.memo-sticky-bar {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  position: sticky;
+  top: 64px;
+  z-index: 20;
+}
+:host-context(.dark) .memo-sticky-bar {
+  background: rgba(15, 23, 42, 0.92);
+}
+
+/* kbd shortcut chip */
+.memo-kbd {
+  font-family: ui-monospace, 'Geist Mono', monospace;
+  font-size: 10px;
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: white;
+  border: 1px solid rgb(226 232 240);
+  box-shadow: 0 1px 0 0 rgb(226 232 240);
+  color: rgb(71 85 105);
+  line-height: 1;
+}
+:host-context(.dark) .memo-kbd {
+  background: rgb(30 41 59);
+  border-color: rgb(51 65 85);
+  box-shadow: 0 1px 0 0 rgb(51 65 85);
+  color: rgb(203 213 225);
+}
+.memo-kbd-dark {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow: none;
+  color: rgba(255, 255, 255, 0.85);
+}
+:host-context(.dark) .memo-kbd-dark {
+  background: rgba(15, 23, 42, 0.15);
+  border-color: rgba(15, 23, 42, 0.2);
+  box-shadow: none;
+  color: rgba(15, 23, 42, 0.85);
+}
+
+/* Title input — borderless big text */
+.memo-title-input:focus { outline: none; box-shadow: none; }
+.memo-summary-input:focus { outline: none; box-shadow: none; }
+
+/* Pill metadata buttons */
+.memo-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px dashed rgb(203 213 225);
+  color: rgb(71 85 105);
+  font-size: 12px;
+  cursor: pointer;
+  background: transparent;
+  transition: all 0.12s ease;
+  line-height: 1;
+  white-space: nowrap;
+}
+.memo-pill:hover {
+  border-style: solid;
+  border-color: rgb(148 163 184);
+  color: rgb(15 23 42);
+  background: rgb(248 250 252);
+}
+.memo-pill.is-set {
+  border-style: solid;
+  background: white;
+  border-color: rgb(203 213 225);
+  color: rgb(15 23 42);
+}
+:host-context(.dark) .memo-pill {
+  border-color: rgb(51 65 85);
+  color: rgb(148 163 184);
+}
+:host-context(.dark) .memo-pill:hover {
+  border-color: rgb(71 85 105);
+  color: rgb(241 245 249);
+  background: rgb(30 41 59);
+}
+:host-context(.dark) .memo-pill.is-set {
+  background: rgb(15 23 42);
+  border-color: rgb(51 65 85);
+  color: rgb(241 245 249);
+}
+
+/* Audience selected chip (filled, removable) */
+.memo-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 6px;
+  background: rgb(241 245 249);
+  color: rgb(51 65 85);
+  font-size: 11.5px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  line-height: 1;
+}
+.memo-chip:hover { background: rgb(226 232 240); }
+:host-context(.dark) .memo-chip {
+  background: rgb(30 41 59);
+  color: rgb(203 213 225);
+}
+:host-context(.dark) .memo-chip:hover { background: rgb(51 65 85); }
+
+.memo-chip-add {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 6px;
+  border: 1px dashed rgb(203 213 225);
+  color: rgb(100 116 139);
+  font-size: 11.5px;
+  background: transparent;
+  cursor: pointer;
+  line-height: 1;
+}
+.memo-chip-add:hover {
+  background: rgb(248 250 252);
+  border-color: rgb(148 163 184);
+}
+:host-context(.dark) .memo-chip-add {
+  border-color: rgb(51 65 85);
+  color: rgb(148 163 184);
+}
+:host-context(.dark) .memo-chip-add:hover {
+  background: rgb(30 41 59);
+  border-color: rgb(71 85 105);
+}
+
+/* Audience inline picker — search box */
+.memo-audience-search {
+  width: 100%;
+  height: 34px;
+  padding: 0 10px 0 30px;
+  border: 1px solid rgb(226 232 240);
+  border-radius: 8px;
+  background: white;
+  font-size: 12.5px;
+  color: rgb(15 23 42);
+  outline: none;
+  transition: border-color 0.12s ease;
+}
+.memo-audience-search::placeholder { color: rgb(148 163 184); }
+.memo-audience-search:hover { border-color: rgb(203 213 225); }
+.memo-audience-search:focus { border-color: rgb(100 116 139); }
+:host-context(.dark) .memo-audience-search {
+  background: rgb(15 23 42);
+  border-color: rgb(51 65 85);
+  color: rgb(241 245 249);
+}
+:host-context(.dark) .memo-audience-search::placeholder { color: rgb(71 85 105); }
+:host-context(.dark) .memo-audience-search:hover { border-color: rgb(71 85 105); }
+
+/* Audience inline picker — scrollable selectable list */
+.memo-audience-list {
+  max-height: 220px;
+  overflow-y: auto;
+  border: 1px solid rgb(226 232 240);
+  border-radius: 8px;
+}
+:host-context(.dark) .memo-audience-list { border-color: rgb(51 65 85); }
+
+.memo-audience-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 10px;
+  font-size: 12.5px;
+  color: rgb(51 65 85);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgb(241 245 249);
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.1s ease;
+}
+.memo-audience-row:last-child { border-bottom: none; }
+.memo-audience-row:hover { background: rgb(248 250 252); }
+.memo-audience-row.is-selected { background: rgb(240 253 244); }
+:host-context(.dark) .memo-audience-row {
+  color: rgb(203 213 225);
+  border-bottom-color: rgb(30 41 59);
+}
+:host-context(.dark) .memo-audience-row:hover { background: rgb(30 41 59); }
+:host-context(.dark) .memo-audience-row.is-selected { background: rgba(16, 185, 129, 0.12); }
+
+.memo-audience-empty {
+  padding: 16px 10px;
+  text-align: center;
+  font-size: 11.5px;
+  color: rgb(148 163 184);
+}
+
+/* Toolbar button */
+.memo-tb-btn {
+  height: 28px;
+  width: 28px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+.memo-tb-btn:hover {
+  background: rgb(241 245 249);
+  color: rgb(15 23 42);
+}
+:host-context(.dark) .memo-tb-btn:hover {
+  background: rgb(30 41 59);
+  color: rgb(241 245 249);
+}
+
+/* Shared input style (matches mockup .input-base) */
+.memo-input {
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid rgb(226 232 240);
+  border-radius: 8px;
+  background: white;
+  font-size: 13px;
+  color: rgb(15 23 42);
+  outline: none;
+  transition: border-color 0.12s ease;
+}
+.memo-input::placeholder { color: rgb(148 163 184); }
+.memo-input:hover { border-color: rgb(203 213 225); }
+.memo-input:focus { border-color: rgb(100 116 139); }
+:host-context(.dark) .memo-input {
+  background: rgb(15 23 42);
+  border-color: rgb(51 65 85);
+  color: rgb(241 245 249);
+}
+:host-context(.dark) .memo-input::placeholder { color: rgb(71 85 105); }
+:host-context(.dark) .memo-input:hover { border-color: rgb(71 85 105); }
+
+/* Contenteditable body editor */
+.memo-body-editor[contenteditable="true"] {
+  caret-color: rgb(15 23 42);
+}
+:host-context(.dark) .memo-body-editor[contenteditable="true"] {
+  caret-color: rgb(241 245 249);
+}
+.memo-body-editor[contenteditable="true"]:empty:before {
+  content: attr(data-placeholder);
+  color: rgb(203 213 225);
+  pointer-events: none;
+}
+:host-context(.dark) .memo-body-editor[contenteditable="true"]:empty:before {
+  color: rgb(51 65 85);
+}
+.memo-body-editor h1,
+.memo-body-editor h2 {
+  font-size: 1.35em;
+  font-weight: 600;
+  margin: 1em 0 0.5em;
+  letter-spacing: -0.01em;
+}
+.memo-body-editor h3 {
+  font-size: 1.15em;
+  font-weight: 600;
+  margin: 0.9em 0 0.4em;
+}
+.memo-body-editor p { margin: 0.5em 0; }
+.memo-body-editor ul,
+.memo-body-editor ol { padding-left: 1.5em; margin: 0.5em 0; }
+.memo-body-editor ul { list-style: disc; }
+.memo-body-editor ol { list-style: decimal; }
+.memo-body-editor li { margin: 0.2em 0; }
+.memo-body-editor a {
+  color: rgb(37 99 235);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+:host-context(.dark) .memo-body-editor a { color: rgb(96 165 250); }
+.memo-body-editor img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 8px 0;
+}
+.memo-body-editor blockquote {
+  border-left: 3px solid rgb(226 232 240);
+  padding-left: 1em;
+  color: rgb(71 85 105);
+  margin: 0.8em 0;
+  font-style: italic;
+}
+:host-context(.dark) .memo-body-editor blockquote {
+  border-left-color: rgb(51 65 85);
+  color: rgb(148 163 184);
+}
+
+/* Preview body — match editor styling */
+.memo-preview-body h1,
+.memo-preview-body h2 { font-size: 1.35em; font-weight: 600; margin: 1em 0 0.5em; }
+.memo-preview-body h3 { font-size: 1.15em; font-weight: 600; margin: 0.9em 0 0.4em; }
+.memo-preview-body p { margin: 0.5em 0; }
+.memo-preview-body ul,
+.memo-preview-body ol { padding-left: 1.5em; margin: 0.5em 0; }
+.memo-preview-body ul { list-style: disc; }
+.memo-preview-body ol { list-style: decimal; }
+.memo-preview-body a { color: rgb(37 99 235); text-decoration: underline; }
+/* Pictures bleed edge-to-edge of the card — cancels the body's px-5 (1.25rem).
+   ::ng-deep is required: [innerHTML] content isn't tagged for style scoping,
+   and !important is required to beat the editor's inline img styles. */
+:host ::ng-deep .memo-preview-body img {
   display: block;
+  width: calc(100% + 2.5rem) !important;
+  max-width: calc(100% + 2.5rem) !important;
+  height: auto !important;
+  margin: 0.75rem -1.25rem !important;
+  border-radius: 0 !important;
+}
+/* A trailing picture sits flush against the footer (no bottom gap),
+   whether it is a direct child or wrapped in a block element. */
+:host ::ng-deep .memo-preview-body > *:last-child,
+:host ::ng-deep .memo-preview-body > *:last-child img {
+  margin-bottom: 0 !important;
+}
+.memo-preview-body blockquote {
+  border-left: 3px solid rgb(226 232 240);
+  padding-left: 1em;
+  color: rgb(71 85 105);
+  margin: 0.8em 0;
+  font-style: italic;
+}
+
+/* Section label */
+.memo-sec-label {
+  font-family: ui-monospace, 'Geist Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgb(100 116 139);
+  font-weight: 500;
+}
+
+/* Toggle switch — matches mockup exactly */
+.memo-switch {
+  position: relative;
+  width: 32px;
+  height: 18px;
+  background: rgb(226 232 240);
+  border-radius: 999px;
+  transition: background-color 0.15s ease;
+  display: inline-block;
+  cursor: pointer;
+}
+.memo-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  background: white;
+  border-radius: 999px;
+  transition: transform 0.18s ease;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.15);
+}
+.memo-switch.on { background: rgb(15 23 42); }
+.memo-switch.on::after { transform: translateX(14px); }
+:host-context(.dark) .memo-switch { background: rgb(51 65 85); }
+:host-context(.dark) .memo-switch.on { background: rgb(241 245 249); }
+
+/* Anchor flash highlight */
+.memo-anchor-flash { animation: memoAnchorFlash 1.2s ease; }
+@keyframes memoAnchorFlash {
+  0%   { background-color: rgb(241 245 249); border-radius: 8px; }
+  100% { background-color: transparent; }
+}
+
+/* Focus ring — slim and slate (matches mockup) */
+.memo-body-editor:focus-visible,
+.memo-title-input:focus-visible,
+.memo-summary-input:focus-visible {
+  outline: none;
+}
+
+/* ============== PREVIEW SHEET ============== */
+/* Widen the ZardUI sheet panel and drop its default p-6 so the
+   preview header/body control their own padding. */
+:host ::ng-deep .memo-preview-panel {
+  width: 640px;
+  max-width: 95vw;
+  padding: 0;
+}
+
+.memo-preview-sheet {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.memo-preview-head {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.875rem 1.25rem;
+  padding-right: 3rem; /* clears the sheet's absolute close button */
+  border-bottom: 1px solid rgb(226 232 240);
+  flex-shrink: 0;
+}
+:host-context(.dark) .memo-preview-head {
+  border-bottom-color: rgb(30 41 59);
+}
+
+.memo-preview-scroll {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 1.5rem 1.25rem;
+  background: rgb(248 250 252);
+}
+:host-context(.dark) .memo-preview-scroll {
+  background: rgb(2 6 23);
 }

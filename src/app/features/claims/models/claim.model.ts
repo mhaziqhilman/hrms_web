@@ -115,6 +115,21 @@ export interface ClaimQueryParams {
   status?: 'Pending' | 'Manager_Approved' | 'Finance_Approved' | 'Rejected' | 'Paid';
   start_date?: string;
   end_date?: string;
+  min_amount?: number;
+  max_amount?: number;
+  search?: string;
+  sort?: 'date' | 'amount' | 'status' | 'created_at';
+  order?: 'asc' | 'desc';
+}
+
+export interface StatusCounts {
+  All: number;
+  Pending: number;
+  Manager_Approved: number;
+  Finance_Approved: number;
+  Paid: number;
+  Rejected: number;
+  [key: string]: number;
 }
 
 export interface PaginatedResponse<T> {
@@ -126,6 +141,7 @@ export interface PaginatedResponse<T> {
     limit: number;
     totalPages: number;
   };
+  status_counts?: StatusCounts;
 }
 
 export interface ApiResponse<T> {

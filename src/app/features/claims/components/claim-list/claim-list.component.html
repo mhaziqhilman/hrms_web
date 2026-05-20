@@ -1,11 +1,11 @@
-<div class="bg-background min-h-screen">
+<div>
   <!-- Header -->
-  <div class="flex items-center justify-between mb-8">
+  <header class="flex items-end justify-between gap-4 flex-wrap mb-6">
     <div>
-      <h1 class="text-2xl font-semibold text-foreground">Claims Management</h1>
-      <p class="text-muted-foreground">View and manage expense claims</p>
+      <h1 class="text-[28px] font-semibold tracking-tight leading-none text-foreground">Claims Management</h1>
+      <p class="text-[13px] text-muted-foreground mt-2">View and manage expense claims · <span class="text-foreground">{{ currentMonthLabel }}</span></p>
     </div>
-    <div class="flex gap-2">
+    <div class="flex items-center gap-2">
       <button z-button zType="outline" routerLink="/claims/approval" class="gap-2">
         <z-icon zType="circle-check" class="w-4 h-4" />
         Approval Dashboard
@@ -15,7 +15,7 @@
         Submit Claim
       </button>
     </div>
-  </div>
+  </header>
 
   <!-- No Profile State -->
   @if (!loading() && !hasProfile()) {
@@ -30,372 +30,409 @@
   @if (hasProfile()) {
   <!-- Error Message -->
   @if (error()) {
-    <div class="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-2 text-red-800 mb-6">
+    <div class="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 rounded-lg p-4 flex items-center gap-2 text-red-800 dark:text-red-300 mb-6">
       <z-icon zType="triangle-alert" class="w-5 h-5" />
       <span>{{ error() }}</span>
     </div>
   }
 
-  <!-- Analytics Cards -->
+  <!-- KPI cards -->
   @if (analytics(); as a) {
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-      <!-- Approval Status Card -->
-      <z-card class="py-5 card-analytics-claim">
-        <div class="flex items-center justify-between mb-5">
-          <div class="flex items-center gap-2">
-            <z-icon zType="users" class="w-5 h-5 text-primary" />
-            <h3 class="text-base font-medium text-foreground">Approval Status</h3>
-          </div>
-        </div>
-        <div class="grid grid-cols-4">
-          <!-- Requested -->
-          <div class="px-4">
-            <p class="text-xs font-normal text-muted-foreground mb-1 antialiased">Requested</p>
-            <p class="text-2xl font-semibold text-foreground font-stretch-extra-condensed text-shadow-sm">{{ a.status.total }}</p>
-            <p class="text-xs mt-1">
-              <span class="font-medium text-shadow-sm" [class]="getChangeDiff(a.status.total, a.status_prev.total) >= 0 ? 'text-emerald-600' : 'text-red-500'">{{ getChangeDiff(a.status.total, a.status_prev.total) >= 0 ? '+' : '' }}{{ getChangeDiff(a.status.total, a.status_prev.total) }}</span>
-              <span class="text-muted-foreground"> vs last month</span>
-            </p>
-          </div>
-          <!-- Approved -->
-          <div class="px-4 border-l border-border">
-            <p class="text-xs font-normal text-muted-foreground mb-1 antialiased">Approved</p>
-            <p class="text-2xl font-semibold text-foreground font-stretch-extra-condensed text-shadow-sm">{{ a.status.approved }}</p>
-            <p class="text-xs mt-1">
-              <span class="font-medium text-shadow-sm" [class]="getChangeDiff(a.status.approved, a.status_prev.approved) >= 0 ? 'text-emerald-600' : 'text-red-500'">{{ getChangeDiff(a.status.approved, a.status_prev.approved) >= 0 ? '+' : '' }}{{ getChangeDiff(a.status.approved, a.status_prev.approved) }}</span>
-              <span class="text-muted-foreground"> vs last month</span>
-            </p>
-          </div>
-          <!-- Rejected -->
-          <div class="px-4 border-l border-border">
-            <p class="text-xs font-normal text-muted-foreground mb-1 antialiased">Rejected</p>
-            <p class="text-2xl font-semibold text-foreground font-stretch-extra-condensed text-shadow-sm">{{ a.status.rejected }}</p>
-            <p class="text-xs mt-1">
-              <span class="font-medium text-shadow-sm" [class]="getChangeDiff(a.status.rejected, a.status_prev.rejected) <= 0 ? 'text-emerald-600' : 'text-red-500'">{{ getChangeDiff(a.status.rejected, a.status_prev.rejected) >= 0 ? '+' : '' }}{{ getChangeDiff(a.status.rejected, a.status_prev.rejected) }}</span>
-              <span class="text-muted-foreground"> vs last month</span>
-            </p>
-          </div>
-          <!-- Pending -->
-          <div class="px-4 border-l border-border">
-            <p class="text-xs font-normal text-muted-foreground mb-1 antialiased">Pending</p>
-            <p class="text-2xl font-semibold text-foreground font-stretch-extra-condensed text-shadow-sm">{{ a.status.pending }}</p>
-            <p class="text-xs mt-1">
-              <span class="font-medium text-shadow-sm" [class]="getChangeDiff(a.status.pending, a.status_prev.pending) <= 0 ? 'text-emerald-600' : 'text-red-500'">{{ getChangeDiff(a.status.pending, a.status_prev.pending) >= 0 ? '+' : '' }}{{ getChangeDiff(a.status.pending, a.status_prev.pending) }}</span>
-              <span class="text-muted-foreground"> vs last month</span>
-            </p>
-          </div>
-        </div>
-      </z-card>
-
-      <!-- Reimbursement Request Type Card -->
-      <z-card class="py-5">
-        <div class="flex items-center justify-between mb-5">
-          <div class="flex items-center gap-2">
-            <z-icon [zType]="$any('ticket-check')" class="w-5 h-5 text-primary" />
-            <h3 class="text-base font-medium text-foreground">Reimbursement Request Type</h3>
-          </div>
-        </div>
-        <div class="flex flex-col gap-3">
-          @for (type of a.by_type; track type.name) {
-            <div class="flex items-center gap-3">
-              <span class="text-xs font-medium text-foreground w-36 truncate shrink-0">{{ type.name }}</span>
-              <div class="flex-1 h-2 bg-secondary rounded-full overflow-hidden">
-                <div
-                  class="h-full bg-primary rounded-full transition-all duration-500"
-                  [style.width.%]="(type.count / getMaxTypeCount()) * 100">
-                </div>
-              </div>
-              <div class="flex items-center gap-1 shrink-0">
-                <z-icon zType="users" class="w-3.5 h-3.5 text-primary" />
-                <span class="text-sm font-normal text-foreground">{{ type.count }}</span>
-              </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <!-- Requested -->
+      <div class="rounded-2xl border border-border bg-card shad-card-lg p-5 flex flex-col">
+        <div class="flex items-start justify-between mb-4">
+          <div class="flex items-center gap-2.5">
+            <span class="w-8 h-8 rounded-lg bg-muted text-muted-foreground grid place-items-center">
+              <z-icon zType="inbox" class="w-4 h-4" />
+            </span>
+            <div>
+              <p class="text-[13px] font-medium text-foreground leading-none">Requested</p>
+              <p class="text-[10.5px] text-muted-foreground mt-1 leading-none">Submitted this month</p>
             </div>
-          }
-          @if (a.by_type.length === 0) {
-            <p class="text-sm text-muted-foreground text-center py-4">No claims this month</p>
-          }
+          </div>
         </div>
-      </z-card>
+        <div class="flex items-end justify-between gap-3 mt-2">
+          <p class="text-[34px] leading-none font-semibold tracking-tight text-foreground num-tabular">{{ a.status.total }}</p>
+          <ng-container *ngTemplateOutlet="deltaPill; context: { pct: percentChange(a.status.total, a.status_prev.total) }"></ng-container>
+        </div>
+        <div class="mt-auto pt-3 border-t border-border flex items-center justify-between text-[11px]">
+          <span class="text-muted-foreground">{{ a.status.total }} claims total</span>
+          <span class="text-muted-foreground">vs last month</span>
+        </div>
+      </div>
+
+      <!-- Approved -->
+      <div class="rounded-2xl border border-border bg-card shad-card-lg p-5 flex flex-col">
+        <div class="flex items-start justify-between mb-4">
+          <div class="flex items-center gap-2.5">
+            <span class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 grid place-items-center">
+              <z-icon zType="circle-check" class="w-4 h-4" />
+            </span>
+            <div>
+              <p class="text-[13px] font-medium text-foreground leading-none">Approved</p>
+              <p class="text-[10.5px] text-muted-foreground mt-1 leading-none">Manager +Finance</p>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-end justify-between gap-3 mt-2">
+          <p class="text-[34px] leading-none font-semibold tracking-tight text-foreground num-tabular">{{ a.status.approved }}</p>
+          <ng-container *ngTemplateOutlet="deltaPill; context: { pct: percentChange(a.status.approved, a.status_prev.approved) }"></ng-container>
+        </div>
+        <div class="mt-auto pt-3 border-t border-border flex items-center justify-between text-[11px]">
+          <span class="text-muted-foreground">{{ approvalRate() }} approval rate</span>
+          <span class="text-muted-foreground">vs last month</span>
+        </div>
+      </div>
+
+      <!-- Rejected -->
+      <div class="rounded-2xl border border-border bg-card shad-card-lg p-5 flex flex-col">
+        <div class="flex items-start justify-between mb-4">
+          <div class="flex items-center gap-2.5">
+            <span class="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 grid place-items-center">
+              <z-icon zType="circle-x" class="w-4 h-4" />
+            </span>
+            <div>
+              <p class="text-[13px] font-medium text-foreground leading-none">Rejected</p>
+              <p class="text-[10.5px] text-muted-foreground mt-1 leading-none">With reason logged</p>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-end justify-between gap-3 mt-2">
+          <p class="text-[34px] leading-none font-semibold tracking-tight text-foreground num-tabular">{{ a.status.rejected }}</p>
+          <ng-container *ngTemplateOutlet="deltaPill; context: { pct: percentChange(a.status.rejected, a.status_prev.rejected), invert: true }"></ng-container>
+        </div>
+        <div class="mt-auto pt-3 border-t border-border flex items-center justify-between text-[11px]">
+          <span class="text-muted-foreground">{{ rejectionRate() }} rejection rate</span>
+          <span class="text-muted-foreground">vs last month</span>
+        </div>
+      </div>
+
+      <!-- Pending -->
+      <div class="rounded-2xl border border-border bg-card shad-card-lg p-5 flex flex-col">
+        <div class="flex items-start justify-between mb-4">
+          <div class="flex items-center gap-2.5">
+            <span class="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 grid place-items-center">
+              <z-icon zType="clock" class="w-4 h-4" />
+            </span>
+            <div>
+              <p class="text-[13px] font-medium text-foreground leading-none">Pending</p>
+              <p class="text-[10.5px] text-muted-foreground mt-1 leading-none">Awaiting next approver</p>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-end justify-between gap-3 mt-2">
+          <p class="text-[34px] leading-none font-semibold tracking-tight text-foreground num-tabular">{{ a.status.pending }}</p>
+          <ng-container *ngTemplateOutlet="deltaPill; context: { pct: percentChange(a.status.pending, a.status_prev.pending), invert: true }"></ng-container>
+        </div>
+        <div class="mt-auto pt-3 border-t border-border flex items-center justify-between text-[11px]">
+          <span class="text-muted-foreground">in approval queue</span>
+          <span class="text-muted-foreground">vs last month</span>
+        </div>
+      </div>
     </div>
   }
 
-  <!-- Status Tabs -->
-  <div class="mb-6">
-    <div class="border-b border-border">
-      <nav class="flex gap-1 overflow-auto scroll nav-tab-scroll -mb-px" aria-label="Tabs" role="tablist">
-        <!-- All Tab -->
-        <button
-          type="button"
-          role="tab"
-          (click)="onTabChange('All')"
-          [attr.aria-selected]="activeTab() === 'All'"
-          [class]="activeTab() === 'All'
-            ? 'border-b-2 border-b-primary text-primary text-sm'
-            : 'border-b-2 border-transparent text-muted-foreground hover:text-foreground text-sm'"
-          class="hover:bg-transparent rounded-none flex-shrink-0 whitespace-nowrap py-2 px-2 font-normal text-sm transition-colors flex items-center gap-2">
-          <z-icon zType="layers" class="w-4 h-4" />
-          All Claims
-          <span
-            [class]="activeTab() === 'All' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'"
-            class="ml-1 py-0.5 px-2.5 rounded-full text-xs font-medium min-w-[28px] text-center">
-            {{ statusCounts()['All'] }}
-          </span>
-        </button>
-
-        <!-- Pending Tab -->
-        <button
-          type="button"
-          role="tab"
-          (click)="onTabChange('Pending')"
-          [attr.aria-selected]="activeTab() === 'Pending'"
-          [class]="activeTab() === 'Pending'
-            ? 'border-b-2 border-b-primary text-primary'
-            : 'border-b-2 border-transparent text-muted-foreground hover:text-foreground'"
-          class="hover:bg-transparent rounded-none flex-shrink-0 whitespace-nowrap py-2 px-2 font-normal text-sm transition-colors flex items-center gap-2">
-          <z-icon zType="clock" class="w-4 h-4" />
-          Pending
-          <span
-            [class]="activeTab() === 'Pending' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'"
-            class="ml-1 py-0.5 px-2.5 rounded-full text-xs font-medium min-w-[28px] text-center">
-            {{ statusCounts()['Pending'] }}
-          </span>
-        </button>
-
-        <!-- Manager Approved Tab -->
-        <button
-          type="button"
-          role="tab"
-          (click)="onTabChange('Manager_Approved')"
-          [attr.aria-selected]="activeTab() === 'Manager_Approved'"
-          [class]="activeTab() === 'Manager_Approved'
-            ? 'border-b-2 border-b-primary text-primary'
-            : 'border-b-2 border-transparent text-muted-foreground hover:text-foreground'"
-          class="hover:bg-transparent rounded-none flex-shrink-0 whitespace-nowrap py-2 px-2 font-normal text-sm transition-colors flex items-center gap-2">
-          <z-icon zType="circle-check" class="w-4 h-4" />
-          Manager Approved
-          <span
-            [class]="activeTab() === 'Manager_Approved' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'"
-            class="ml-1 py-0.5 px-2.5 rounded-full text-xs font-medium min-w-[28px] text-center">
-            {{ statusCounts()['Manager_Approved'] }}
-          </span>
-        </button>
-
-        <!-- Finance Approved Tab -->
-        <button
-          type="button"
-          role="tab"
-          (click)="onTabChange('Finance_Approved')"
-          [attr.aria-selected]="activeTab() === 'Finance_Approved'"
-          [class]="activeTab() === 'Finance_Approved'
-            ? 'border-b-2 border-b-primary text-primary'
-            : 'border-b-2 border-transparent text-muted-foreground hover:text-foreground'"
-          class="hover:bg-transparent rounded-none flex-shrink-0 whitespace-nowrap py-2 px-2 font-normal text-sm transition-colors flex items-center gap-2">
-          <z-icon zType="circle-check" class="w-4 h-4" />
-          Finance Approved
-          <span
-            [class]="activeTab() === 'Finance_Approved' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'"
-            class="ml-1 py-0.5 px-2.5 rounded-full text-xs font-medium min-w-[28px] text-center">
-            {{ statusCounts()['Finance_Approved'] }}
-          </span>
-        </button>
-
-        <!-- Paid Tab -->
-        <button
-          type="button"
-          role="tab"
-          (click)="onTabChange('Paid')"
-          [attr.aria-selected]="activeTab() === 'Paid'"
-          [class]="activeTab() === 'Paid'
-            ? 'border-b-2 border-b-primary text-primary'
-            : 'border-b-2 border-transparent text-muted-foreground hover:text-foreground'"
-          class="hover:bg-transparent rounded-none flex-shrink-0 whitespace-nowrap py-2 px-2 font-normal text-sm transition-colors flex items-center gap-2">
-          <z-icon zType="circle-check" class="w-4 h-4" />
-          Paid
-          <span
-            [class]="activeTab() === 'Paid' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'"
-            class="ml-1 py-0.5 px-2.5 rounded-full text-xs font-medium min-w-[28px] text-center">
-            {{ statusCounts()['Paid'] }}
-          </span>
-        </button>
-
-        <!-- Rejected Tab -->
-        <button
-          type="button"
-          role="tab"
-          (click)="onTabChange('Rejected')"
-          [attr.aria-selected]="activeTab() === 'Rejected'"
-          [class]="activeTab() === 'Rejected'
-            ? 'border-b-2 border-b-primary text-primary'
-            : 'border-b-2 border-transparent text-muted-foreground hover:text-foreground'"
-          class="hover:bg-transparent rounded-none flex-shrink-0 whitespace-nowrap py-2 px-2 font-normal text-sm transition-colors flex items-center gap-2">
-          <z-icon zType="circle-x" class="w-4 h-4" />
-          Rejected
-          <span
-            [class]="activeTab() === 'Rejected' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'"
-            class="ml-1 py-0.5 px-2.5 rounded-full text-xs font-medium min-w-[28px] text-center">
-            {{ statusCounts()['Rejected'] }}
-          </span>
-        </button>
-      </nav>
-    </div>
+  <!-- Status pill tabs -->
+  <div class="flex items-center gap-2 flex-wrap mb-4">
+    @for (tab of statusTabs; track tab.key) {
+      <button
+        type="button"
+        (click)="onTabChange(tab.key)"
+        [class]="activeTab() === tab.key
+          ? 'bg-primary text-primary-foreground shadow-sm'
+          : 'bg-card text-foreground border border-border hover:border-ring hover:bg-muted'"
+        class="inline-flex items-center gap-1.5 h-9 pl-2.5 pr-2 rounded-full text-[12.5px] font-medium transition">
+        @if (tab.dot) {
+          <span class="w-1.5 h-1.5 rounded-full" [class]="activeTab() === tab.key ? 'bg-primary-foreground/80' : tab.dot"></span>
+        } @else {
+          <z-icon [zType]="$any(tab.icon)" class="w-3.5 h-3.5"
+            [class]="activeTab() === tab.key ? 'text-primary-foreground/80' : 'text-muted-foreground'" />
+        }
+        <span>{{ tab.label }}</span>
+        <span [class]="activeTab() === tab.key ? 'bg-primary-foreground/15 text-primary-foreground' : 'bg-muted text-muted-foreground'"
+          class="inline-flex items-center justify-center min-w-[20px] h-[18px] px-1.5 rounded-full text-[10.5px] font-semibold num-tabular">
+          {{ statusCounts()[tab.key] }}
+        </span>
+      </button>
+    }
   </div>
 
-  <!-- Bulk Actions Bar -->
-  @if (getSelectedCount() > 0) {
-    <div class="mb-4 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 backdrop-blur-sm border-l-4 border-primary shadow-sm">
-      <div class="flex items-center justify-between px-6 py-3 gap-4">
-        <!-- Left: Selection Info -->
-        <div class="flex items-center gap-3">
-          <div class="flex items-center justify-center w-8 h-8 rounded-full bg-primary/20">
-            <z-icon zType="check-circle" class="w-4 h-4 text-primary" />
-          </div>
-          <div class="flex flex-col">
-            <span class="text-sm font-medium text-foreground">{{ getSelectedCount() }} Selected</span>
-            <span class="text-xs text-muted-foreground">Bulk actions available</span>
-          </div>
-        </div>
-
-        <!-- Right: Action Buttons -->
-        <div class="flex items-center gap-2">
-          <button type="button" (click)="bulkApprove()"
-            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-normal text-white bg-primary hover:bg-primary/90 rounded-md transition-all duration-200 shadow-sm hover:shadow-md">
-            <z-icon zType="circle-check" class="w-4 h-4" />
-            <span>Approve</span>
-          </button>
-          <button type="button" (click)="bulkDelete()"
-            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-normal text-white bg-destructive hover:bg-destructive/90 rounded-md transition-all duration-200 shadow-sm hover:shadow-md">
-            <z-icon zType="trash" class="w-4 h-4" />
-            <span>Delete</span>
-          </button>
-          <div class="w-px h-6 bg-border mx-1"></div>
-          <button type="button" (click)="clearSelection()"
-            class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-normal text-muted-foreground hover:text-foreground transition-colors duration-200">
-            <z-icon zType="x" class="w-4 h-4" />
-            <span>Clear</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  }
-
-  <!-- Filters Section -->
-  <div class="flex items-center gap-3 mb-6 flex-wrap justify-between">
-    <div class="flex items-center gap-3 flex-1 flex-wrap">
-      <!-- Search Bar -->
-      <div class="relative flex-1 min-w-[180px] max-w-md">
-        <z-icon zType="search" class="absolute left-1.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-        <input
-          type="text"
-          [ngModel]="searchQuery()"
-          (ngModelChange)="searchQuery.set($event); onFilterChange()"
-          placeholder="Search claims..."
-          class="w-full pl-8 pr-2 py-2 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-        />
-      </div>
-
-      <!-- Clear Filters -->
-      @if (selectedClaimType() || employeeIdFilter() || searchQuery()) {
-        <button
-          type="button"
-          z-button
-          zType="outline"
-          class="gap-2 border-none shadow-none px-2"
-          (click)="clearFilters()">
-          Reset
-          <z-icon zType="x" class="w-4 h-4" />
-        </button>
-      }
+  <!-- Toolbar -->
+  <div class="flex items-center gap-2 flex-wrap mb-3">
+    <!-- Search (debounced) -->
+    <div class="relative flex-1 min-w-[280px] max-w-[480px]">
+      <z-icon zType="search" class="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
+      <input
+        type="text"
+        [ngModel]="searchQuery()"
+        (ngModelChange)="onSearchInput($event)"
+        placeholder="Search by claimant, description, category…"
+        class="w-full h-9 pl-9 pr-12 rounded-lg border border-border bg-card text-[13px] text-foreground placeholder:text-muted-foreground shad-card focus:outline-none focus:ring-2 focus:ring-ring/30 focus:border-ring" />
+      <kbd class="absolute right-2 top-1/2 -translate-y-1/2 text-[10.5px] font-mono text-muted-foreground bg-muted px-1.5 h-5 rounded inline-flex items-center">⌘K</kbd>
     </div>
 
-    <!-- Column Toggle - Right Side -->
-    <div z-menu [zMenuTriggerFor]="columnMenu">
-      <button z-button zType="outline" class="gap-2 px-2">
-        <z-icon zType="eye" class="w-4 h-4" />
-        View
+    <!-- Category dashed filter -->
+    <div z-menu [zMenuTriggerFor]="categoryMenu">
+      <button z-button zType="outline" class="border-dashed">
+        <z-icon zType="circle-plus" class="w-3.5 h-3.5" />
+        Category
+        @if (selectedClaimType()) {
+          <span class="inline-flex items-center h-4 px-1.5 rounded bg-primary text-primary-foreground text-[10.5px] font-semibold">1</span>
+        }
       </button>
     </div>
-    <ng-template #columnMenu>
+    <ng-template #categoryMenu>
       <div z-menu-content class="w-56">
-        <div class="px-2 py-1.5 text-xs font-medium text-muted-foreground">
-          Toggle Columns
-        </div>
-        @for (column of columnList; track column.key) {
-          <button type="button" z-menu-item (click)="toggleColumn(column.key)" class="justify-between">
-            {{ column.label }}
-            @if (visibleColumns()[column.key]) {
+        <div class="px-2 py-1.5 text-xs font-medium text-muted-foreground">Filter by category</div>
+        <button type="button" z-menu-item (click)="setClaimType(null)" class="justify-between">
+          All categories
+          @if (!selectedClaimType()) {
+            <z-icon zType="check" class="w-4 h-4" />
+          }
+        </button>
+        @for (ct of claimTypes(); track ct.id) {
+          <button type="button" z-menu-item (click)="setClaimType(ct.id)" class="justify-between">
+            {{ ct.name }}
+            @if (selectedClaimType() === ct.id) {
               <z-icon zType="check" class="w-4 h-4" />
-            } @else {
-              <span class="w-4 h-4"></span>
             }
           </button>
         }
       </div>
     </ng-template>
+
+    <!-- Date dashed filter -->
+    <div z-menu [zMenuTriggerFor]="dateMenu">
+      <button z-button zType="outline" class="border-dashed">
+        <z-icon zType="calendar" class="w-3.5 h-3.5" />
+        Date
+        @if (startDate() || endDate()) {
+          <span class="inline-flex items-center h-4 px-1.5 rounded bg-primary text-primary-foreground text-[10.5px] font-semibold">1</span>
+        }
+      </button>
+    </div>
+    <ng-template #dateMenu>
+      <div z-menu-content class="w-64 p-2">
+        <div class="text-xs font-medium text-muted-foreground px-1 pb-2">Filter by submission date</div>
+        <label class="block text-[11px] text-muted-foreground mb-1">From</label>
+        <input type="date" #fromDate [value]="startDate()"
+          class="w-full h-8 px-2 mb-2 rounded-md border border-border bg-background text-foreground text-[12.5px] focus:outline-none focus:ring-2 focus:ring-ring/30" />
+        <label class="block text-[11px] text-muted-foreground mb-1">To</label>
+        <input type="date" #toDate [value]="endDate()"
+          class="w-full h-8 px-2 mb-3 rounded-md border border-border bg-background text-foreground text-[12.5px] focus:outline-none focus:ring-2 focus:ring-ring/30" />
+        <div class="flex gap-2">
+          <button type="button" z-button zSize="sm" class="flex-1" (click)="setDateRange(fromDate.value, toDate.value)">Apply</button>
+          <button type="button" z-button zType="outline" zSize="sm" class="flex-1" (click)="setDateRange('', ''); fromDate.value = ''; toDate.value = '';">Clear</button>
+        </div>
+      </div>
+    </ng-template>
+
+    <!-- Amount dashed filter -->
+    <div z-menu [zMenuTriggerFor]="amountMenu">
+      <button z-button zType="outline" class="border-dashed">
+        <z-icon zType="dollar-sign" class="w-3.5 h-3.5" />
+        Amount
+        @if (minAmount() !== null || maxAmount() !== null) {
+          <span class="inline-flex items-center h-4 px-1.5 rounded bg-primary text-primary-foreground text-[10.5px] font-semibold">1</span>
+        }
+      </button>
+    </div>
+    <ng-template #amountMenu>
+      <div z-menu-content class="w-64 p-2">
+        <div class="text-xs font-medium text-muted-foreground px-1 pb-2">Filter by amount (RM)</div>
+        <label class="block text-[11px] text-muted-foreground mb-1">Min</label>
+        <input type="number" min="0" step="0.01" #minAmt [value]="minAmount() ?? ''" placeholder="0.00"
+          class="w-full h-8 px-2 mb-2 rounded-md border border-border bg-background text-foreground text-[12.5px] focus:outline-none focus:ring-2 focus:ring-ring/30" />
+        <label class="block text-[11px] text-muted-foreground mb-1">Max</label>
+        <input type="number" min="0" step="0.01" #maxAmt [value]="maxAmount() ?? ''" placeholder="No upper limit"
+          class="w-full h-8 px-2 mb-3 rounded-md border border-border bg-background text-foreground text-[12.5px] focus:outline-none focus:ring-2 focus:ring-ring/30" />
+        <div class="flex gap-2">
+          <button type="button" z-button zSize="sm" class="flex-1"
+            (click)="setAmountRange(minAmt.value === '' ? null : +minAmt.value, maxAmt.value === '' ? null : +maxAmt.value)">Apply</button>
+          <button type="button" z-button zType="outline" zSize="sm" class="flex-1"
+            (click)="setAmountRange(null, null); minAmt.value = ''; maxAmt.value = '';">Clear</button>
+        </div>
+      </div>
+    </ng-template>
+
+    <!-- Active filter chips -->
+    @if (selectedClaimType()) {
+      <div class="inline-flex items-center h-7 pl-2 pr-1 rounded-full bg-primary text-primary-foreground text-[11px] font-medium gap-1.5">
+        <span class="text-primary-foreground/60">Category:</span> {{ getSelectedClaimTypeName() }}
+        <button type="button" (click)="setClaimType(null)" class="w-4 h-4 grid place-items-center rounded-full hover:bg-primary-foreground/15">
+          <z-icon zType="x" class="w-3 h-3" />
+        </button>
+      </div>
+    }
+    @if (startDate() || endDate()) {
+      <div class="inline-flex items-center h-7 pl-2 pr-1 rounded-full bg-primary text-primary-foreground text-[11px] font-medium gap-1.5">
+        <span class="text-primary-foreground/60">Date:</span>
+        {{ startDate() || '…' }} → {{ endDate() || '…' }}
+        <button type="button" (click)="setDateRange('', '')" class="w-4 h-4 grid place-items-center rounded-full hover:bg-primary-foreground/15">
+          <z-icon zType="x" class="w-3 h-3" />
+        </button>
+      </div>
+    }
+    @if (minAmount() !== null || maxAmount() !== null) {
+      <div class="inline-flex items-center h-7 pl-2 pr-1 rounded-full bg-primary text-primary-foreground text-[11px] font-medium gap-1.5">
+        <span class="text-primary-foreground/60">Amount:</span>
+        RM {{ minAmount() ?? '0' }} – {{ maxAmount() === null ? '∞' : 'RM ' + maxAmount() }}
+        <button type="button" (click)="setAmountRange(null, null)" class="w-4 h-4 grid place-items-center rounded-full hover:bg-primary-foreground/15">
+          <z-icon zType="x" class="w-3 h-3" />
+        </button>
+      </div>
+    }
+
+    <div class="ml-auto flex items-center gap-2">
+      <!-- Density toggle -->
+      <div class="inline-flex h-9 rounded-lg border border-border bg-card p-0.5 shad-card text-[11.5px] font-medium" title="Row density">
+        <button type="button" (click)="setDensity('compact')"
+          [class]="density() === 'compact' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'"
+          class="px-2 rounded-[6px] flex items-center justify-center" aria-label="Compact">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="3" y1="14" x2="21" y2="14"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <button type="button" (click)="setDensity('default')"
+          [class]="density() === 'default' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'"
+          class="px-2 rounded-[6px] flex items-center justify-center" aria-label="Default">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <button type="button" (click)="setDensity('comfortable')"
+          [class]="density() === 'comfortable' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'"
+          class="px-2 rounded-[6px] flex items-center justify-center" aria-label="Comfortable">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+
+      <!-- Sort dropdown -->
+      <div z-menu [zMenuTriggerFor]="sortMenu">
+        <button z-button zType="outline" class="shad-card">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="11" y1="5" x2="21" y2="5"/><line x1="11" y1="9" x2="17" y2="9"/><line x1="11" y1="13" x2="15" y2="13"/><polyline points="3 17 6 20 9 17"/><line x1="6" y1="4" x2="6" y2="20"/></svg>
+          {{ currentSortLabel() }}
+          <z-icon zType="chevron-down" class="w-3 h-3 text-muted-foreground" />
+        </button>
+      </div>
+      <ng-template #sortMenu>
+        <div z-menu-content class="w-48">
+          @for (opt of sortOptions; track opt.key) {
+            <button type="button" z-menu-item (click)="setSort(opt)" class="justify-between">
+              {{ opt.label }}
+              @if (sortColumn() === opt.column && sortDirection() === opt.direction) {
+                <z-icon zType="check" class="w-4 h-4" />
+              }
+            </button>
+          }
+        </div>
+      </ng-template>
+
+      <!-- View columns -->
+      <div z-menu [zMenuTriggerFor]="columnMenu">
+        <button z-button zType="outline" class="shad-card">
+          <z-icon zType="eye" class="w-3.5 h-3.5" />
+          View
+        </button>
+      </div>
+      <ng-template #columnMenu>
+        <div z-menu-content class="w-48">
+          <div class="px-2 py-1.5 text-xs font-medium text-muted-foreground">Toggle columns</div>
+          @for (column of columnList; track column.key) {
+            <button type="button" z-menu-item (click)="toggleColumn(column.key)" class="justify-between">
+              {{ column.label }}
+              @if (visibleColumns()[column.key]) {
+                <z-icon zType="check" class="w-4 h-4" />
+              } @else {
+                <span class="w-4 h-4"></span>
+              }
+            </button>
+          }
+        </div>
+      </ng-template>
+
+      <!-- Export -->
+      <button type="button" z-button zType="outline" class="shad-card" (click)="exportClaims()">
+        <z-icon zType="download" class="w-3.5 h-3.5" />
+        Export
+      </button>
+
+      <!-- Reset (only when filters active) -->
+      @if (hasActiveFilters()) {
+        <button type="button" z-button zType="ghost" (click)="clearFilters()">
+          Reset
+          <z-icon zType="x" class="w-3.5 h-3.5" />
+        </button>
+      }
+    </div>
   </div>
+
+  <!-- Bulk action bar -->
+  @if (getSelectedCount() > 0) {
+    <div class="rounded-xl border border-indigo-200 dark:border-indigo-900 bg-indigo-50/60 dark:bg-indigo-950/30 px-3 py-2 flex items-center gap-3 mb-3 text-[12.5px]">
+      <span class="inline-flex items-center gap-1.5 font-semibold text-indigo-900 dark:text-indigo-200">
+        <span class="inline-flex items-center justify-center w-5 h-5 rounded bg-indigo-600 text-white text-[10.5px] font-semibold">{{ getSelectedCount() }}</span>
+        selected
+      </span>
+      <span class="h-4 w-px bg-indigo-200 dark:bg-indigo-800"></span>
+      <button type="button" z-button zSize="sm" class="bg-emerald-600 hover:bg-emerald-700 text-white" (click)="bulkApprove()">
+        <z-icon zType="check" class="w-3 h-3" />
+        Approve all
+      </button>
+      <button type="button" z-button zType="outline" zSize="sm" (click)="bulkReject()">
+        Reject all
+      </button>
+      <button type="button" z-button zType="outline" zSize="sm" (click)="exportSelected()">
+        <z-icon zType="download" class="w-3 h-3" />
+        Export
+      </button>
+      <button type="button" z-button zType="ghost" class="ml-auto text-indigo-700 dark:text-indigo-300 hover:text-indigo-900 dark:hover:text-indigo-100" (click)="clearSelection()">Clear selection</button>
+    </div>
+  }
 
   <!-- Loading Skeleton -->
   @if (loading()) {
-    <!-- Analytics Cards Skeleton -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-      <div class="rounded-xl border bg-card p-6">
-        <div class="flex items-center gap-2 mb-5">
-          <z-skeleton class="h-5 w-5 rounded" />
-          <z-skeleton class="h-5 w-36" />
-        </div>
-        <div class="grid grid-cols-4 gap-4">
-          @for (i of [1,2,3,4]; track i) {
-            <div class="px-4" [class.border-l]="i > 1" [class.border-border]="i > 1">
-              <z-skeleton class="h-3 w-16 mb-2" />
-              <z-skeleton class="h-7 w-10 mb-2" />
-              <z-skeleton class="h-3 w-24" />
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      @for (i of [1,2,3,4]; track i) {
+        <div class="rounded-2xl border border-border bg-card p-5">
+          <div class="flex items-start justify-between mb-4">
+            <div class="flex items-center gap-2.5">
+              <z-skeleton class="h-8 w-8 rounded-lg" />
+              <div>
+                <z-skeleton class="h-3 w-20 mb-1" />
+                <z-skeleton class="h-2.5 w-24" />
+              </div>
             </div>
-          }
+            <z-skeleton class="h-4 w-4 rounded" />
+          </div>
+          <div class="flex items-end justify-between gap-3 mb-3">
+            <z-skeleton class="h-8 w-16" />
+            <z-skeleton class="h-5 w-14 rounded-full" />
+          </div>
+          <z-skeleton class="h-11 w-full rounded" />
+          <div class="mt-3 pt-3 border-t border-border flex items-center justify-between">
+            <z-skeleton class="h-3 w-24" />
+            <z-skeleton class="h-3 w-16" />
+          </div>
         </div>
-      </div>
-      <div class="rounded-xl border bg-card p-6">
-        <div class="flex items-center gap-2 mb-5">
-          <z-skeleton class="h-5 w-5 rounded" />
-          <z-skeleton class="h-5 w-48" />
-        </div>
-        <div class="flex flex-col gap-3">
-          @for (i of [1,2,3,4]; track i) {
-            <div class="flex items-center gap-3">
-              <z-skeleton class="h-3 w-36 shrink-0" />
-              <z-skeleton class="h-2 flex-1 rounded-full" />
-              <z-skeleton class="h-4 w-8 shrink-0" />
-            </div>
-          }
-        </div>
-      </div>
+      }
     </div>
-
-    <!-- Tabs Skeleton -->
-    <div class="mb-6 border-b border-border">
-      <div class="flex gap-3 pb-2">
-        @for (i of [1,2,3,4,5,6]; track i) {
-          <z-skeleton class="h-8 w-28 rounded-md" />
-        }
-      </div>
+    <div class="flex gap-2 mb-4">
+      @for (i of [1,2,3,4,5,6]; track i) {
+        <z-skeleton class="h-9 w-28 rounded-full" />
+      }
     </div>
-
-    <!-- Search Bar Skeleton -->
-    <div class="flex items-center gap-3 mb-6">
-      <z-skeleton class="h-10 flex-1 max-w-md rounded-md" />
-      <z-skeleton class="h-10 w-20 rounded-md" />
+    <div class="flex items-center gap-2 mb-3">
+      <z-skeleton class="h-9 flex-1 max-w-md rounded-lg" />
+      <z-skeleton class="h-9 w-24 rounded-lg" />
+      <z-skeleton class="ml-auto h-9 w-32 rounded-lg" />
     </div>
-
-    <!-- Table Skeleton -->
-    <div class="rounded-lg border">
+    <div class="rounded-2xl border border-border bg-card overflow-hidden">
       <div class="p-4 border-b border-border">
         <div class="flex items-center gap-4">
-          <z-skeleton class="h-4 w-8" />
+          <z-skeleton class="h-4 w-4 rounded" />
           <z-skeleton class="h-4 w-24" />
-          <z-skeleton class="h-4 w-24" />
+          <z-skeleton class="h-4 w-32" />
           <z-skeleton class="h-4 w-20" />
           <z-skeleton class="h-4 w-20" />
-          <z-skeleton class="h-4 w-20" />
-          <z-skeleton class="h-4 w-20" />
-          <z-skeleton class="h-4 w-16 ml-auto" />
+          <z-skeleton class="h-4 w-20 ml-auto" />
         </div>
       </div>
       @for (i of [1,2,3,4,5]; track i) {
@@ -403,23 +440,16 @@
           <div class="flex items-center gap-4">
             <z-skeleton class="h-4 w-4 rounded" />
             <div class="flex items-center gap-3">
-              <z-skeleton class="h-10 w-10 rounded-full" />
+              <z-skeleton class="h-9 w-9 rounded-full" />
               <div>
                 <z-skeleton class="h-4 w-28 mb-1" />
                 <z-skeleton class="h-3 w-20" />
               </div>
             </div>
-            <div>
-              <z-skeleton class="h-4 w-24 mb-1" />
-              <z-skeleton class="h-3 w-32" />
-            </div>
+            <z-skeleton class="h-4 w-40" />
             <z-skeleton class="h-4 w-20" />
-            <z-skeleton class="h-4 w-16" />
+            <z-skeleton class="h-4 w-24" />
             <z-skeleton class="h-6 w-24 rounded-full" />
-            <div>
-              <z-skeleton class="h-3 w-28 mb-1" />
-              <z-skeleton class="h-3 w-24" />
-            </div>
             <z-skeleton class="h-8 w-8 rounded ml-auto" />
           </div>
         </div>
@@ -429,219 +459,237 @@
 
   <!-- Claims Table -->
   @if (!loading() && !error() && claims().length > 0) {
-    <div class="claim-table-container rounded-lg border">
-      <table z-table class="claim-table">
-        <thead>
-          <tr>
-            <!-- Checkbox Column -->
-            <th class="!pl-3 w-10 th-text-center">
-              <span z-checkbox class="border-primary/30" [(ngModel)]="selectAll" (ngModelChange)="toggleSelectAll()"></span>
-            </th>
-
-            <!-- Employee Column -->
-            @if (visibleColumns()['employee']) {
-              <th class="!pl-3">
-                <span>Employee</span>
-              </th>
-            }
-
-            <!-- Claim Type Column -->
-            @if (visibleColumns()['claimType']) {
-              <th>
-                <span>Claim Type</span>
-              </th>
-            }
-
-            <!-- Date Column - Sortable -->
-            @if (visibleColumns()['date']) {
-              <th>
-                <button (click)="onSort('date')"
-                  class="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer"
-                  [class.text-primary]="isSortActive('date')">
-                  <span>Date</span>
-                  <z-icon [zType]="getSortIcon('date')" class="w-4 h-4" />
-                </button>
-              </th>
-            }
-
-            <!-- Amount Column - Sortable -->
-            @if (visibleColumns()['amount']) {
-              <th>
-                <button (click)="onSort('amount')"
-                  class="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer"
-                  [class.text-primary]="isSortActive('amount')">
-                  <span>Amount</span>
-                  <z-icon [zType]="getSortIcon('amount')" class="w-4 h-4" />
-                </button>
-              </th>
-            }
-
-            <!-- Status Column - Sortable -->
-            @if (visibleColumns()['status']) {
-              <th>
-                <button (click)="onSort('status')"
-                  class="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer"
-                  [class.text-primary]="isSortActive('status')">
-                  <span>Status</span>
-                  <z-icon [zType]="getSortIcon('status')" class="w-4 h-4" />
-                </button>
-              </th>
-            }
-
-            <!-- Approval Column -->
-            @if (visibleColumns()['approval']) {
-              <th>
-                <span>Approval</span>
-              </th>
-            }
-
-            <!-- Actions Column -->
-            <th class="sticky-action-col">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (claim of claims(); track claim.id) {
+    <div class="rounded-2xl border border-border bg-card shad-card-lg overflow-hidden">
+      <div class="claim-table-container">
+        <table z-table class="claim-table w-full text-left" [attr.data-density]="density()">
+          <thead>
             <tr>
-              <!-- Checkbox -->
-              <td class="!pl-3 text-center">
-                <span z-checkbox [ngModel]="isClaimSelected(claim.id)"
-                  (ngModelChange)="toggleClaimSelection(claim.id)"
-                  class="border-primary/30"></span>
-              </td>
-
-              <!-- Employee -->
+              <th class="!pl-6 !pr-2 w-10">
+                <span z-checkbox class="border-border" [(ngModel)]="selectAll" (ngModelChange)="toggleSelectAll()"></span>
+              </th>
               @if (visibleColumns()['employee']) {
-                <td class="!pl-3">
-                  <div class="flex items-center gap-3">
-                    <z-avatar
-                      [zFallback]="(claim.employee?.full_name || '?').charAt(0)"
-                      class="w-10 h-10" />
-                    <div class="flex flex-col">
-                      <span class="font-normal text-foreground">{{ claim.employee?.full_name || 'N/A' }}</span>
-                      <span class="mt-0.5 text-[11px] text-muted-foreground truncate">{{ claim.employee?.employee_code || 'N/A' }}</span>
-                    </div>
-                  </div>
-                </td>
+                <th><span>Claimant</span></th>
               }
-
-              <!-- Claim Type -->
-              @if (visibleColumns()['claimType']) {
-                <td>
-                  <div class="flex flex-col">
-                    <span>{{ claim.claimType?.name || 'N/A' }}</span>
-                    <span class="mt-0.5 text-[11px] text-muted-foreground truncate max-w-[200px]">{{ claim.description }}</span>
-                  </div>
-                </td>
+              @if (visibleColumns()['description']) {
+                <th><span>Description</span></th>
               }
-
-              <!-- Date -->
-              @if (visibleColumns()['date']) {
-                <td>{{ formatDate(claim.date) }}</td>
-              }
-
-              <!-- Amount -->
               @if (visibleColumns()['amount']) {
-                <td class="font-medium">
-                  {{ formatCurrency(claim.amount) }}
-                </td>
+                <th class="text-right">
+                  <button (click)="onSort('amount')"
+                    class="flex items-center gap-1 ml-auto hover:text-foreground transition-colors cursor-pointer"
+                    [class.text-foreground]="isSortActive('amount')">
+                    <span>Amount</span>
+                    <z-icon [zType]="getSortIcon('amount')" class="w-3.5 h-3.5" />
+                  </button>
+                </th>
               }
-
-              <!-- Status -->
+              @if (visibleColumns()['submitted']) {
+                <th>
+                  <button (click)="onSort('date')"
+                    class="flex items-center gap-1 hover:text-foreground transition-colors cursor-pointer"
+                    [class.text-foreground]="isSortActive('date')">
+                    <span>Submitted</span>
+                    <z-icon [zType]="getSortIcon('date')" class="w-3.5 h-3.5" />
+                  </button>
+                </th>
+              }
               @if (visibleColumns()['status']) {
-                <td>
-                  <z-badge [zType]="$any(getStatusBadgeType(claim.status))" [zShape]="'pill'" class="text-xs">
-                    <span class="inline-block w-1.5 h-1.5 rounded-full" [class]="getStatusDotClass(claim.status)"></span>
-                    {{ getStatusDisplayText(claim.status) }}
-                  </z-badge>
-                </td>
+                <th><span>Status</span></th>
               }
+              <th class="sticky-action-col">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (claim of claims(); track claim.id) {
+              <tr class="group" [class.row-selected]="isClaimSelected(claim.id)">
+                <td class="!pl-6 !pr-2">
+                  <span z-checkbox [ngModel]="isClaimSelected(claim.id)"
+                    (ngModelChange)="toggleClaimSelection(claim.id)"
+                    class="border-border"></span>
+                </td>
 
-              <!-- Approval -->
-              @if (visibleColumns()['approval']) {
-                <td>
-                  <div class="flex flex-col">
-                    <!-- Manager -->
-                    @if (claim.manager_approved_by) {
-                      @if (claim.status === 'Rejected' && !claim.finance_approved_by) {
-                        <span class="text-[11px] text-red-600 flex items-center gap-1">
-                          <z-icon zType="circle-x" class="w-3 h-3" />
-                          Manager Rejected
-                        </span>
-                      } @else {
-                        <span class="text-[11px] text-green-600 flex items-center gap-1">
-                          <z-icon zType="circle-check" class="w-3 h-3" />
-                          Manager Approved
-                        </span>
-                      }
-                    } @else {
-                      <span class="text-[11px] text-muted-foreground">Manager: Pending</span>
-                    }
-                    <!-- Finance -->
-                    @if (claim.finance_approved_by) {
-                      @if (claim.status === 'Rejected') {
-                        <span class="mt-0.5 text-[11px] text-red-600 flex items-center gap-1">
-                          <z-icon zType="circle-x" class="w-3 h-3" />
-                          Finance Rejected
-                        </span>
-                      } @else {
-                        <span class="mt-0.5 text-[11px] text-green-600 flex items-center gap-1">
-                          <z-icon zType="circle-check" class="w-3 h-3" />
-                          Finance Approved
-                        </span>
-                      }
-                    } @else if (claim.status === 'Paid') {
-                      <span class="mt-0.5 text-[11px] text-blue-600 flex items-center gap-1">
-                        <z-icon zType="circle-check" class="w-3 h-3" />
-                        Paid
+                @if (visibleColumns()['employee']) {
+                  <td>
+                    <div class="flex items-center gap-3 min-w-0">
+                      <span class="w-9 h-9 rounded-full bg-gradient-to-br text-white text-[11.5px] font-semibold grid place-items-center shrink-0"
+                        [class]="getGradientTone(claim.employee?.full_name || '')">
+                        {{ getInitials(claim.employee?.full_name || '?') }}
                       </span>
-                    } @else if (claim.manager_approved_by) {
-                      <span class="mt-0.5 text-[11px] text-muted-foreground">Finance: Pending</span>
-                    }
-                  </div>
-                </td>
-              }
+                      <div class="min-w-0">
+                        <p class="text-[13px] font-semibold text-foreground truncate leading-tight">{{ claim.employee?.full_name || 'N/A' }}</p>
+                        <p class="text-[11px] text-muted-foreground leading-tight mt-0.5">
+                          {{ claim.employee?.position || claim.employee?.employee_code || '—' }} ·
+                          <span class="font-mono">CLM-{{ formatClaimId(claim.id) }}</span>
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+                }
 
-              <!-- Actions -->
-              <td class="sticky-action-col">
-                <div class="flex justify-end">
-                  <div z-menu [zMenuTriggerFor]="claimActionMenu">
-                    <button z-button zType="ghost" zSize="sm">
-                      <z-icon zType="ellipsis" class="w-4 h-4" />
-                    </button>
-                  </div>
-                  <ng-template #claimActionMenu>
-                    <div z-menu-content class="w-40">
-                      <button z-menu-item (click)="openViewClaimSheet(claim)" class="gap-2">
-                        <z-icon zType="eye" class="w-4 h-4" />
-                        View
-                      </button>
-                      @if (canEdit(claim)) {
-                        <button z-menu-item (click)="openEditClaimSheet(claim)" class="gap-2">
-                          <z-icon zType="pencil" class="w-4 h-4" />
-                          Edit
-                        </button>
-                      }
-                      @if (canDelete(claim)) {
-                        <z-divider zSpacing="sm" />
-                        <button z-menu-item (click)="deleteClaim(claim.public_id!)" class="gap-2 text-destructive">
-                          <z-icon zType="trash" class="w-4 h-4" />
-                          Delete
-                        </button>
+                @if (visibleColumns()['description']) {
+                  <td class="max-w-[280px]">
+                    <div class="flex items-center gap-2 min-w-0">
+                      <span class="inline-flex items-center px-1.5 h-5 rounded-md text-[10.5px] font-semibold shrink-0"
+                        [class]="getCategoryTone(claim.claimType?.name)">
+                        {{ getCategoryShort(claim.claimType?.name) }}
+                      </span>
+                      <p class="text-[12.5px] text-foreground truncate" [title]="claim.description">{{ claim.description }}</p>
+                    </div>
+                    @if (claim.receipt_url) {
+                      <p class="text-[10.5px] text-muted-foreground mt-1 flex items-center gap-1">
+                        <z-icon zType="paperclip" class="w-3 h-3" />
+                        1 receipt
+                      </p>
+                    } @else {
+                      <p class="text-[10.5px] text-muted-foreground mt-1">No receipt</p>
+                    }
+                  </td>
+                }
+
+                @if (visibleColumns()['amount']) {
+                  <td class="text-right">
+                    <p class="text-[13px] font-semibold text-foreground num-tabular font-mono">{{ formatCurrency(claim.amount) }}</p>
+                    <p class="text-[10.5px] text-muted-foreground mt-0.5">MYR</p>
+                  </td>
+                }
+
+                @if (visibleColumns()['submitted']) {
+                  <td>
+                    <p class="text-[12px] text-foreground">{{ getRelativeTime(claim.created_at) }}</p>
+                    @if (isInQueue(claim)) {
+                      <p class="text-[10.5px] mt-0.5" [class]="getAgingTone(claim)">{{ getAging(claim) }}d in queue</p>
+                    } @else {
+                      <p class="text-[10.5px] mt-0.5 text-muted-foreground">{{ formatDate(claim.date) }}</p>
+                    }
+                  </td>
+                }
+
+                @if (visibleColumns()['status']) {
+                  <td>
+                    <div class="flex flex-col gap-1 items-start">
+                      <span class="inline-flex items-center px-2 h-[22px] rounded-full text-[11px] font-medium ring-1 ring-inset"
+                        [class]="getStatusInfo(claim).tone">
+                        {{ getStatusInfo(claim).text }}
+                      </span>
+                      @if (isBreaching(claim)) {
+                        <span class="inline-flex items-center gap-1 px-1.5 h-[18px] rounded-full bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 text-[10px] font-semibold ring-1 ring-rose-200 dark:ring-rose-900">
+                          <z-icon zType="triangle-alert" class="w-2.5 h-2.5" />
+                          SLA breach
+                        </span>
                       }
                     </div>
-                  </ng-template>
-                </div>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+                  </td>
+                }
+
+                <td class="sticky-action-col">
+                  <div class="flex items-center gap-1 justify-end opacity-0 group-hover:opacity-100 transition row-actions">
+                    @if (canQuickApprove(claim)) {
+                      <button type="button" z-button zSize="sm" class="bg-emerald-600 hover:bg-emerald-700 text-white" (click)="inlineApprove(claim, $event)">
+                        <z-icon zType="check" class="w-3 h-3" />
+                        Approve
+                      </button>
+                      <button type="button" z-button zType="outline" zSize="sm" (click)="inlineReject(claim, $event)">
+                        Reject
+                      </button>
+                    }
+                    <div z-menu [zMenuTriggerFor]="claimActionMenu">
+                      <button type="button" z-button zType="ghost" aria-label="More">
+                        <z-icon zType="ellipsis" class="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                    <ng-template #claimActionMenu>
+                      <div z-menu-content class="w-40">
+                        <button z-menu-item (click)="openViewClaimSheet(claim)" class="gap-2">
+                          <z-icon zType="eye" class="w-4 h-4" />
+                          View
+                        </button>
+                        @if (canEdit(claim)) {
+                          <button z-menu-item (click)="openEditClaimSheet(claim)" class="gap-2">
+                            <z-icon zType="pencil" class="w-4 h-4" />
+                            Edit
+                          </button>
+                        }
+                        @if (canDelete(claim)) {
+                          <z-divider zSpacing="sm" />
+                          <button z-menu-item (click)="deleteClaim(claim.public_id!)" class="gap-2 text-destructive">
+                            <z-icon zType="trash" class="w-4 h-4" />
+                            Delete
+                          </button>
+                        }
+                      </div>
+                    </ng-template>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="flex items-center justify-between gap-3 px-6 py-3 border-t border-border bg-card text-[12px] text-muted-foreground">
+        <div>
+          Showing
+          <span class="font-semibold text-foreground">{{ rangeStart() }}–{{ rangeEnd() }}</span>
+          of
+          <span class="font-semibold text-foreground">{{ totalRecords() }}</span>
+          claims
+        </div>
+        <div class="flex items-center gap-1">
+          <button type="button" z-button zType="outline" zSize="sm"
+            (click)="onPageChange(currentPage() - 1)"
+            [disabled]="currentPage() === 1">
+            <z-icon zType="chevron-left" class="w-3 h-3" />
+            Prev
+          </button>
+          <div class="flex items-center gap-0.5 px-1 text-[12px]">
+            @for (page of getPageNumbers(); track $index) {
+              @if (page === -1) {
+                <span class="w-5 text-center text-muted-foreground">…</span>
+              } @else {
+                <button type="button" (click)="onPageChange(page)"
+                  [class]="currentPage() === page ? 'bg-primary text-primary-foreground font-semibold' : 'hover:bg-muted text-foreground'"
+                  class="w-7 h-7 grid place-items-center rounded-md">
+                  {{ page }}
+                </button>
+              }
+            }
+          </div>
+          <button type="button" z-button zType="outline" zSize="sm"
+            (click)="onPageChange(currentPage() + 1)"
+            [disabled]="currentPage() === totalPages()">
+            Next
+            <z-icon zType="chevron-right" class="w-3 h-3" />
+          </button>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-muted-foreground">Rows per page</span>
+          <div z-menu [zMenuTriggerFor]="pageSizeMenu">
+            <button type="button" z-button zType="outline" zSize="sm">
+              {{ limit }}
+              <z-icon zType="chevron-down" class="w-3 h-3 text-muted-foreground" />
+            </button>
+          </div>
+          <ng-template #pageSizeMenu>
+            <div z-menu-content class="w-20">
+              @for (size of [10, 20, 50, 100]; track size) {
+                <button type="button" z-menu-item (click)="setLimit(size)" class="justify-between">
+                  {{ size }}
+                  @if (limit === size) {
+                    <z-icon zType="check" class="w-4 h-4" />
+                  }
+                </button>
+              }
+            </div>
+          </ng-template>
+        </div>
+      </div>
     </div>
   }
 
   <!-- Empty State -->
   @if (!loading() && claims().length === 0) {
-    <div class="flex flex-col items-center justify-center py-20 text-center">
+    <div class="flex flex-col items-center justify-center py-20 text-center rounded-2xl border border-dashed border-border bg-card">
       <z-icon zType="inbox" class="w-16 h-16 text-muted-foreground mb-4" />
       <h3 class="text-lg font-medium mb-2">No claims found</h3>
       <p class="text-muted-foreground mb-4">Try adjusting your filters or submit a new claim</p>
@@ -652,48 +700,38 @@
     </div>
   }
 
-  <!-- Pagination -->
-  @if (totalPages() > 1) {
-    <div class="flex items-center justify-between mt-4">
-      <div class="text-sm text-muted-foreground">
-        Showing page {{ currentPage() }} of {{ totalPages() }} ({{ totalRecords() }} total records)
-      </div>
-      <div class="flex items-center gap-1">
-        <button
-          z-button
-          zType="outline"
-          zSize="sm"
-          (click)="onPageChange(currentPage() - 1)"
-          [disabled]="currentPage() === 1">
-          Previous
-        </button>
-        @for (page of getPageNumbers(); track page) {
-          @if (page === -1) {
-            <span class="px-3 py-1 text-muted-foreground">...</span>
-          } @else {
-            <button
-              z-button
-              [zType]="currentPage() === page ? 'default' : 'outline'"
-              zSize="sm"
-              (click)="onPageChange(page)"
-              class="min-w-[36px]">
-              {{ page }}
-            </button>
-          }
-        }
-        <button
-          z-button
-          zType="outline"
-          zSize="sm"
-          (click)="onPageChange(currentPage() + 1)"
-          [disabled]="currentPage() === totalPages()">
-          Next
-        </button>
-      </div>
-    </div>
-  }
+  <!-- Footer hint -->
+  <div class="flex items-center justify-between mt-4 text-[12px] text-muted-foreground">
+    <span>{{ totalRecords() }} claims · {{ currentMonthLabel }}</span>
+    <button type="button" z-button zType="ghost" zSize="sm" (click)="refresh()">
+      <z-icon zType="refresh-cw" class="w-3 h-3" [class.animate-spin]="loading()" />
+      Refresh
+    </button>
+  </div>
   }
 </div>
+
+<!-- Reusable: delta pill -->
+<ng-template #deltaPill let-pct="pct" let-invert="invert">
+  @if (pct === null) {
+    <span class="inline-flex items-center gap-0.5 px-1.5 h-[20px] rounded-full text-[11px] font-semibold bg-muted text-muted-foreground num-tabular">
+      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      0.0%
+    </span>
+  } @else {
+    @let up = pct > 0;
+    @let good = invert ? !up : up;
+    <span class="inline-flex items-center gap-0.5 px-1.5 h-[20px] rounded-full text-[11px] font-semibold num-tabular"
+      [class]="good ? 'text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40' : 'text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40'">
+      @if (up) {
+        <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 15 12 9 18 15"/></svg>
+      } @else {
+        <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      }
+      {{ up ? '+' : '' }}{{ pct.toFixed(1) }}%
+    </span>
+  }
+</ng-template>
 
 <!-- Sheets -->
 <app-claim-form-sheet

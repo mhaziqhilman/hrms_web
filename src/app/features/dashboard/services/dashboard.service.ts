@@ -169,6 +169,14 @@ export interface StaffDashboardData {
     urgent: boolean;
     read: boolean;
   }[];
+  nextPublicHoliday: {
+    id: number;
+    name: string;
+    date: string;
+    description: string | null;
+    daysAway: number;
+    weekday: string;
+  } | null;
 }
 
 @Injectable({

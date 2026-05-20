@@ -25,8 +25,13 @@ const ADMIN_MENU: SidebarMenuGroup[] = [
       {
         title: 'Announcements',
         icon: 'megaphone',
-        route: '/communication'
-      }
+        route: '/communication/memos'
+      },
+      {
+        title: 'Policies',
+        icon: 'book-open',
+        route: '/communication/policies'
+      },
     ]
   },
   {

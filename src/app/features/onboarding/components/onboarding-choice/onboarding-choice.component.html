@@ -35,7 +35,7 @@
           <p class="text-sm text-muted-foreground mb-6">
             Set up your company profile and start managing your team with our HRMS platform.
           </p>
-          <button z-button type="button" class="w-full">
+          <button z-button type="button" zFull>
             <span>Get Started</span>
             <z-icon [zType]="$any('arrow-right')" class="w-4 h-4 ml-2" />
           </button>
@@ -56,7 +56,7 @@
             <p class="text-sm text-muted-foreground mb-6">
               Your company admin will send you an invitation to join. We'll notify you when it arrives.
             </p>
-            <button z-button [zType]="'outline'" type="button" class="w-full">
+            <button z-button zType="outline" type="button" zFull>
               <span>I'm Waiting</span>
               <z-icon [zType]="$any('clock')" class="w-4 h-4 ml-2" />
             </button>
@@ -70,7 +70,7 @@
       @if (hasExistingCompany) {
         <button
           type="button"
-          class="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+          z-button zType="ghost"
           (click)="goBack()"
         >
           Back to Dashboard
@@ -78,7 +78,7 @@
       }
       <button
         type="button"
-        class="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+        z-button zType="ghost"
         (click)="logout()"
       >
         Sign out

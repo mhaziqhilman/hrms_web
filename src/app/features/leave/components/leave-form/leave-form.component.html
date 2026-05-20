@@ -1,4 +1,4 @@
-<div class="bg-background min-h-screen">
+<div>
   <!-- Header -->
   <div class="flex items-center justify-between mb-8">
     <div>
@@ -247,7 +247,9 @@
                         @if (!requiresDocument()) {
                           <button
                             type="button"
-                            class="text-xs text-primary hover:underline font-normal"
+                            z-button
+                            zType="link"
+                            zSize="sm"
                             (click)="toggleAttachmentMode()">
                             {{ showUrlInput() ? 'Use File Upload' : 'Add from URL' }}
                           </button>

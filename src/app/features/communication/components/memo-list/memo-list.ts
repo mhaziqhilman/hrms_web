@@ -12,15 +12,14 @@ import { DisplayService } from '@/core/services/display.service';
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { ZardIconComponent } from '@/shared/components/icon/icon.component';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { ZardSelectComponent } from '@/shared/components/select/select.component';
 import { ZardSelectItemComponent } from '@/shared/components/select/select-item.component';
 import { ZardInputDirective } from '@/shared/components/input/input.directive';
 import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component';
 import { ZardMenuImports } from '@/shared/components/menu/menu.imports';
 import { ZardTooltipDirective } from '@/shared/components/tooltip/tooltip';
-import { ZardDividerComponent } from '@/shared/components/divider/divider.component';
 import { ZardDatePickerComponent } from '@/shared/components/date-picker/date-picker.component';
+import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-dialog.service';
 
 @Component({
   selector: 'app-memo-list',
@@ -33,14 +32,12 @@ import { ZardDatePickerComponent } from '@/shared/components/date-picker/date-pi
     ZardButtonComponent,
     ZardIconComponent,
     ZardCardComponent,
-    ZardBadgeComponent,
     ZardSelectComponent,
     ZardSelectItemComponent,
     ZardInputDirective,
     ZardAvatarComponent,
     ZardMenuImports,
     ZardTooltipDirective,
-    ZardDividerComponent,
     ZardDatePickerComponent
   ],
   templateUrl: './memo-list.html',
@@ -54,6 +51,7 @@ export class MemoListComponent implements OnInit {
   private router = inject(Router);
   private fb = inject(FormBuilder);
   private displayService = inject(DisplayService);
+  private alertDialogService = inject(ZardAlertDialogService);
 
   // Data
   memos = signal<Memo[]>([]);
@@ -61,10 +59,12 @@ export class MemoListComponent implements OnInit {
   categories = signal<AnnouncementCategory[]>([]);
   loading = signal(false);
   totalPublishedCount = signal(0);
+  thisWeekStats = signal<{ posts: number; reach: number } | null>(null);
 
   // Filters
   selectedCategory = signal<AnnouncementCategory | null>(null);
   sortBy = signal<string>('newest');
+  statusFilter = signal<'Published' | 'Draft' | 'Archived'>('Published');
   dateFrom = signal<Date | null>(null);
   dateTo = signal<Date | null>(null);
   searchQuery = signal<string>('');
@@ -99,6 +99,14 @@ export class MemoListComponent implements OnInit {
     this.loadCategories();
     this.loadMemos();
     this.loadPinnedMemos();
+    this.loadThisWeekStats();
+  }
+
+  loadThisWeekStats(): void {
+    this.memoService.getThisWeekStats().subscribe({
+      next: (res) => this.thisWeekStats.set({ posts: res.data.posts, reach: res.data.reach }),
+      error: (err) => console.error('Error loading this-week stats:', err)
+    });
   }
 
   get canCreate(): boolean {
@@ -125,11 +133,12 @@ export class MemoListComponent implements OnInit {
 
   loadMemos(): void {
     this.loading.set(true);
+    this.memoImageCache.clear();
     const filters: MemoFilters = {
       page: this.currentPage(),
       limit: this.pageSize,
       sort_by: this.sortBy() as any,
-      status: 'Published'
+      status: this.statusFilter()
     };
 
     const category = this.selectedCategory();
@@ -196,9 +205,23 @@ export class MemoListComponent implements OnInit {
     this.dateFrom.set(null);
     this.dateTo.set(null);
     this.sortBy.set('newest');
+    this.statusFilter.set('Published');
     this.searchQuery.set('');
     this.currentPage.set(1);
     this.loadMemos();
+  }
+
+  onStatusChange(): void {
+    this.currentPage.set(1);
+    this.loadMemos();
+  }
+
+  getStatusLabel(): string {
+    switch (this.statusFilter()) {
+      case 'Draft': return 'Drafts';
+      case 'Archived': return 'Archived';
+      default: return 'Published';
+    }
   }
 
   onDateFromChange(date: Date | null): void {
@@ -259,6 +282,7 @@ export class MemoListComponent implements OnInit {
         this.loadMemos();
         this.loadPinnedMemos();
         this.loadCategories();
+        this.loadThisWeekStats();
       },
       error: (err) => {
         console.error('Error creating quick post:', err);
@@ -292,22 +316,44 @@ export class MemoListComponent implements OnInit {
         this.loadMemos();
         this.loadPinnedMemos();
         this.loadCategories();
+        this.loadThisWeekStats();
       },
       error: (err) => console.error('Error archiving:', err)
     });
   }
 
+  /** Publishes a Draft, or restores an Archived memo back to Published. */
+  publishMemo(memo: Memo): void {
+    this.memoService.publishMemo(memo.public_id!).subscribe({
+      next: () => {
+        this.loadMemos();
+        this.loadPinnedMemos();
+        this.loadCategories();
+        this.loadThisWeekStats();
+      },
+      error: (err) => console.error('Error publishing:', err)
+    });
+  }
+
   deleteMemo(memo: Memo): void {
-    if (confirm('Are you sure you want to delete this announcement?')) {
-      this.memoService.deleteMemo(memo.public_id!).subscribe({
-        next: () => {
-          this.loadMemos();
-          this.loadPinnedMemos();
-          this.loadCategories();
-        },
-        error: (err) => console.error('Error deleting:', err)
-      });
-    }
+    this.alertDialogService.confirm({
+      zTitle: 'Delete Announcement',
+      zDescription: 'Are you sure you want to delete this announcement?',
+      zOkText: 'Delete',
+      zCancelText: 'Cancel',
+      zOkDestructive: true,
+      zOnOk: () => {
+        this.memoService.deleteMemo(memo.public_id!).subscribe({
+          next: () => {
+            this.loadMemos();
+            this.loadPinnedMemos();
+            this.loadCategories();
+            this.loadThisWeekStats();
+          },
+          error: (err) => console.error('Error deleting:', err)
+        });
+      }
+    });
   }
 
   // Add category
@@ -376,17 +422,24 @@ export class MemoListComponent implements OnInit {
 
   deleteCategory(cat: AnnouncementCategory, event: Event): void {
     event.stopPropagation();
-    if (confirm(`Delete category "${cat.name}"? Announcements in this category will become uncategorized.`)) {
-      this.categoryService.deleteCategory(cat.id).subscribe({
-        next: () => {
-          if (this.selectedCategory()?.id === cat.id) {
-            this.filterByCategory(null);
-          }
-          this.loadCategories();
-        },
-        error: (err) => console.error('Error deleting category:', err)
-      });
-    }
+    this.alertDialogService.confirm({
+      zTitle: 'Delete Category',
+      zDescription: `Delete category "${cat.name}"? Announcements in this category will become uncategorized.`,
+      zOkText: 'Delete',
+      zCancelText: 'Cancel',
+      zOkDestructive: true,
+      zOnOk: () => {
+        this.categoryService.deleteCategory(cat.id).subscribe({
+          next: () => {
+            if (this.selectedCategory()?.id === cat.id) {
+              this.filterByCategory(null);
+            }
+            this.loadCategories();
+          },
+          error: (err) => console.error('Error deleting category:', err)
+        });
+      }
+    });
   }
 
   // Pagination
@@ -430,6 +483,22 @@ export class MemoListComponent implements OnInit {
     return text.length > 200 ? text.substring(0, 200) + '...' : text;
   }
 
+  /**
+   * First image embedded in the memo body, shown as a 1:1 cover on the card.
+   * Cached per-memo since `content` can be large (base64 data URLs) and this
+   * runs inside change detection.
+   */
+  private memoImageCache = new Map<string | number, string | null>();
+  getMemoImage(memo: Memo): string | null {
+    const key = memo.id ?? memo.public_id ?? memo.title;
+    const cached = this.memoImageCache.get(key);
+    if (cached !== undefined) return cached;
+    const match = memo.content?.match(/<img\b[^>]*?\bsrc\s*=\s*["']([^"']+)["']/i);
+    const url = match ? match[1] : null;
+    this.memoImageCache.set(key, url);
+    return url;
+  }
+
   formatDate(dateStr?: string): string {
     return this.displayService.formatDate(dateStr);
   }
@@ -440,5 +509,32 @@ export class MemoListComponent implements OnInit {
 
   canEditMemo(memo: Memo): boolean {
     return ['super_admin', 'admin'].includes(this.currentUser?.role) || memo.author_id === this.currentUser?.id;
+  }
+
+  getCategoryChipBg(color?: string): string {
+    const hex = (color || '#6B7280').replace('#', '');
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    return `rgba(${r}, ${g}, ${b}, 0.12)`;
+  }
+
+  getCategoryChipText(color?: string): string {
+    return color || '#6B7280';
+  }
+
+  get lastUpdated(): string {
+    const list = this.memos();
+    if (!list.length) return '';
+    const latest = list.reduce((a, b) => {
+      const aDate = new Date(a.published_at || a.created_at);
+      const bDate = new Date(b.published_at || b.created_at);
+      return aDate > bDate ? a : b;
+    });
+    return this.formatDate(latest.published_at || latest.created_at);
+  }
+
+  get pinnedCount(): number {
+    return this.pinnedMemos().length;
   }
 }

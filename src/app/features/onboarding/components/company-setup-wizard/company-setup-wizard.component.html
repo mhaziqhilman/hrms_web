@@ -360,7 +360,8 @@
                 </div>
                 <button
                   type="button"
-                  class="mt-2 text-muted-foreground hover:text-destructive transition-colors"
+                  z-button zType="ghost" zSize="sm"
+                  class="mt-2 text-destructive"
                   (click)="removeInvitation(i)"
                 >
                   <z-icon [zType]="$any('x')" class="w-5 h-5" />
@@ -372,8 +373,9 @@
             <button
               z-button
               type="button"
-              [zType]="'outline'"
-              class="w-full border-dashed"
+              zType="outline"
+              zFull
+              class="border-dashed"
               (click)="addInvitation()"
             >
               <z-icon [zType]="$any('plus')" class="w-4 h-4 mr-2" />
@@ -397,7 +399,7 @@
               <button
                 z-button
                 type="button"
-                [zType]="'ghost'"
+                zType="ghost"
                 (click)="goBack()"
               >
                 <z-icon [zType]="$any('arrow-left')" class="w-4 h-4 mr-2" />
@@ -407,7 +409,7 @@
               <button
                 z-button
                 type="button"
-                [zType]="'outline'"
+                zType="outline"
                 (click)="previousStep()"
               >
                 <z-icon [zType]="$any('arrow-left')" class="w-4 h-4 mr-2" />

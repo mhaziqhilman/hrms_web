@@ -72,7 +72,15 @@ export class AttendanceListComponent implements OnInit {
   totalRecords = signal(0);
   limit = signal(50);
 
-  // Date navigation
+  // View mode: Day / Week / Month — drives date range + display labels + summary aggregation
+  viewMode = signal<'day' | 'week' | 'month'>('day');
+  viewModeOptions: SegmentedOption[] = [
+    { value: 'day', label: 'Day' },
+    { value: 'week', label: 'Week' },
+    { value: 'month', label: 'Month' }
+  ];
+
+  // Date navigation (anchor date — interpreted under current viewMode)
   currentViewDate = signal<Date>(new Date());
 
   // Search
@@ -178,15 +186,113 @@ export class AttendanceListComponent implements OnInit {
       noClockOut: records.filter(a => a.clock_in_time && !a.clock_out_time).length,
       office: records.filter(a => a.type === 'Office').length,
       wfh: records.filter(a => a.type === 'WFH').length,
+      totalHours: withHours.reduce((sum, a) => sum + (a.total_hours || 0), 0),
       avgHours: withHours.length > 0
         ? withHours.reduce((sum, a) => sum + (a.total_hours || 0), 0) / withHours.length
         : 0,
-      overtime: records.filter(a => (a.total_hours || 0) > 9).length
+      overtime: records.reduce((sum, a) => sum + Math.max(0, (a.total_hours || 0) - 9), 0),
+      overtimeCount: records.filter(a => (a.total_hours || 0) > 9).length
     };
   });
 
+  /**
+   * Daily aggregates across the current date range — drives sparkline points.
+   * Returns one bucket per day in [rangeStart, rangeEnd], even if the day has
+   * no records, so sparklines have stable x-axis spacing.
+   */
+  dailyBuckets = computed(() => {
+    const records = this.attendances();
+    const start = this.rangeStart();
+    const end = this.rangeEnd();
+    const buckets: { date: string; onTime: number; late: number; earlyLeave: number; office: number; wfh: number; noClockOut: number; avgHours: number; overtimeHours: number; total: number; }[] = [];
+
+    const cursor = new Date(start);
+    cursor.setHours(0, 0, 0, 0);
+    const last = new Date(end);
+    last.setHours(0, 0, 0, 0);
+
+    while (cursor.getTime() <= last.getTime()) {
+      const key = this.formatLocalDate(cursor);
+      const dayRecords = records.filter(r => (r.date || '').slice(0, 10) === key);
+      const withHours = dayRecords.filter(r => r.total_hours != null && r.total_hours > 0);
+      buckets.push({
+        date: key,
+        onTime: dayRecords.filter(r => r.clock_in_time && !r.is_late).length,
+        late: dayRecords.filter(r => r.is_late).length,
+        earlyLeave: dayRecords.filter(r => r.is_early_leave).length,
+        office: dayRecords.filter(r => r.type === 'Office').length,
+        wfh: dayRecords.filter(r => r.type === 'WFH').length,
+        noClockOut: dayRecords.filter(r => r.clock_in_time && !r.clock_out_time).length,
+        avgHours: withHours.length > 0
+          ? withHours.reduce((s, r) => s + (r.total_hours || 0), 0) / withHours.length
+          : 0,
+        overtimeHours: dayRecords.reduce((s, r) => s + Math.max(0, (r.total_hours || 0) - 9), 0),
+        total: dayRecords.length
+      });
+      cursor.setDate(cursor.getDate() + 1);
+    }
+    return buckets;
+  });
+
+  /** Build SVG path data for a sparkline given a series of numeric values. */
+  sparkPath(values: number[]): { line: string; area: string; last: { x: number; y: number } } {
+    const W = 96;
+    const H = 28;
+    const pad = 2;
+    if (!values.length) {
+      const baseline = H - pad;
+      return { line: `M${pad},${baseline} L${W - pad},${baseline}`, area: `M${pad},${baseline} L${W - pad},${baseline} Z`, last: { x: W - pad, y: baseline } };
+    }
+    if (values.length === 1) {
+      const baseline = H - pad - (H - pad * 2) * 0.5;
+      return { line: `M${pad},${baseline} L${W - pad},${baseline}`, area: `M${pad},${baseline} L${W - pad},${baseline} L${W - pad},${H - pad} L${pad},${H - pad} Z`, last: { x: W - pad, y: baseline } };
+    }
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const range = max - min || 1;
+    const stepX = (W - pad * 2) / (values.length - 1);
+    const pts = values.map((v, i) => {
+      const x = pad + i * stepX;
+      const y = H - pad - ((v - min) / range) * (H - pad * 2);
+      return { x: +x.toFixed(2), y: +y.toFixed(2) };
+    });
+    const line = pts.map((p, i) => (i === 0 ? `M${p.x},${p.y}` : `L${p.x},${p.y}`)).join(' ');
+    const lastPt = pts[pts.length - 1];
+    const firstPt = pts[0];
+    const area = `${line} L${lastPt.x},${H - pad} L${firstPt.x},${H - pad} Z`;
+    return { line, area, last: lastPt };
+  }
+
+  /**
+   * Percent change between the first half and second half of the period.
+   * Returns null when there isn't enough data to be meaningful (e.g. day view
+   * with a single bucket, or the first half is empty).
+   */
+  deltaPct(values: number[]): number | null {
+    if (values.length < 2) return null;
+    const mid = Math.floor(values.length / 2);
+    const firstHalf = values.slice(0, mid);
+    const secondHalf = values.slice(mid);
+    const avg = (arr: number[]) => arr.length ? arr.reduce((s, v) => s + v, 0) / arr.length : 0;
+    const a = avg(firstHalf);
+    const b = avg(secondHalf);
+    if (a === 0 && b === 0) return null;
+    if (a === 0) return null;
+    return ((b - a) / a) * 100;
+  }
+
+  /** Compose substat data: series + computed delta + sparkline paths. */
+  substat(key: 'onTime' | 'late' | 'earlyLeave' | 'noClockOut' | 'office' | 'wfh' | 'avgHours' | 'overtimeHours' | 'total'): { series: number[]; delta: number | null; paths: { line: string; area: string; last: { x: number; y: number } } } {
+    const series = this.dailyBuckets().map(b => Number(b[key]) || 0);
+    return {
+      series,
+      delta: this.deltaPct(series),
+      paths: this.sparkPath(series)
+    };
+  }
+
   ngOnInit(): void {
-    this.setDateFilter(new Date());
+    this.applyViewRange();
 
     const user = this.authService.getCurrentUserValue();
     if (user?.employee) {
@@ -215,34 +321,101 @@ export class AttendanceListComponent implements OnInit {
   // Date navigation
   navigateDate(direction: -1 | 1): void {
     const current = new Date(this.currentViewDate());
-    current.setDate(current.getDate() + direction);
+    const mode = this.viewMode();
+    if (mode === 'day') {
+      current.setDate(current.getDate() + direction);
+    } else if (mode === 'week') {
+      current.setDate(current.getDate() + direction * 7);
+    } else {
+      current.setMonth(current.getMonth() + direction);
+    }
     this.currentViewDate.set(current);
-    this.setDateFilter(current);
+    this.applyViewRange();
     this.currentPage.set(1);
     this.loadAttendances();
   }
 
   goToToday(): void {
-    const today = new Date();
-    this.currentViewDate.set(today);
-    this.setDateFilter(today);
+    this.currentViewDate.set(new Date());
+    this.applyViewRange();
     this.currentPage.set(1);
     this.loadAttendances();
   }
 
-  formatViewDate(): string {
-    return this.currentViewDate().toLocaleDateString('en-US', {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long'
-    });
+  onViewModeChange(value: string): void {
+    if (value === this.viewMode()) return;
+    this.viewMode.set(value as 'day' | 'week' | 'month');
+    // When entering week/month mode, expand limit so aggregates reflect the full range.
+    this.limit.set(value === 'day' ? 50 : 500);
+    this.applyViewRange();
+    this.currentPage.set(1);
+    this.loadAttendances();
   }
 
-  private setDateFilter(date: Date): void {
+  // Date range derived from viewMode + anchor date
+  rangeStart = signal<Date>(new Date());
+  rangeEnd = signal<Date>(new Date());
+
+  formatViewDate(): string {
+    const mode = this.viewMode();
+    const start = this.rangeStart();
+    const end = this.rangeEnd();
+    if (mode === 'day') {
+      return start.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' });
+    }
+    if (mode === 'week') {
+      const startStr = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const endStr = end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      return `${startStr} – ${endStr}`;
+    }
+    return start.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  }
+
+  formatFooterRange(): string {
+    const mode = this.viewMode();
+    const start = this.rangeStart();
+    const end = this.rangeEnd();
+    if (mode === 'day') {
+      return start.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    }
+    if (mode === 'week') {
+      return `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+    }
+    return start.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  }
+
+  private applyViewRange(): void {
+    const anchor = new Date(this.currentViewDate());
+    const mode = this.viewMode();
+    let start: Date;
+    let end: Date;
+
+    if (mode === 'day') {
+      start = new Date(anchor);
+      end = new Date(anchor);
+    } else if (mode === 'week') {
+      // Week starts Monday
+      start = new Date(anchor);
+      const day = start.getDay();
+      const offset = day === 0 ? -6 : 1 - day;
+      start.setDate(start.getDate() + offset);
+      end = new Date(start);
+      end.setDate(end.getDate() + 6);
+    } else {
+      start = new Date(anchor.getFullYear(), anchor.getMonth(), 1);
+      end = new Date(anchor.getFullYear(), anchor.getMonth() + 1, 0);
+    }
+
+    this.rangeStart.set(start);
+    this.rangeEnd.set(end);
+    this.selectedDate.set(this.formatLocalDate(start)); // legacy single-date filter kept for any consumers
+  }
+
+  private formatLocalDate(date: Date): string {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
-    this.selectedDate.set(`${year}-${month}-${day}`);
+    return `${year}-${month}-${day}`;
   }
 
   // Overtime & duration calculations
@@ -305,10 +478,8 @@ export class AttendanceListComponent implements OnInit {
       params.employee_id = this.employeeIdFilter()!;
     }
 
-    if (this.selectedDate()) {
-      params.start_date = this.selectedDate();
-      params.end_date = this.selectedDate();
-    }
+    params.start_date = this.formatLocalDate(this.rangeStart());
+    params.end_date = this.formatLocalDate(this.rangeEnd());
 
     this.attendanceService.getAllAttendance(params).subscribe({
       next: (response: any) => {

@@ -49,6 +49,10 @@ export class LoginComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    // Build the form first so the template always has a valid FormGroup,
+    // even when ngOnInit returns early (e.g. user is already authenticated).
+    this.initForm();
+
     // Get return URL from query params or default to dashboard
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
 
@@ -63,8 +67,6 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.router.navigate([this.returnUrl]);
       return;
     }
-
-    this.initForm();
   }
 
   ngOnDestroy(): void {

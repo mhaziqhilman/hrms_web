@@ -1,4 +1,4 @@
-<div class="bg-background min-h-screen">
+<div>
 
   <!-- Success / Error alerts -->
   @if (success()) {
@@ -63,7 +63,7 @@
           <!-- Clock In / Out Button -->
           @if (!isClockedIn()) {
             <button z-button zSize="lg"
-              class="w-full lg:w-auto gap-2 bg-green-600 hover:bg-green-700 text-white px-10"
+              class="w-full lg:w-auto gap-2 bg-green-600 hover:bg-green-700 text-white"
               (click)="clockIn()"
               [disabled]="loading() || loadingLocation()">
               @if (loading() || loadingLocation()) {
@@ -74,8 +74,8 @@
               {{ loadingLocation() ? 'Getting Location...' : 'Clock In' }}
             </button>
           } @else {
-            <button z-button zSize="lg"
-              class="w-full lg:w-auto gap-2 bg-red-600 hover:bg-red-700 text-white px-10"
+            <button z-button zType="destructive" zSize="lg"
+              class="w-full lg:w-auto gap-2"
               (click)="clockOut()"
               [disabled]="loading() || loadingLocation()">
               @if (loading() || loadingLocation()) {

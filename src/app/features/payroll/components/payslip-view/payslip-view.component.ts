@@ -1,9 +1,10 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { CommonModule, Location } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
 import { PayrollService } from '../../services/payroll.service';
 import { Payslip, MONTH_NAMES } from '../../models/payroll.model';
 import { DisplayService } from '@/core/services/display.service';
+import { ThemeService } from '@/core/services/theme';
 import { toast } from 'ngx-sonner';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
@@ -18,7 +19,6 @@ import { ZardCardComponent } from '@/shared/components/card/card.component';
   standalone: true,
   imports: [
     CommonModule,
-    RouterLink,
     ZardButtonComponent,
     ZardIconComponent,
     ZardCardComponent
@@ -36,11 +36,24 @@ export class PayslipViewComponent implements OnInit {
 
   MONTH_NAMES = MONTH_NAMES;
   private displayService = inject(DisplayService);
+  private location = inject(Location);
+  private router = inject(Router);
+  private themeService = inject(ThemeService);
 
   constructor(
     private payrollService: PayrollService,
     private route: ActivatedRoute
   ) { }
+
+  goBack(): void {
+    // Prefer real browser back so filter query params on /payroll are preserved.
+    // Fall back to /payroll if the payslip was opened via a fresh deep link.
+    if (window.history.length > 1) {
+      this.location.back();
+    } else {
+      this.router.navigate(['/payroll']);
+    }
+  }
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -85,7 +98,7 @@ export class PayslipViewComponent implements OnInit {
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="${GOOGLE_FONTS_URL}" rel="stylesheet">
-<style>${PAYSLIP_PRINT_CSS}</style>
+<style>${buildPayslipPrintCss(this.themeService.getFontFamilyValue())}</style>
 </head><body>${el.outerHTML}</body></html>`);
     iframeDoc.close();
 
@@ -173,7 +186,7 @@ export class PayslipViewComponent implements OnInit {
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="${GOOGLE_FONTS_URL}" rel="stylesheet">
 <style>
-${PAYSLIP_PRINT_CSS}
+${buildPayslipPrintCss(this.themeService.getFontFamilyValue())}
 </style></head><body>${el.outerHTML}</body></html>`);
     printWindow.document.close();
     printWindow.onload = () => {
@@ -297,12 +310,12 @@ ${PAYSLIP_PRINT_CSS}
   }
 }
 
-const GOOGLE_FONTS_URL = 'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap';
+const GOOGLE_FONTS_URL = 'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Geist:wght@100..900&family=Figtree:ital,wght@0,300..900;1,300..900&display=swap';
 
-/** Raw payslip CSS for the print window (no Angular scoping) */
-const PAYSLIP_PRINT_CSS = `
+/** Raw payslip CSS for the print window / PDF iframe (no Angular scoping). Font follows the active Settings theme. */
+const buildPayslipPrintCss = (fontFamily: string) => `
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; font-size: 12.5px; color: #1a1a1a; background: #fff; }
+body { font-family: ${fontFamily}; font-size: 12.5px; color: #1a1a1a; background: #fff; }
 .payslip { width: 100%; margin: 0; padding: 24px 28px; }
 .header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 18px; }
 .header-left { display: flex; align-items: flex-start; gap: 16px; }

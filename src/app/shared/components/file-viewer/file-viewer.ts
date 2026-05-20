@@ -4,6 +4,7 @@ import { toast } from 'ngx-sonner';
 import { FileService, FileMetadata } from '../../../core/services/file.service';
 import { ZardIconComponent } from '@/shared/components/icon/icon.component';
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-dialog.service';
 import { DisplayService } from '@/core/services/display.service';
 import * as pdfjsLib from 'pdfjs-dist';
 
@@ -37,6 +38,7 @@ export class FileViewer implements OnInit, OnDestroy {
 
   private pdfBlobUrl: string | null = null;
   private displayService = inject(DisplayService);
+  private alertDialogService = inject(ZardAlertDialogService);
 
   constructor(
     private fileService: FileService,
@@ -178,17 +180,24 @@ export class FileViewer implements OnInit, OnDestroy {
     const file = this.fileMetadata();
     if (!file) return;
 
-    if (confirm(`Are you sure you want to delete "${file.original_filename}"?`)) {
-      this.fileService.deleteFile(file.id).subscribe({
-        next: () => {
-          this.deleted.emit(file.id);
-          this.close();
-        },
-        error: (err) => {
-          toast.error(err.error?.message || 'Failed to delete file');
-        }
-      });
-    }
+    this.alertDialogService.confirm({
+      zTitle: 'Delete File',
+      zDescription: `Are you sure you want to delete "${file.original_filename}"?`,
+      zOkText: 'Delete',
+      zCancelText: 'Cancel',
+      zOkDestructive: true,
+      zOnOk: () => {
+        this.fileService.deleteFile(file.id).subscribe({
+          next: () => {
+            this.deleted.emit(file.id);
+            this.close();
+          },
+          error: (err) => {
+            toast.error(err.error?.message || 'Failed to delete file');
+          }
+        });
+      }
+    });
   }
 
   close(): void {

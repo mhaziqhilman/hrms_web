@@ -168,7 +168,7 @@
                       </ng-template>
                     } @else {
                       <!-- Expanded: parent toggles inline children list -->
-                      <button type="button" z-button zType="ghost" class="px-2 py-1 text-foreground/65 justify-start"
+                      <button type="button" z-button zType="ghost" class="px-2 py-1 text-foreground/65 justify-start !text-sm"
                         (click)="toggleMenuItem(item.title)">
                         <z-icon [zType]="item.icon" class="mr-1" />
                         <span class="flex-1 text-left">{{ item.title }}</span>
@@ -180,7 +180,7 @@
                           @for (child of item.children; track child.route) {
                             <a [routerLink]="child.route" routerLinkActive="bg-primary/10 !text-primary font-medium"
                               [routerLinkActiveOptions]="{ exact: !child.children }" z-button zType="ghost"
-                              class="justify-start w-full pl-2 px-2 py-0 text-foreground/65">
+                              class="justify-start w-full pl-2 px-2 py-0 text-foreground/65 !text-sm">
                               <z-icon [zType]="child.icon" class="mr-1 w-4 h-4" />
                               <span>{{ child.title }}</span>
                             </a>
@@ -191,7 +191,7 @@
                   } @else {
                     <!-- Regular item without children -->
                     <a [routerLink]="item.route" routerLinkActive="bg-primary/10 !text-primary font-medium" z-button
-                      zType="ghost" class="px-2 py-1 text-foreground/65"
+                      zType="ghost" class="px-2 py-1 text-foreground/65 !text-sm"
                       [class]="sidebarCollapsed() ? 'justify-center self-center !flex' : 'justify-start'"
                       [zTooltip]="sidebarCollapsed() ? item.title : ''" zPosition="right">
                       <z-icon [zType]="item.icon" [class]="sidebarCollapsed() ? '' : 'mr-1'" />
@@ -281,7 +281,7 @@
           (click)="openCommandPalette()">
           <div class="relative items-center cursor-pointer">
             <z-icon zType="search"
-              class="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
+              class="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" />
             <div
               class="flex items-center pl-11 pr-14 w-full h-9 text-sm rounded-xl shadow-sm border border-input bg-background text-muted-foreground select-none">
               Search...
@@ -410,8 +410,8 @@
       </div>
     </header>
 
-    <!-- Page Content -->
-    <div class="flex-1 p-6">
+    <!-- Page Content — width + padding centralized via route data.layout tier -->
+    <div [class]="contentWrapperClass()">
       <router-outlet></router-outlet>
     </div>
 

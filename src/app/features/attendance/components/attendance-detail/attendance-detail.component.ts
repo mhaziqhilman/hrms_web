@@ -13,6 +13,7 @@ import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component';
 import { ZardDividerComponent } from '@/shared/components/divider/divider.component';
 import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
+import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-dialog.service';
 
 @Component({
   selector: 'app-attendance-detail',
@@ -33,6 +34,7 @@ import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.com
 })
 export class AttendanceDetailComponent implements OnInit {
   private displayService = inject(DisplayService);
+  private alertDialogService = inject(ZardAlertDialogService);
 
   attendance = signal<Attendance | null>(null);
   loading = signal(false);
@@ -87,20 +89,25 @@ export class AttendanceDetailComponent implements OnInit {
   deleteAttendance(): void {
     if (!this.attendanceId) return;
 
-    if (!confirm('Are you sure you want to delete this attendance record?')) {
-      return;
-    }
-
-    this.attendanceService.deleteAttendance(this.attendanceId).subscribe({
-      next: (response) => {
-        if (response.success) {
-          alert('Attendance record deleted successfully');
-          this.goBack();
-        }
-      },
-      error: (err) => {
-        alert(err.error?.message || 'Failed to delete attendance record');
-        console.error('Error deleting attendance:', err);
+    this.alertDialogService.confirm({
+      zTitle: 'Delete Attendance Record',
+      zDescription: 'Are you sure you want to delete this attendance record?',
+      zOkText: 'Delete',
+      zCancelText: 'Cancel',
+      zOkDestructive: true,
+      zOnOk: () => {
+        this.attendanceService.deleteAttendance(this.attendanceId!).subscribe({
+          next: (response) => {
+            if (response.success) {
+              alert('Attendance record deleted successfully');
+              this.goBack();
+            }
+          },
+          error: (err) => {
+            alert(err.error?.message || 'Failed to delete attendance record');
+            console.error('Error deleting attendance:', err);
+          }
+        });
       }
     });
   }

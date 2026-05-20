@@ -24,7 +24,7 @@ import { MobileEmptyStateComponent } from '@/mobile/shared/mobile-empty-state.co
       <app-mobile-page-header title="Team" subtitle="Find and contact colleagues" />
 
       <div class="relative">
-        <z-icon zType="search" zSize="sm" class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400"></z-icon>
+        <z-icon zType="search" zSize="sm" class="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-neutral-400"></z-icon>
         <input
           [formControl]="search"
           type="text"

@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject, ViewChild } from '@angular/core';
+import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -13,14 +13,12 @@ import { DisplayService } from '@/core/services/display.service';
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { ZardIconComponent } from '@/shared/components/icon/icon.component';
 import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
-import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component';
 import { ZardDividerComponent } from '@/shared/components/divider/divider.component';
 import { ZardSelectComponent } from '@/shared/components/select/select.component';
 import { ZardSelectItemComponent } from '@/shared/components/select/select-item.component';
 import { ZardMenuImports } from '@/shared/components/menu/menu.imports';
 import { ZardTooltipModule } from '@/shared/components/tooltip/tooltip';
 import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
-import { ZardTabGroupComponent, ZardTabComponent } from '@/shared/components/tabs/tabs.component';
 
 export type TabId = 'personal' | 'contract' | 'payroll' | 'document' | 'statutory' | 'banking';
 
@@ -36,22 +34,17 @@ export type TabId = 'personal' | 'contract' | 'payroll' | 'document' | 'statutor
     ZardButtonComponent,
     ZardIconComponent,
     ZardBadgeComponent,
-    ZardAvatarComponent,
     ZardDividerComponent,
     ZardSelectComponent,
     ZardSelectItemComponent,
     ZardMenuImports,
     ZardTooltipModule,
-    ZardSkeletonComponent,
-    ZardTabGroupComponent,
-    ZardTabComponent
+    ZardSkeletonComponent
   ],
   templateUrl: './employee-detail.component.html',
   styleUrls: ['./employee-detail.component.css']
 })
 export class EmployeeDetailComponent implements OnInit {
-  @ViewChild('tabGroup') tabGroup!: ZardTabGroupComponent;
-
   employee = signal<Employee | null>(null);
   ytdData = signal<EmployeeYTD | null>(null);
   loading = signal<boolean>(false);
@@ -61,7 +54,23 @@ export class EmployeeDetailComponent implements OnInit {
 
   // Tab management
   activeTab = signal<TabId>('personal');
-  private tabIds: TabId[] = ['personal', 'contract', 'payroll', 'document', 'statutory', 'banking'];
+  tabs: { id: TabId; label: string }[] = [
+    { id: 'personal', label: 'Personal Information' },
+    { id: 'contract', label: 'Contract' },
+    { id: 'payroll', label: 'Payroll' },
+    { id: 'document', label: 'Document' },
+    { id: 'statutory', label: 'Statutory' },
+    { id: 'banking', label: 'Banking' },
+  ];
+
+  // Computed: profile initials for avatar fallback
+  initials = computed(() => {
+    const name = this.employee()?.full_name;
+    if (!name) return '?';
+    const parts = name.split(' ').filter(Boolean);
+    if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    return parts[0][0].toUpperCase();
+  });
 
   // Employee navigation
   employeeIds = signal<string[]>([]);
@@ -170,15 +179,12 @@ export class EmployeeDetailComponent implements OnInit {
 
   // --- Tab management ---
 
-  onTabChange(event: { index: number; label: string }): void {
-    this.activeTab.set(this.tabIds[event.index]);
+  setActiveTab(tabId: TabId): void {
+    this.activeTab.set(tabId);
   }
 
   selectTab(tabId: TabId): void {
-    const index = this.tabIds.indexOf(tabId);
-    if (index >= 0 && this.tabGroup) {
-      this.tabGroup.selectTabByIndex(index);
-    }
+    this.activeTab.set(tabId);
   }
 
   // --- Employee navigation ---
@@ -193,7 +199,6 @@ export class EmployeeDetailComponent implements OnInit {
       this.currentIndex.set(newIdx);
       this.employeeId.set(newId);
       this.activeTab.set('personal');
-      if (this.tabGroup) this.tabGroup.selectTabByIndex(0);
       this.loadEmployee(newId);
       this.loadYTD(newId, this.selectedYear);
       this.initializeFileUploadMetadata(newId);

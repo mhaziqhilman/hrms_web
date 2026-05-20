@@ -7,11 +7,12 @@ import { ZardDialogService } from '@/shared/components/dialog/dialog.service';
 import { InvoiceFormDialogComponent, InvoiceFormDialogData } from '@/features/e-invoices/components/invoice-form-dialog/invoice-form-dialog.component';
 import { ProjectFormDialogComponent } from '../project-form-dialog/project-form-dialog.component';
 import { BillFormDialogComponent } from '@/features/finance/components/bill-form-dialog/bill-form-dialog.component';
+import { ZardButtonComponent } from '@/shared/components/button/button.component';
 
 @Component({
   selector: 'app-project-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, ZardButtonComponent],
   templateUrl: './project-detail.component.html'
 })
 export class ProjectDetailComponent implements OnInit {

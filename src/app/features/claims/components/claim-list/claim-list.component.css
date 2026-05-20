@@ -1,24 +1,11 @@
 /* Claims List Component - Table Styling */
 
-/* Tab navigation scrollbar styling */
-.nav-tab-scroll {
-  -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
+.num-tabular {
+  font-variant-numeric: tabular-nums;
 }
 
-.nav-tab-scroll::-webkit-scrollbar-thumb {
-  background-color: rgba(209, 209, 209, 0.2);
-  border-radius: 2px;
-}
-
-.nav-tab-scroll::-webkit-scrollbar {
-  height: 4px;
-  width: 4px;
-}
-
-.nav-tab-scroll::-webkit-scrollbar-button {
-  display: none;
-}
+.shad-card    { box-shadow: 0 1px 2px 0 rgb(16 24 40 / 0.04); }
+.shad-card-lg { box-shadow: 0 1px 2px rgb(16 24 40 / 0.04), 0 1px 3px rgb(16 24 40 / 0.06); }
 
 /* Table fixed height rows with horizontal scroll */
 .claim-table-container {
@@ -39,31 +26,81 @@
   background-color: rgba(209, 209, 209, 0.1);
 }
 
-.claim-table thead tr {
-  height: 3rem;
+/* Header styling (matches design ref) */
+.claim-table thead {
+  background-color: color-mix(in oklab, var(--muted) 60%, transparent);
 }
 
-.claim-table tbody tr {
-  height: 60px;
+.claim-table thead tr {
+  height: 2.5rem;
 }
 
 .claim-table th {
-  font-size: 0.8125rem;
-  font-weight: 500;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted-foreground);
   padding-top: 0;
   padding-bottom: 0;
-}
-
-.claim-table th,
-.claim-table td {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   vertical-align: middle;
 }
 
-.claim-table th.th-text-center {
-  text-align: center !important;
+.claim-table th button {
+  font-size: inherit;
+  text-transform: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+}
+
+/* Cell styling */
+.claim-table td {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  vertical-align: middle;
+}
+
+/* Row appearance */
+.claim-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background-color 0.15s ease;
+}
+
+.claim-table tbody tr:last-child {
+  border-bottom: 0;
+}
+
+.claim-table tbody tr:hover {
+  background-color: color-mix(in oklab, var(--muted) 70%, transparent);
+}
+
+.claim-table tbody tr.row-selected {
+  background-color: rgb(238 242 255 / 0.4);
+}
+
+:host-context(.dark) .claim-table tbody tr.row-selected {
+  background-color: rgb(99 102 241 / 0.12);
+}
+
+/* Density variants */
+.claim-table[data-density="compact"] td {
+  padding-top: 0.4rem;
+  padding-bottom: 0.4rem;
+}
+
+.claim-table[data-density="comfortable"] td {
+  padding-top: 1.1rem;
+  padding-bottom: 1.1rem;
+}
+
+/* Show row actions on hover (also via group-hover utility) */
+.claim-table tbody tr:hover .row-actions {
+  opacity: 1;
 }
 
 /* Frozen action column */
@@ -71,11 +108,10 @@
   position: sticky;
   right: 0;
   z-index: 1;
-  background: hsl(var(--background));
+  background: var(--card);
   text-align: right;
-  padding-left: 1.5rem;
-  padding-right: 0.75rem;
-  position: relative;
+  padding-left: 0.5rem;
+  padding-right: 1.5rem;
 }
 
 .claim-table .sticky-action-col::before {
@@ -85,18 +121,27 @@
   top: 0;
   bottom: 0;
   width: 1px;
-  background: hsl(var(--border));
+  background: var(--border);
 }
 
 .claim-table thead .sticky-action-col {
   z-index: 2;
+  background: color-mix(in oklab, var(--muted) 95%, var(--card));
 }
 
 .claim-table tbody tr:hover .sticky-action-col {
-  background: hsl(var(--muted)) !important;
+  background: color-mix(in oklab, var(--muted) 95%, var(--card));
 }
 
-/* Override card content padding to px-5 */
+.claim-table tbody tr.row-selected .sticky-action-col {
+  background: rgb(238 242 255 / 0.85);
+}
+
+:host-context(.dark) .claim-table tbody tr.row-selected .sticky-action-col {
+  background: color-mix(in oklab, rgb(99 102 241 / 0.12), var(--card));
+}
+
+/* Card content padding for non-z-card usage; z-card overrides for analytics cards */
 :host ::ng-deep [data-slot="card-content"] {
   padding-left: 1.25rem;
   padding-right: 1.25rem;

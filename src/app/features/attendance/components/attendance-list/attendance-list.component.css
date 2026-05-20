@@ -1,5 +1,10 @@
 /* Attendance List - SaaS Redesign */
 
+/* Substat dividers — only between cells, not at outer edges */
+.substat + .substat {
+  border-left: 1px solid hsl(var(--border));
+}
+
 /* Timeline Dash (dashed line between clock-in and clock-out) */
 .timeline-dash {
   display: inline-block;

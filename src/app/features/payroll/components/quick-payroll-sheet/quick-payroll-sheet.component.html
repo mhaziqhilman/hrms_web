@@ -85,8 +85,8 @@
               <z-form-message>{{ getFieldError('basic_salary') }}</z-form-message>
             }
 
-            <button type="button" (click)="toggleProration()"
-                    class="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
+            <button type="button" z-button zType="ghost" zSize="sm" (click)="toggleProration()"
+                    class="mt-2 text-muted-foreground">
               <z-icon [zType]="showProration() ? 'chevron-down' : 'chevron-right'" class="w-3.5 h-3.5" />
               Part-month (prorate for mid-month joiner/leaver)
             </button>
@@ -203,8 +203,8 @@
 
         <!-- Prior YTD (collapsed) -->
         <div>
-          <button type="button" (click)="togglePriorYtd()"
-                  class="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
+          <button type="button" z-button zType="ghost" zSize="sm" (click)="togglePriorYtd()"
+                  class="text-muted-foreground">
             <z-icon [zType]="showPriorYtd() ? 'chevron-down' : 'chevron-right'" class="w-3.5 h-3.5" />
             Prior Employment YTD
             <span class="text-muted-foreground/60 font-normal">(for mid-year joiners)</span>

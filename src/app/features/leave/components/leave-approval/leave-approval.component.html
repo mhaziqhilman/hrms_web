@@ -1,4 +1,4 @@
-<div class="bg-background min-h-screen">
+<div>
   <!-- Header -->
   <div class="flex items-start justify-between mb-6 flex-wrap gap-4">
     <div class="flex items-center gap-4">
@@ -6,92 +6,175 @@
         <z-icon zType="arrow-left" class="w-4 h-4" />
       </button>
       <div>
-        <h1 class="text-2xl font-semibold text-foreground tracking-tight">Leave Approvals</h1>
-        <p class="text-sm text-muted-foreground mt-0.5">Review pending leave applications</p>
+        <h1 class="text-[28px] font-semibold tracking-tight leading-none text-foreground">Leave Approvals</h1>
+        <p class="text-[13px] text-muted-foreground mt-2">Review and decide on pending leave applications across your team.</p>
       </div>
     </div>
   </div>
 
-  <!-- Stats cards -->
+  <!-- Stat strip -->
   @if (!loading() && pendingLeaves().length > 0) {
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+    <div class="stat-strip">
       <div class="stat-card">
-        <div class="stat-icon bg-amber-50 dark:bg-amber-950/30">
-          <z-icon zType="clock" class="w-5 h-5 text-amber-600" />
-        </div>
-        <div class="flex-1">
+        <div>
+          <p class="stat-label">Pending</p>
           <p class="stat-value">{{ totalPending() }}</p>
-          <p class="stat-label">Pending Requests</p>
+          <p class="stat-sublabel">requests awaiting</p>
         </div>
+        <span class="stat-icon-chip is-amber">
+          <z-icon zType="clock" class="w-4 h-4" />
+        </span>
       </div>
+
       <div class="stat-card">
-        <div class="stat-icon bg-blue-50 dark:bg-blue-950/30">
-          <z-icon zType="calendar-check" class="w-5 h-5 text-blue-600" />
-        </div>
-        <div class="flex-1">
+        <div>
+          <p class="stat-label">Total days</p>
           <p class="stat-value">{{ totalDaysRequested() }}</p>
-          <p class="stat-label">Total Days</p>
+          <p class="stat-sublabel">days requested</p>
         </div>
+        <span class="stat-icon-chip is-indigo">
+          <z-icon zType="calendar-check" class="w-4 h-4" />
+        </span>
       </div>
+
       <div class="stat-card">
-        <div class="stat-icon bg-purple-50 dark:bg-purple-950/30">
-          <z-icon zType="users" class="w-5 h-5 text-purple-600" />
-        </div>
-        <div class="flex-1">
-          <p class="stat-value">{{ uniqueEmployees() }}</p>
+        <div>
           <p class="stat-label">Employees</p>
+          <p class="stat-value">{{ uniqueEmployees() }}</p>
+          <p class="stat-sublabel">across {{ departmentCount() }} dept{{ departmentCount() === 1 ? '' : 's' }}</p>
         </div>
+        <span class="stat-icon-chip is-violet">
+          <z-icon zType="users" class="w-4 h-4" />
+        </span>
+      </div>
+
+      <div class="stat-card">
+        <div>
+          <p class="stat-label">SLA breach</p>
+          <p class="stat-value" [class.is-danger]="slaBreachCount() > 0">{{ slaBreachCount() }}</p>
+          <p class="stat-sublabel">over 48h pending</p>
+        </div>
+        <span class="stat-icon-chip is-rose">
+          <z-icon zType="triangle-alert" class="w-4 h-4" />
+        </span>
       </div>
     </div>
   }
 
-  <!-- Filters -->
-  <div class="flex flex-wrap items-center gap-3 mb-6">
-    <div class="relative flex-1 min-w-[240px] max-w-md">
-      <z-icon zType="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+  <!-- Filters bar -->
+  <div class="filters-bar">
+    <div class="relative flex-1 min-w-[260px] max-w-md">
+      <z-icon zType="search" class="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
       <input
         type="text"
         [ngModel]="searchTerm()"
         (ngModelChange)="searchTerm.set($event)"
-        placeholder="Search by name, ID, or leave type..."
-        class="w-full pl-9 pr-3 py-2 text-sm border border-input rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent" />
+        placeholder="Search by name, ID, or leave type…"
+        class="w-full pl-10 pr-3 h-9 text-sm border border-input rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent" />
     </div>
 
-    <div class="min-w-[180px]">
+    <div class="min-w-[170px]">
       <z-select
-        zPlaceholder="All Leave Types"
+        zPlaceholder="All leave types"
         [ngModel]="selectedLeaveType()"
         (ngModelChange)="selectedLeaveType.set($event)">
-        <z-select-item [zValue]="null">All Leave Types</z-select-item>
+        <z-select-item [zValue]="null">All leave types</z-select-item>
         @for (type of availableLeaveTypes(); track type.id) {
           <z-select-item [zValue]="type.id">{{ type.name }}</z-select-item>
         }
       </z-select>
     </div>
 
-    <div class="min-w-[180px]">
+    <div class="min-w-[170px]">
       <z-select
-        zPlaceholder="All Departments"
+        zPlaceholder="All departments"
         [ngModel]="selectedDepartment()"
         (ngModelChange)="selectedDepartment.set($event)">
-        <z-select-item [zValue]="''">All Departments</z-select-item>
+        <z-select-item [zValue]="''">All departments</z-select-item>
         @for (dept of availableDepartments(); track dept) {
           <z-select-item [zValue]="dept">{{ dept }}</z-select-item>
         }
       </z-select>
     </div>
 
-    @if (hasActiveFilters()) {
-      <button type="button" z-button zType="outline" class="gap-2 border-none shadow-none px-2" (click)="clearFilters()">
-        Reset
-        <z-icon zType="x" class="w-4 h-4" />
-      </button>
-    }
+    <div class="ml-auto flex items-center gap-2">
+      <span class="text-[11px] text-muted-foreground">Sort</span>
+      <div class="min-w-[160px]">
+        <z-select
+          [ngModel]="sortBy()"
+          (ngModelChange)="sortBy.set($event)">
+          <z-select-item zValue="oldest">Oldest first</z-select-item>
+          <z-select-item zValue="starts-soonest">Starts soonest</z-select-item>
+          <z-select-item zValue="most-days">Most days</z-select-item>
+        </z-select>
+      </div>
+      @if (hasActiveFilters()) {
+        <button type="button" z-button zType="ghost" zSize="sm" class="gap-1" (click)="clearFilters()">
+          <z-icon zType="x" class="w-4 h-4" />
+          Reset
+        </button>
+      }
+    </div>
   </div>
+
+  <!-- Bulk action bar -->
+  @if (selectedCount() > 0) {
+    <div class="bulk-bar">
+      @if (!bulkRejectMode()) {
+        <div class="flex items-center gap-3">
+          <input
+            type="checkbox"
+            class="bulk-check"
+            [checked]="allVisibleSelected()"
+            (change)="toggleSelectAllVisible()" />
+          <span class="text-white/70">
+            Select all visible ·
+            <span class="font-medium text-white">{{ selectedCount() }} selected</span>
+          </span>
+          <button type="button" class="bulk-btn is-ghost" (click)="clearSelection()" [disabled]="processingBulk()">
+            Clear
+          </button>
+        </div>
+        <div class="flex items-center gap-2">
+          <button type="button" class="bulk-btn is-danger" (click)="startBulkReject()" [disabled]="processingBulk()">
+            Reject selected
+          </button>
+          <button type="button" class="bulk-btn is-success" (click)="bulkApprove()" [disabled]="processingBulk()">
+            @if (processingBulk()) {
+              <z-icon zType="loader-circle" class="w-3 h-3 animate-spin mr-1" />
+            }
+            Approve selected
+          </button>
+        </div>
+      } @else {
+        <div class="flex items-center gap-3 flex-1 min-w-0">
+          <z-icon zType="triangle-alert" class="w-4 h-4 text-amber-400 flex-shrink-0" />
+          <span class="text-white/80 text-[11px] flex-shrink-0">Reject {{ selectedCount() }} request{{ selectedCount() === 1 ? '' : 's' }} with reason:</span>
+          <input
+            type="text"
+            [ngModel]="bulkRejectReason()"
+            (ngModelChange)="bulkRejectReason.set($event)"
+            placeholder="Reason for rejection (sent to all applicants)…"
+            class="flex-1 h-7 px-2.5 rounded-md bg-white/10 border border-white/15 text-[12px] text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-white/20" />
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <button type="button" class="bulk-btn is-ghost" (click)="cancelBulkReject()" [disabled]="processingBulk()">
+            Cancel
+          </button>
+          <button type="button" class="bulk-btn is-danger" (click)="confirmBulkReject()" [disabled]="processingBulk() || !bulkRejectReason().trim()">
+            @if (processingBulk()) {
+              <z-icon zType="loader-circle" class="w-3 h-3 animate-spin mr-1" />
+            }
+            Confirm rejection
+          </button>
+        </div>
+      }
+    </div>
+  }
 
   <!-- Error -->
   @if (error()) {
-    <div class="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-2 text-red-800 mb-6">
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-2 text-red-800 mb-4">
       <z-icon zType="triangle-alert" class="w-5 h-5" />
       <span>{{ error() }}</span>
     </div>
@@ -99,23 +182,21 @@
 
   <!-- Loading Skeleton -->
   @if (loading()) {
-    <div class="approval-grid">
-      @for (i of [1,2,3,4,5,6]; track i) {
-        <div class="approval-card-skeleton">
-          <div class="flex items-center gap-3 mb-4">
-            <z-skeleton class="w-11 h-11 rounded-full" />
+    <div class="queue-list">
+      @for (i of [1,2,3,4]; track i) {
+        <div class="queue-card-skeleton">
+          <div class="flex items-center gap-4 p-5">
+            <z-skeleton class="w-4 h-4 rounded" />
+            <z-skeleton class="w-10 h-10 rounded-full" />
             <div class="flex-1 space-y-2">
-              <z-skeleton class="h-4 w-32" />
-              <z-skeleton class="h-3 w-24" />
+              <z-skeleton class="h-4 w-40" />
+              <z-skeleton class="h-3 w-32" />
             </div>
-          </div>
-          <z-skeleton class="h-5 w-20 mb-3" />
-          <z-skeleton class="h-4 w-full mb-2" />
-          <z-skeleton class="h-4 w-full mb-2" />
-          <z-skeleton class="h-4 w-3/4 mb-4" />
-          <div class="flex justify-end gap-2">
-            <z-skeleton class="h-8 w-20 rounded-lg" />
-            <z-skeleton class="h-8 w-24 rounded-lg" />
+            <z-skeleton class="h-6 w-16 rounded-md hidden md:block" />
+            <z-skeleton class="h-6 w-24 rounded hidden md:block" />
+            <z-skeleton class="h-9 w-9 rounded-md" />
+            <z-skeleton class="h-9 w-20 rounded-md" />
+            <z-skeleton class="h-9 w-24 rounded-md" />
           </div>
         </div>
       }
@@ -144,95 +225,94 @@
       <p class="text-sm text-muted-foreground mb-4">Try adjusting or clearing your filters</p>
       <button z-button zType="outline" class="rounded-lg" (click)="clearFilters()">
         <z-icon zType="x" class="w-4 h-4 mr-1" />
-        Clear Filters
+        Clear filters
       </button>
     </div>
   }
 
-  <!-- Pending Leaves Grid -->
+  <!-- Queue list -->
   @if (!loading() && filteredLeaves().length > 0) {
-    <div class="approval-grid">
+    <div class="queue-list">
       @for (leave of filteredLeaves(); track leave.id) {
-        <div class="approval-card" [class.is-urgent]="isUrgent(leave)">
-          @if (isUrgent(leave)) {
-            <div class="urgent-ribbon">
-              <z-icon zType="triangle-alert" class="w-3 h-3" />
-              <span>Starts soon</span>
+        <div class="queue-card" [class.is-urgent]="isUrgent(leave)" [class.is-selected]="isLeaveSelected(leave.public_id)">
+          <div class="qc-body">
+            <!-- Employee block -->
+            <div class="qc-col-employee">
+              <input
+                type="checkbox"
+                class="qc-check"
+                [checked]="isLeaveSelected(leave.public_id)"
+                (change)="toggleLeaveSelection(leave.public_id)"
+                [attr.aria-label]="'Select leave for ' + leave.employee?.full_name" />
+              <z-avatar
+                [zSrc]="leave.employee?.photo_url || undefined"
+                [zFallback]="leave.employee?.full_name?.charAt(0) || '?'"
+                class="w-10 h-10 flex-shrink-0" />
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <p class="qc-name" (click)="viewLeaveDetails(leave)">{{ leave.employee?.full_name }}</p>
+                  @if (isUrgent(leave)) {
+                    <span class="pill-urgent" [zTooltip]="'Starts ' + getDaysUntilStart(leave) + ' day(s) from today'">
+                      <z-icon zType="triangle-alert" class="w-2.5 h-2.5" />
+                      {{ urgentLabel(leave) }}
+                    </span>
+                  }
+                  @if (isSlaBreach(leave)) {
+                    <span class="pill-sla" [zTooltip]="'Pending ' + getHoursSincePending(leave) + 'h — over SLA threshold'">
+                      SLA · {{ getHoursSincePending(leave) }}h
+                    </span>
+                  }
+                </div>
+                <p class="qc-employee-meta">
+                  <span class="font-mono">{{ leave.employee?.employee_id }}</span>
+                  @if (leave.employee?.department) {
+                    <span class="qc-sep">·</span>
+                    <span>{{ leave.employee?.department }}</span>
+                  }
+                  @if (leave.employee?.position) {
+                    <span class="qc-sep">·</span>
+                    <span>{{ leave.employee?.position }}</span>
+                  }
+                </p>
+              </div>
             </div>
-          }
 
-          <!-- Employee header -->
-          <div class="card-header" (click)="viewLeaveDetails(leave)">
-            <z-avatar
-              [zSrc]="leave.employee?.photo_url || undefined"
-              [zFallback]="leave.employee?.full_name?.charAt(0) || '?'"
-              class="w-11 h-11 flex-shrink-0" />
-            <div class="min-w-0 flex-1">
-              <h4 class="employee-name">{{ leave.employee?.full_name }}</h4>
-              <p class="employee-meta">
-                {{ leave.employee?.employee_id }}
-                @if (leave.employee?.department) {
-                  <span class="dot-separator">·</span>
-                  <span>{{ leave.employee?.department }}</span>
-                }
-              </p>
+            <!-- Type -->
+            <div class="qc-col-meta">
+              <p class="qc-meta-label">Type</p>
+              <span class="mt-1 inline-block" [class]="getLeaveTypePillClasses(leave.leave_type?.name)">
+                {{ leave.leave_type?.name }}
+              </span>
             </div>
-            <div class="pending-days" [zTooltip]="'Pending ' + getDaysSincePending(leave) + ' day(s)'">
-              <z-icon zType="clock" class="w-3 h-3" />
-              <span>{{ getDaysSincePending(leave) }}d</span>
+
+            <!-- Period -->
+            <div class="qc-col-meta">
+              <p class="qc-meta-label">Period</p>
+              <p class="qc-meta-value">{{ formatPeriod(leave) }}</p>
+              <p class="qc-meta-sub">{{ getDaysCountShort(leave) }}{{ leave.attachment_url ? ' · 📎 attachment' : '' }}</p>
             </div>
-          </div>
 
-          <!-- Leave type pill + duration -->
-          <div class="type-row">
-            <z-badge [zType]="$any(getLeaveTypeBadge(leave.leave_type?.name))" zShape="pill" class="text-xs">
-              {{ leave.leave_type?.name }}
-            </z-badge>
-            <span class="duration">{{ getDaysCount(leave) }}</span>
-          </div>
-
-          <!-- Date range -->
-          <div class="date-range">
-            <div class="date-block">
-              <span class="date-label">From</span>
-              <span class="date-value">{{ formatDateShort(leave.start_date) }}</span>
-            </div>
-            <div class="date-arrow">
-              <z-icon zType="arrow-right" class="w-3.5 h-3.5" />
-            </div>
-            <div class="date-block">
-              <span class="date-label">To</span>
-              <span class="date-value">{{ formatDateShort(leave.end_date) }}</span>
-            </div>
-          </div>
-
-          <!-- Reason -->
-          <p class="reason-text">{{ leave.reason }}</p>
-
-          <!-- Actions -->
-          <div class="card-actions">
-            <button
-              type="button"
-              class="action-btn action-btn-ghost"
-              [zTooltip]="'View details'"
-              (click)="viewLeaveDetails(leave)">
-              <z-icon zType="eye" class="w-3.5 h-3.5" />
-            </button>
-
-            <div class="flex items-center gap-2">
+            <!-- Actions -->
+            <div class="qc-col-actions">
               <button
                 type="button"
-                class="action-btn action-btn-reject"
+                class="qc-action-btn is-view"
+                [zTooltip]="'View details'"
+                (click)="viewLeaveDetails(leave)">
+                <z-icon zType="eye" class="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                class="qc-action-btn is-reject"
                 [disabled]="processingLeaveId() === leave.public_id"
                 [zTooltip]="'Reject with reason'"
                 (click)="viewLeaveDetails(leave)">
                 <z-icon zType="x" class="w-3.5 h-3.5" />
                 <span>Reject</span>
               </button>
-
               <button
                 type="button"
-                class="action-btn action-btn-approve"
+                class="qc-action-btn is-approve"
                 [disabled]="processingLeaveId() === leave.public_id"
                 (click)="quickApprove(leave)">
                 @if (processingLeaveId() === leave.public_id) {
@@ -244,6 +324,12 @@
               </button>
             </div>
           </div>
+
+          @if (leave.reason) {
+            <div class="qc-reason">
+              <span class="qc-reason-label">Reason · </span>{{ leave.reason }}
+            </div>
+          }
         </div>
       }
     </div>

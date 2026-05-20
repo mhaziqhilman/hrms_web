@@ -114,8 +114,8 @@
 
     <!-- Clock In/Out Button -->
     @if (!todayAttendance() || isClockedIn()) {
-      <button z-button [zType]="isClockedIn() ? 'destructive' : 'default'"
-        class="gap-2 w-52 h-11 rounded-xl text-sm font-medium shadow-sm"
+      <button z-button zSize="lg" [zType]="isClockedIn() ? 'destructive' : 'default'"
+        class="gap-2"
         [disabled]="loading()"
         (click)="isClockedIn() ? performClockOut() : performClockIn()">
         @if (loading() && activeMode() === 'clock') {
@@ -213,30 +213,29 @@
             <label class="block text-sm font-medium text-foreground mb-2">Time In</label>
             <div class="flex items-center gap-1.5" [class.opacity-50]="todayAttendance()" [class.pointer-events-none]="todayAttendance()">
               <div class="flex flex-col items-center">
-                <button type="button" (click)="adjustTimeIn('hour', 1)" class="text-muted-foreground hover:text-foreground p-0.5 transition-colors">
+                <button type="button" z-button zType="ghost" zSize="sm" (click)="adjustTimeIn('hour', 1)">
                   <z-icon [zType]="$any('chevron-up')" class="w-3.5 h-3.5" />
                 </button>
                 <div class="bg-background border rounded-xl w-11 h-10 flex items-center justify-center text-base font-semibold tabular-nums shadow-sm">
                   {{ padTwo(timeInHour()) }}
                 </div>
-                <button type="button" (click)="adjustTimeIn('hour', -1)" class="text-muted-foreground hover:text-foreground p-0.5 transition-colors">
+                <button type="button" z-button zType="ghost" zSize="sm" (click)="adjustTimeIn('hour', -1)">
                   <z-icon [zType]="$any('chevron-down')" class="w-3.5 h-3.5" />
                 </button>
               </div>
               <span class="text-base font-semibold text-muted-foreground/50 pb-0.5">:</span>
               <div class="flex flex-col items-center">
-                <button type="button" (click)="adjustTimeIn('minute', 5)" class="text-muted-foreground hover:text-foreground p-0.5 transition-colors">
+                <button type="button" z-button zType="ghost" zSize="sm" (click)="adjustTimeIn('minute', 5)">
                   <z-icon [zType]="$any('chevron-up')" class="w-3.5 h-3.5" />
                 </button>
                 <div class="bg-background border rounded-xl w-11 h-10 flex items-center justify-center text-base font-semibold tabular-nums shadow-sm">
                   {{ padTwo(timeInMinute()) }}
                 </div>
-                <button type="button" (click)="adjustTimeIn('minute', -5)" class="text-muted-foreground hover:text-foreground p-0.5 transition-colors">
+                <button type="button" z-button zType="ghost" zSize="sm" (click)="adjustTimeIn('minute', -5)">
                   <z-icon [zType]="$any('chevron-down')" class="w-3.5 h-3.5" />
                 </button>
               </div>
-              <button type="button" (click)="toggleTimeInPeriod()"
-                class="bg-background border rounded-xl w-11 h-10 flex items-center justify-center text-xs font-semibold shadow-sm hover:bg-muted/50 transition-colors cursor-pointer">
+              <button type="button" z-button zType="outline" zSize="sm" (click)="toggleTimeInPeriod()">
                 {{ timeInPeriod() }}
               </button>
             </div>
@@ -247,30 +246,29 @@
             <label class="block text-sm font-medium text-foreground mb-2">Time Out</label>
             <div class="flex items-center gap-1.5">
               <div class="flex flex-col items-center">
-                <button type="button" (click)="adjustTimeOut('hour', 1)" class="text-muted-foreground hover:text-foreground p-0.5 transition-colors">
+                <button type="button" z-button zType="ghost" zSize="sm" (click)="adjustTimeOut('hour', 1)">
                   <z-icon [zType]="$any('chevron-up')" class="w-3.5 h-3.5" />
                 </button>
                 <div class="bg-background border rounded-xl w-11 h-10 flex items-center justify-center text-base font-semibold tabular-nums shadow-sm">
                   {{ padTwo(timeOutHour()) }}
                 </div>
-                <button type="button" (click)="adjustTimeOut('hour', -1)" class="text-muted-foreground hover:text-foreground p-0.5 transition-colors">
+                <button type="button" z-button zType="ghost" zSize="sm" (click)="adjustTimeOut('hour', -1)">
                   <z-icon [zType]="$any('chevron-down')" class="w-3.5 h-3.5" />
                 </button>
               </div>
               <span class="text-base font-semibold text-muted-foreground/50 pb-0.5">:</span>
               <div class="flex flex-col items-center">
-                <button type="button" (click)="adjustTimeOut('minute', 5)" class="text-muted-foreground hover:text-foreground p-0.5 transition-colors">
+                <button type="button" z-button zType="ghost" zSize="sm" (click)="adjustTimeOut('minute', 5)">
                   <z-icon [zType]="$any('chevron-up')" class="w-3.5 h-3.5" />
                 </button>
                 <div class="bg-background border rounded-xl w-11 h-10 flex items-center justify-center text-base font-semibold tabular-nums shadow-sm">
                   {{ padTwo(timeOutMinute()) }}
                 </div>
-                <button type="button" (click)="adjustTimeOut('minute', -5)" class="text-muted-foreground hover:text-foreground p-0.5 transition-colors">
+                <button type="button" z-button zType="ghost" zSize="sm" (click)="adjustTimeOut('minute', -5)">
                   <z-icon [zType]="$any('chevron-down')" class="w-3.5 h-3.5" />
                 </button>
               </div>
-              <button type="button" (click)="toggleTimeOutPeriod()"
-                class="bg-background border rounded-xl w-11 h-10 flex items-center justify-center text-xs font-semibold shadow-sm hover:bg-muted/50 transition-colors cursor-pointer">
+              <button type="button" z-button zType="outline" zSize="sm" (click)="toggleTimeOutPeriod()">
                 {{ timeOutPeriod() }}
               </button>
             </div>
@@ -298,7 +296,7 @@
         </div>
 
         <!-- Submit -->
-        <button z-button type="submit" class="gap-2 w-full h-11 rounded-xl text-sm font-medium shadow-sm"
+        <button z-button type="submit" zFull class="gap-2"
           [disabled]="loading()">
           @if (loading()) {
             <z-icon zType="loader-circle" class="w-4 h-4 animate-spin" />

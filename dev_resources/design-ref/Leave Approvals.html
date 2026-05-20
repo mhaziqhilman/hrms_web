@@ -1,0 +1,741 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Leave Approvals · 2027</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { font-family: 'Geist', system-ui, -apple-system, sans-serif; }
+  .font-mono { font-family: 'Geist Mono', ui-monospace, monospace; }
+  .shad-card    { box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.04); }
+  .shad-card-lg { box-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 1px 3px rgb(0 0 0 / 0.06); }
+  .variant-tab { display: none; }
+  .variant-tab.active { display: block; }
+  .tab-btn[data-active="true"] { background: white; color: rgb(15 23 42); box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.06); }
+  .grid-bg {
+    background-image:
+      linear-gradient(to right, rgb(255 255 255 / 0.06) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(255 255 255 / 0.06) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+</style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-900">
+
+<div class="max-w-[1400px] mx-auto p-8">
+
+  <!-- Page header + variant switcher -->
+  <header class="mb-6 flex items-end justify-between flex-wrap gap-4">
+    <div>
+      <div class="flex items-center gap-2 text-[12px] text-slate-500 mb-2">
+        <a href="#" class="hover:text-slate-700">HR</a>
+        <span class="text-slate-300">/</span>
+        <a href="#" class="hover:text-slate-700">Workflows</a>
+        <span class="text-slate-300">/</span>
+        <span class="text-slate-700">Leave approvals</span>
+      </div>
+      <h1 class="text-[24px] font-semibold tracking-tight text-slate-900 leading-none">Leave approvals</h1>
+      <p class="text-[13px] text-slate-500 mt-2">Review and decide on pending leave applications across your team.</p>
+    </div>
+    <div class="inline-flex h-9 items-center rounded-md bg-slate-100 p-1 text-[12px]">
+      <button class="tab-btn h-7 px-3 rounded font-medium text-slate-500 hover:text-slate-900" data-tab="v1" data-active="true">01 Queue</button>
+      <button class="tab-btn h-7 px-3 rounded font-medium text-slate-500 hover:text-slate-900" data-tab="v2">02 Inspector</button>
+      <button class="tab-btn h-7 px-3 rounded font-medium text-slate-500 hover:text-slate-900" data-tab="v3">03 Board</button>
+    </div>
+  </header>
+
+
+  <!-- ============================================================== -->
+  <!-- VARIANT 01 — QUEUE: stat bar + filters + dense card list        -->
+  <!-- ============================================================== -->
+  <div class="variant-tab active" data-tab="v1">
+
+    <!-- Stat strip -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+      <div class="bg-white rounded-2xl border border-slate-200 shad-card p-5 flex items-center justify-between">
+        <div>
+          <p class="text-[11px] uppercase tracking-wide text-slate-500 font-medium">Pending</p>
+          <p class="font-mono text-[28px] font-semibold text-slate-900 mt-1 leading-none">7</p>
+          <p class="text-[11px] text-slate-500 mt-1">requests awaiting</p>
+        </div>
+        <span class="w-9 h-9 rounded-md bg-amber-50 ring-1 ring-amber-100 flex items-center justify-center text-amber-600">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </span>
+      </div>
+      <div class="bg-white rounded-2xl border border-slate-200 shad-card p-5 flex items-center justify-between">
+        <div>
+          <p class="text-[11px] uppercase tracking-wide text-slate-500 font-medium">Total days</p>
+          <p class="font-mono text-[28px] font-semibold text-slate-900 mt-1 leading-none">19</p>
+          <p class="text-[11px] text-slate-500 mt-1">days requested</p>
+        </div>
+        <span class="w-9 h-9 rounded-md bg-indigo-50 ring-1 ring-indigo-100 flex items-center justify-center text-indigo-600">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </span>
+      </div>
+      <div class="bg-white rounded-2xl border border-slate-200 shad-card p-5 flex items-center justify-between">
+        <div>
+          <p class="text-[11px] uppercase tracking-wide text-slate-500 font-medium">Employees</p>
+          <p class="font-mono text-[28px] font-semibold text-slate-900 mt-1 leading-none">5</p>
+          <p class="text-[11px] text-slate-500 mt-1">across 3 depts</p>
+        </div>
+        <span class="w-9 h-9 rounded-md bg-violet-50 ring-1 ring-violet-100 flex items-center justify-center text-violet-600">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        </span>
+      </div>
+      <div class="bg-white rounded-2xl border border-slate-200 shad-card p-5 flex items-center justify-between">
+        <div>
+          <p class="text-[11px] uppercase tracking-wide text-slate-500 font-medium">SLA breach</p>
+          <p class="font-mono text-[28px] font-semibold text-rose-600 mt-1 leading-none">2</p>
+          <p class="text-[11px] text-slate-500 mt-1">over 48h pending</p>
+        </div>
+        <span class="w-9 h-9 rounded-md bg-rose-50 ring-1 ring-rose-100 flex items-center justify-center text-rose-600">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/></svg>
+        </span>
+      </div>
+    </div>
+
+    <!-- Filters bar -->
+    <div class="bg-white rounded-2xl border border-slate-200 shad-card p-4 mb-4 flex items-center gap-2 flex-wrap">
+      <div class="relative flex-1 min-w-[260px] max-w-md">
+        <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-3 top-1/2 -translate-y-1/2" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Search by name, ID, or leave type…" class="w-full h-9 pl-9 pr-3 rounded-md border border-slate-200 bg-white text-[13px] text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10" />
+      </div>
+      <select class="h-9 px-3 pr-8 rounded-md border border-slate-200 bg-white text-[13px] text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-900/10"><option>All leave types</option><option>Annual</option><option>Medical</option><option>Emergency</option></select>
+      <select class="h-9 px-3 pr-8 rounded-md border border-slate-200 bg-white text-[13px] text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-900/10"><option>All departments</option><option>HR</option><option>Engineering</option><option>Management</option></select>
+      <div class="ml-auto flex items-center gap-2">
+        <span class="text-[11px] text-slate-500">Sort</span>
+        <select class="h-9 px-3 pr-8 rounded-md border border-slate-200 bg-white text-[13px] text-slate-700"><option>Oldest first</option><option>Starts soonest</option><option>Most days</option></select>
+      </div>
+    </div>
+
+    <!-- Bulk action bar -->
+    <div class="bg-slate-900 text-white rounded-2xl px-5 py-3 mb-4 flex items-center justify-between text-[12px]">
+      <div class="flex items-center gap-3">
+        <input type="checkbox" class="rounded accent-emerald-500"/>
+        <span class="text-white/70">Select all visible · <span class="font-mono text-white">2 selected</span></span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="h-7 px-2.5 rounded-md bg-white/10 hover:bg-white/15 text-[11px] font-medium">Request info</button>
+        <button class="h-7 px-2.5 rounded-md bg-rose-500/90 hover:bg-rose-500 text-[11px] font-medium">Reject selected</button>
+        <button class="h-7 px-2.5 rounded-md bg-emerald-500/90 hover:bg-emerald-500 text-[11px] font-medium">Approve selected</button>
+      </div>
+    </div>
+
+    <!-- Card list -->
+    <div class="space-y-3">
+
+      <!-- Card 1 -->
+      <div class="bg-white rounded-2xl border border-slate-200 shad-card overflow-hidden">
+        <div class="grid grid-cols-12 items-center gap-4 p-5">
+          <div class="col-span-12 md:col-span-4 flex items-center gap-3">
+            <input type="checkbox" class="rounded accent-slate-900"/>
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-white text-[12px] font-semibold flex items-center justify-center shrink-0">MH</div>
+            <div class="min-w-0">
+              <div class="flex items-center gap-2">
+                <p class="text-[14px] font-semibold text-slate-900 truncate">Muhammad Haziq Hilman</p>
+                <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-rose-50 text-rose-700 ring-1 ring-rose-200 text-[10px] font-medium">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+                  Starts in 3d
+                </span>
+              </div>
+              <p class="text-[11px] text-slate-500"><span class="font-mono">VLX-001</span> · Management · HR Manager</p>
+            </div>
+          </div>
+
+          <div class="col-span-6 md:col-span-2">
+            <p class="text-[10px] uppercase tracking-wide text-slate-500 font-medium">Type</p>
+            <span class="mt-1 inline-flex items-center px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 text-[11px] font-medium">Annual</span>
+          </div>
+          <div class="col-span-6 md:col-span-2">
+            <p class="text-[10px] uppercase tracking-wide text-slate-500 font-medium">Period</p>
+            <p class="text-[13px] font-medium text-slate-900 mt-0.5">11 May → 11 May</p>
+            <p class="text-[11px] text-slate-500 font-mono">1.0 day</p>
+          </div>
+          <div class="col-span-6 md:col-span-1">
+            <p class="text-[10px] uppercase tracking-wide text-slate-500 font-medium">Balance</p>
+            <p class="text-[13px] font-medium text-slate-900 mt-0.5 font-mono">8 → 7</p>
+          </div>
+          <div class="col-span-6 md:col-span-3 flex items-center justify-end gap-2">
+            <button class="h-9 w-9 rounded-md border border-slate-200 hover:bg-slate-50 text-slate-600 flex items-center justify-center" title="View details">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+            <button class="h-9 px-3 rounded-md border border-rose-200 text-rose-600 hover:bg-rose-50 text-[13px] font-medium inline-flex items-center gap-1.5">
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              Reject
+            </button>
+            <button class="h-9 px-3 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white text-[13px] font-medium inline-flex items-center gap-1.5">
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Approve
+            </button>
+          </div>
+        </div>
+        <div class="px-5 pb-4 -mt-1">
+          <p class="text-[12px] text-slate-600 leading-relaxed">
+            <span class="text-slate-400">Reason · </span>Family event in hometown. Will hand over urgent items to S. Nurhaliza.
+          </p>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="bg-white rounded-2xl border border-slate-200 shad-card overflow-hidden">
+        <div class="grid grid-cols-12 items-center gap-4 p-5">
+          <div class="col-span-12 md:col-span-4 flex items-center gap-3">
+            <input type="checkbox" class="rounded accent-slate-900" checked/>
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-700 text-white text-[12px] font-semibold flex items-center justify-center shrink-0">AI</div>
+            <div class="min-w-0">
+              <div class="flex items-center gap-2">
+                <p class="text-[14px] font-semibold text-slate-900 truncate">Ahmad Razak bin Ibrahim</p>
+                <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 ring-1 ring-amber-200 text-[10px] font-medium">SLA · 56h</span>
+              </div>
+              <p class="text-[11px] text-slate-500"><span class="font-mono">DM-001</span> · Engineering · Eng Manager</p>
+            </div>
+          </div>
+          <div class="col-span-6 md:col-span-2">
+            <p class="text-[10px] uppercase tracking-wide text-slate-500 font-medium">Type</p>
+            <span class="mt-1 inline-flex items-center px-2 py-0.5 rounded-md bg-violet-50 text-violet-700 ring-1 ring-violet-200 text-[11px] font-medium">Medical</span>
+          </div>
+          <div class="col-span-6 md:col-span-2">
+            <p class="text-[10px] uppercase tracking-wide text-slate-500 font-medium">Period</p>
+            <p class="text-[13px] font-medium text-slate-900 mt-0.5">14 May → 16 May</p>
+            <p class="text-[11px] text-slate-500 font-mono">3.0 days · MC attached</p>
+          </div>
+          <div class="col-span-6 md:col-span-1">
+            <p class="text-[10px] uppercase tracking-wide text-slate-500 font-medium">Balance</p>
+            <p class="text-[13px] font-medium text-slate-900 mt-0.5 font-mono">14 → 11</p>
+          </div>
+          <div class="col-span-6 md:col-span-3 flex items-center justify-end gap-2">
+            <button class="h-9 w-9 rounded-md border border-slate-200 hover:bg-slate-50 text-slate-600 flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+            <button class="h-9 px-3 rounded-md border border-rose-200 text-rose-600 hover:bg-rose-50 text-[13px] font-medium">Reject</button>
+            <button class="h-9 px-3 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white text-[13px] font-medium">Approve</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="bg-white rounded-2xl border border-slate-200 shad-card overflow-hidden">
+        <div class="grid grid-cols-12 items-center gap-4 p-5">
+          <div class="col-span-12 md:col-span-4 flex items-center gap-3">
+            <input type="checkbox" class="rounded accent-slate-900"/>
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-rose-500 to-rose-700 text-white text-[12px] font-semibold flex items-center justify-center shrink-0">SA</div>
+            <div class="min-w-0">
+              <p class="text-[14px] font-semibold text-slate-900 truncate">Siti Nurhaliza binti Abdullah</p>
+              <p class="text-[11px] text-slate-500"><span class="font-mono">DM-002</span> · HR · HR & Finance Manager</p>
+            </div>
+          </div>
+          <div class="col-span-6 md:col-span-2">
+            <p class="text-[10px] uppercase tracking-wide text-slate-500 font-medium">Type</p>
+            <span class="mt-1 inline-flex items-center px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 text-[11px] font-medium">Annual</span>
+          </div>
+          <div class="col-span-6 md:col-span-2">
+            <p class="text-[10px] uppercase tracking-wide text-slate-500 font-medium">Period</p>
+            <p class="text-[13px] font-medium text-slate-900 mt-0.5">22 May → 26 May</p>
+            <p class="text-[11px] text-slate-500 font-mono">5.0 days</p>
+          </div>
+          <div class="col-span-6 md:col-span-1">
+            <p class="text-[10px] uppercase tracking-wide text-slate-500 font-medium">Balance</p>
+            <p class="text-[13px] font-medium text-slate-900 mt-0.5 font-mono">12 → 7</p>
+          </div>
+          <div class="col-span-6 md:col-span-3 flex items-center justify-end gap-2">
+            <button class="h-9 w-9 rounded-md border border-slate-200 hover:bg-slate-50 text-slate-600 flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+            <button class="h-9 px-3 rounded-md border border-rose-200 text-rose-600 hover:bg-rose-50 text-[13px] font-medium">Reject</button>
+            <button class="h-9 px-3 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white text-[13px] font-medium">Approve</button>
+          </div>
+        </div>
+        <div class="px-5 py-3 border-t border-slate-100 bg-amber-50/40 flex items-center gap-2 text-[11px] text-amber-800">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Conflict: <span class="font-medium">A. Razak</span> also requested 14–16 May (overlap on 16 May).
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ============================================================== -->
+  <!-- VARIANT 02 — INSPECTOR: split list + detail panel               -->
+  <!-- ============================================================== -->
+  <div class="variant-tab" data-tab="v2">
+    <div class="grid grid-cols-12 gap-4">
+
+      <!-- Left: list -->
+      <aside class="col-span-12 lg:col-span-5 bg-white rounded-2xl border border-slate-200 shad-card overflow-hidden flex flex-col">
+        <div class="p-4 border-b border-slate-200">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-[14px] font-semibold tracking-tight text-slate-900">Pending queue <span class="font-mono text-slate-500 font-normal">· 7</span></h3>
+            <button class="text-[11px] font-medium text-slate-700 hover:text-slate-900">Approve all safe →</button>
+          </div>
+          <div class="relative">
+            <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-2.5 top-1/2 -translate-y-1/2" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="Search…" class="w-full h-8 pl-8 pr-3 rounded-md border border-slate-200 text-[12px] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10"/>
+          </div>
+        </div>
+
+        <ul class="divide-y divide-slate-100 overflow-y-auto">
+          <!-- Active row -->
+          <li class="px-4 py-3 bg-slate-50/80 border-l-2 border-slate-900 cursor-pointer">
+            <div class="flex items-start gap-3">
+              <div class="w-9 h-9 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-white text-[11px] font-semibold flex items-center justify-center shrink-0">MH</div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between gap-2">
+                  <p class="text-[13px] font-semibold text-slate-900 truncate">Muhammad Haziq Hilman</p>
+                  <span class="font-mono text-[11px] text-slate-500 shrink-0">1.0d</span>
+                </div>
+                <div class="flex items-center gap-2 mt-0.5 text-[11px] text-slate-500">
+                  <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 text-[10px] font-medium">Annual</span>
+                  <span>11 May</span>
+                  <span class="ml-auto text-rose-600 font-medium">Starts 3d</span>
+                </div>
+              </div>
+            </div>
+          </li>
+
+          <li class="px-4 py-3 hover:bg-slate-50/60 cursor-pointer">
+            <div class="flex items-start gap-3">
+              <div class="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-700 text-white text-[11px] font-semibold flex items-center justify-center shrink-0">AI</div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between gap-2">
+                  <p class="text-[13px] font-semibold text-slate-900 truncate">Ahmad Razak bin Ibrahim</p>
+                  <span class="font-mono text-[11px] text-slate-500 shrink-0">3.0d</span>
+                </div>
+                <div class="flex items-center gap-2 mt-0.5 text-[11px] text-slate-500">
+                  <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-violet-50 text-violet-700 ring-1 ring-violet-200 text-[10px] font-medium">Medical</span>
+                  <span>14–16 May</span>
+                  <span class="ml-auto text-amber-600 font-medium">SLA 56h</span>
+                </div>
+              </div>
+            </div>
+          </li>
+
+          <li class="px-4 py-3 hover:bg-slate-50/60 cursor-pointer">
+            <div class="flex items-start gap-3">
+              <div class="w-9 h-9 rounded-full bg-gradient-to-br from-rose-500 to-rose-700 text-white text-[11px] font-semibold flex items-center justify-center shrink-0">SA</div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between gap-2">
+                  <p class="text-[13px] font-semibold text-slate-900 truncate">Siti Nurhaliza Abdullah</p>
+                  <span class="font-mono text-[11px] text-slate-500 shrink-0">5.0d</span>
+                </div>
+                <div class="flex items-center gap-2 mt-0.5 text-[11px] text-slate-500">
+                  <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 text-[10px] font-medium">Annual</span>
+                  <span>22–26 May</span>
+                  <span class="ml-auto text-amber-600 font-medium">Conflict</span>
+                </div>
+              </div>
+            </div>
+          </li>
+
+          <li class="px-4 py-3 hover:bg-slate-50/60 cursor-pointer">
+            <div class="flex items-start gap-3">
+              <div class="w-9 h-9 rounded-full bg-gradient-to-br from-sky-500 to-sky-700 text-white text-[11px] font-semibold flex items-center justify-center shrink-0">NA</div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between gap-2">
+                  <p class="text-[13px] font-semibold text-slate-900 truncate">Nur Aisyah binti Kamal</p>
+                  <span class="font-mono text-[11px] text-slate-500 shrink-0">2.0d</span>
+                </div>
+                <div class="flex items-center gap-2 mt-0.5 text-[11px] text-slate-500">
+                  <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 ring-1 ring-amber-200 text-[10px] font-medium">Emergency</span>
+                  <span>9–10 May</span>
+                </div>
+              </div>
+            </div>
+          </li>
+
+          <li class="px-4 py-3 hover:bg-slate-50/60 cursor-pointer">
+            <div class="flex items-start gap-3">
+              <div class="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 text-white text-[11px] font-semibold flex items-center justify-center shrink-0">TW</div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between gap-2">
+                  <p class="text-[13px] font-semibold text-slate-900 truncate">Tan Wei Ming</p>
+                  <span class="font-mono text-[11px] text-slate-500 shrink-0">4.0d</span>
+                </div>
+                <div class="flex items-center gap-2 mt-0.5 text-[11px] text-slate-500">
+                  <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 text-[10px] font-medium">Annual</span>
+                  <span>02–05 Jun</span>
+                </div>
+              </div>
+            </div>
+          </li>
+
+          <li class="px-4 py-3 hover:bg-slate-50/60 cursor-pointer">
+            <div class="flex items-start gap-3">
+              <div class="w-9 h-9 rounded-full bg-gradient-to-br from-fuchsia-500 to-fuchsia-700 text-white text-[11px] font-semibold flex items-center justify-center shrink-0">FM</div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between gap-2">
+                  <p class="text-[13px] font-semibold text-slate-900 truncate">Faridah binti Mohd Yusof</p>
+                  <span class="font-mono text-[11px] text-slate-500 shrink-0">2.0d</span>
+                </div>
+                <div class="flex items-center gap-2 mt-0.5 text-[11px] text-slate-500">
+                  <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-violet-50 text-violet-700 ring-1 ring-violet-200 text-[10px] font-medium">Medical</span>
+                  <span>13–14 May</span>
+                </div>
+              </div>
+            </div>
+          </li>
+
+          <li class="px-4 py-3 hover:bg-slate-50/60 cursor-pointer">
+            <div class="flex items-start gap-3">
+              <div class="w-9 h-9 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 text-white text-[11px] font-semibold flex items-center justify-center shrink-0">RK</div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between gap-2">
+                  <p class="text-[13px] font-semibold text-slate-900 truncate">Rajesh Kumar a/l Suresh</p>
+                  <span class="font-mono text-[11px] text-slate-500 shrink-0">2.0d</span>
+                </div>
+                <div class="flex items-center gap-2 mt-0.5 text-[11px] text-slate-500">
+                  <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 text-[10px] font-medium">Annual</span>
+                  <span>30–31 May</span>
+                </div>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </aside>
+
+      <!-- Right: detail -->
+      <main class="col-span-12 lg:col-span-7 space-y-4">
+
+        <!-- Header -->
+        <div class="bg-white rounded-2xl border border-slate-200 shad-card-lg p-6">
+          <div class="flex items-start justify-between gap-4">
+            <div class="flex items-start gap-4">
+              <div class="w-14 h-14 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-white text-[16px] font-semibold flex items-center justify-center">MH</div>
+              <div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <h2 class="text-[18px] font-semibold tracking-tight text-slate-900 leading-none">Muhammad Haziq Hilman</h2>
+                  <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-rose-50 text-rose-700 ring-1 ring-rose-200 text-[10px] font-medium">Starts 3d</span>
+                </div>
+                <p class="text-[12px] text-slate-500 mt-1.5"><span class="font-mono">VLX-001</span> · HR Manager · Management</p>
+                <p class="text-[12px] text-slate-500 mt-0.5">Submitted <span class="text-slate-700">2 May 2026 · 09:14</span> · Approver <span class="text-slate-700">S. Nurhaliza</span></p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <button class="h-9 px-3 rounded-md border border-slate-200 hover:bg-slate-50 text-[13px] font-medium text-slate-700">Request info</button>
+              <button class="h-9 px-3 rounded-md border border-rose-200 text-rose-600 hover:bg-rose-50 text-[13px] font-medium">Reject</button>
+              <button class="h-9 px-3 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white text-[13px] font-medium">Approve</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Request facts -->
+        <div class="grid grid-cols-3 gap-4">
+          <div class="bg-white rounded-2xl border border-slate-200 shad-card p-5">
+            <p class="text-[10px] uppercase tracking-wide text-slate-500 font-medium">Leave type</p>
+            <div class="mt-2 flex items-center gap-2">
+              <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 text-[12px] font-medium">Annual</span>
+              <span class="text-[12px] text-slate-500">Paid</span>
+            </div>
+            <p class="text-[11px] text-slate-500 mt-3">Counts toward yearly entitlement</p>
+          </div>
+          <div class="bg-white rounded-2xl border border-slate-200 shad-card p-5">
+            <p class="text-[10px] uppercase tracking-wide text-slate-500 font-medium">Period</p>
+            <p class="font-mono text-[18px] font-semibold text-slate-900 mt-1 leading-none">11 May 2026</p>
+            <p class="text-[11px] text-slate-500 mt-2">1.0 day · single day · Monday</p>
+          </div>
+          <div class="bg-white rounded-2xl border border-slate-200 shad-card p-5">
+            <p class="text-[10px] uppercase tracking-wide text-slate-500 font-medium">Balance impact</p>
+            <p class="font-mono text-[18px] font-semibold text-slate-900 mt-1 leading-none">8 → 7</p>
+            <div class="mt-2 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+              <div class="h-full bg-slate-900" style="width:50%"></div>
+            </div>
+            <p class="text-[11px] text-slate-500 mt-2">After approval: 50% used</p>
+          </div>
+        </div>
+
+        <!-- Mini calendar showing requested day + team coverage -->
+        <div class="bg-white rounded-2xl border border-slate-200 shad-card p-5">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <p class="text-[11px] uppercase tracking-wide text-slate-500 font-medium">Coverage check</p>
+              <h4 class="text-[14px] font-semibold text-slate-900 mt-0.5">May 2026 — team availability</h4>
+            </div>
+            <div class="flex items-center gap-2 text-[10px] text-slate-500">
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-emerald-500"></span>Approved</span>
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-amber-500"></span>This req.</span>
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-slate-200"></span>Working</span>
+            </div>
+          </div>
+          <div class="grid grid-cols-7 gap-1 text-[10px]">
+            <div class="text-center text-slate-400">M</div><div class="text-center text-slate-400">T</div><div class="text-center text-slate-400">W</div><div class="text-center text-slate-400">T</div><div class="text-center text-slate-400">F</div><div class="text-center text-slate-300">S</div><div class="text-center text-slate-300">S</div>
+
+            <div class="aspect-square rounded bg-slate-100 text-slate-500 flex items-center justify-center font-mono">4</div>
+            <div class="aspect-square rounded bg-slate-200 text-slate-700 flex items-center justify-center font-mono">5</div>
+            <div class="aspect-square rounded bg-slate-200 text-slate-700 flex items-center justify-center font-mono">6</div>
+            <div class="aspect-square rounded bg-slate-200 text-slate-700 flex items-center justify-center font-mono">7</div>
+            <div class="aspect-square rounded bg-slate-200 text-slate-700 flex items-center justify-center font-mono">8</div>
+            <div class="aspect-square rounded bg-slate-50 text-slate-300 flex items-center justify-center font-mono">9</div>
+            <div class="aspect-square rounded bg-slate-50 text-slate-300 flex items-center justify-center font-mono">10</div>
+
+            <div class="aspect-square rounded bg-amber-500 text-white flex items-center justify-center font-mono font-semibold ring-2 ring-amber-200">11</div>
+            <div class="aspect-square rounded bg-slate-200 text-slate-700 flex items-center justify-center font-mono">12</div>
+            <div class="aspect-square rounded bg-slate-200 text-slate-700 flex items-center justify-center font-mono">13</div>
+            <div class="aspect-square rounded bg-emerald-500 text-white flex items-center justify-center font-mono">14</div>
+            <div class="aspect-square rounded bg-emerald-500 text-white flex items-center justify-center font-mono">15</div>
+            <div class="aspect-square rounded bg-slate-50 text-slate-300 flex items-center justify-center font-mono">16</div>
+            <div class="aspect-square rounded bg-slate-50 text-slate-300 flex items-center justify-center font-mono">17</div>
+          </div>
+          <p class="text-[11px] text-slate-500 mt-3">No team conflicts on 11 May. <span class="text-slate-700 font-medium">3 of 4</span> Management members will be working.</p>
+        </div>
+
+        <!-- Reason + history -->
+        <div class="grid grid-cols-2 gap-4">
+          <div class="bg-white rounded-2xl border border-slate-200 shad-card p-5">
+            <p class="text-[10px] uppercase tracking-wide text-slate-500 font-medium">Reason from employee</p>
+            <p class="text-[13px] text-slate-700 mt-2 leading-relaxed">Family event in hometown. Will hand over urgent items to S. Nurhaliza before leaving on Friday.</p>
+            <div class="mt-3 flex items-center gap-2">
+              <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[11px] font-medium">📎 1 attachment</span>
+              <span class="text-[11px] text-slate-500">handover-notes.pdf</span>
+            </div>
+          </div>
+          <div class="bg-white rounded-2xl border border-slate-200 shad-card p-5">
+            <p class="text-[10px] uppercase tracking-wide text-slate-500 font-medium">Pattern</p>
+            <p class="text-[13px] text-slate-700 mt-2">3rd request this quarter — within typical range.</p>
+            <div class="mt-3 grid grid-cols-3 gap-2 text-center">
+              <div class="rounded-md bg-slate-50 p-2"><p class="text-[10px] text-slate-500">Last 30d</p><p class="font-mono text-[14px] font-semibold mt-0.5">2d</p></div>
+              <div class="rounded-md bg-slate-50 p-2"><p class="text-[10px] text-slate-500">YTD</p><p class="font-mono text-[14px] font-semibold mt-0.5">6d</p></div>
+              <div class="rounded-md bg-slate-50 p-2"><p class="text-[10px] text-slate-500">Avg/mo</p><p class="font-mono text-[14px] font-semibold mt-0.5">1.2d</p></div>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+
+  <!-- ============================================================== -->
+  <!-- VARIANT 03 — BOARD: kanban columns                              -->
+  <!-- ============================================================== -->
+  <div class="variant-tab" data-tab="v3">
+
+    <!-- Stat strip + add -->
+    <div class="bg-white rounded-2xl border border-slate-200 shad-card p-4 mb-4 flex items-center gap-4 flex-wrap">
+      <div class="flex items-center gap-1.5 text-[12px] text-slate-700">
+        <span class="font-mono text-[16px] font-semibold text-slate-900">7</span> pending ·
+        <span class="font-mono text-[16px] font-semibold text-slate-900">19</span> days requested ·
+        <span class="font-mono text-[16px] font-semibold text-rose-600">2</span> SLA breach
+      </div>
+      <div class="ml-auto flex items-center gap-2">
+        <select class="h-9 px-3 pr-8 rounded-md border border-slate-200 bg-white text-[13px] text-slate-700"><option>Group by status</option><option>By department</option><option>By approver</option></select>
+        <button class="inline-flex items-center justify-center h-9 px-3 rounded-md border border-slate-200 hover:bg-slate-50 text-[13px] font-medium text-slate-700">Filters</button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
+
+      <!-- Column: Pending -->
+      <div class="bg-slate-50 rounded-2xl border border-slate-200 p-3">
+        <div class="flex items-center justify-between px-2 py-1 mb-2">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+            <h4 class="text-[13px] font-semibold tracking-tight text-slate-900">Pending</h4>
+            <span class="font-mono text-[11px] text-slate-500">4</span>
+          </div>
+          <button class="text-slate-400 hover:text-slate-700"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+        </div>
+        <div class="space-y-2">
+
+          <article class="bg-white rounded-xl border border-slate-200 shad-card p-3 cursor-grab hover:shadow-md transition">
+            <div class="flex items-center justify-between mb-2">
+              <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 text-[10px] font-medium">Annual</span>
+              <span class="font-mono text-[11px] text-slate-500">1.0d</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-white text-[10px] font-semibold flex items-center justify-center">MH</div>
+              <div class="min-w-0">
+                <p class="text-[12px] font-semibold text-slate-900 truncate">Muhammad Haziq H.</p>
+                <p class="text-[10px] text-slate-500 font-mono">VLX-001</p>
+              </div>
+            </div>
+            <p class="font-mono text-[11px] text-slate-700 mt-2.5">11 May</p>
+            <div class="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between">
+              <span class="inline-flex items-center gap-1 text-[10px] text-rose-600 font-medium"><span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>Starts 3d</span>
+              <div class="flex items-center gap-1">
+                <button class="h-6 w-6 rounded text-rose-600 hover:bg-rose-50 flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                <button class="h-6 w-6 rounded text-emerald-600 hover:bg-emerald-50 flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button>
+              </div>
+            </div>
+          </article>
+
+          <article class="bg-white rounded-xl border border-slate-200 shad-card p-3 cursor-grab hover:shadow-md transition">
+            <div class="flex items-center justify-between mb-2">
+              <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-violet-50 text-violet-700 ring-1 ring-violet-200 text-[10px] font-medium">Medical</span>
+              <span class="font-mono text-[11px] text-slate-500">3.0d</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-700 text-white text-[10px] font-semibold flex items-center justify-center">AI</div>
+              <div class="min-w-0">
+                <p class="text-[12px] font-semibold text-slate-900 truncate">Ahmad Razak Ibrahim</p>
+                <p class="text-[10px] text-slate-500 font-mono">DM-001</p>
+              </div>
+            </div>
+            <p class="font-mono text-[11px] text-slate-700 mt-2.5">14 → 16 May</p>
+            <div class="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between">
+              <span class="text-[10px] text-amber-600 font-medium">SLA 56h</span>
+              <span class="text-[10px] text-slate-500">📎 MC</span>
+            </div>
+          </article>
+
+          <article class="bg-white rounded-xl border border-slate-200 shad-card p-3 cursor-grab hover:shadow-md transition">
+            <div class="flex items-center justify-between mb-2">
+              <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 text-[10px] font-medium">Annual</span>
+              <span class="font-mono text-[11px] text-slate-500">5.0d</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-full bg-gradient-to-br from-rose-500 to-rose-700 text-white text-[10px] font-semibold flex items-center justify-center">SA</div>
+              <div class="min-w-0">
+                <p class="text-[12px] font-semibold text-slate-900 truncate">Siti Nurhaliza A.</p>
+                <p class="text-[10px] text-slate-500 font-mono">DM-002</p>
+              </div>
+            </div>
+            <p class="font-mono text-[11px] text-slate-700 mt-2.5">22 → 26 May</p>
+            <div class="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between">
+              <span class="text-[10px] text-amber-600 font-medium">⚠ Conflict</span>
+            </div>
+          </article>
+
+          <article class="bg-white rounded-xl border border-slate-200 shad-card p-3 cursor-grab hover:shadow-md transition">
+            <div class="flex items-center justify-between mb-2">
+              <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 ring-1 ring-amber-200 text-[10px] font-medium">Emergency</span>
+              <span class="font-mono text-[11px] text-slate-500">2.0d</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-full bg-gradient-to-br from-sky-500 to-sky-700 text-white text-[10px] font-semibold flex items-center justify-center">NA</div>
+              <div class="min-w-0">
+                <p class="text-[12px] font-semibold text-slate-900 truncate">Nur Aisyah Kamal</p>
+                <p class="text-[10px] text-slate-500 font-mono">VLX-014</p>
+              </div>
+            </div>
+            <p class="font-mono text-[11px] text-slate-700 mt-2.5">09 → 10 May</p>
+          </article>
+        </div>
+      </div>
+
+      <!-- Column: Needs info -->
+      <div class="bg-slate-50 rounded-2xl border border-slate-200 p-3">
+        <div class="flex items-center justify-between px-2 py-1 mb-2">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+            <h4 class="text-[13px] font-semibold tracking-tight text-slate-900">Needs info</h4>
+            <span class="font-mono text-[11px] text-slate-500">1</span>
+          </div>
+        </div>
+        <div class="space-y-2">
+          <article class="bg-white rounded-xl border border-slate-200 shad-card p-3">
+            <div class="flex items-center justify-between mb-2">
+              <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-violet-50 text-violet-700 ring-1 ring-violet-200 text-[10px] font-medium">Medical</span>
+              <span class="font-mono text-[11px] text-slate-500">2.0d</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-full bg-gradient-to-br from-fuchsia-500 to-fuchsia-700 text-white text-[10px] font-semibold flex items-center justify-center">FM</div>
+              <div class="min-w-0">
+                <p class="text-[12px] font-semibold text-slate-900 truncate">Faridah Mohd Yusof</p>
+                <p class="text-[10px] text-slate-500 font-mono">VLX-030</p>
+              </div>
+            </div>
+            <p class="font-mono text-[11px] text-slate-700 mt-2.5">13 → 14 May</p>
+            <div class="mt-2 pt-2 border-t border-slate-100">
+              <p class="text-[11px] text-indigo-700 italic">"Please attach MC certificate." — Sent 1d ago</p>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <!-- Column: Approved -->
+      <div class="bg-slate-50 rounded-2xl border border-slate-200 p-3">
+        <div class="flex items-center justify-between px-2 py-1 mb-2">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <h4 class="text-[13px] font-semibold tracking-tight text-slate-900">Approved</h4>
+            <span class="font-mono text-[11px] text-slate-500">2 · this wk</span>
+          </div>
+        </div>
+        <div class="space-y-2">
+          <article class="bg-white rounded-xl border border-slate-200 shad-card p-3 opacity-90">
+            <div class="flex items-center justify-between mb-2">
+              <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 text-[10px] font-medium">Annual</span>
+              <span class="font-mono text-[11px] text-slate-500">4.0d</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 text-white text-[10px] font-semibold flex items-center justify-center">TW</div>
+              <div class="min-w-0">
+                <p class="text-[12px] font-semibold text-slate-900 truncate">Tan Wei Ming</p>
+                <p class="text-[10px] text-slate-500 font-mono">VLX-021</p>
+              </div>
+            </div>
+            <p class="font-mono text-[11px] text-slate-700 mt-2.5">02 → 05 Jun</p>
+            <div class="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between">
+              <span class="inline-flex items-center gap-1 text-[10px] text-emerald-700 font-medium"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Approved</span>
+              <span class="text-[10px] text-slate-500">2h ago · You</span>
+            </div>
+          </article>
+          <article class="bg-white rounded-xl border border-slate-200 shad-card p-3 opacity-90">
+            <div class="flex items-center justify-between mb-2">
+              <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 text-[10px] font-medium">Annual</span>
+              <span class="font-mono text-[11px] text-slate-500">2.0d</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 text-white text-[10px] font-semibold flex items-center justify-center">RK</div>
+              <div class="min-w-0">
+                <p class="text-[12px] font-semibold text-slate-900 truncate">Rajesh Kumar</p>
+                <p class="text-[10px] text-slate-500 font-mono">VLX-024</p>
+              </div>
+            </div>
+            <p class="font-mono text-[11px] text-slate-700 mt-2.5">30 → 31 May</p>
+            <div class="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between">
+              <span class="inline-flex items-center gap-1 text-[10px] text-emerald-700 font-medium"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Approved</span>
+              <span class="text-[10px] text-slate-500">Yesterday</span>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <!-- Column: Rejected -->
+      <div class="bg-slate-50 rounded-2xl border border-slate-200 p-3">
+        <div class="flex items-center justify-between px-2 py-1 mb-2">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+            <h4 class="text-[13px] font-semibold tracking-tight text-slate-900">Rejected</h4>
+            <span class="font-mono text-[11px] text-slate-500">1 · this wk</span>
+          </div>
+        </div>
+        <div class="space-y-2">
+          <article class="bg-white rounded-xl border border-slate-200 shad-card p-3 opacity-90">
+            <div class="flex items-center justify-between mb-2">
+              <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px] font-medium">Unpaid</span>
+              <span class="font-mono text-[11px] text-slate-500">7.0d</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-full bg-gradient-to-br from-slate-500 to-slate-700 text-white text-[10px] font-semibold flex items-center justify-center">JL</div>
+              <div class="min-w-0">
+                <p class="text-[12px] font-semibold text-slate-900 truncate">Jamal bin Latif</p>
+                <p class="text-[10px] text-slate-500 font-mono">VLX-019</p>
+              </div>
+            </div>
+            <p class="font-mono text-[11px] text-slate-700 mt-2.5">15 → 21 May</p>
+            <div class="mt-2 pt-2 border-t border-slate-100">
+              <p class="text-[11px] text-rose-700 italic">"Conflicts with sprint deadline."</p>
+            </div>
+          </article>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const tabs = document.querySelectorAll('.tab-btn');
+  const panels = document.querySelectorAll('.variant-tab');
+  tabs.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.getAttribute('data-tab');
+      tabs.forEach(t => t.setAttribute('data-active', t === btn ? 'true' : 'false'));
+      panels.forEach(p => p.classList.toggle('active', p.getAttribute('data-tab') === target));
+    });
+  });
+</script>
+</body>
+</html>

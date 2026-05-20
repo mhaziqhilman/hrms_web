@@ -1,10 +1,10 @@
-<div class="max-w-4xl mx-auto">
+<div>
   <!-- Action Bar (No Print) -->
   <div class="flex justify-between items-center mb-4 no-print">
-    <a routerLink="/payroll" z-button zType="outline" class="flex items-center gap-2">
+    <button type="button" (click)="goBack()" z-button zType="outline" class="flex items-center gap-2">
       <z-icon zType="arrow-left" class="w-4 h-4" />
       Back to List
-    </a>
+    </button>
     <div class="flex gap-2">
       <button type="button" z-button zType="outline" (click)="printPayslip()" class="flex items-center gap-2">
         <z-icon zType="file-text" class="w-4 h-4" />

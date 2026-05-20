@@ -1,10 +1,11 @@
 import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FileService, FileUploadMetadata } from '../../../core/services/file.service';
+import { ZardButtonComponent } from '@/shared/components/button/button.component';
 
 @Component({
   selector: 'app-file-upload',
-  imports: [CommonModule],
+  imports: [CommonModule, ZardButtonComponent],
   templateUrl: './file-upload.html',
   styleUrl: './file-upload.css',
 })

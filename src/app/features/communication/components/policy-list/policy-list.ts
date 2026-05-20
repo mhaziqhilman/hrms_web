@@ -8,15 +8,8 @@ import { Policy, PolicyFilters } from '../../models/policy.model';
 // ZardUI Component Imports
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { ZardIconComponent } from '@/shared/components/icon/icon.component';
-import { ZardCardComponent } from '@/shared/components/card/card.component';
-import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
-import { ZardSelectComponent } from '@/shared/components/select/select.component';
-import { ZardSelectItemComponent } from '@/shared/components/select/select-item.component';
-import { ZardFormFieldComponent } from '@/shared/components/form/form-field.component';
-import { ZardFormLabelComponent } from '@/shared/components/form/form-label.component';
 import { ZardInputDirective } from '@/shared/components/input/input.directive';
 import { ZardTooltipDirective } from '@/shared/components/tooltip/tooltip';
-import { ZardTableComponent } from '@/shared/components/table/table.component';
 import { AppDatePipe } from '@/shared/pipes/app-date.pipe';
 
 @Component({
@@ -28,15 +21,8 @@ import { AppDatePipe } from '@/shared/pipes/app-date.pipe';
     FormsModule,
     ZardButtonComponent,
     ZardIconComponent,
-    ZardCardComponent,
-    ZardBadgeComponent,
-    ZardSelectComponent,
-    ZardSelectItemComponent,
-    ZardFormFieldComponent,
-    ZardFormLabelComponent,
     ZardInputDirective,
     ZardTooltipDirective,
-    ZardTableComponent,
     AppDatePipe
   ],
   templateUrl: './policy-list.html',
@@ -124,29 +110,6 @@ export class PolicyListComponent implements OnInit {
     if (this.currentPage() < this.totalPages()) {
       this.goToPage(this.currentPage() + 1);
     }
-  }
-
-  getCategoryBadgeType(category: string): 'default' | 'secondary' | 'destructive' | 'outline' {
-    const variantMap: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-      'HR': 'default',
-      'IT': 'secondary',
-      'Finance': 'default',
-      'Safety': 'secondary',
-      'Compliance': 'destructive',
-      'Operations': 'secondary',
-      'Other': 'outline'
-    };
-    return variantMap[category] || 'secondary';
-  }
-
-  getStatusBadgeType(status: string): 'default' | 'secondary' | 'destructive' | 'outline' {
-    const variantMap: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-      'Active': 'default',
-      'Draft': 'secondary',
-      'Archived': 'outline',
-      'Superseded': 'destructive'
-    };
-    return variantMap[status] || 'secondary';
   }
 
   clearFilters(): void {

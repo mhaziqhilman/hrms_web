@@ -5,12 +5,15 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FinanceService } from '../../services/finance.service';
 import { Bill } from '../../models/finance.model';
 import { ZardDialogService } from '@/shared/components/dialog/dialog.service';
+import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-dialog.service';
 import { BillFormDialogComponent } from '../bill-form-dialog/bill-form-dialog.component';
+import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { AuthService } from '@/core/services/auth.service';
 
 @Component({
   selector: 'app-bill-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, ZardButtonComponent],
   templateUrl: './bill-detail.component.html'
 })
 export class BillDetailComponent implements OnInit {
@@ -18,6 +21,11 @@ export class BillDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private dialogService = inject(ZardDialogService);
+  private alertDialogService = inject(ZardAlertDialogService);
+  private authService = inject(AuthService);
+
+  /** Approve / Cancel / Record Payment / Delete are admin-only on the backend (requireAdmin). */
+  isAdmin = this.authService.hasAnyRole(['super_admin', 'admin']);
 
   loading = signal(true);
   bill = signal<Bill | null>(null);
@@ -82,9 +90,17 @@ export class BillDetailComponent implements OnInit {
   remove() {
     const b = this.bill();
     if (!b) return;
-    if (!confirm(`Delete ${b.bill_number}?`)) return;
-    this.financeService.deleteBill(b.public_id).subscribe(() => {
-      this.router.navigate(['/finance/bills']);
+    this.alertDialogService.confirm({
+      zTitle: 'Delete Bill',
+      zDescription: `Delete ${b.bill_number}?`,
+      zOkText: 'Delete',
+      zCancelText: 'Cancel',
+      zOkDestructive: true,
+      zOnOk: () => {
+        this.financeService.deleteBill(b.public_id).subscribe(() => {
+          this.router.navigate(['/finance/bills']);
+        });
+      }
     });
   }
 
@@ -106,8 +122,16 @@ export class BillDetailComponent implements OnInit {
   deletePayment(paymentId: number) {
     const b = this.bill();
     if (!b) return;
-    if (!confirm('Delete this payment? This will recompute the bill balance.')) return;
-    this.financeService.deletePayment(b.public_id, paymentId).subscribe(() => this.load(b.public_id));
+    this.alertDialogService.confirm({
+      zTitle: 'Delete Payment',
+      zDescription: 'Delete this payment? This will recompute the bill balance.',
+      zOkText: 'Delete',
+      zCancelText: 'Cancel',
+      zOkDestructive: true,
+      zOnOk: () => {
+        this.financeService.deletePayment(b.public_id, paymentId).subscribe(() => this.load(b.public_id));
+      }
+    });
   }
 
   formatMoney(v: number | string | null | undefined): string {

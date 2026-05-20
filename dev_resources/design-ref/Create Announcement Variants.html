@@ -1,0 +1,868 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Create Announcement · Variants</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  html, body { font-family: 'Geist', system-ui, -apple-system, sans-serif; }
+  .font-mono { font-family: 'Geist Mono', ui-monospace, monospace; font-feature-settings: "tnum" 1; }
+  .num-tabular { font-variant-numeric: tabular-nums; }
+  .shad-card    { box-shadow: 0 1px 2px 0 rgb(16 24 40 / 0.04); }
+  .shad-card-lg { box-shadow: 0 1px 2px rgb(16 24 40 / 0.04), 0 1px 3px rgb(16 24 40 / 0.06); }
+  .shad-pop     { box-shadow: 0 4px 16px -4px rgb(16 24 40 / 0.10), 0 1px 3px rgb(16 24 40 / 0.04); }
+  button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, [contenteditable]:focus-visible {
+    outline: 2px solid rgb(15 23 42 / 0.5); outline-offset: 2px;
+  }
+  .variant-tag {
+    font-family: 'Geist Mono', ui-monospace, monospace;
+    font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase;
+  }
+  .hr-line { height: 1px; background: rgb(226 232 240); }
+  .cat-dot { width: 8px; height: 8px; border-radius: 999px; flex: none; }
+  .pin-rotate { transform: rotate(20deg); }
+  .kbd {
+    font-family: 'Geist Mono', ui-monospace, monospace;
+    font-size: 10px; padding: 2px 5px; border-radius: 4px;
+    background: white; border: 1px solid rgb(226 232 240);
+    box-shadow: 0 1px 0 0 rgb(226 232 240);
+    color: rgb(71 85 105);
+  }
+  /* Custom input/select shared */
+  .input-base {
+    height: 38px; padding: 0 12px; width: 100%;
+    border: 1px solid rgb(226 232 240); border-radius: 8px;
+    background: white; font-size: 13px; color: rgb(15 23 42);
+  }
+  .input-base::placeholder { color: rgb(148 163 184); }
+  .input-base:hover { border-color: rgb(203 213 225); }
+  /* Editable title (contenteditable look) */
+  .editable-title:empty:before {
+    content: attr(data-placeholder);
+    color: rgb(148 163 184);
+    pointer-events: none;
+  }
+  .editable-body:empty:before {
+    content: attr(data-placeholder);
+    color: rgb(148 163 184);
+    pointer-events: none;
+  }
+  /* Subtle hover for pill buttons */
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    height: 28px; padding: 0 10px; border-radius: 999px;
+    border: 1px dashed rgb(203 213 225); color: rgb(71 85 105);
+    font-size: 12px; cursor: pointer;
+    transition: all .12s ease;
+  }
+  .pill:hover { border-style: solid; border-color: rgb(148 163 184); color: rgb(15 23 42); background: rgb(248 250 252); }
+  .pill.is-set { border-style: solid; background: white; border-color: rgb(203 213 225); color: rgb(15 23 42); }
+  /* Toggle switch */
+  .switch { position: relative; width: 32px; height: 18px; background: rgb(226 232 240); border-radius: 999px; transition: background .15s; flex: none; }
+  .switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; background: white; border-radius: 999px; transition: transform .18s ease; box-shadow: 0 1px 2px rgb(0 0 0 / 0.15); }
+  .switch.on { background: rgb(15 23 42); }
+  .switch.on::after { transform: translateX(14px); }
+  /* Custom checkbox */
+  .cb { width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid rgb(203 213 225); background: white; flex: none; display: inline-flex; align-items: center; justify-content: center; }
+  .cb.on { background: rgb(15 23 42); border-color: rgb(15 23 42); }
+  /* Sticky bar shadow when scrolled */
+  .sticky-bar { backdrop-filter: blur(8px); background: rgba(255,255,255,0.85); }
+  /* Section label */
+  .sec-label { font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: rgb(100 116 139); }
+  /* Preview card vignette */
+  .preview-frame {
+    background:
+      linear-gradient(180deg, rgb(248 250 252) 0%, rgb(241 245 249) 100%);
+  }
+  /* Word count */
+  .wc { font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; color: rgb(148 163 184); }
+  /* Avatar bubble */
+  .av { width: 28px; height: 28px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; color: white; font-size: 10.5px; font-weight: 600; flex: none; }
+  /* Dotted vertical divider */
+  .vdash { background-image: linear-gradient(180deg, rgb(226 232 240) 50%, transparent 50%); background-size: 1px 8px; background-repeat: repeat-y; width: 1px; }
+  /* Stepper dot */
+  .step-dot { width: 6px; height: 6px; border-radius: 999px; background: rgb(203 213 225); }
+  .step-dot.on { background: rgb(15 23 42); }
+</style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-900 antialiased">
+
+<div class="max-w-[1440px] mx-auto px-8 py-7 space-y-14" data-screen-label="Create Announcement Variants">
+
+  <!-- INTRO -->
+  <header class="flex items-end justify-between gap-4 flex-wrap">
+    <div>
+      <p class="variant-tag text-slate-400 mb-2">EXPLORATION · CREATE ANNOUNCEMENT</p>
+      <h1 class="text-[28px] font-semibold tracking-tight leading-none">Create Announcement — Redesign</h1>
+      <p class="text-[13px] text-slate-500 mt-2 max-w-2xl leading-relaxed">
+        Three directions for the form. Same fields, very different feels: document-style editor,
+        split with live preview, and a focused single-column composer.
+      </p>
+    </div>
+    <div class="flex items-center gap-2 text-[12px] text-slate-500">
+      <span class="font-mono">shadcn · Geist · slate</span>
+    </div>
+  </header>
+
+
+  <!-- ================================================================== -->
+  <!-- VARIANT 1 — Document editor                                        -->
+  <!-- Linear/Notion vibe. Inline editable title. Metadata as pill row.   -->
+  <!-- Right rail for settings + live preview. Sticky top bar.            -->
+  <!-- ================================================================== -->
+  <section data-screen-label="V1 Document">
+    <div class="flex items-baseline justify-between mb-3">
+      <h2 class="text-[15px] font-semibold tracking-tight text-slate-900">Variant 1 — Document editor</h2>
+      <span class="variant-tag text-slate-400">V1 · INLINE · PILL METADATA · RIGHT RAIL</span>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 shad-card overflow-hidden">
+
+      <!-- Sticky top bar -->
+      <div class="sticky-bar border-b border-slate-200 px-5 py-2.5 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3 text-[12.5px] text-slate-500">
+          <button class="inline-flex items-center gap-1.5 h-7 px-2 rounded-md hover:bg-slate-100 text-slate-600">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            <span class="text-[12.5px]">Back</span>
+          </button>
+          <span class="text-slate-300">/</span>
+          <span>Announcements</span>
+          <span class="text-slate-300">/</span>
+          <span class="text-slate-900 font-medium">New</span>
+          <span class="text-slate-300 ml-2">·</span>
+          <span class="inline-flex items-center gap-1.5 text-slate-400">
+            <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+            Draft · saved <span class="font-mono num-tabular">2s</span> ago
+          </span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="inline-flex items-center gap-2 h-8 px-3 rounded-md text-[12.5px] font-medium text-slate-700 hover:bg-slate-100">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            Preview
+          </button>
+          <button class="inline-flex items-center gap-2 h-8 px-3 rounded-md text-[12.5px] font-medium text-slate-700 border border-slate-200 hover:bg-slate-50">
+            Save draft
+            <span class="kbd">⌘S</span>
+          </button>
+          <button class="inline-flex items-center gap-2 h-8 px-3.5 rounded-md bg-slate-900 hover:bg-slate-800 text-white text-[12.5px] font-medium">
+            Publish
+            <span class="kbd" style="background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.18); box-shadow: none; color: rgba(255,255,255,0.85)">⌘↵</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-12">
+
+        <!-- ============== EDITOR ============== -->
+        <div class="col-span-8 px-12 py-10 border-r border-slate-200">
+
+          <!-- Inline title -->
+          <div
+            class="editable-title text-[36px] font-semibold tracking-tight text-slate-900 leading-tight outline-none"
+            contenteditable="true"
+            data-placeholder="Announcement title…"
+          ></div>
+
+          <!-- Pill metadata row -->
+          <div class="mt-5 flex items-center gap-2 flex-wrap">
+            <span class="pill is-set">
+              <span class="cat-dot bg-orange-500"></span>
+              <span class="font-medium">Special</span>
+            </span>
+            <span class="pill">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 22h20L12 2z"/></svg>
+              Priority — Normal
+            </span>
+            <span class="pill is-set">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              All employees · 248
+            </span>
+            <span class="pill">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Expires — never
+            </span>
+            <span class="pill">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add property
+            </span>
+          </div>
+
+          <!-- Summary as quiet sub-paragraph -->
+          <div class="mt-7">
+            <div
+              class="editable-body text-[15px] text-slate-500 italic leading-relaxed outline-none"
+              contenteditable="true"
+              data-placeholder="Add a one-line summary (optional)…"
+            ></div>
+          </div>
+
+          <div class="hr-line my-7"></div>
+
+          <!-- Body editor toolbar -->
+          <div class="flex items-center gap-0.5 mb-3 text-slate-500">
+            <button class="h-7 w-7 rounded-md hover:bg-slate-100 inline-flex items-center justify-center" title="Heading"><span class="text-[12px] font-semibold">H</span></button>
+            <button class="h-7 w-7 rounded-md hover:bg-slate-100 inline-flex items-center justify-center" title="Bold"><span class="text-[12px] font-bold">B</span></button>
+            <button class="h-7 w-7 rounded-md hover:bg-slate-100 inline-flex items-center justify-center" title="Italic"><span class="text-[12px] italic">I</span></button>
+            <button class="h-7 w-7 rounded-md hover:bg-slate-100 inline-flex items-center justify-center" title="Underline"><span class="text-[12px] underline">U</span></button>
+            <span class="w-px h-4 bg-slate-200 mx-1"></span>
+            <button class="h-7 w-7 rounded-md hover:bg-slate-100 inline-flex items-center justify-center" title="Bullet list">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            </button>
+            <button class="h-7 w-7 rounded-md hover:bg-slate-100 inline-flex items-center justify-center" title="Link">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.72-1.71"/></svg>
+            </button>
+            <button class="h-7 w-7 rounded-md hover:bg-slate-100 inline-flex items-center justify-center" title="Attach">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+            </button>
+            <button class="h-7 w-7 rounded-md hover:bg-slate-100 inline-flex items-center justify-center" title="Image">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            </button>
+            <span class="flex-1"></span>
+            <span class="text-[11px] text-slate-400 font-mono">Type "/" for commands</span>
+          </div>
+
+          <!-- Body editable -->
+          <div
+            class="editable-body min-h-[280px] text-[15px] text-slate-800 leading-[1.75] outline-none"
+            contenteditable="true"
+            data-placeholder="Write your announcement… Use slash to insert blocks. Drag files in to attach."
+          ></div>
+
+          <!-- Word count footer -->
+          <div class="mt-6 flex items-center justify-between text-[11.5px] text-slate-400">
+            <span class="wc">0 words · 0 characters</span>
+            <span class="wc">~2 min read · markdown supported</span>
+          </div>
+        </div>
+
+        <!-- ============== RIGHT RAIL ============== -->
+        <aside class="col-span-4 px-6 py-8 bg-slate-50/40 space-y-7">
+
+          <!-- Settings -->
+          <div>
+            <p class="sec-label mb-3">Settings</p>
+            <div class="space-y-4">
+              <!-- Category -->
+              <div>
+                <label class="block text-[12px] font-medium text-slate-700 mb-1.5">Category</label>
+                <button class="w-full inline-flex items-center justify-between input-base text-left">
+                  <span class="inline-flex items-center gap-2"><span class="cat-dot bg-orange-500"></span>Special</span>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-slate-400"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+              </div>
+              <!-- Priority -->
+              <div>
+                <label class="block text-[12px] font-medium text-slate-700 mb-1.5">Priority</label>
+                <div class="grid grid-cols-3 gap-1.5">
+                  <button class="h-9 rounded-lg border border-slate-200 bg-white text-[12.5px] font-medium text-slate-600 hover:bg-slate-50">Low</button>
+                  <button class="h-9 rounded-lg border border-slate-900 bg-slate-900 text-white text-[12.5px] font-medium">Normal</button>
+                  <button class="h-9 rounded-lg border border-slate-200 bg-white text-[12.5px] font-medium text-slate-600 hover:bg-slate-50">Urgent</button>
+                </div>
+              </div>
+              <!-- Schedule -->
+              <div>
+                <label class="block text-[12px] font-medium text-slate-700 mb-1.5">Publish</label>
+                <div class="grid grid-cols-2 gap-1.5">
+                  <button class="h-9 rounded-lg border border-slate-900 bg-slate-900 text-white text-[12.5px] font-medium">Now</button>
+                  <button class="h-9 rounded-lg border border-slate-200 bg-white text-[12.5px] font-medium text-slate-600 hover:bg-slate-50 inline-flex items-center justify-center gap-1.5">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    Schedule
+                  </button>
+                </div>
+              </div>
+              <!-- Expires -->
+              <div>
+                <label class="flex items-center justify-between text-[12px] font-medium text-slate-700 mb-1.5">Expires <span class="text-[11px] text-slate-400 font-normal">optional</span></label>
+                <input type="text" class="input-base" placeholder="dd/mm/yyyy --:--" />
+              </div>
+            </div>
+          </div>
+
+          <div class="hr-line"></div>
+
+          <!-- Audience -->
+          <div>
+            <p class="sec-label mb-3">Audience</p>
+            <div class="rounded-lg border border-slate-200 bg-white">
+              <button class="w-full px-3 h-10 flex items-center justify-between text-[13px] font-medium text-slate-900">
+                <span class="inline-flex items-center gap-2">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                  All employees
+                </span>
+                <span class="font-mono num-tabular text-[12px] text-slate-500">248</span>
+              </button>
+              <div class="hr-line"></div>
+              <div class="px-3 py-2.5 flex flex-wrap gap-1.5">
+                <button class="inline-flex items-center gap-1 h-6 px-2 rounded-md bg-slate-100 text-slate-700 text-[11.5px] font-medium">
+                  Engineering
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+                <button class="inline-flex items-center gap-1 h-6 px-2 rounded-md bg-slate-100 text-slate-700 text-[11.5px] font-medium">
+                  KL office
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+                <button class="h-6 px-2 rounded-md border border-dashed border-slate-300 text-slate-500 text-[11.5px] hover:bg-slate-50">+ Filter</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="hr-line"></div>
+
+          <!-- Behaviour toggles -->
+          <div>
+            <p class="sec-label mb-3">Behaviour</p>
+            <div class="space-y-2.5">
+              <button class="w-full flex items-center justify-between text-left">
+                <div>
+                  <p class="text-[13px] font-medium text-slate-900 inline-flex items-center gap-1.5">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" class="pin-rotate text-slate-500"><path d="M16 3l5 5-2 2-1-1-4 4 1 5-2 1-5-5-5 5-1-1 5-5-5-5 1-2 5 1 4-4-1-1z"/></svg>
+                    Pin to top
+                  </p>
+                  <p class="text-[11.5px] text-slate-500 mt-0.5">Sticks in the sidebar &amp; top of feed</p>
+                </div>
+                <span class="switch on" role="switch" aria-checked="true"></span>
+              </button>
+              <button class="w-full flex items-center justify-between text-left">
+                <div>
+                  <p class="text-[13px] font-medium text-slate-900 inline-flex items-center gap-1.5">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    Require acknowledgment
+                  </p>
+                  <p class="text-[11.5px] text-slate-500 mt-0.5">Employees confirm they've read it</p>
+                </div>
+                <span class="switch" role="switch" aria-checked="false"></span>
+              </button>
+              <button class="w-full flex items-center justify-between text-left">
+                <div>
+                  <p class="text-[13px] font-medium text-slate-900 inline-flex items-center gap-1.5">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    Allow comments
+                  </p>
+                  <p class="text-[11.5px] text-slate-500 mt-0.5">Members can reply in-thread</p>
+                </div>
+                <span class="switch on" role="switch" aria-checked="true"></span>
+              </button>
+              <button class="w-full flex items-center justify-between text-left">
+                <div>
+                  <p class="text-[13px] font-medium text-slate-900 inline-flex items-center gap-1.5">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    Send email notification
+                  </p>
+                  <p class="text-[11.5px] text-slate-500 mt-0.5">Triggers immediately on publish</p>
+                </div>
+                <span class="switch" role="switch" aria-checked="false"></span>
+              </button>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ================================================================== -->
+  <!-- VARIANT 2 — Split with live preview                                -->
+  <!-- Left: clean stacked form with hairline sections (no bordered cards)-->
+  <!-- Right: sticky live preview of the feed card.                       -->
+  <!-- ================================================================== -->
+  <section data-screen-label="V2 Split">
+    <div class="flex items-baseline justify-between mb-3">
+      <h2 class="text-[15px] font-semibold tracking-tight text-slate-900">Variant 2 — Split with live preview</h2>
+      <span class="variant-tag text-slate-400">V2 · FORM · LIVE PREVIEW</span>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 shad-card overflow-hidden">
+
+      <!-- Header -->
+      <div class="px-8 py-5 flex items-center justify-between border-b border-slate-200">
+        <div>
+          <h3 class="text-[20px] font-semibold tracking-tight leading-none">New announcement</h3>
+          <p class="text-[12.5px] text-slate-500 mt-1.5">Publishes to the company feed when ready.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="inline-flex items-center gap-2 h-9 px-3 rounded-md text-[12.5px] font-medium text-slate-700 hover:bg-slate-100">Cancel</button>
+          <button class="inline-flex items-center gap-2 h-9 px-3 rounded-md text-[12.5px] font-medium text-slate-700 border border-slate-200 hover:bg-slate-50">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            Save as draft
+          </button>
+          <button class="inline-flex items-center gap-2 h-9 px-3.5 rounded-md bg-slate-900 hover:bg-slate-800 text-white text-[12.5px] font-medium">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Publish
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-12">
+
+        <!-- ========== FORM (left, 7 cols) ========== -->
+        <div class="col-span-7 px-8 py-8 border-r border-slate-200">
+
+          <!-- Section: Basics -->
+          <div class="mb-9">
+            <div class="flex items-baseline justify-between mb-4">
+              <p class="text-[13px] font-semibold tracking-tight text-slate-900">Basics</p>
+              <p class="variant-tag text-slate-400">01</p>
+            </div>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-[12px] font-medium text-slate-700 mb-1.5">Title</label>
+                <input class="input-base" placeholder="A short, scannable headline" value="My first announcement" />
+              </div>
+              <div>
+                <div class="flex items-center justify-between mb-1.5">
+                  <label class="block text-[12px] font-medium text-slate-700">Summary</label>
+                  <span class="wc">42 / 500</span>
+                </div>
+                <textarea class="input-base py-2.5 h-20 resize-none" placeholder="One sentence that shows up in the feed preview.">Introducing our new company-wide announcement system.</textarea>
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-[12px] font-medium text-slate-700 mb-1.5">Category</label>
+                  <button class="w-full inline-flex items-center justify-between input-base text-left">
+                    <span class="inline-flex items-center gap-2"><span class="cat-dot bg-orange-500"></span>Special</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-slate-400"><polyline points="6 9 12 15 18 9"/></svg>
+                  </button>
+                </div>
+                <div>
+                  <label class="block text-[12px] font-medium text-slate-700 mb-1.5">Priority</label>
+                  <div class="inline-flex h-[38px] w-full items-center rounded-lg border border-slate-200 bg-slate-50 p-0.5 text-[12.5px]">
+                    <button class="flex-1 h-full rounded-md text-slate-500 hover:text-slate-900 font-medium">Low</button>
+                    <button class="flex-1 h-full rounded-md bg-white text-slate-900 font-medium shad-card">Normal</button>
+                    <button class="flex-1 h-full rounded-md text-slate-500 hover:text-slate-900 font-medium">Urgent</button>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <label class="flex items-center justify-between text-[12px] font-medium text-slate-700 mb-1.5">Expires at <span class="text-[11px] text-slate-400 font-normal">leave blank for no expiration</span></label>
+                <div class="relative">
+                  <input class="input-base pr-9" placeholder="dd/mm/yyyy --:--" />
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="hr-line mb-9"></div>
+
+          <!-- Section: Content -->
+          <div class="mb-9">
+            <div class="flex items-baseline justify-between mb-4">
+              <p class="text-[13px] font-semibold tracking-tight text-slate-900">Content</p>
+              <p class="variant-tag text-slate-400">02</p>
+            </div>
+            <div class="rounded-lg border border-slate-200 bg-white overflow-hidden">
+              <div class="flex items-center gap-0.5 px-2 py-1.5 border-b border-slate-200 bg-slate-50/60 text-slate-500">
+                <button class="h-7 w-7 rounded-md hover:bg-white inline-flex items-center justify-center"><span class="text-[11px] font-semibold">H1</span></button>
+                <button class="h-7 w-7 rounded-md hover:bg-white inline-flex items-center justify-center"><span class="text-[11px] font-bold">B</span></button>
+                <button class="h-7 w-7 rounded-md hover:bg-white inline-flex items-center justify-center"><span class="text-[11px] italic">I</span></button>
+                <button class="h-7 w-7 rounded-md hover:bg-white inline-flex items-center justify-center"><span class="text-[11px] underline">U</span></button>
+                <span class="w-px h-4 bg-slate-200 mx-1"></span>
+                <button class="h-7 w-7 rounded-md hover:bg-white inline-flex items-center justify-center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button>
+                <button class="h-7 w-7 rounded-md hover:bg-white inline-flex items-center justify-center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.72-1.71"/></svg></button>
+                <button class="h-7 w-7 rounded-md hover:bg-white inline-flex items-center justify-center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></button>
+                <span class="flex-1"></span>
+                <span class="text-[10.5px] text-slate-400 font-mono pr-1">Markdown</span>
+              </div>
+              <textarea class="w-full min-h-[200px] px-3.5 py-3 text-[13.5px] leading-relaxed text-slate-800 outline-none resize-y" placeholder="Write your announcement here…">From this week onwards, all updates, policy revisions, and team news will be posted here for easier discovery. The previous email distribution list has been retired — please bookmark the feed.</textarea>
+              <div class="px-3.5 py-2 flex items-center justify-between border-t border-slate-200 bg-slate-50/60">
+                <button class="inline-flex items-center gap-1.5 h-6 px-2 rounded-md text-[11.5px] text-slate-500 hover:bg-white">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  Attach file
+                </button>
+                <span class="wc">187 chars · ~1 min read</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="hr-line mb-9"></div>
+
+          <!-- Section: Audience -->
+          <div class="mb-9">
+            <div class="flex items-baseline justify-between mb-4">
+              <p class="text-[13px] font-semibold tracking-tight text-slate-900">Audience</p>
+              <p class="variant-tag text-slate-400">03</p>
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+              <button class="h-[68px] rounded-lg border border-slate-900 bg-slate-900 text-white p-3 text-left">
+                <p class="text-[12.5px] font-semibold">All employees</p>
+                <p class="text-[11px] text-white/60 font-mono num-tabular mt-1">248 people</p>
+              </button>
+              <button class="h-[68px] rounded-lg border border-slate-200 bg-white p-3 text-left hover:bg-slate-50">
+                <p class="text-[12.5px] font-semibold text-slate-900">By department</p>
+                <p class="text-[11px] text-slate-500 font-mono num-tabular mt-1">choose…</p>
+              </button>
+              <button class="h-[68px] rounded-lg border border-slate-200 bg-white p-3 text-left hover:bg-slate-50">
+                <p class="text-[12.5px] font-semibold text-slate-900">Specific people</p>
+                <p class="text-[11px] text-slate-500 font-mono num-tabular mt-1">pick employees</p>
+              </button>
+            </div>
+          </div>
+
+          <div class="hr-line mb-9"></div>
+
+          <!-- Section: Settings -->
+          <div>
+            <div class="flex items-baseline justify-between mb-4">
+              <p class="text-[13px] font-semibold tracking-tight text-slate-900">Settings</p>
+              <p class="variant-tag text-slate-400">04</p>
+            </div>
+            <div class="space-y-2">
+              <label class="flex items-start gap-3 p-3 rounded-lg hover:bg-slate-50 cursor-pointer">
+                <span class="cb on mt-0.5">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </span>
+                <div class="flex-1">
+                  <p class="text-[13px] font-medium text-slate-900 inline-flex items-center gap-1.5">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" class="pin-rotate text-slate-500"><path d="M16 3l5 5-2 2-1-1-4 4 1 5-2 1-5-5-5 5-1-1 5-5-5-5 1-2 5 1 4-4-1-1z"/></svg>
+                    Pin announcement
+                  </p>
+                  <p class="text-[12px] text-slate-500 mt-0.5">Pinned announcements appear in the sidebar and at the top of the feed.</p>
+                </div>
+              </label>
+              <label class="flex items-start gap-3 p-3 rounded-lg hover:bg-slate-50 cursor-pointer">
+                <span class="cb mt-0.5"></span>
+                <div class="flex-1">
+                  <p class="text-[13px] font-medium text-slate-900">Require acknowledgment</p>
+                  <p class="text-[12px] text-slate-500 mt-0.5">Employees must acknowledge they have read this announcement.</p>
+                </div>
+              </label>
+              <label class="flex items-start gap-3 p-3 rounded-lg hover:bg-slate-50 cursor-pointer">
+                <span class="cb on mt-0.5">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </span>
+                <div class="flex-1">
+                  <p class="text-[13px] font-medium text-slate-900">Allow comments</p>
+                  <p class="text-[12px] text-slate-500 mt-0.5">Members can reply in-thread.</p>
+                </div>
+              </label>
+              <label class="flex items-start gap-3 p-3 rounded-lg hover:bg-slate-50 cursor-pointer">
+                <span class="cb mt-0.5"></span>
+                <div class="flex-1">
+                  <p class="text-[13px] font-medium text-slate-900">Send email notification</p>
+                  <p class="text-[12px] text-slate-500 mt-0.5">Notifies the audience immediately on publish.</p>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== LIVE PREVIEW (right, 5 cols) ========== -->
+        <aside class="col-span-5 preview-frame px-8 py-8">
+          <div class="sticky top-4">
+            <div class="flex items-center justify-between mb-4">
+              <p class="sec-label">Live preview</p>
+              <div class="inline-flex h-7 items-center rounded-md bg-white border border-slate-200 p-0.5 text-[11.5px]">
+                <button class="h-6 px-2 rounded-[5px] bg-slate-900 text-white font-medium">Feed</button>
+                <button class="h-6 px-2 rounded-[5px] text-slate-500 hover:text-slate-900 font-medium">Detail</button>
+                <button class="h-6 px-2 rounded-[5px] text-slate-500 hover:text-slate-900 font-medium">Email</button>
+              </div>
+            </div>
+
+            <!-- Mock browser chrome -->
+            <div class="rounded-2xl border border-slate-200 bg-white shad-card-lg overflow-hidden">
+              <div class="h-8 px-3 flex items-center gap-2 border-b border-slate-200 bg-slate-50/80">
+                <div class="flex items-center gap-1">
+                  <span class="w-2.5 h-2.5 rounded-full bg-slate-200"></span>
+                  <span class="w-2.5 h-2.5 rounded-full bg-slate-200"></span>
+                  <span class="w-2.5 h-2.5 rounded-full bg-slate-200"></span>
+                </div>
+                <div class="flex-1 h-5 rounded bg-white border border-slate-200 flex items-center px-2">
+                  <span class="text-[10.5px] text-slate-400 font-mono">nextura.app/announcements</span>
+                </div>
+              </div>
+
+              <!-- The feed card preview -->
+              <div class="p-5">
+                <article class="rounded-xl border border-slate-200 bg-white overflow-hidden">
+                  <div class="p-4">
+                    <div class="flex items-start gap-3">
+                      <div class="av bg-gradient-to-br from-violet-500 to-violet-700">MH</div>
+                      <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between gap-2">
+                          <div>
+                            <p class="text-[12.5px] font-semibold text-slate-900 leading-tight">Muhammad Haziq Hilman</p>
+                            <p class="text-[10.5px] text-slate-500 mt-0.5 font-mono num-tabular">HR Manager · just now</p>
+                          </div>
+                          <div class="flex items-center gap-1 text-slate-400">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" class="pin-rotate"><path d="M16 3l5 5-2 2-1-1-4 4 1 5-2 1-5-5-5 5-1-1 5-5-5-5 1-2 5 1 4-4-1-1z"/></svg>
+                          </div>
+                        </div>
+                        <div class="mt-2.5 inline-flex items-center gap-1.5 px-1.5 h-5 rounded-md bg-orange-500/10 text-orange-700">
+                          <span class="cat-dot bg-orange-500"></span>
+                          <span class="text-[10px] font-semibold tracking-wide">SPECIAL</span>
+                        </div>
+                        <h4 class="text-[15px] font-semibold tracking-tight text-slate-900 mt-2.5 leading-snug">My first announcement</h4>
+                        <p class="text-[12px] text-slate-600 mt-1.5 leading-relaxed">
+                          Introducing our new company-wide announcement system.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="hr-line mx-4"></div>
+                  <div class="px-4 py-2.5 flex items-center justify-between text-[11px] text-slate-500">
+                    <div class="flex items-center gap-3">
+                      <span class="inline-flex items-center gap-1"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>0 views</span>
+                      <span class="inline-flex items-center gap-1"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>Comments on</span>
+                    </div>
+                    <span class="font-medium text-slate-900 inline-flex items-center gap-1">View full post →</span>
+                  </div>
+                </article>
+              </div>
+            </div>
+
+            <!-- Audit row -->
+            <div class="mt-5 rounded-xl border border-slate-200 bg-white p-4">
+              <p class="sec-label mb-3">Pre-flight</p>
+              <ul class="space-y-2 text-[12.5px]">
+                <li class="flex items-center justify-between">
+                  <span class="text-slate-700 inline-flex items-center gap-2">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgb(5 150 105)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    Title set
+                  </span>
+                  <span class="font-mono num-tabular text-slate-400 text-[11px]">21 chars</span>
+                </li>
+                <li class="flex items-center justify-between">
+                  <span class="text-slate-700 inline-flex items-center gap-2">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgb(5 150 105)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    Category chosen
+                  </span>
+                  <span class="font-mono num-tabular text-slate-400 text-[11px]">SPECIAL</span>
+                </li>
+                <li class="flex items-center justify-between">
+                  <span class="text-slate-700 inline-flex items-center gap-2">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgb(5 150 105)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    Audience set
+                  </span>
+                  <span class="font-mono num-tabular text-slate-400 text-[11px]">248 people</span>
+                </li>
+                <li class="flex items-center justify-between">
+                  <span class="text-slate-500 inline-flex items-center gap-2">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgb(148 163 184)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>
+                    Email notification off
+                  </span>
+                  <button class="text-[11px] font-medium text-slate-900 hover:underline">Enable</button>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ================================================================== -->
+  <!-- VARIANT 3 — Focused single column                                  -->
+  <!-- Centered narrow column. Quiet labeled rules. Sticky bottom bar.    -->
+  <!-- Stepper that's purely informational. Maximum minimalism.           -->
+  <!-- ================================================================== -->
+  <section data-screen-label="V3 Focused">
+    <div class="flex items-baseline justify-between mb-3">
+      <h2 class="text-[15px] font-semibold tracking-tight text-slate-900">Variant 3 — Focused single column</h2>
+      <span class="variant-tag text-slate-400">V3 · ZEN · STICKY COMMAND BAR</span>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 shad-card overflow-hidden relative">
+
+      <!-- Header strip -->
+      <div class="px-8 py-4 flex items-center justify-between border-b border-slate-200">
+        <div class="flex items-center gap-3 text-[12.5px] text-slate-500">
+          <span class="inline-flex items-center gap-2 text-slate-900 font-medium">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l18-5v12L3 13v-2z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
+            New announcement
+          </span>
+          <span class="text-slate-300">·</span>
+          <span class="font-mono num-tabular">Untitled</span>
+        </div>
+        <div class="flex items-center gap-1.5 text-[11.5px] text-slate-500">
+          <span class="step-dot on"></span>
+          <span class="step-dot on"></span>
+          <span class="step-dot"></span>
+          <span class="step-dot"></span>
+          <span class="ml-2 font-mono num-tabular">2 / 4</span>
+        </div>
+      </div>
+
+      <!-- Body -->
+      <div class="max-w-[720px] mx-auto px-8 pt-12 pb-24">
+
+        <!-- 1 · Headline -->
+        <div class="mb-12">
+          <p class="sec-label mb-3"><span class="text-slate-300">01 ·</span> Headline</p>
+          <input
+            class="w-full text-[32px] font-semibold tracking-tight text-slate-900 leading-tight placeholder:text-slate-300 bg-transparent border-0 outline-none p-0"
+            placeholder="What's the news?"
+            value="My first announcement"
+          />
+          <input
+            class="w-full mt-3 text-[15px] text-slate-500 leading-relaxed placeholder:text-slate-300 bg-transparent border-0 outline-none p-0"
+            placeholder="A one-line summary (optional)"
+            value="Introducing our new company-wide announcement system."
+          />
+        </div>
+
+        <!-- 2 · Tags / props inline -->
+        <div class="mb-12">
+          <p class="sec-label mb-3"><span class="text-slate-300">02 ·</span> Properties</p>
+          <div class="grid grid-cols-1 gap-0 rounded-xl border border-slate-200 overflow-hidden">
+            <!-- Row -->
+            <div class="grid grid-cols-12 items-center px-4 py-2.5 hover:bg-slate-50">
+              <div class="col-span-4 text-[12.5px] text-slate-500 inline-flex items-center gap-2">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                Category
+              </div>
+              <div class="col-span-8">
+                <button class="inline-flex items-center gap-2 h-7 px-2 -ml-2 rounded-md hover:bg-white text-[13px] text-slate-900">
+                  <span class="cat-dot bg-orange-500"></span>Special
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-slate-400"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="hr-line"></div>
+            <!-- Row -->
+            <div class="grid grid-cols-12 items-center px-4 py-2.5 hover:bg-slate-50">
+              <div class="col-span-4 text-[12.5px] text-slate-500 inline-flex items-center gap-2">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 22h20L12 2z"/></svg>
+                Priority
+              </div>
+              <div class="col-span-8 inline-flex items-center gap-1">
+                <button class="h-7 px-2.5 rounded-md text-[12.5px] text-slate-500 hover:bg-white">Low</button>
+                <button class="h-7 px-2.5 rounded-md text-[12.5px] text-slate-900 bg-white border border-slate-200 font-medium">Normal</button>
+                <button class="h-7 px-2.5 rounded-md text-[12.5px] text-slate-500 hover:bg-white">Urgent</button>
+              </div>
+            </div>
+            <div class="hr-line"></div>
+            <!-- Row -->
+            <div class="grid grid-cols-12 items-center px-4 py-2.5 hover:bg-slate-50">
+              <div class="col-span-4 text-[12.5px] text-slate-500 inline-flex items-center gap-2">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                Audience
+              </div>
+              <div class="col-span-8">
+                <button class="inline-flex items-center gap-2 h-7 px-2 -ml-2 rounded-md hover:bg-white text-[13px] text-slate-900">
+                  All employees
+                  <span class="font-mono num-tabular text-[11px] text-slate-400">248</span>
+                </button>
+              </div>
+            </div>
+            <div class="hr-line"></div>
+            <!-- Row -->
+            <div class="grid grid-cols-12 items-center px-4 py-2.5 hover:bg-slate-50">
+              <div class="col-span-4 text-[12.5px] text-slate-500 inline-flex items-center gap-2">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Expires
+              </div>
+              <div class="col-span-8">
+                <button class="inline-flex items-center gap-2 h-7 px-2 -ml-2 rounded-md hover:bg-white text-[13px] text-slate-400">
+                  Never · click to schedule
+                </button>
+              </div>
+            </div>
+            <div class="hr-line"></div>
+            <!-- Row -->
+            <div class="grid grid-cols-12 items-center px-4 py-2.5 hover:bg-slate-50">
+              <div class="col-span-4 text-[12.5px] text-slate-500 inline-flex items-center gap-2">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" class="pin-rotate"><path d="M16 3l5 5-2 2-1-1-4 4 1 5-2 1-5-5-5 5-1-1 5-5-5-5 1-2 5 1 4-4-1-1z"/></svg>
+                Pin
+              </div>
+              <div class="col-span-8 flex items-center justify-between">
+                <span class="text-[13px] text-slate-900">Pin to top of feed</span>
+                <span class="switch on" role="switch" aria-checked="true"></span>
+              </div>
+            </div>
+            <div class="hr-line"></div>
+            <div class="grid grid-cols-12 items-center px-4 py-2.5 hover:bg-slate-50">
+              <div class="col-span-4 text-[12.5px] text-slate-500 inline-flex items-center gap-2">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Acknowledgment
+              </div>
+              <div class="col-span-8 flex items-center justify-between">
+                <span class="text-[13px] text-slate-900">Require employees to confirm read</span>
+                <span class="switch" role="switch" aria-checked="false"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3 · Body -->
+        <div class="mb-8">
+          <div class="flex items-baseline justify-between mb-3">
+            <p class="sec-label"><span class="text-slate-300">03 ·</span> Body</p>
+            <span class="text-[10.5px] text-slate-400 font-mono">Type / for blocks</span>
+          </div>
+          <textarea
+            class="w-full min-h-[220px] text-[15px] leading-[1.8] text-slate-800 placeholder:text-slate-300 bg-transparent border-0 outline-none p-0 resize-none"
+            placeholder="Write the announcement…"
+          >From this week onwards, all updates, policy revisions, and team news will be posted here for easier discovery. The previous email distribution list has been retired — please bookmark the feed.</textarea>
+        </div>
+      </div>
+
+      <!-- Sticky command bar -->
+      <div class="sticky-bar absolute bottom-0 inset-x-0 border-t border-slate-200 px-6 py-3 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 text-[12px] text-slate-500">
+          <span class="inline-flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            Draft autosaved
+          </span>
+          <span class="text-slate-300">·</span>
+          <span class="font-mono num-tabular">187 chars · ~1 min read</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="inline-flex items-center gap-2 h-8 px-3 rounded-md text-[12.5px] font-medium text-slate-700 hover:bg-slate-100">
+            Cancel
+          </button>
+          <button class="inline-flex items-center gap-2 h-8 px-3 rounded-md text-[12.5px] font-medium text-slate-700 hover:bg-slate-100">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            Preview
+            <span class="kbd">⌘P</span>
+          </button>
+          <button class="inline-flex items-center gap-2 h-8 px-3.5 rounded-md bg-slate-900 hover:bg-slate-800 text-white text-[12.5px] font-medium">
+            Publish
+            <span class="kbd" style="background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.18); box-shadow: none; color: rgba(255,255,255,0.85)">⌘↵</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- spacer so content not hidden behind bar -->
+      <div class="h-12"></div>
+    </div>
+  </section>
+
+  <footer class="text-[11.5px] text-slate-400 pt-2 pb-8 flex items-center justify-between">
+    <span class="font-mono">END · CREATE ANNOUNCEMENT VARIANTS</span>
+    <span>Geist · slate · Nextura HR</span>
+  </footer>
+
+</div>
+
+<script>
+  // Make toggles flip on click
+  document.querySelectorAll('.switch').forEach(s => {
+    s.addEventListener('click', () => {
+      s.classList.toggle('on');
+      const ch = s.getAttribute('aria-checked') === 'true';
+      s.setAttribute('aria-checked', String(!ch));
+    });
+  });
+  // Make checkboxes flip on click
+  document.querySelectorAll('label').forEach(lab => {
+    const cb = lab.querySelector('.cb');
+    if (!cb) return;
+    lab.addEventListener('click', (e) => {
+      // prevent double-toggle when clicking the cb itself
+      cb.classList.toggle('on');
+      if (cb.classList.contains('on') && !cb.querySelector('svg')) {
+        cb.innerHTML = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+      } else if (!cb.classList.contains('on')) {
+        cb.innerHTML = '';
+      }
+    });
+  });
+</script>
+
+</body>
+</html>

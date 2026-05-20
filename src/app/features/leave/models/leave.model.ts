@@ -131,7 +131,7 @@ export interface LeaveListParams {
   page?: number;
   limit?: number;
   status?: LeaveStatus;
-  employee_id?: number;
+  employee_id?: string;
   leave_type_id?: number;
   start_date?: string;
   end_date?: string;

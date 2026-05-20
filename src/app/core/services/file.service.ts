@@ -109,10 +109,19 @@ export interface FileListFilters {
   related_to_leave_id?: number | string;
   search?: string;
   is_verified?: string;
+  days?: number;
+  modified_from?: string;
+  modified_to?: string;
   page?: number;
   limit?: number;
   sort?: string;
   order?: string;
+}
+
+export interface UploaderOption {
+  id: number;
+  email: string;
+  name: string;
 }
 
 @Injectable({
@@ -272,6 +281,55 @@ export class FileService {
    */
   bulkDeleteFiles(fileIds: number[]): Observable<any> {
     return this.http.post(`${this.apiUrl}/bulk-delete`, { file_ids: fileIds });
+  }
+
+  /**
+   * Bulk verify / unverify files (admin only)
+   */
+  bulkVerifyFiles(fileIds: number[], isVerified: boolean): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/bulk-verify`, {
+      file_ids: fileIds,
+      is_verified: isVerified
+    });
+  }
+
+  /**
+   * Bulk download files as a zip
+   */
+  bulkDownloadFiles(fileIds: number[]): Observable<Blob> {
+    return this.http.post(`${this.apiUrl}/bulk-download`, { file_ids: fileIds }, {
+      responseType: 'blob'
+    });
+  }
+
+  /**
+   * Bulk download and save (zip)
+   */
+  bulkDownloadAndSave(fileIds: number[]): Observable<void> {
+    return new Observable<void>(observer => {
+      this.bulkDownloadFiles(fileIds).subscribe({
+        next: (blob) => {
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `documents-${Date.now()}.zip`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+          observer.next();
+          observer.complete();
+        },
+        error: (err) => observer.error(err)
+      });
+    });
+  }
+
+  /**
+   * Get distinct uploaders for the current company (admin file filter)
+   */
+  getUploaders(): Observable<{ success: boolean; data: UploaderOption[] }> {
+    return this.http.get<{ success: boolean; data: UploaderOption[] }>(`${this.apiUrl}/uploaders`);
   }
 
   /**

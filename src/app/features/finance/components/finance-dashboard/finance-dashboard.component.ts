@@ -11,6 +11,7 @@ import { Project } from '@/features/projects/models/project.model';
 import { ZardSelectComponent } from '@/shared/components/select/select.component';
 import { ZardSelectItemComponent } from '@/shared/components/select/select-item.component';
 import { ZardDatePickerComponent } from '@/shared/components/date-picker/date-picker.component';
+import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { ThemeService } from '@/core/services/theme';
 
 @Component({
@@ -23,7 +24,8 @@ import { ThemeService } from '@/core/services/theme';
     HighchartsChartComponent,
     ZardSelectComponent,
     ZardSelectItemComponent,
-    ZardDatePickerComponent
+    ZardDatePickerComponent,
+    ZardButtonComponent
   ],
   templateUrl: './finance-dashboard.component.html'
 })

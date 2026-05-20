@@ -1,0 +1,461 @@
+<div>
+  <!-- Page header -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-[28px] font-semibold tracking-tight leading-none text-foreground">Leave Management</h1>
+      <p class="text-[13px] text-muted-foreground mt-2">Apply for leave and track requests across your team</p>
+    </div>
+    <div class="flex gap-2">
+      @if (!isStaff()) {
+        <button z-button zType="outline" routerLink="/leave/approvals" class="gap-2">
+          <z-icon zType="circle-check" class="w-4 h-4" />
+          Approval
+        </button>
+      }
+      <button z-button (click)="openApply()" class="gap-2">
+        <z-icon zType="plus" class="w-4 h-4" />
+        Apply Leave
+      </button>
+    </div>
+  </div>
+
+  <!-- Unified filter + tab card -->
+  <div class="bg-card rounded-2xl border shad-card p-4 mb-4 flex items-center gap-3 flex-wrap min-h-[64px]">
+
+    <!-- Left side: tab-specific filters (animated swap) -->
+    <div class="flex items-center gap-3 flex-wrap flex-1 min-w-0">
+
+      <!-- Dashboard: staff picker + year -->
+      @if (activeTab() === 'dashboard') {
+        <div class="fade-swap flex items-center gap-3 flex-wrap">
+
+          <!-- Employee chip -->
+          @if (filters.selectedEmployee(); as emp) {
+            @if (isStaff()) {
+              <div class="flex items-center gap-3 min-w-0 pr-3 mr-1 border-r border-border">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-violet-700 text-white text-[12px] font-semibold flex items-center justify-center shrink-0">
+                  {{ employeeInitials(emp.full_name) }}
+                </div>
+                <div class="min-w-0">
+                  <p class="text-[13px] font-semibold text-foreground truncate">{{ emp.full_name }}</p>
+                  <div class="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                    <span class="font-mono">{{ emp.employee_id }}</span>
+                    @if (emp.position) {
+                      <span class="w-1 h-1 rounded-full bg-muted-foreground/50"></span>
+                      <span>{{ emp.position }}</span>
+                    }
+                    <span class="w-1 h-1 rounded-full bg-muted-foreground/50"></span>
+                    <span class="inline-flex items-center gap-1">
+                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>{{ emp.employment_status }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            } @else {
+              <div class="relative pr-3 mr-1 border-r border-border">
+                <button
+                  #pickerTrigger
+                  type="button"
+                  (click)="togglePicker()"
+                  class="flex items-center gap-3 min-w-0 max-w-[360px] h-12 pl-1 pr-3 rounded-lg hover:bg-muted/60 focus:outline-none focus:ring-2 focus:ring-ring/30 transition group">
+                  <div class="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-violet-700 text-white text-[12px] font-semibold flex items-center justify-center shrink-0">
+                    {{ employeeInitials(emp.full_name) }}
+                  </div>
+                  <div class="min-w-0 text-left">
+                    <div class="flex items-center gap-1.5">
+                      <p class="text-sm font-semibold text-foreground truncate">{{ emp.full_name }}</p>
+                      <z-icon
+                        zType="chevron-down"
+                        class="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground shrink-0 transition" />
+                    </div>
+                    <div class="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                      <span class="font-mono">{{ emp.employee_id }}</span>
+                      @if (emp.position) {
+                        <span class="w-1 h-1 rounded-full bg-muted-foreground/50"></span>
+                        <span>{{ emp.position }}</span>
+                      }
+                      <span class="w-1 h-1 rounded-full bg-muted-foreground/50"></span>
+                      <span class="inline-flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>{{ emp.employment_status }}
+                      </span>
+                    </div>
+                  </div>
+                </button>
+
+                <!-- Picker overlay -->
+                <ng-template
+                  cdkConnectedOverlay
+                  [cdkConnectedOverlayOrigin]="pickerTrigger"
+                  [cdkConnectedOverlayOpen]="pickerOpen()"
+                  [cdkConnectedOverlayHasBackdrop]="true"
+                  cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+                  [cdkConnectedOverlayOffsetY]="8"
+                  (backdropClick)="closePicker()"
+                  (detach)="closePicker()">
+                  <div
+                    class="z-30 w-[420px] bg-popover text-popover-foreground rounded-xl border shadow-lg overflow-hidden"
+                    (keydown)="onPickerKeydown($event)">
+
+                    <!-- Search -->
+                    <div class="p-3 border-b border-border relative">
+                      <z-icon
+                        zType="search"
+                        class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
+                      <input
+                        id="emp-picker-search"
+                        type="text"
+                        autocomplete="off"
+                        placeholder="Search by name, ID, role…"
+                        [value]="pickerSearch()"
+                        (input)="onPickerSearch($any($event.target).value)"
+                        class="w-full h-9 pl-9 pr-16 rounded-md border bg-background text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/30" />
+                      <kbd class="absolute right-5 top-1/2 -translate-y-1/2 font-mono text-[10px] text-muted-foreground bg-muted ring-1 ring-border rounded px-1.5 py-0.5">⌘K</kbd>
+                    </div>
+
+                    <!-- Department chips -->
+                    <div class="px-3 py-2 border-b border-border flex items-center gap-1.5 overflow-x-auto">
+                      @for (chip of departmentChips(); track chip.key) {
+                        <button
+                          type="button"
+                          (click)="setPickerDept(chip.key)"
+                          class="h-6 px-2 rounded-full text-[11px] font-medium shrink-0 transition-colors"
+                          [class.bg-foreground]="pickerDept() === chip.key"
+                          [class.text-background]="pickerDept() === chip.key"
+                          [class.text-muted-foreground]="pickerDept() !== chip.key"
+                          [class.hover:bg-muted]="pickerDept() !== chip.key">
+                          {{ chip.label }}
+                          @if (chip.key === 'all') {
+                            <span class="font-mono opacity-70 ml-1">{{ chip.count }}</span>
+                          }
+                        </button>
+                      }
+                    </div>
+
+                    <!-- Scrollable list -->
+                    <div class="max-h-[340px] overflow-y-auto">
+                      @if (filteredEmployees().length > 0) {
+                        <p class="px-3 pt-3 pb-1.5 text-[10px] uppercase tracking-wide text-muted-foreground font-medium">
+                          @if (pickerSearch()) { Results } @else { Recent }
+                        </p>
+                        <ul class="px-1.5 pb-2">
+                          @for (e of filteredEmployees(); track e.public_id; let i = $index) {
+                            <li>
+                              <button
+                                type="button"
+                                (click)="selectEmployee(e.public_id)"
+                                (mouseenter)="pickerHighlight.set(i)"
+                                class="w-full flex items-center gap-3 px-2.5 py-2 rounded-md text-left transition-colors"
+                                [class.bg-muted]="pickerHighlight() === i || e.public_id === filters.selectedEmployeeId()">
+                                <div class="w-9 h-9 rounded-full bg-gradient-to-br from-violet-500 to-violet-700 text-white text-[11px] font-semibold flex items-center justify-center shrink-0">
+                                  {{ employeeInitials(e.full_name) }}
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                  <div class="flex items-center gap-1.5">
+                                    <p class="text-sm font-semibold text-foreground truncate">{{ e.full_name }}</p>
+                                    @if (e.employment_status === 'Active') {
+                                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
+                                    }
+                                  </div>
+                                  <div class="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                                    <span class="font-mono">{{ e.employee_id }}</span>
+                                    @if (e.position) {
+                                      <span class="w-1 h-1 rounded-full bg-muted-foreground/50"></span>
+                                      <span class="truncate">{{ e.position }}</span>
+                                    }
+                                  </div>
+                                </div>
+                                @if (e.public_id === filters.selectedEmployeeId()) {
+                                  <z-icon zType="check" class="w-4 h-4 text-primary shrink-0" />
+                                } @else if (daysSinceJoin(e.join_date); as ds) {
+                                  <span class="text-[11px] text-muted-foreground font-mono shrink-0">{{ ds }}</span>
+                                }
+                              </button>
+                            </li>
+                          }
+                        </ul>
+                      } @else {
+                        <p class="px-4 py-8 text-center text-[12px] text-muted-foreground">
+                          No staff match your search.
+                        </p>
+                      }
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="border-t border-border px-3 py-2 flex items-center justify-between bg-muted/40">
+                      <div class="flex items-center gap-3 text-[10px] text-muted-foreground font-mono">
+                        <span><kbd class="bg-background ring-1 ring-border rounded px-1">↑↓</kbd> navigate</span>
+                        <span><kbd class="bg-background ring-1 ring-border rounded px-1">↵</kbd> select</span>
+                        <span><kbd class="bg-background ring-1 ring-border rounded px-1">esc</kbd> close</span>
+                      </div>
+                      <button
+                        type="button"
+                        (click)="goToAllStaff()"
+                        class="text-[11px] font-medium text-foreground hover:text-primary">
+                        All staff →
+                      </button>
+                    </div>
+                  </div>
+                </ng-template>
+              </div>
+            }
+          }
+
+          <!-- Year selector -->
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">Year</span>
+            <z-select
+              zPlaceholder="Select Year"
+              zSize="sm"
+              [zValue]="filters.selectedYear()"
+              (zValueChange)="onYearChange($event)"
+              class="w-28">
+              @for (y of years; track y) {
+                <z-select-item [zValue]="y">{{ y }}</z-select-item>
+              }
+            </z-select>
+          </div>
+        </div>
+      }
+
+      <!-- List tab: KPI strip (default) or bulk actions (when rows selected) -->
+      @if (activeTab() === 'list') {
+        @if (filters.selectedLeaves().length > 0) {
+          <div class="fade-swap flex items-center gap-2 flex-wrap">
+            <div class="flex items-center gap-2 mr-2">
+              <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-primary/15 text-primary">
+                <z-icon zType="check-circle" class="w-3.5 h-3.5" />
+              </span>
+              <span class="text-sm text-foreground whitespace-nowrap">
+                <strong class="font-semibold">{{ filters.selectedLeaves().length }}</strong>
+                <span class="text-muted-foreground"> selected</span>
+              </span>
+            </div>
+
+            <button
+              type="button"
+              z-button
+              (click)="requestBulkApprove()"
+              [disabled]="!filters.canBulkApprove()">
+              <z-icon zType="circle-check" class="w-4 h-4" />
+              Approve
+            </button>
+
+            <button
+              type="button"
+              z-button
+              zType="destructive"
+              (click)="requestBulkReject()"
+              [disabled]="!filters.canBulkReject()">
+              <z-icon zType="circle-x" class="w-4 h-4" />
+              Reject
+            </button>
+
+            <button
+              type="button"
+              z-button
+              zType="ghost"
+              (click)="requestClearSelection()">
+              <z-icon zType="x" class="w-4 h-4" />
+              Clear
+            </button>
+          </div>
+        } @else {
+          @if (listSummaryLoading()) {
+            <div class="fade-swap flex items-center gap-5 flex-wrap">
+              @for (i of [1, 2, 3, 4]; track i) {
+                <div class="flex flex-col gap-1.5">
+                  <span class="h-2.5 w-16 rounded bg-muted animate-pulse"></span>
+                  <span class="h-5 w-8 rounded bg-muted animate-pulse"></span>
+                </div>
+              }
+            </div>
+          } @else {
+            @let lsum = listSummary();
+            <div class="fade-swap flex items-center gap-4 sm:gap-5 flex-wrap">
+              <div>
+                <p class="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">Pending</p>
+                <p
+                  class="font-mono text-[20px] font-semibold leading-none mt-1"
+                  [class.text-amber-600]="lsum.pending > 0"
+                  [class.text-foreground]="lsum.pending === 0">
+                  {{ lsum.pending }}
+                </p>
+              </div>
+              <span class="w-px h-9 bg-border"></span>
+              <div>
+                <p class="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">
+                  Approved · {{ filters.selectedYear() }}
+                </p>
+                <p class="font-mono text-[20px] font-semibold text-emerald-600 leading-none mt-1">
+                  {{ lsum.approved }}
+                </p>
+              </div>
+              <span class="w-px h-9 bg-border"></span>
+              <div>
+                <p class="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">
+                  Rejected · {{ filters.selectedYear() }}
+                </p>
+                <p class="font-mono text-[20px] font-semibold text-rose-600 leading-none mt-1">
+                  {{ lsum.rejected }}
+                </p>
+              </div>
+              <span class="w-px h-9 bg-border"></span>
+              <div>
+                <p class="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">Out today</p>
+                <p class="font-mono text-[20px] font-semibold text-foreground leading-none mt-1">
+                  {{ lsum.outToday }}
+                </p>
+              </div>
+
+              <!-- Year selector -->
+              <div class="flex items-center gap-2 ml-1 pl-4 border-l border-border">
+                <span class="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">Year</span>
+                <z-select
+                  zPlaceholder="Select Year"
+                  zSize="sm"
+                  [zValue]="filters.selectedYear()"
+                  (zValueChange)="onYearChange($event)"
+                  class="w-24">
+                  @for (y of years; track y) {
+                    <z-select-item [zValue]="y">{{ y }}</z-select-item>
+                  }
+                </z-select>
+              </div>
+            </div>
+          }
+        }
+      }
+
+      <!-- Calendar: live attendance pulse -->
+      @if (activeTab() === 'calendar') {
+        @if (summaryLoading()) {
+          <div class="fade-swap flex items-center gap-4 flex-wrap">
+            <div class="flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-muted-foreground/40 animate-pulse"></span>
+              <span class="h-3 w-24 rounded bg-muted animate-pulse"></span>
+              <div class="flex -space-x-1.5">
+                <span class="w-6 h-6 rounded-full ring-2 ring-card bg-muted animate-pulse"></span>
+                <span class="w-6 h-6 rounded-full ring-2 ring-card bg-muted animate-pulse"></span>
+                <span class="w-6 h-6 rounded-full ring-2 ring-card bg-muted animate-pulse"></span>
+              </div>
+            </div>
+            <span class="h-3 w-32 rounded bg-muted animate-pulse"></span>
+            <span class="h-3 w-36 rounded bg-muted animate-pulse"></span>
+          </div>
+        } @else {
+        @let summary = calendarSummary();
+        <div class="fade-swap flex items-center gap-4 flex-wrap text-[13px] min-w-0">
+
+          <!-- Out today (color adapts to count) -->
+          @if (summary.outTodayCount === 0) {
+            <span class="inline-flex items-center gap-2">
+              <span class="relative flex w-1.5 h-1.5">
+                <span class="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping"></span>
+                <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+              </span>
+              <span class="text-foreground font-medium">All clear · no one off today</span>
+            </span>
+          } @else {
+            <div class="flex items-center gap-2">
+              <span
+                class="w-1.5 h-1.5 rounded-full shrink-0"
+                [class.bg-sky-500]="summary.outTodayCount === 1"
+                [class.bg-emerald-500]="summary.outTodayCount > 1"></span>
+              <span class="text-foreground whitespace-nowrap">
+                <strong class="font-semibold">{{ summary.outTodayCount }}</strong>
+                <span class="text-muted-foreground"> out today</span>
+              </span>
+              @if (summary.outToday.length > 0) {
+                <div class="flex -space-x-1.5">
+                  @for (a of summary.outToday; track a.name) {
+                    <span
+                      [title]="a.name"
+                      class="w-6 h-6 rounded-full ring-2 ring-card text-white text-[10px] font-semibold flex items-center justify-center bg-gradient-to-br {{ a.gradient }}">
+                      {{ a.initials }}
+                    </span>
+                  }
+                  @if (summary.outTodayCount > summary.outToday.length) {
+                    <span class="w-6 h-6 rounded-full ring-2 ring-card bg-muted text-foreground text-[10px] font-semibold flex items-center justify-center">
+                      +{{ summary.outTodayCount - summary.outToday.length }}
+                    </span>
+                  }
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Back tomorrow -->
+          @if (summary.backTomorrowCount > 0) {
+            <div class="flex items-center gap-1.5 text-muted-foreground whitespace-nowrap">
+              <z-icon zType="arrow-left" class="w-3.5 h-3.5" />
+              <span><strong class="font-semibold text-foreground">{{ summary.backTomorrowCount }}</strong> back tomorrow</span>
+            </div>
+          }
+
+          <!-- Upcoming this week -->
+          @if (summary.upcomingWeekCount > 0) {
+            <div class="flex items-center gap-1.5 text-muted-foreground whitespace-nowrap">
+              <z-icon zType="calendar" class="w-3.5 h-3.5" />
+              <span><strong class="font-semibold text-foreground">{{ summary.upcomingWeekCount }}</strong> upcoming this week</span>
+            </div>
+          }
+
+          <!-- Peak-day warning (≥3 off or ≥30% absent in next 14 weekdays) -->
+          @if (summary.peakDay; as peak) {
+            <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-amber-50 ring-1 ring-amber-200 text-amber-800 text-[12px] dark:bg-amber-900/20 dark:ring-amber-800 dark:text-amber-300 whitespace-nowrap">
+              <z-icon zType="triangle-alert" class="w-3.5 h-3.5" />
+              <strong class="font-semibold">{{ peak.dateLabel }}</strong> — {{ peak.count }} off ({{ peak.percent }}%)
+            </span>
+          }
+        </div>
+        }
+      }
+    </div>
+
+    <!-- Right side: nav pills (always visible) -->
+    <div class="flex items-center gap-1 bg-muted rounded-lg p-1 ml-auto">
+      <a
+        routerLink="/leave/dashboard"
+        routerLinkActive="bg-background text-foreground shadow-sm"
+        [routerLinkActiveOptions]="{ exact: false }"
+        #dashLink="routerLinkActive"
+        class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-normal transition-colors no-underline"
+        [class.text-muted-foreground]="!dashLink.isActive"
+        [class.hover:text-foreground]="!dashLink.isActive">
+        <z-icon zType="layout-dashboard" class="w-4 h-4" />
+        Dashboard
+      </a>
+      <a
+        routerLink="/leave/list"
+        routerLinkActive="bg-background text-foreground shadow-sm"
+        #listLink="routerLinkActive"
+        class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-normal transition-colors no-underline"
+        [class.text-muted-foreground]="!listLink.isActive"
+        [class.hover:text-foreground]="!listLink.isActive">
+        <z-icon zType="list" class="w-4 h-4" />
+        List
+      </a>
+      <a
+        routerLink="/leave/calendar"
+        routerLinkActive="bg-background text-foreground shadow-sm"
+        #calLink="routerLinkActive"
+        class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-normal transition-colors no-underline"
+        [class.text-muted-foreground]="!calLink.isActive"
+        [class.hover:text-foreground]="!calLink.isActive">
+        <z-icon zType="calendar-check" class="w-4 h-4" />
+        Calendar
+      </a>
+    </div>
+  </div>
+
+  <!-- Active child page -->
+  <router-outlet></router-outlet>
+</div>
+
+<!-- Shared apply-leave sheet -->
+<app-leave-form-sheet
+  [open]="formSheetOpen()"
+  [leaveId]="null"
+  (openChange)="onSheetClose($event)"
+  (saved)="onSheetSaved()">
+</app-leave-form-sheet>

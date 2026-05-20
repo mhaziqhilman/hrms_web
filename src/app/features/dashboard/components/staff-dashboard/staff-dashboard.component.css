@@ -5,3 +5,13 @@
 .bg-gradient-primary {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
+
+/* Variant 02 — empty state dotted background */
+.dotted-bg {
+  background-image: radial-gradient(circle, rgb(226 232 240) 1px, transparent 1px);
+  background-size: 14px 14px;
+}
+
+:host-context(.dark) .dotted-bg {
+  background-image: radial-gradient(circle, rgb(51 65 85) 1px, transparent 1px);
+}

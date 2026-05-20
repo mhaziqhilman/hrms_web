@@ -2,11 +2,18 @@ import { Injectable, signal, computed, OnDestroy } from '@angular/core';
 
 export type ThemePreference = 'light' | 'dark' | 'system';
 export type BorderRadiusPreset = 'sharp' | 'default' | 'round';
+export type FontFamilyPreset = 'plus-jakarta-sans' | 'geist' | 'figtree';
 
 const RADIUS_VALUES: Record<BorderRadiusPreset, string> = {
-  sharp: '0.55rem',
-  default: '0.75rem',
-  round: '0.95rem'
+  sharp: '0.45rem',
+  default: '0.65rem',
+  round: '0.85rem'
+};
+
+const FONT_FAMILY_VALUES: Record<FontFamilyPreset, string> = {
+  'plus-jakarta-sans': "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
+  'geist': "'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
+  'figtree': "'Figtree', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif"
 };
 
 @Injectable({
@@ -24,6 +31,7 @@ export class ThemeService implements OnDestroy {
 
   compactMode = signal(false);
   borderRadius = signal<BorderRadiusPreset>('default');
+  fontFamily = signal<FontFamilyPreset>('plus-jakarta-sans');
   sidebarCollapsed = signal(false);
 
   private systemPrefersDark = signal(false);
@@ -47,6 +55,7 @@ export class ThemeService implements OnDestroy {
     const savedTheme = localStorage.getItem('theme') as ThemePreference | null;
     const savedCompact = localStorage.getItem('compact_mode');
     const savedRadius = localStorage.getItem('border_radius') as BorderRadiusPreset | null;
+    const savedFontFamily = localStorage.getItem('font_family') as FontFamilyPreset | null;
     const savedSidebar = localStorage.getItem('sidebar_collapsed');
 
     if (savedTheme && ['light', 'dark', 'system'].includes(savedTheme)) {
@@ -58,6 +67,9 @@ export class ThemeService implements OnDestroy {
     if (savedRadius && ['sharp', 'default', 'round'].includes(savedRadius)) {
       this.borderRadius.set(savedRadius);
     }
+    if (savedFontFamily && ['plus-jakarta-sans', 'geist', 'figtree'].includes(savedFontFamily)) {
+      this.fontFamily.set(savedFontFamily);
+    }
     if (savedSidebar !== null) {
       this.sidebarCollapsed.set(savedSidebar === 'true');
     }
@@ -66,6 +78,7 @@ export class ThemeService implements OnDestroy {
     this.applyDarkClass(this.darkMode());
     this.applyCompactClass(this.compactMode());
     this.applyBorderRadius(this.borderRadius());
+    this.applyFontFamily(this.fontFamily());
   }
 
   ngOnDestroy(): void {
@@ -102,6 +115,21 @@ export class ThemeService implements OnDestroy {
     this.applyBorderRadius(preset);
   }
 
+  setFontFamily(preset: FontFamilyPreset): void {
+    this.fontFamily.set(preset);
+    localStorage.setItem('font_family', preset);
+    this.applyFontFamily(preset);
+  }
+
+  /**
+   * Resolved CSS font-family stack for the active preset (or a given one).
+   * Use this when rendering into isolated documents (print windows, PDF
+   * iframes) that don't inherit the `--font-family` CSS variable.
+   */
+  getFontFamilyValue(preset: FontFamilyPreset = this.fontFamily()): string {
+    return FONT_FAMILY_VALUES[preset];
+  }
+
   setSidebarCollapsed(collapsed: boolean): void {
     this.sidebarCollapsed.set(collapsed);
     localStorage.setItem('sidebar_collapsed', String(collapsed));
@@ -125,5 +153,9 @@ export class ThemeService implements OnDestroy {
 
   private applyBorderRadius(preset: BorderRadiusPreset): void {
     document.documentElement.style.setProperty('--radius', RADIUS_VALUES[preset]);
+  }
+
+  private applyFontFamily(preset: FontFamilyPreset): void {
+    document.documentElement.style.setProperty('--font-family', FONT_FAMILY_VALUES[preset]);
   }
 }

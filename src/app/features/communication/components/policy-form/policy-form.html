@@ -1,254 +1,316 @@
-<div class="policy-form-container">
-  <!-- Loading State -->
-  <div class="loading-container" *ngIf="loading()">
-    <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Loading...</span>
-    </div>
-    <p class="mt-3 text-muted">Loading policy...</p>
+<div>
+  <!-- Loading -->
+  <div *ngIf="loading()" class="flex flex-col items-center justify-center py-32">
+    <z-icon zType="loader-circle" class="w-8 h-8 text-primary animate-spin" />
+    <p class="text-sm text-muted-foreground mt-3">Loading policy...</p>
   </div>
 
-  <!-- Form Content -->
-  <div *ngIf="!loading()" class="form-content">
+  <!-- Form -->
+  <div *ngIf="!loading()">
     <!-- Header -->
-    <div class="form-header">
-      <div>
-        <h2 class="page-title">
-          <i class="bi bi-file-earmark-text"></i>
-          {{ isEditMode() ? 'Edit Policy' : 'Create New Policy' }}
-        </h2>
-        <p class="page-subtitle">
-          {{ isEditMode() ? 'Update the policy details below' : 'Create and manage company policies' }}
-        </p>
-      </div>
-      <div class="header-actions">
+    <header class="mb-10">
+      <div class="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <a
+            routerLink="/communication/policies"
+            class="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground mb-3 transition-colors"
+          >
+            <z-icon zType="chevron-left" class="w-3.5 h-3.5" />
+            Back to policies
+          </a>
+          <h1 class="text-3xl font-semibold tracking-tight text-foreground">
+            {{ isEditMode() ? 'Edit Policy' : 'New Policy' }}
+          </h1>
+          <p class="text-muted-foreground mt-2 text-sm">
+            {{ isEditMode()
+                ? 'Update the policy details below. Changes take effect once saved.'
+                : 'Define a new company policy. Save as draft to come back later, or activate to publish.' }}
+          </p>
+        </div>
         <button
           *ngIf="isEditMode()"
-          class="btn btn-info"
-          (click)="createNewVersion()">
-          <i class="bi bi-plus-circle"></i>
+          type="button"
+          z-button
+          zType="outline"
+          zSize="sm"
+          (click)="createNewVersion()"
+          [zTooltip]="'Create a new version linked to this policy'"
+          class="flex items-center gap-2"
+        >
+          <z-icon zType="git-branch" class="w-4 h-4" />
           New Version
         </button>
-        <button class="btn btn-outline-secondary" (click)="cancel()">
-          <i class="bi bi-x-circle"></i>
-          Cancel
-        </button>
       </div>
+    </header>
+
+    <!-- Error -->
+    <div *ngIf="error()" class="mb-6 p-4 rounded-lg bg-destructive/5 border border-destructive/20 flex items-center gap-3">
+      <z-icon zType="triangle-alert" class="w-5 h-5 text-destructive flex-shrink-0" />
+      <span class="text-sm text-destructive">{{ error() }}</span>
     </div>
 
-    <!-- Error Alert -->
-    <div class="alert alert-danger" *ngIf="error()">
-      <i class="bi bi-exclamation-triangle"></i>
-      {{ error() }}
-    </div>
+    <form [formGroup]="form" class="space-y-10">
+      <!-- ── Section: Basics ───────────────────────────── -->
+      <section>
+        <div class="mb-5">
+          <h2 class="text-sm font-semibold text-foreground uppercase tracking-wider">Basics</h2>
+          <p class="text-xs text-muted-foreground mt-0.5">Identify the policy with a code, title, and category.</p>
+        </div>
 
-    <!-- Form -->
-    <form [formGroup]="form" class="policy-form">
-      <!-- Basic Information Card -->
-      <div class="form-card">
-        <h4 class="card-title">
-          <i class="bi bi-info-circle"></i>
-          Basic Information
-        </h4>
+        <div class="space-y-5">
+          <!-- Policy Code + Version (2 col on md+) -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div class="md:col-span-2">
+              <z-form-field>
+                <label z-form-label [zRequired]="true">Policy Code</label>
+                <z-form-control>
+                  <input
+                    z-input
+                    type="text"
+                    formControlName="policy_code"
+                    placeholder="e.g., HR-001, IT-SECURITY-002"
+                    [zStatus]="codeControl?.invalid && codeControl?.touched ? 'error' : undefined"
+                  />
+                </z-form-control>
+                @if (codeControl?.hasError('required') && codeControl?.touched) {
+                  <z-form-message zType="error">Policy code is required.</z-form-message>
+                } @else if (codeControl?.hasError('maxlength') && codeControl?.touched) {
+                  <z-form-message zType="error">Maximum 50 characters.</z-form-message>
+                } @else {
+                  <z-form-message>Unique identifier for this policy.</z-form-message>
+                }
+              </z-form-field>
+            </div>
 
-        <!-- Policy Code and Version -->
-        <div class="row">
-          <div class="col-md-8">
-            <div class="form-group">
-              <label for="policy_code" class="form-label required">Policy Code</label>
-              <input
-                type="text"
-                id="policy_code"
-                class="form-control"
-                formControlName="policy_code"
-                placeholder="e.g., HR-001, IT-SECURITY-002"
-                [class.is-invalid]="isFieldInvalid('policy_code')">
-              <div class="invalid-feedback" *ngIf="isFieldInvalid('policy_code')">
-                {{ getFieldError('policy_code') }}
-              </div>
-              <small class="text-muted">Unique identifier for this policy</small>
+            <div>
+              <z-form-field>
+                <label z-form-label [zRequired]="true">Version</label>
+                <z-form-control>
+                  <input
+                    z-input
+                    type="text"
+                    formControlName="version"
+                    placeholder="1.0"
+                    [zStatus]="versionControl?.invalid && versionControl?.touched ? 'error' : undefined"
+                  />
+                </z-form-control>
+                @if (versionControl?.hasError('required') && versionControl?.touched) {
+                  <z-form-message zType="error">Version is required.</z-form-message>
+                } @else {
+                  <z-form-message>Semantic version.</z-form-message>
+                }
+              </z-form-field>
             </div>
           </div>
-          <div class="col-md-4">
-            <div class="form-group">
-              <label for="version" class="form-label required">Version</label>
+
+          <!-- Title -->
+          <z-form-field>
+            <label z-form-label [zRequired]="true">Title</label>
+            <z-form-control>
               <input
+                z-input
                 type="text"
-                id="version"
-                class="form-control"
-                formControlName="version"
-                placeholder="e.g., 1.0, 2.1"
-                [class.is-invalid]="isFieldInvalid('version')">
-              <div class="invalid-feedback" *ngIf="isFieldInvalid('version')">
-                {{ getFieldError('version') }}
-              </div>
-            </div>
+                formControlName="title"
+                placeholder="Enter a clear, descriptive title"
+                [zStatus]="titleControl?.invalid && titleControl?.touched ? 'error' : undefined"
+              />
+            </z-form-control>
+            @if (titleControl?.hasError('required') && titleControl?.touched) {
+              <z-form-message zType="error">Title is required.</z-form-message>
+            } @else if (titleControl?.hasError('maxlength') && titleControl?.touched) {
+              <z-form-message zType="error">Maximum 200 characters.</z-form-message>
+            }
+          </z-form-field>
+
+          <!-- Description -->
+          <z-form-field>
+            <label z-form-label>Description</label>
+            <z-form-control>
+              <textarea
+                z-input
+                formControlName="description"
+                rows="2"
+                placeholder="Optional one-line summary shown on the policy list."
+                class="resize-none"
+              ></textarea>
+            </z-form-control>
+            <z-form-message>
+              {{ (descriptionControl?.value?.length || 0) }} / 500 characters
+            </z-form-message>
+          </z-form-field>
+
+          <!-- Category -->
+          <z-form-field>
+            <label z-form-label [zRequired]="true">Category</label>
+            <z-form-control>
+              <z-select formControlName="category" zPlaceholder="Select category">
+                @for (cat of categories; track cat) {
+                  <z-select-item [zValue]="cat">{{ cat }}</z-select-item>
+                }
+              </z-select>
+            </z-form-control>
+          </z-form-field>
+        </div>
+      </section>
+
+      <!-- Divider -->
+      <hr class="border-border" />
+
+      <!-- ── Section: Content ──────────────────────────── -->
+      <section>
+        <div class="mb-5 flex items-start justify-between flex-wrap gap-2">
+          <div>
+            <h2 class="text-sm font-semibold text-foreground uppercase tracking-wider">Content</h2>
+            <p class="text-xs text-muted-foreground mt-0.5">Write the policy body. Use headings, lists, and links to structure it.</p>
           </div>
+          <span *ngIf="contentControl?.hasError('required') && contentControl?.touched"
+                class="text-xs text-destructive inline-flex items-center gap-1">
+            <z-icon zType="triangle-alert" class="w-3 h-3" />
+            Content is required
+          </span>
         </div>
 
-        <!-- Title -->
-        <div class="form-group">
-          <label for="title" class="form-label required">Policy Title</label>
-          <input
-            type="text"
-            id="title"
-            class="form-control"
-            formControlName="title"
-            placeholder="Enter policy title..."
-            [class.is-invalid]="isFieldInvalid('title')">
-          <div class="invalid-feedback" *ngIf="isFieldInvalid('title')">
-            {{ getFieldError('title') }}
-          </div>
-        </div>
-
-        <!-- Description -->
-        <div class="form-group">
-          <label for="description" class="form-label">Description</label>
-          <textarea
-            id="description"
-            class="form-control"
-            formControlName="description"
-            rows="2"
-            placeholder="Brief description (optional, max 500 characters)..."
-            [class.is-invalid]="isFieldInvalid('description')"></textarea>
-          <div class="invalid-feedback" *ngIf="isFieldInvalid('description')">
-            {{ getFieldError('description') }}
-          </div>
-          <small class="text-muted">{{ form.get('description')?.value?.length || 0 }} / 500 characters</small>
-        </div>
-
-        <!-- Category -->
-        <div class="form-group">
-          <label for="category" class="form-label required">Category</label>
-          <select id="category" class="form-select" formControlName="category">
-            <option *ngFor="let category of categories" [value]="category">
-              {{ category }}
-            </option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Content Card -->
-      <div class="form-card">
-        <h4 class="card-title">
-          <i class="bi bi-file-text"></i>
-          Policy Content
-        </h4>
-
-        <div class="form-group">
-          <label class="form-label required">Policy Details</label>
+        <div
+          class="rounded-xl border bg-card overflow-hidden transition-colors"
+          [class.border-border]="!(contentControl?.invalid && contentControl?.touched)"
+          [class.border-destructive]="contentControl?.invalid && contentControl?.touched"
+        >
           <quill-editor
             formControlName="content"
             [modules]="quillConfig"
-            placeholder="Write your policy content here. Include all necessary details, procedures, and guidelines..."
-            [class.is-invalid]="isFieldInvalid('content')">
-          </quill-editor>
-          <div class="invalid-feedback d-block" *ngIf="isFieldInvalid('content')">
-            {{ getFieldError('content') }}
-          </div>
+            placeholder="Start writing your policy here..."
+            class="block w-full"
+          ></quill-editor>
         </div>
-      </div>
+      </section>
 
-      <!-- Policy Dates Card -->
-      <div class="form-card">
-        <h4 class="card-title">
-          <i class="bi bi-calendar3"></i>
-          Policy Dates
-        </h4>
+      <!-- Divider -->
+      <hr class="border-border" />
 
-        <div class="row">
-          <div class="col-md-4">
-            <div class="form-group">
-              <label for="effective_from" class="form-label">Effective From</label>
-              <input
-                type="date"
-                id="effective_from"
-                class="form-control"
-                formControlName="effective_from">
-              <small class="text-muted">When this policy becomes effective</small>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="form-group">
-              <label for="review_date" class="form-label">Review Date</label>
-              <input
-                type="date"
-                id="review_date"
-                class="form-control"
-                formControlName="review_date">
-              <small class="text-muted">When this policy should be reviewed</small>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="form-group">
-              <label for="expires_at" class="form-label">Expires On</label>
-              <input
-                type="date"
-                id="expires_at"
-                class="form-control"
-                formControlName="expires_at">
-              <small class="text-muted">Leave empty if no expiration</small>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Settings Card -->
-      <div class="form-card">
-        <h4 class="card-title">
-          <i class="bi bi-gear"></i>
-          Policy Settings
-        </h4>
-
-        <div class="form-check">
-          <input
-            class="form-check-input"
-            type="checkbox"
-            id="requires_acknowledgment"
-            formControlName="requires_acknowledgment">
-          <label class="form-check-label" for="requires_acknowledgment">
-            <strong>Require Employee Acknowledgment</strong>
-            <br>
-            <small class="text-muted">Employees must acknowledge they have read and understood this policy</small>
-          </label>
+      <!-- ── Section: Schedule ─────────────────────────── -->
+      <section>
+        <div class="mb-5">
+          <h2 class="text-sm font-semibold text-foreground uppercase tracking-wider">Schedule</h2>
+          <p class="text-xs text-muted-foreground mt-0.5">When the policy takes effect, when to revisit it, and when it expires.</p>
         </div>
 
-        <!-- Hidden field for parent policy -->
-        <input type="hidden" formControlName="parent_policy_id">
-      </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <z-form-field>
+            <label z-form-label>Effective From</label>
+            <z-form-control>
+              <z-date-picker
+                formControlName="effective_from"
+                placeholder="Pick a date"
+                zFormat="dd MMM yyyy">
+              </z-date-picker>
+            </z-form-control>
+            <z-form-message>When this policy becomes active.</z-form-message>
+          </z-form-field>
 
-      <!-- Action Buttons -->
-      <div class="form-actions">
+          <z-form-field>
+            <label z-form-label>Review Date</label>
+            <z-form-control>
+              <z-date-picker
+                formControlName="review_date"
+                placeholder="Pick a date"
+                zFormat="dd MMM yyyy">
+              </z-date-picker>
+            </z-form-control>
+            <z-form-message>Next scheduled review.</z-form-message>
+          </z-form-field>
+
+          <z-form-field>
+            <label z-form-label>Expires On</label>
+            <z-form-control>
+              <z-date-picker
+                formControlName="expires_at"
+                placeholder="Pick a date"
+                zFormat="dd MMM yyyy">
+              </z-date-picker>
+            </z-form-control>
+            <z-form-message>Leave empty if no expiration.</z-form-message>
+          </z-form-field>
+        </div>
+      </section>
+
+      <!-- Divider -->
+      <hr class="border-border" />
+
+      <!-- ── Section: Settings ─────────────────────────── -->
+      <section>
+        <div class="mb-5">
+          <h2 class="text-sm font-semibold text-foreground uppercase tracking-wider">Settings</h2>
+          <p class="text-xs text-muted-foreground mt-0.5">Additional behavior for this policy.</p>
+        </div>
+
+        <label
+          class="flex items-start gap-3 p-4 rounded-lg border border-border bg-card hover:bg-muted/30 cursor-pointer transition-colors"
+        >
+          <z-checkbox formControlName="requires_acknowledgment" class="mt-0.5"></z-checkbox>
+          <div class="flex-1 min-w-0">
+            <span class="block text-sm font-medium text-foreground">Require employee acknowledgment</span>
+            <span class="block text-xs text-muted-foreground mt-0.5">
+              Employees must confirm they have read and understood this policy.
+            </span>
+          </div>
+        </label>
+
+        <input type="hidden" formControlName="parent_policy_id" />
+      </section>
+    </form>
+
+    <!-- ── Action Bar (sticky bottom) ──────────────────── -->
+    <div class="sticky bottom-0 mt-10 -mx-6 px-6 py-4 bg-background/95 backdrop-blur border-t border-border">
+      <div class="max-w-4xl mx-auto flex items-center justify-between gap-3 flex-wrap">
         <button
           type="button"
-          class="btn btn-outline-secondary"
+          z-button
+          zType="ghost"
+          zSize="sm"
           (click)="cancel()"
-          [disabled]="saving()">
-          <i class="bi bi-x-circle"></i>
+          [disabled]="saving()"
+          class="flex items-center gap-1.5"
+        >
+          <z-icon zType="x" class="w-4 h-4" />
           Cancel
         </button>
 
-        <div class="primary-actions">
+        <div class="flex items-center gap-2">
           <button
             type="button"
-            class="btn btn-secondary"
+            z-button
+            zType="outline"
+            zSize="sm"
             (click)="saveAsDraft()"
-            [disabled]="saving()">
-            <span class="spinner-border spinner-border-sm me-2" *ngIf="saving()"></span>
-            <i class="bi bi-save" *ngIf="!saving()"></i>
+            [disabled]="saving()"
+            class="flex items-center gap-1.5"
+          >
+            <z-icon
+              [zType]="saving() ? 'loader-circle' : 'save'"
+              [class.animate-spin]="saving()"
+              class="w-4 h-4"
+            />
             Save as Draft
           </button>
 
           <button
             type="button"
-            class="btn btn-success"
+            z-button
+            zType="default"
+            zSize="sm"
             (click)="activate()"
-            [disabled]="saving()">
-            <span class="spinner-border spinner-border-sm me-2" *ngIf="saving()"></span>
-            <i class="bi bi-check-circle" *ngIf="!saving()"></i>
+            [disabled]="saving()"
+            class="flex items-center gap-1.5"
+          >
+            <z-icon
+              [zType]="saving() ? 'loader-circle' : 'check'"
+              [class.animate-spin]="saving()"
+              class="w-4 h-4"
+            />
             {{ isEditMode() ? 'Update & Activate' : 'Activate Policy' }}
           </button>
         </div>
       </div>
-    </form>
+    </div>
   </div>
 </div>

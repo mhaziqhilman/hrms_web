@@ -1,4 +1,4 @@
-<div class="p-6 space-y-4" *ngIf="!loading() && project() as p">
+<div class="space-y-4" *ngIf="!loading() && project() as p">
   <div class="flex items-start justify-between">
     <div>
       <div class="text-xs text-slate-500 font-mono">{{ p.code }}</div>
@@ -9,12 +9,12 @@
       </div>
     </div>
     <div class="flex gap-2">
-      <button (click)="createInvoice()" class="px-4 py-2 bg-slate-900 text-white text-sm rounded-md hover:bg-slate-800">
+      <button z-button (click)="createInvoice()">
         + Create Invoice
       </button>
-      <button (click)="createBill()" class="px-4 py-2 border border-slate-300 rounded-md text-sm">+ Bill / PO</button>
-      <button (click)="edit()" class="px-4 py-2 border border-slate-300 rounded-md text-sm">Edit</button>
-      <a routerLink="/projects" class="px-4 py-2 border border-slate-300 rounded-md text-sm">← Back</a>
+      <button z-button zType="outline" (click)="createBill()">+ Bill / PO</button>
+      <button z-button zType="outline" (click)="edit()">Edit</button>
+      <a z-button zType="outline" routerLink="/projects">← Back</a>
     </div>
   </div>
 
@@ -88,8 +88,7 @@
           </div>
         </div>
         @if (p.po_document_url) {
-          <a [href]="p.po_document_url" target="_blank"
-             class="px-3 py-1.5 text-xs border border-blue-300 text-blue-700 rounded-md hover:bg-blue-100">
+          <a [href]="p.po_document_url" target="_blank" z-button zType="outline" zSize="sm">
             View PO
           </a>
         }

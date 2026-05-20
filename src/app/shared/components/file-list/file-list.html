@@ -24,13 +24,13 @@
         <div class="flex flex-col gap-1.5 flex-1 min-w-[200px]">
           <label for="search-input" class="text-xs font-normal text-muted-foreground">Search</label>
           <div class="relative">
-            <z-icon [zType]="$any('search')" zSize="sm" class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/50" />
+            <z-icon [zType]="$any('search')" zSize="sm" class="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground/50 pointer-events-none" />
             <input
               id="search-input"
               type="text"
               placeholder="Search files..."
               (input)="onSearch($event)"
-              class="h-9 w-full rounded-md border border-input bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1"
+              class="h-9 w-full rounded-md border border-input bg-background pl-10 pr-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1"
             />
           </div>
         </div>
@@ -42,11 +42,11 @@
             @for (s of sortOptions; track s.value) {
               <button
                 type="button"
+                z-button
+                zType="secondary"
+                zSize="sm"
                 (click)="onSortChange(s.value)"
-                class="h-9 px-3 rounded-md text-xs font-normal transition-colors"
-                [class]="sortBy() === s.value
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-muted text-muted-foreground hover:bg-muted/80'"
+                [class]="sortBy() === s.value ? 'bg-primary text-primary-foreground' : ''"
               >
                 {{ s.label }}
                 @if (sortBy() === s.value) {
@@ -72,7 +72,7 @@
     <div class="flex items-center gap-3 p-3.5 mb-5 rounded-lg border border-destructive/30 bg-destructive/10 text-destructive">
       <z-icon [zType]="$any('circle-x')" class="w-4 h-4 shrink-0" />
       <span class="flex-1 text-sm">{{ error() }}</span>
-      <button type="button" (click)="error.set(null)" class="p-1 rounded hover:bg-destructive/10 transition-colors cursor-pointer">
+      <button type="button" z-button zType="ghost" zSize="sm" (click)="error.set(null)">
         <z-icon zType="x" zSize="sm" />
       </button>
     </div>
@@ -128,16 +128,20 @@
               <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button
                   type="button"
+                  z-button
+                  zType="ghost"
+                  zSize="sm"
                   (click)="previewFile(file)"
-                  class="p-2 rounded-md hover:bg-muted transition-colors cursor-pointer"
                   [title]="canPreview(file.mime_type) ? 'Preview' : 'View'"
                 >
                   <z-icon zType="eye" class="w-4 h-4 text-muted-foreground" />
                 </button>
                 <button
                   type="button"
+                  z-button
+                  zType="ghost"
+                  zSize="sm"
                   (click)="downloadFile(file)"
-                  class="p-2 rounded-md hover:bg-muted transition-colors cursor-pointer"
                   title="Download"
                 >
                   <z-icon [zType]="$any('download')" class="w-4 h-4 text-muted-foreground" />
@@ -202,24 +206,33 @@
               <div class="flex gap-1 p-3 pt-0">
                 <button
                   type="button"
+                  z-button
+                  zType="outline"
+                  zSize="sm"
+                  class="flex-1"
                   (click)="previewFile(file)"
-                  class="flex-1 flex items-center justify-center gap-1.5 h-8 rounded-md text-xs font-normal border border-border bg-background text-muted-foreground hover:bg-primary/5 hover:text-primary hover:border-primary/30 transition-colors cursor-pointer"
                 >
                   <z-icon zType="eye" zSize="sm" />
                   {{ canPreview(file.mime_type) ? 'Preview' : 'View' }}
                 </button>
                 <button
                   type="button"
+                  z-button
+                  zType="outline"
+                  zSize="sm"
+                  class="flex-1"
                   (click)="downloadFile(file)"
-                  class="flex-1 flex items-center justify-center gap-1.5 h-8 rounded-md text-xs font-normal border border-border bg-background text-muted-foreground hover:bg-emerald-500/5 hover:text-emerald-600 hover:border-emerald-500/30 transition-colors cursor-pointer"
                 >
                   <z-icon [zType]="$any('download')" zSize="sm" />
                   Download
                 </button>
                 <button
                   type="button"
+                  z-button
+                  zType="ghost"
+                  zSize="sm"
+                  class="text-destructive"
                   (click)="deleteFile(file)"
-                  class="h-8 w-8 flex items-center justify-center rounded-md border border-border bg-background text-muted-foreground hover:bg-destructive/5 hover:text-destructive hover:border-destructive/30 transition-colors cursor-pointer"
                   title="Delete"
                 >
                   <z-icon zType="trash-2" zSize="sm" />
@@ -236,9 +249,11 @@
       <div class="flex justify-center items-center gap-1.5 mt-8">
         <button
           type="button"
+          z-button
+          zType="outline"
+          zSize="sm"
           [disabled]="currentPage() === 1"
           (click)="onPageChange(currentPage() - 1)"
-          class="h-8 w-8 flex items-center justify-center rounded-md border border-border bg-card text-muted-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
         >
           <z-icon [zType]="$any('chevron-left')" zSize="sm" />
         </button>
@@ -249,11 +264,11 @@
           } @else {
             <button
               type="button"
+              z-button
+              zType="outline"
+              zSize="sm"
               (click)="onPageChange(page)"
-              class="h-8 min-w-[32px] px-2.5 flex items-center justify-center rounded-md text-xs font-normal transition-colors cursor-pointer"
-              [class]="currentPage() === page
-                ? 'bg-primary text-primary-foreground'
-                : 'border border-border bg-card text-muted-foreground hover:bg-muted'"
+              [class]="currentPage() === page ? 'bg-primary text-primary-foreground border-primary' : ''"
             >
               {{ page }}
             </button>
@@ -262,9 +277,11 @@
 
         <button
           type="button"
+          z-button
+          zType="outline"
+          zSize="sm"
           [disabled]="currentPage() === totalPages()"
           (click)="onPageChange(currentPage() + 1)"
-          class="h-8 w-8 flex items-center justify-center rounded-md border border-border bg-card text-muted-foreground hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
         >
           <z-icon [zType]="$any('chevron-right')" zSize="sm" />
         </button>

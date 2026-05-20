@@ -13,7 +13,7 @@ export const COMMUNICATION_ROUTES: Routes = [
       import('./components/memo-list/memo-list').then(
         (m) => m.MemoListComponent
       ),
-    data: { title: 'Announcements' }
+    data: { title: 'Announcements', layout: 'full' }
   },
   {
     path: 'memos/new',
@@ -21,7 +21,7 @@ export const COMMUNICATION_ROUTES: Routes = [
       import('./components/memo-form/memo-form').then(
         (m) => m.MemoFormComponent
       ),
-    data: { title: 'Create Announcement' }
+    data: { title: 'Create Announcement', layout: 'full' }
   },
   {
     path: 'memos/:id',
@@ -29,7 +29,9 @@ export const COMMUNICATION_ROUTES: Routes = [
       import('./components/memo-viewer/memo-viewer').then(
         (m) => m.MemoViewerComponent
       ),
-    data: { title: 'View Announcement' }
+    // 'full' so the viewer's header rail can run edge-to-edge; the component
+    // re-applies a reading-width wrapper around the content workspace itself.
+    data: { title: 'View Announcement', layout: 'full' }
   },
   {
     path: 'memos/:id/edit',
@@ -37,7 +39,7 @@ export const COMMUNICATION_ROUTES: Routes = [
       import('./components/memo-form/memo-form').then(
         (m) => m.MemoFormComponent
       ),
-    data: { title: 'Edit Announcement' }
+    data: { title: 'Edit Announcement', layout: 'full' }
   },
   // Policy Routes
   {
@@ -54,7 +56,7 @@ export const COMMUNICATION_ROUTES: Routes = [
       import('./components/policy-form/policy-form').then(
         (m) => m.PolicyFormComponent
       ),
-    data: { title: 'Create Policy' }
+    data: { title: 'Create Policy', layout: 'reading' }
   },
   {
     path: 'policies/:id',
@@ -62,7 +64,7 @@ export const COMMUNICATION_ROUTES: Routes = [
       import('./components/policy-viewer/policy-viewer').then(
         (m) => m.PolicyViewerComponent
       ),
-    data: { title: 'View Policy' }
+    data: { title: 'View Policy', layout: 'reading' }
   },
   {
     path: 'policies/:id/edit',
@@ -70,6 +72,6 @@ export const COMMUNICATION_ROUTES: Routes = [
       import('./components/policy-form/policy-form').then(
         (m) => m.PolicyFormComponent
       ),
-    data: { title: 'Edit Policy' }
+    data: { title: 'Edit Policy', layout: 'reading' }
   }
 ];

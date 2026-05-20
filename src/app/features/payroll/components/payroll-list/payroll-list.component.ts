@@ -1,6 +1,6 @@
 import { Component, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { PayrollService } from '../../services/payroll.service';
 import { Payroll, PayrollStatus, PayRun, PayRunStatus, MONTH_NAMES, PAYROLL_STATUS_COLORS, BulkActionResponse } from '../../models/payroll.model';
@@ -74,6 +74,8 @@ export class PayrollListComponent implements OnInit {
   private alertDialogService = inject(ZardAlertDialogService);
   private dialogService = inject(ZardDialogService);
   private analyticsService = inject(AnalyticsService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   payrolls = signal<Payroll[]>([]);
   payrollAnalytics = signal<PayrollCostAnalytics | null>(null);
@@ -359,10 +361,65 @@ export class PayrollListComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.restoreFiltersFromUrl();
     this.loadPayrolls();
     this.loadStatusCounts();
     this.loadAnalytics();
     this.loadAllPayrollsForRuns();
+  }
+
+  // Read filter state from URL query params (so back-nav from /payroll/:id restores the filtered view).
+  // Must run before the segmented control's ngOnInit reads zDefaultValue.
+  private restoreFiltersFromUrl(): void {
+    const qp = this.route.snapshot.queryParamMap;
+
+    const viewTab = qp.get('viewTab');
+    if (viewTab === 'summary' || viewTab === 'individual') {
+      this.activeViewTab.set(viewTab);
+    }
+
+    const status = qp.get('status') ?? '';
+    if (status && Object.values(PayrollStatus).includes(status as PayrollStatus)) {
+      this.selectedStatus.set(status as PayrollStatus);
+    }
+
+    const year = Number(qp.get('year'));
+    if (Number.isFinite(year) && year > 0) {
+      this.selectedYear.set(year);
+    }
+
+    const month = qp.get('month');
+    if (month && month !== '') {
+      const m = Number(month);
+      if (Number.isFinite(m) && m >= 1 && m <= 12) this.selectedMonth.set(m);
+    }
+
+    const search = qp.get('search');
+    if (search) this.searchEmployeeId.set(search);
+
+    const page = Number(qp.get('page'));
+    if (Number.isFinite(page) && page > 0) {
+      this.currentPage.set(page);
+    }
+  }
+
+  // Write filter state to URL query params using replaceUrl so we don't pollute history.
+  private syncFiltersToUrl(): void {
+    const queryParams: Record<string, string | number | null> = {
+      viewTab: this.activeViewTab() === 'summary' ? null : this.activeViewTab(),
+      status: this.selectedStatus() || null,
+      year: this.selectedYear() === new Date().getFullYear() ? null : this.selectedYear(),
+      month: this.selectedMonth() === '' ? null : this.selectedMonth(),
+      search: this.searchEmployeeId()?.trim() || null,
+      page: this.currentPage() > 1 ? this.currentPage() : null
+    };
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams,
+      queryParamsHandling: 'merge',
+      replaceUrl: true
+    });
   }
 
   // Load pay runs from database
@@ -467,6 +524,7 @@ export class PayrollListComponent implements OnInit {
 
   onViewTabChange(value: string): void {
     this.activeViewTab.set(value as 'summary' | 'individual');
+    this.syncFiltersToUrl();
   }
 
   onTabChange(event: { index: number; label: string }): void {
@@ -533,12 +591,14 @@ export class PayrollListComponent implements OnInit {
 
   onFilterChange(): void {
     this.currentPage.set(1);
+    this.syncFiltersToUrl();
     this.loadPayrolls();
     this.loadAnalytics();
   }
 
   onPageChange(page: number): void {
     this.currentPage.set(page);
+    this.syncFiltersToUrl();
     this.loadPayrolls();
   }
 
@@ -546,6 +606,7 @@ export class PayrollListComponent implements OnInit {
     this.selectedYear.set(year);
     this.currentPage.set(1);
     this.clearSelection();
+    this.syncFiltersToUrl();
     this.loadPayrolls();
     this.loadStatusCounts();
     this.loadAnalytics();
@@ -555,6 +616,7 @@ export class PayrollListComponent implements OnInit {
   onAnalyticsMonthChange(month: number | ''): void {
     this.selectedMonth.set(month);
     this.currentPage.set(1);
+    this.syncFiltersToUrl();
     this.loadPayrolls();
     this.loadAnalytics();
   }
@@ -578,6 +640,7 @@ export class PayrollListComponent implements OnInit {
     this.selectedMonth.set('');
     this.searchEmployeeId.set('');
     this.currentPage.set(1);
+    this.syncFiltersToUrl();
     this.loadPayrolls();
     this.loadAnalytics();
   }

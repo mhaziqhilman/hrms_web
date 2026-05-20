@@ -74,6 +74,26 @@ export interface MemoReadReceipt {
   };
 }
 
+/** A single targeted-audience member merged with their read-receipt status. */
+export interface MemoRecipient {
+  employee: {
+    id: number;
+    full_name: string;
+    department?: string;
+    position?: string;
+  };
+  viewed_at: string | null;
+  acknowledged_at: string | null;
+  ip_address: string | null;
+}
+
+/** Acknowledgment progress for one department ("By team" widget). */
+export interface MemoDepartmentStat {
+  department: string;
+  total: number;
+  acknowledged: number;
+}
+
 export interface MemoStatistics {
   memo_id: number;
   title: string;
@@ -84,6 +104,10 @@ export interface MemoStatistics {
   acknowledgment_percentage: string;
   requires_acknowledgment: boolean;
   read_receipts: MemoReadReceipt[];
+  /** Full audience roster, each merged with their viewed/acknowledged status. */
+  recipients?: MemoRecipient[];
+  /** Acknowledgment progress grouped by department. */
+  by_department?: MemoDepartmentStat[];
 }
 
 export interface MemoFormData {

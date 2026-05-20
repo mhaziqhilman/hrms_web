@@ -1,0 +1,888 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Policy View · Variants</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  html, body { font-family: 'Geist', system-ui, -apple-system, sans-serif; }
+  .font-mono { font-family: 'Geist Mono', ui-monospace, monospace; font-feature-settings: "tnum" 1; }
+  .num-tabular { font-variant-numeric: tabular-nums; }
+  .shad-card    { box-shadow: 0 1px 2px 0 rgb(16 24 40 / 0.04); }
+  .shad-card-lg { box-shadow: 0 1px 2px rgb(16 24 40 / 0.04), 0 1px 3px rgb(16 24 40 / 0.06); }
+  button:focus-visible, input:focus-visible {
+    outline: 2px solid rgb(15 23 42 / 0.5); outline-offset: 2px;
+  }
+  .prose-policy p { margin-top: 0.75rem; }
+  .prose-policy strong { color: rgb(15 23 42); font-weight: 600; }
+  .variant-tag {
+    font-family: 'Geist Mono', ui-monospace, monospace;
+    font-size: 10.5px; letter-spacing: 0.04em;
+  }
+  /* progress ring rotation */
+  .ring-bg { stroke: rgb(241 245 249); }
+  /* radial bar */
+  .bar-track { background: rgb(241 245 249); }
+</style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-900 antialiased">
+
+<div class="max-w-[1440px] mx-auto px-8 py-7 space-y-12">
+
+  <!-- ============================================================ -->
+  <!-- Page header                                                  -->
+  <!-- ============================================================ -->
+  <header class="flex items-end justify-between gap-4 flex-wrap">
+    <div>
+      <h1 class="text-[28px] font-semibold tracking-tight leading-none">Policy View — Redesign</h1>
+      <p class="text-[13px] text-slate-500 mt-2">Three variants of the policy detail page, in the existing HR admin style.</p>
+    </div>
+    <div class="flex items-center gap-2 text-[12px] text-slate-500">
+      <span class="font-mono">Geist · slate · minimal</span>
+    </div>
+  </header>
+
+  <!-- ============================================================ -->
+  <!-- VARIANT 1 — Editorial / document reader                      -->
+  <!-- Centered narrow body, meta as a quiet top rail, ack stats   -->
+  <!-- inline as compact pills, ack table sits in a single card.   -->
+  <!-- ============================================================ -->
+  <section>
+    <div class="flex items-baseline justify-between mb-3">
+      <h2 class="text-[15px] font-semibold tracking-tight text-slate-900">Variant 1 — Editorial reader</h2>
+      <span class="variant-tag text-slate-400">V1 · DOCUMENT-CENTRIC</span>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 shad-card overflow-hidden">
+
+      <!-- top rail -->
+      <div class="flex items-center justify-between gap-4 px-6 h-14 border-b border-slate-100">
+        <button class="inline-flex items-center gap-2 text-[12.5px] font-medium text-slate-600 hover:text-slate-900">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          Back to Policies
+        </button>
+        <div class="flex items-center gap-2">
+          <button class="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-[12.5px] font-medium text-slate-700">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+            Archive
+          </button>
+          <button class="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-[12.5px] font-medium text-slate-700">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            Edit
+          </button>
+          <button class="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-[12.5px] font-medium">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Acknowledge
+          </button>
+          <button class="w-9 h-9 inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600" aria-label="More">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- meta rail -->
+      <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/40 flex items-center gap-6 flex-wrap">
+        <div class="flex items-center gap-2">
+          <span class="font-mono text-[11.5px] text-slate-500">HR-000</span>
+          <span class="inline-flex items-center px-1.5 h-5 rounded bg-white border border-slate-200 font-mono text-[10.5px] text-slate-600">v1.0</span>
+        </div>
+        <span class="w-px h-4 bg-slate-200"></span>
+        <div class="flex items-center gap-2">
+          <span class="inline-flex items-center h-5 px-2 rounded-full bg-emerald-50 text-emerald-700 text-[10.5px] font-medium">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span>Active
+          </span>
+          <span class="inline-flex items-center h-5 px-2 rounded-full bg-slate-100 text-slate-700 text-[10.5px] font-medium">HR</span>
+        </div>
+        <span class="w-px h-4 bg-slate-200"></span>
+        <div class="flex items-center gap-2 text-[12px] text-slate-600">
+          <div class="w-5 h-5 rounded-full bg-gradient-to-br from-violet-500 to-violet-700 text-white text-[8.5px] font-semibold flex items-center justify-center">MH</div>
+          <span>Muhammad Haziq Hilman bin Hamzan</span>
+        </div>
+        <span class="w-px h-4 bg-slate-200"></span>
+        <span class="text-[12px] text-slate-500">Updated <span class="text-slate-700">19 May 2026</span></span>
+        <span class="ml-auto text-[12px] text-slate-500 num-tabular">
+          <span class="text-slate-700 font-medium">5</span> views · <span class="text-slate-700 font-medium">1</span> acknowledged
+        </span>
+      </div>
+
+      <!-- ack banner (inline subtle) -->
+      <div class="mx-6 mt-6 flex items-start gap-3 px-4 py-3 rounded-xl bg-slate-50 border border-slate-200">
+        <svg width="16" height="16" class="mt-0.5 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        <div class="text-[12.5px] text-slate-700 leading-relaxed">
+          This policy requires your acknowledgment after reading.
+        </div>
+      </div>
+
+      <!-- centered body -->
+      <article class="max-w-[680px] mx-auto px-6 py-10">
+        <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mb-3">Human Resources · Policy</div>
+        <h1 class="text-[34px] font-semibold tracking-tight leading-[1.1]">Testing Policy</h1>
+        <div class="mt-3 text-[13px] text-slate-500">Effective immediately · Last reviewed May 2026</div>
+
+        <hr class="my-8 border-slate-100">
+
+        <div class="prose-policy text-[14.5px] leading-[1.75] text-slate-700">
+          <p><strong>Testing.</strong> A <strong>policy</strong> is a deliberate set of guidelines or a plan of action established by governments, businesses, or organizations to achieve a defined outcome. Depending on the context, the term generally falls into three main categories:</p>
+
+          <p class="mt-6"><strong>1. Organizational &amp; Corporate Policy</strong><br>
+          Internal guidelines that define how a business operates, manages its employees, or treats its customers.</p>
+
+          <p><strong>Examples.</strong> Privacy policies, employee dress codes, remote work guidelines, and return policies.</p>
+          <p><strong>Purpose.</strong> Ensures fairness, maintains legal compliance, and sets clear expectations for staff and clients.</p>
+        </div>
+
+        <!-- ack inline card -->
+        <div class="mt-10 rounded-2xl border border-slate-200 bg-white p-5">
+          <div class="flex items-start gap-4">
+            <div class="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center shrink-0">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[14px] font-semibold text-slate-900">Confirm you have read this policy</div>
+              <p class="text-[12.5px] text-slate-500 mt-1 leading-relaxed">By acknowledging, you confirm that you have read and understood the contents of this policy.</p>
+              <div class="mt-3 flex items-center gap-2">
+                <button class="inline-flex items-center gap-2 h-9 px-4 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-[12.5px] font-medium">
+                  Acknowledge Policy
+                </button>
+                <button class="h-9 px-3 rounded-lg text-[12.5px] font-medium text-slate-600 hover:text-slate-900">Download PDF</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- engagement strip -->
+        <div class="mt-10 grid grid-cols-3 gap-px bg-slate-100 rounded-xl overflow-hidden border border-slate-100">
+          <div class="bg-white p-4">
+            <div class="text-[10.5px] font-mono uppercase tracking-wider text-slate-400">Views</div>
+            <div class="mt-1 flex items-baseline gap-2">
+              <span class="text-[24px] font-semibold num-tabular">1</span>
+              <span class="text-[11.5px] text-slate-500 num-tabular">/ 12</span>
+            </div>
+            <div class="mt-2 h-1 rounded-full bar-track overflow-hidden">
+              <div class="h-full bg-slate-400" style="width:8.33%"></div>
+            </div>
+          </div>
+          <div class="bg-white p-4">
+            <div class="text-[10.5px] font-mono uppercase tracking-wider text-slate-400">Acknowledged</div>
+            <div class="mt-1 flex items-baseline gap-2">
+              <span class="text-[24px] font-semibold text-emerald-600 num-tabular">1</span>
+              <span class="text-[11.5px] text-slate-500 num-tabular">/ 12 · 8.33%</span>
+            </div>
+            <div class="mt-2 h-1 rounded-full bar-track overflow-hidden">
+              <div class="h-full bg-emerald-500" style="width:8.33%"></div>
+            </div>
+          </div>
+          <div class="bg-white p-4">
+            <div class="text-[10.5px] font-mono uppercase tracking-wider text-slate-400">Pending</div>
+            <div class="mt-1 flex items-baseline gap-2">
+              <span class="text-[24px] font-semibold text-slate-900 num-tabular">11</span>
+              <span class="text-[11.5px] text-slate-500">employees</span>
+            </div>
+            <div class="mt-2 h-1 rounded-full bar-track overflow-hidden">
+              <div class="h-full bg-amber-400" style="width:91.66%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ack details -->
+        <div class="mt-8">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-[14px] font-semibold tracking-tight">Acknowledgment details</h3>
+            <button class="text-[12px] font-medium text-slate-600 hover:text-slate-900 inline-flex items-center gap-1">
+              View all
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          </div>
+          <div class="rounded-xl border border-slate-200 overflow-hidden">
+            <div class="grid grid-cols-[1.5fr_1fr_1fr_60px_80px] px-4 h-9 bg-slate-50/60 border-b border-slate-100 text-[10.5px] font-medium uppercase tracking-wider text-slate-400 items-center">
+              <div>Employee</div>
+              <div>Viewed at</div>
+              <div>Acknowledged at</div>
+              <div>Ver.</div>
+              <div class="text-right">Status</div>
+            </div>
+            <div class="grid grid-cols-[1.5fr_1fr_1fr_60px_80px] px-4 h-12 items-center text-[12.5px] border-b border-slate-50">
+              <div class="flex items-center gap-2.5">
+                <div class="w-6 h-6 rounded-full bg-gradient-to-br from-violet-500 to-violet-700 text-white text-[9.5px] font-semibold flex items-center justify-center">MH</div>
+                <span class="text-slate-700 truncate">Muhammad Haziq Hilman bin Hamzan</span>
+              </div>
+              <div class="font-mono text-[11.5px] text-slate-500">19/05/2026 · 03:19</div>
+              <div class="font-mono text-[11.5px] text-slate-700">19/05/2026 · 03:19</div>
+              <div class="font-mono text-[11.5px] text-slate-500">v1.0</div>
+              <div class="text-right">
+                <span class="inline-flex items-center h-5 px-2 rounded-full bg-emerald-50 text-emerald-700 text-[10.5px] font-medium">Done</span>
+              </div>
+            </div>
+            <div class="grid grid-cols-[1.5fr_1fr_1fr_60px_80px] px-4 h-12 items-center text-[12.5px] text-slate-400">
+              <div class="flex items-center gap-2.5">
+                <div class="w-6 h-6 rounded-full bg-slate-100 text-slate-400 text-[9.5px] font-semibold flex items-center justify-center">SK</div>
+                <span class="truncate">Sarah Khalid</span>
+              </div>
+              <div class="font-mono text-[11.5px]">—</div>
+              <div class="font-mono text-[11.5px]">—</div>
+              <div class="font-mono text-[11.5px]">—</div>
+              <div class="text-right">
+                <span class="inline-flex items-center h-5 px-2 rounded-full bg-slate-100 text-slate-600 text-[10.5px] font-medium">Pending</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- VARIANT 2 — Workspace / split layout                         -->
+  <!-- Persistent left meta rail, main column body, sticky CTA at  -->
+  <!-- bottom of the body, stats + table sit in their own card.   -->
+  <!-- ============================================================ -->
+  <section>
+    <div class="flex items-baseline justify-between mb-3">
+      <h2 class="text-[15px] font-semibold tracking-tight text-slate-900">Variant 2 — Workspace split</h2>
+      <span class="variant-tag text-slate-400">V2 · OPS-FOCUSED</span>
+    </div>
+
+    <!-- header / breadcrumb / actions -->
+    <div class="bg-white rounded-2xl border border-slate-200 shad-card px-5 h-14 flex items-center justify-between mb-4">
+      <div class="flex items-center gap-3 text-[12.5px]">
+        <button class="inline-flex items-center gap-1.5 text-slate-600 hover:text-slate-900 font-medium">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          Policies
+        </button>
+        <span class="text-slate-300">/</span>
+        <span class="text-slate-400 font-mono text-[11.5px]">HR-000</span>
+        <span class="text-slate-300">/</span>
+        <span class="text-slate-900 font-medium">Testing Policy</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-[12.5px] font-medium text-slate-700">Archive</button>
+        <button class="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-[12.5px] font-medium text-slate-700">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          Edit
+        </button>
+        <button class="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-[12.5px] font-medium">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Acknowledge
+        </button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-[260px_1fr_300px] gap-4">
+
+      <!-- LEFT META RAIL -->
+      <aside class="bg-white rounded-2xl border border-slate-200 shad-card p-5 self-start">
+        <div class="flex items-center justify-between">
+          <span class="font-mono text-[11.5px] text-slate-500">HR-000</span>
+          <span class="inline-flex items-center px-1.5 h-5 rounded bg-slate-100 font-mono text-[10.5px] text-slate-600">v1.0</span>
+        </div>
+        <div class="mt-3 flex items-center gap-1.5">
+          <span class="inline-flex items-center h-6 px-2 rounded-full bg-emerald-50 text-emerald-700 text-[10.5px] font-medium">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span>Active
+          </span>
+          <span class="inline-flex items-center h-6 px-2 rounded-full bg-slate-900 text-white text-[10.5px] font-medium">HR</span>
+        </div>
+
+        <hr class="my-5 border-slate-100">
+
+        <div class="text-[10.5px] font-mono uppercase tracking-wider text-slate-400">Author</div>
+        <div class="mt-2 flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-violet-700 text-white text-[10.5px] font-semibold flex items-center justify-center">MH</div>
+          <div class="min-w-0">
+            <div class="text-[12.5px] font-medium text-slate-900 truncate">Muhammad Haziq</div>
+            <div class="text-[11px] text-slate-500 truncate">Hilman bin Hamzan</div>
+          </div>
+        </div>
+
+        <hr class="my-5 border-slate-100">
+
+        <div class="text-[10.5px] font-mono uppercase tracking-wider text-slate-400 mb-2">Engagement</div>
+        <div class="space-y-2.5">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2 text-[12.5px] text-slate-600">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              Views
+            </div>
+            <span class="text-[13px] font-semibold num-tabular">5</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2 text-[12.5px] text-slate-600">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgb(5 150 105)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Acknowledged
+            </div>
+            <span class="text-[13px] font-semibold text-emerald-600 num-tabular">1</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2 text-[12.5px] text-slate-600">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Pending
+            </div>
+            <span class="text-[13px] font-semibold num-tabular">11</span>
+          </div>
+        </div>
+
+        <hr class="my-5 border-slate-100">
+
+        <div class="text-[10.5px] font-mono uppercase tracking-wider text-slate-400 mb-3">Version history</div>
+        <ol class="relative ml-1 space-y-3">
+          <li class="relative pl-4">
+            <span class="absolute left-0 top-1 w-1.5 h-1.5 rounded-full bg-slate-900"></span>
+            <div class="text-[12px] font-medium">v1.0 · Current</div>
+            <div class="text-[11px] text-slate-500 font-mono">19 May 2026</div>
+          </li>
+          <li class="relative pl-4">
+            <span class="absolute left-0 top-1 w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+            <div class="text-[12px] text-slate-600">v0.9 · Draft</div>
+            <div class="text-[11px] text-slate-400 font-mono">14 May 2026</div>
+          </li>
+          <li class="relative pl-4">
+            <span class="absolute left-0 top-1 w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+            <div class="text-[12px] text-slate-600">Created</div>
+            <div class="text-[11px] text-slate-400 font-mono">12 May 2026</div>
+          </li>
+        </ol>
+      </aside>
+
+      <!-- MAIN BODY -->
+      <section class="bg-white rounded-2xl border border-slate-200 shad-card p-8">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <div class="text-[11px] font-mono uppercase tracking-wider text-slate-400">Human Resources</div>
+            <h1 class="mt-1 text-[30px] font-semibold tracking-tight leading-[1.1]">Testing Policy</h1>
+          </div>
+          <div class="flex items-center gap-1.5 px-2.5 h-8 rounded-lg bg-slate-50 border border-slate-200 text-[11.5px] text-slate-600">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            ~3 min read
+          </div>
+        </div>
+
+        <div class="mt-5 flex items-start gap-3 px-4 py-3 rounded-xl border border-slate-200 bg-slate-50">
+          <svg width="15" height="15" class="mt-0.5 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><polyline points="9 11 12 14 22 4"/></svg>
+          <div class="text-[12.5px] text-slate-700">This policy requires your acknowledgment after reading.</div>
+        </div>
+
+        <hr class="my-6 border-slate-100">
+
+        <div class="prose-policy text-[14.5px] leading-[1.75] text-slate-700">
+          <p><strong>Testing.</strong> A <strong>policy</strong> is a deliberate set of guidelines or a plan of action established by governments, businesses, or organizations to achieve a defined outcome. Depending on the context, the term generally falls into three main categories:</p>
+          <p class="mt-5"><strong>1. Organizational &amp; Corporate Policy</strong><br>Internal guidelines that define how a business operates, manages its employees, or treats its customers.</p>
+          <p><strong>Examples.</strong> Privacy policies, employee dress codes, remote work guidelines, and return policies.</p>
+          <p><strong>Purpose.</strong> Ensures fairness, maintains legal compliance, and sets clear expectations for staff and clients.</p>
+        </div>
+
+        <!-- sticky-feel ack bar -->
+        <div class="mt-8 rounded-2xl bg-slate-900 text-white px-5 py-4 flex items-center gap-4 flex-wrap">
+          <div class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-[13.5px] font-semibold">Confirm you have read this policy</div>
+            <div class="text-[11.5px] text-white/60 mt-0.5">You can revisit this policy at any time from your dashboard.</div>
+          </div>
+          <button class="h-9 px-4 rounded-lg bg-white text-slate-900 hover:bg-slate-100 text-[12.5px] font-semibold">Acknowledge Policy</button>
+        </div>
+      </section>
+
+      <!-- RIGHT STATS RAIL -->
+      <aside class="space-y-4 self-start">
+        <!-- progress ring -->
+        <div class="bg-white rounded-2xl border border-slate-200 shad-card p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-[13.5px] font-semibold tracking-tight">Acknowledgment</h3>
+            <span class="font-mono text-[10.5px] text-slate-400">LIVE</span>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="relative w-[88px] h-[88px]">
+              <svg viewBox="0 0 36 36" class="w-full h-full -rotate-90">
+                <circle cx="18" cy="18" r="15.915" fill="none" class="ring-bg" stroke-width="3"/>
+                <circle cx="18" cy="18" r="15.915" fill="none" stroke="rgb(5 150 105)" stroke-width="3"
+                        stroke-dasharray="8.33,100" stroke-linecap="round"/>
+              </svg>
+              <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <div class="text-[18px] font-semibold num-tabular leading-none">8<span class="text-[12px] text-slate-400">.33</span></div>
+                <div class="text-[9.5px] font-mono uppercase tracking-wider text-slate-400 mt-1">complete</div>
+              </div>
+            </div>
+            <div class="flex-1 space-y-2.5">
+              <div class="flex items-center justify-between text-[12px]">
+                <span class="text-slate-600">Acknowledged</span>
+                <span class="font-semibold text-emerald-600 num-tabular">1</span>
+              </div>
+              <div class="flex items-center justify-between text-[12px]">
+                <span class="text-slate-600">Pending</span>
+                <span class="font-semibold num-tabular">11</span>
+              </div>
+              <div class="flex items-center justify-between text-[12px]">
+                <span class="text-slate-600">Total</span>
+                <span class="font-semibold num-tabular">12</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- by team -->
+        <div class="bg-white rounded-2xl border border-slate-200 shad-card p-5">
+          <h3 class="text-[13.5px] font-semibold tracking-tight mb-3">By team</h3>
+          <div class="space-y-3">
+            <div>
+              <div class="flex items-center justify-between text-[12px] mb-1">
+                <span class="text-slate-700">Engineering</span>
+                <span class="font-mono text-[11px] text-slate-500 num-tabular">1 / 5</span>
+              </div>
+              <div class="h-1.5 rounded-full bar-track overflow-hidden">
+                <div class="h-full bg-slate-900" style="width:20%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex items-center justify-between text-[12px] mb-1">
+                <span class="text-slate-700">Design</span>
+                <span class="font-mono text-[11px] text-slate-500 num-tabular">0 / 3</span>
+              </div>
+              <div class="h-1.5 rounded-full bar-track overflow-hidden">
+                <div class="h-full bg-slate-900" style="width:0%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex items-center justify-between text-[12px] mb-1">
+                <span class="text-slate-700">Operations</span>
+                <span class="font-mono text-[11px] text-slate-500 num-tabular">0 / 4</span>
+              </div>
+              <div class="h-1.5 rounded-full bar-track overflow-hidden">
+                <div class="h-full bg-slate-900" style="width:0%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- nudge -->
+        <div class="bg-white rounded-2xl border border-slate-200 shad-card p-5">
+          <h3 class="text-[13.5px] font-semibold tracking-tight">Need follow-up?</h3>
+          <p class="text-[11.5px] text-slate-500 mt-1 leading-relaxed">Send a reminder to the 11 employees who haven't acknowledged yet.</p>
+          <button class="mt-3 w-full h-9 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-[12.5px] font-medium">Send reminder</button>
+        </div>
+      </aside>
+    </div>
+
+    <!-- ack table beneath -->
+    <div class="mt-4 bg-white rounded-2xl border border-slate-200 shad-card overflow-hidden">
+      <div class="px-5 h-12 border-b border-slate-100 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <h3 class="text-[14px] font-semibold tracking-tight">Acknowledgment details</h3>
+          <span class="font-mono text-[10.5px] text-slate-400 num-tabular">1 / 12</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="relative">
+            <svg class="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="Search" class="h-8 pl-7 pr-2.5 w-[160px] rounded-lg border border-slate-200 bg-white text-[12px] text-slate-700 placeholder:text-slate-400"/>
+          </div>
+          <div class="inline-flex items-center gap-1 p-0.5 rounded-lg bg-slate-100">
+            <button class="h-6 px-2.5 rounded-md text-[11.5px] font-medium bg-white text-slate-900 shadow-sm">All</button>
+            <button class="h-6 px-2.5 rounded-md text-[11.5px] font-medium text-slate-600">Done</button>
+            <button class="h-6 px-2.5 rounded-md text-[11.5px] font-medium text-slate-600">Pending</button>
+          </div>
+        </div>
+      </div>
+      <div class="grid grid-cols-[1.4fr_1fr_1fr_70px_100px_100px] px-5 h-9 bg-slate-50/60 border-b border-slate-100 text-[10.5px] font-medium uppercase tracking-wider text-slate-400 items-center">
+        <div>Employee</div>
+        <div>Viewed at</div>
+        <div>Acknowledged at</div>
+        <div>Version</div>
+        <div>Status</div>
+        <div class="text-right">Comments</div>
+      </div>
+      <div class="grid grid-cols-[1.4fr_1fr_1fr_70px_100px_100px] px-5 h-12 items-center text-[12.5px] border-b border-slate-50">
+        <div class="flex items-center gap-2.5">
+          <div class="w-6 h-6 rounded-full bg-gradient-to-br from-violet-500 to-violet-700 text-white text-[9.5px] font-semibold flex items-center justify-center">MH</div>
+          <div class="min-w-0">
+            <div class="text-slate-900 truncate">Muhammad Haziq Hilman bin Hamzan</div>
+            <div class="text-[10.5px] text-slate-400">Engineering</div>
+          </div>
+        </div>
+        <div class="font-mono text-[11.5px] text-slate-500">19/05/26 03:19</div>
+        <div class="font-mono text-[11.5px] text-slate-700">19/05/26 03:19</div>
+        <div class="font-mono text-[11.5px] text-slate-500">v1.0</div>
+        <div>
+          <span class="inline-flex items-center h-5 px-2 rounded-full bg-emerald-50 text-emerald-700 text-[10.5px] font-medium">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span>Acknowledged
+          </span>
+        </div>
+        <div class="text-right text-[11.5px] text-slate-400">—</div>
+      </div>
+      <div class="grid grid-cols-[1.4fr_1fr_1fr_70px_100px_100px] px-5 h-12 items-center text-[12.5px] text-slate-500 border-b border-slate-50">
+        <div class="flex items-center gap-2.5">
+          <div class="w-6 h-6 rounded-full bg-slate-100 text-slate-500 text-[9.5px] font-semibold flex items-center justify-center">SK</div>
+          <div class="min-w-0"><div class="truncate">Sarah Khalid</div><div class="text-[10.5px] text-slate-400">Engineering</div></div>
+        </div>
+        <div class="font-mono text-[11.5px] text-slate-400">—</div>
+        <div class="font-mono text-[11.5px] text-slate-400">—</div>
+        <div class="font-mono text-[11.5px] text-slate-400">—</div>
+        <div>
+          <span class="inline-flex items-center h-5 px-2 rounded-full bg-slate-100 text-slate-600 text-[10.5px] font-medium">Pending</span>
+        </div>
+        <div class="text-right text-[11.5px] text-slate-400">—</div>
+      </div>
+      <div class="grid grid-cols-[1.4fr_1fr_1fr_70px_100px_100px] px-5 h-12 items-center text-[12.5px] text-slate-500 border-b border-slate-50">
+        <div class="flex items-center gap-2.5">
+          <div class="w-6 h-6 rounded-full bg-slate-100 text-slate-500 text-[9.5px] font-semibold flex items-center justify-center">AL</div>
+          <div class="min-w-0"><div class="truncate">Aisyah Lim</div><div class="text-[10.5px] text-slate-400">Design</div></div>
+        </div>
+        <div class="font-mono text-[11.5px] text-slate-400">—</div>
+        <div class="font-mono text-[11.5px] text-slate-400">—</div>
+        <div class="font-mono text-[11.5px] text-slate-400">—</div>
+        <div>
+          <span class="inline-flex items-center h-5 px-2 rounded-full bg-slate-100 text-slate-600 text-[10.5px] font-medium">Pending</span>
+        </div>
+        <div class="text-right text-[11.5px] text-slate-400">—</div>
+      </div>
+      <div class="grid grid-cols-[1.4fr_1fr_1fr_70px_100px_100px] px-5 h-12 items-center text-[12.5px] text-slate-500">
+        <div class="flex items-center gap-2.5">
+          <div class="w-6 h-6 rounded-full bg-slate-100 text-slate-500 text-[9.5px] font-semibold flex items-center justify-center">DZ</div>
+          <div class="min-w-0"><div class="truncate">Daniel Zafri</div><div class="text-[10.5px] text-slate-400">Operations</div></div>
+        </div>
+        <div class="font-mono text-[11.5px] text-slate-400">—</div>
+        <div class="font-mono text-[11.5px] text-slate-400">—</div>
+        <div class="font-mono text-[11.5px] text-slate-400">—</div>
+        <div>
+          <span class="inline-flex items-center h-5 px-2 rounded-full bg-slate-100 text-slate-600 text-[10.5px] font-medium">Pending</span>
+        </div>
+        <div class="text-right text-[11.5px] text-slate-400">—</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- VARIANT 3 — Hero card + compact dashboard                   -->
+  <!-- Single hero card with big title + status, stats inline at  -->
+  <!-- top, policy body underneath, ack list as a tight grid.     -->
+  <!-- ============================================================ -->
+  <section>
+    <div class="flex items-baseline justify-between mb-3">
+      <h2 class="text-[15px] font-semibold tracking-tight text-slate-900">Variant 3 — Hero dashboard</h2>
+      <span class="variant-tag text-slate-400">V3 · GLANCEABLE</span>
+    </div>
+
+    <div class="space-y-4">
+
+      <!-- back -->
+      <button class="inline-flex items-center gap-2 text-[12.5px] font-medium text-slate-600 hover:text-slate-900">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Back to Policies
+      </button>
+
+      <!-- Hero card -->
+      <section class="bg-white rounded-2xl border border-slate-200 shad-card overflow-hidden">
+
+        <!-- top section: title + actions -->
+        <div class="p-7 pb-5">
+          <div class="flex items-start justify-between gap-6 flex-wrap">
+            <div class="min-w-0">
+              <div class="flex items-center gap-2 mb-3">
+                <span class="font-mono text-[11px] text-slate-500">HR-000</span>
+                <span class="inline-flex items-center px-1.5 h-5 rounded bg-slate-100 font-mono text-[10.5px] text-slate-600">v1.0</span>
+                <span class="w-1 h-1 rounded-full bg-slate-300"></span>
+                <span class="inline-flex items-center h-5 px-2 rounded-full bg-emerald-50 text-emerald-700 text-[10.5px] font-medium">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span>Active
+                </span>
+                <span class="inline-flex items-center h-5 px-2 rounded-full bg-slate-100 text-slate-700 text-[10.5px] font-medium">HR</span>
+              </div>
+              <h1 class="text-[32px] font-semibold tracking-tight leading-[1.1]">Testing Policy</h1>
+              <div class="mt-3 flex items-center gap-3 text-[12px] text-slate-500">
+                <div class="flex items-center gap-2">
+                  <div class="w-5 h-5 rounded-full bg-gradient-to-br from-violet-500 to-violet-700 text-white text-[8.5px] font-semibold flex items-center justify-center">MH</div>
+                  <span>Muhammad Haziq Hilman</span>
+                </div>
+                <span class="w-1 h-1 rounded-full bg-slate-300"></span>
+                <span>Published <span class="text-slate-700">19 May 2026</span></span>
+                <span class="w-1 h-1 rounded-full bg-slate-300"></span>
+                <span>~3 min read</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button class="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-[12.5px] font-medium text-slate-700">Archive</button>
+              <button class="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-[12.5px] font-medium text-slate-700">Edit</button>
+              <button class="w-9 h-9 inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600" aria-label="More">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- KPI strip -->
+        <div class="grid grid-cols-4 border-t border-slate-100 bg-slate-50/40">
+          <div class="px-6 py-4 border-r border-slate-100">
+            <div class="text-[10.5px] font-mono uppercase tracking-wider text-slate-400">Acknowledged</div>
+            <div class="mt-1 flex items-baseline gap-2">
+              <span class="text-[22px] font-semibold text-emerald-600 num-tabular">1</span>
+              <span class="text-[11.5px] text-slate-500 num-tabular">/ 12 · 8.33%</span>
+            </div>
+            <div class="mt-2 h-1 rounded-full bar-track overflow-hidden">
+              <div class="h-full bg-emerald-500" style="width:8.33%"></div>
+            </div>
+          </div>
+          <div class="px-6 py-4 border-r border-slate-100">
+            <div class="text-[10.5px] font-mono uppercase tracking-wider text-slate-400">Views</div>
+            <div class="mt-1 flex items-baseline gap-2">
+              <span class="text-[22px] font-semibold num-tabular">5</span>
+              <span class="text-[11.5px] text-slate-500 num-tabular">/ 12</span>
+            </div>
+            <div class="mt-2 h-1 rounded-full bar-track overflow-hidden">
+              <div class="h-full bg-slate-700" style="width:41.6%"></div>
+            </div>
+          </div>
+          <div class="px-6 py-4 border-r border-slate-100">
+            <div class="text-[10.5px] font-mono uppercase tracking-wider text-slate-400">Pending</div>
+            <div class="mt-1 flex items-baseline gap-2">
+              <span class="text-[22px] font-semibold num-tabular">11</span>
+              <span class="text-[11.5px] text-slate-500">to ack</span>
+            </div>
+            <div class="mt-2 h-1 rounded-full bar-track overflow-hidden">
+              <div class="h-full bg-amber-400" style="width:91.66%"></div>
+            </div>
+          </div>
+          <div class="px-6 py-4">
+            <div class="text-[10.5px] font-mono uppercase tracking-wider text-slate-400">Audience</div>
+            <div class="mt-1 flex items-baseline gap-2">
+              <span class="text-[22px] font-semibold num-tabular">12</span>
+              <span class="text-[11.5px] text-slate-500">employees</span>
+            </div>
+            <div class="mt-2 flex items-center gap-1">
+              <div class="w-4 h-4 rounded-full bg-gradient-to-br from-violet-500 to-violet-700 text-white text-[7px] font-semibold flex items-center justify-center ring-1 ring-white">MH</div>
+              <div class="w-4 h-4 rounded-full bg-gradient-to-br from-amber-500 to-amber-600 text-white text-[7px] font-semibold flex items-center justify-center ring-1 ring-white -ml-1.5">SK</div>
+              <div class="w-4 h-4 rounded-full bg-gradient-to-br from-rose-500 to-rose-600 text-white text-[7px] font-semibold flex items-center justify-center ring-1 ring-white -ml-1.5">AL</div>
+              <span class="ml-1 text-[10.5px] text-slate-500 num-tabular">+9</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Body + ack rail -->
+      <div class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-4 items-start">
+
+        <!-- BODY -->
+        <section class="bg-white rounded-2xl border border-slate-200 shad-card p-8">
+          <div class="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-900/[0.04] border border-slate-200 text-[12px] text-slate-700 w-fit mb-6">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><polyline points="9 11 12 14 22 4"/></svg>
+            Acknowledgment required after reading
+          </div>
+
+          <div class="prose-policy text-[14.5px] leading-[1.8] text-slate-700">
+            <p><strong>Testing.</strong> A <strong>policy</strong> is a deliberate set of guidelines or a plan of action established by governments, businesses, or organizations to achieve a defined outcome. Depending on the context, the term generally falls into three main categories:</p>
+            <p class="mt-5"><strong>1. Organizational &amp; Corporate Policy.</strong> Internal guidelines that define how a business operates, manages its employees, or treats its customers.</p>
+            <p><strong>Examples.</strong> Privacy policies, employee dress codes, remote work guidelines, and return policies.</p>
+            <p><strong>Purpose.</strong> Ensures fairness, maintains legal compliance, and sets clear expectations for staff and clients.</p>
+          </div>
+
+          <hr class="my-7 border-slate-100">
+
+          <div class="flex items-center justify-between gap-4 flex-wrap">
+            <div class="text-[12px] text-slate-500">
+              Last reviewed <span class="text-slate-700">19 May 2026</span> · Next review <span class="text-slate-700">19 Nov 2026</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <button class="h-9 px-3 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-[12.5px] font-medium text-slate-700 inline-flex items-center gap-1.5">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Download PDF
+              </button>
+              <button class="h-9 px-3 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-[12.5px] font-medium text-slate-700 inline-flex items-center gap-1.5">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                Share
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ACK RAIL (sticky-feel) -->
+        <aside class="bg-white rounded-2xl border border-slate-200 shad-card p-6 lg:sticky lg:top-4">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+            <span class="text-[10.5px] font-mono uppercase tracking-wider text-amber-700">Action required</span>
+          </div>
+          <h3 class="text-[16px] font-semibold tracking-tight">Acknowledge this policy</h3>
+          <p class="text-[12.5px] text-slate-500 mt-1.5 leading-relaxed">By acknowledging, you confirm that you have read and understood the contents of this policy.</p>
+
+          <button class="mt-4 w-full h-10 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-[13px] font-semibold inline-flex items-center justify-center gap-2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Acknowledge Policy
+          </button>
+          <button class="mt-2 w-full h-9 rounded-lg border border-slate-200 hover:bg-slate-50 text-[12.5px] font-medium text-slate-700">Save for later</button>
+
+          <hr class="my-5 border-slate-100">
+
+          <div class="text-[10.5px] font-mono uppercase tracking-wider text-slate-400 mb-3">Activity</div>
+          <ol class="space-y-3">
+            <li class="flex items-start gap-3">
+              <div class="w-7 h-7 rounded-full bg-emerald-50 flex items-center justify-center shrink-0">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgb(5 150 105)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="text-[12.5px] text-slate-900"><span class="font-medium">Muhammad Haziq</span> acknowledged</div>
+                <div class="text-[10.5px] text-slate-400 font-mono">19/05/26 · 03:19 AM</div>
+              </div>
+            </li>
+            <li class="flex items-start gap-3">
+              <div class="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgb(71 85 105)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="text-[12.5px] text-slate-900"><span class="font-medium">Sarah Khalid</span> viewed</div>
+                <div class="text-[10.5px] text-slate-400 font-mono">19/05/26 · 03:08 AM</div>
+              </div>
+            </li>
+            <li class="flex items-start gap-3">
+              <div class="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgb(71 85 105)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="text-[12.5px] text-slate-900"><span class="font-medium">Policy</span> published</div>
+                <div class="text-[10.5px] text-slate-400 font-mono">19/05/26 · 02:55 AM</div>
+              </div>
+            </li>
+          </ol>
+        </aside>
+      </div>
+
+      <!-- Acknowledgment matrix grid -->
+      <section class="bg-white rounded-2xl border border-slate-200 shad-card p-6">
+        <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+          <div>
+            <h3 class="text-[15px] font-semibold tracking-tight">Acknowledgment matrix</h3>
+            <p class="text-[11.5px] text-slate-500 mt-0.5">Live status across all 12 employees in the audience.</p>
+          </div>
+          <div class="flex items-center gap-3 text-[11.5px] text-slate-600">
+            <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-emerald-500"></span>Acknowledged</div>
+            <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-slate-300"></span>Viewed</div>
+            <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-slate-100 border border-slate-200"></span>Not seen</div>
+            <button class="ml-2 h-8 px-3 rounded-lg bg-slate-900 text-white text-[11.5px] font-medium">Send reminder</button>
+          </div>
+        </div>
+
+        <!-- the matrix: 12 employees -->
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-px bg-slate-100 rounded-xl overflow-hidden border border-slate-100">
+
+          <!-- Acked -->
+          <div class="bg-white p-3 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-gradient-to-br from-violet-500 to-violet-700 text-white text-[10.5px] font-semibold flex items-center justify-center">MH</div>
+            <div class="min-w-0 flex-1">
+              <div class="text-[12.5px] font-medium text-slate-900 truncate">Muhammad Haziq</div>
+              <div class="text-[10.5px] font-mono text-slate-400">19/05 · 03:19</div>
+            </div>
+            <span class="w-2.5 h-2.5 rounded-sm bg-emerald-500"></span>
+          </div>
+
+          <!-- Viewed -->
+          <div class="bg-white p-3 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-gradient-to-br from-amber-500 to-amber-600 text-white text-[10.5px] font-semibold flex items-center justify-center">SK</div>
+            <div class="min-w-0 flex-1">
+              <div class="text-[12.5px] font-medium text-slate-900 truncate">Sarah Khalid</div>
+              <div class="text-[10.5px] font-mono text-slate-400">Viewed · 03:08</div>
+            </div>
+            <span class="w-2.5 h-2.5 rounded-sm bg-slate-300"></span>
+          </div>
+
+          <div class="bg-white p-3 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-gradient-to-br from-rose-500 to-rose-600 text-white text-[10.5px] font-semibold flex items-center justify-center">AL</div>
+            <div class="min-w-0 flex-1">
+              <div class="text-[12.5px] font-medium text-slate-900 truncate">Aisyah Lim</div>
+              <div class="text-[10.5px] font-mono text-slate-400">Viewed · 02:58</div>
+            </div>
+            <span class="w-2.5 h-2.5 rounded-sm bg-slate-300"></span>
+          </div>
+
+          <!-- Not seen rows -->
+          <div class="bg-white p-3 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 text-[10.5px] font-semibold flex items-center justify-center">DZ</div>
+            <div class="min-w-0 flex-1">
+              <div class="text-[12.5px] font-medium text-slate-700 truncate">Daniel Zafri</div>
+              <div class="text-[10.5px] font-mono text-slate-400">Not seen</div>
+            </div>
+            <span class="w-2.5 h-2.5 rounded-sm bg-slate-100 border border-slate-200"></span>
+          </div>
+          <div class="bg-white p-3 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 text-[10.5px] font-semibold flex items-center justify-center">HZ</div>
+            <div class="min-w-0 flex-1">
+              <div class="text-[12.5px] font-medium text-slate-700 truncate">Hafiz Zainal</div>
+              <div class="text-[10.5px] font-mono text-slate-400">Not seen</div>
+            </div>
+            <span class="w-2.5 h-2.5 rounded-sm bg-slate-100 border border-slate-200"></span>
+          </div>
+          <div class="bg-white p-3 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 text-[10.5px] font-semibold flex items-center justify-center">LN</div>
+            <div class="min-w-0 flex-1">
+              <div class="text-[12.5px] font-medium text-slate-700 truncate">Lina Nasir</div>
+              <div class="text-[10.5px] font-mono text-slate-400">Not seen</div>
+            </div>
+            <span class="w-2.5 h-2.5 rounded-sm bg-slate-100 border border-slate-200"></span>
+          </div>
+          <div class="bg-white p-3 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 text-[10.5px] font-semibold flex items-center justify-center">FR</div>
+            <div class="min-w-0 flex-1">
+              <div class="text-[12.5px] font-medium text-slate-700 truncate">Farah Roslan</div>
+              <div class="text-[10.5px] font-mono text-slate-400">Not seen</div>
+            </div>
+            <span class="w-2.5 h-2.5 rounded-sm bg-slate-100 border border-slate-200"></span>
+          </div>
+          <div class="bg-white p-3 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 text-[10.5px] font-semibold flex items-center justify-center">IB</div>
+            <div class="min-w-0 flex-1">
+              <div class="text-[12.5px] font-medium text-slate-700 truncate">Iskandar Bakar</div>
+              <div class="text-[10.5px] font-mono text-slate-400">Not seen</div>
+            </div>
+            <span class="w-2.5 h-2.5 rounded-sm bg-slate-100 border border-slate-200"></span>
+          </div>
+          <div class="bg-white p-3 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 text-[10.5px] font-semibold flex items-center justify-center">NA</div>
+            <div class="min-w-0 flex-1">
+              <div class="text-[12.5px] font-medium text-slate-700 truncate">Nadia Amir</div>
+              <div class="text-[10.5px] font-mono text-slate-400">Not seen</div>
+            </div>
+            <span class="w-2.5 h-2.5 rounded-sm bg-slate-100 border border-slate-200"></span>
+          </div>
+          <div class="bg-white p-3 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 text-[10.5px] font-semibold flex items-center justify-center">JT</div>
+            <div class="min-w-0 flex-1">
+              <div class="text-[12.5px] font-medium text-slate-700 truncate">Joel Tan</div>
+              <div class="text-[10.5px] font-mono text-slate-400">Not seen</div>
+            </div>
+            <span class="w-2.5 h-2.5 rounded-sm bg-slate-100 border border-slate-200"></span>
+          </div>
+          <div class="bg-white p-3 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 text-[10.5px] font-semibold flex items-center justify-center">RM</div>
+            <div class="min-w-0 flex-1">
+              <div class="text-[12.5px] font-medium text-slate-700 truncate">Rafiq Mustafa</div>
+              <div class="text-[10.5px] font-mono text-slate-400">Not seen</div>
+            </div>
+            <span class="w-2.5 h-2.5 rounded-sm bg-slate-100 border border-slate-200"></span>
+          </div>
+          <div class="bg-white p-3 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 text-[10.5px] font-semibold flex items-center justify-center">YC</div>
+            <div class="min-w-0 flex-1">
+              <div class="text-[12.5px] font-medium text-slate-700 truncate">Yong Chen</div>
+              <div class="text-[10.5px] font-mono text-slate-400">Not seen</div>
+            </div>
+            <span class="w-2.5 h-2.5 rounded-sm bg-slate-100 border border-slate-200"></span>
+          </div>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- Caption                                                      -->
+  <!-- ============================================================ -->
+  <div class="text-[12px] text-slate-500 max-w-3xl leading-relaxed">
+    <span class="font-medium text-slate-700">Design notes.</span>
+    All three variants reuse the existing system — Geist family, slate-50 canvas,
+    rounded-2xl white cards with the subtle <span class="font-mono">shad-card</span> shadow,
+    slate-900 primary buttons, Geist Mono for IDs/timestamps, and the established status-pill set
+    (emerald · amber · violet · rose). They differ in <em>where</em> the policy body sits relative to
+    its metadata and engagement — document, workspace, or hero — so you can pick the framing that
+    matches how your team actually reads policies.
+  </div>
+
+</div>
+
+</body>
+</html>

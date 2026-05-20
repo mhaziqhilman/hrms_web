@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>HRMS · Button Variants</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+  // Mirrors HRMS_v1/src/styles.css token theme + radius scale.
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        fontFamily: { sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'] },
+        colors: {
+          background: 'oklch(var(--background) / <alpha-value>)',
+          foreground: 'oklch(var(--foreground) / <alpha-value>)',
+          card: 'oklch(var(--card) / <alpha-value>)',
+          primary: 'oklch(var(--primary) / <alpha-value>)',
+          'primary-foreground': 'oklch(var(--primary-foreground) / <alpha-value>)',
+          secondary: 'oklch(var(--secondary) / <alpha-value>)',
+          'secondary-foreground': 'oklch(var(--secondary-foreground) / <alpha-value>)',
+          muted: 'oklch(var(--muted) / <alpha-value>)',
+          'muted-foreground': 'oklch(var(--muted-foreground) / <alpha-value>)',
+          accent: 'oklch(var(--accent) / <alpha-value>)',
+          destructive: 'oklch(var(--destructive) / <alpha-value>)',
+          border: 'oklch(var(--border) / <alpha-value>)',
+          input: 'oklch(var(--input) / <alpha-value>)',
+          ring: 'oklch(var(--ring) / <alpha-value>)',
+          sidebar: 'oklch(var(--sidebar) / <alpha-value>)',
+          'sidebar-foreground': 'oklch(var(--sidebar-foreground) / <alpha-value>)',
+          'sidebar-border': 'oklch(var(--sidebar-border) / <alpha-value>)',
+        },
+        borderRadius: {
+          none: '0',
+          sm: 'calc(var(--radius) - 4px)',
+          DEFAULT: 'calc(var(--radius) - 2px)',
+          md: 'calc(var(--radius) - 2px)',
+          lg: 'var(--radius)',
+          xl: 'calc(var(--radius) + 4px)',
+          full: '9999px',
+        },
+      },
+    },
+  };
+</script>
+<style>
+  /* Token values copied verbatim from HRMS_v1/src/styles.css (oklch components only). */
+  :root {
+    --radius: 0.75rem;
+    --background: 1 0 0;
+    --foreground: 0.129 0.042 264.695;
+    --card: 1 0 0;
+    --primary: 0.208 0.042 265.755;
+    --primary-foreground: 0.984 0.003 247.858;
+    --secondary: 0.968 0.007 247.896;
+    --secondary-foreground: 0.208 0.042 265.755;
+    --muted: 0.968 0.007 247.896;
+    --muted-foreground: 0.554 0.046 257.417;
+    --accent: 0.968 0.007 247.896;
+    --destructive: 0.577 0.245 27.325;
+    --border: 0.929 0.013 255.508;
+    --input: 0.929 0.013 255.508;
+    --ring: 0.704 0.04 256.788;
+    --sidebar: 0.984 0.003 247.858;
+    --sidebar-foreground: 0.129 0.042 264.695;
+    --sidebar-border: 0.929 0.013 255.508;
+  }
+  .dark {
+    --background: 0.129 0.042 264.695;
+    --foreground: 0.984 0.003 247.858;
+    --card: 0.208 0.042 265.755;
+    --primary: 0.929 0.013 255.508;
+    --primary-foreground: 0.208 0.042 265.755;
+    --secondary: 0.279 0.041 260.031;
+    --secondary-foreground: 0.984 0.003 247.858;
+    --muted: 0.279 0.041 260.031;
+    --muted-foreground: 0.679 0.031 256.520;
+    --accent: 0.279 0.041 260.031;
+    --destructive: 0.704 0.191 22.216;
+    --border: 0.35 0.04 260;
+    --input: 0.35 0.04 260;
+    --ring: 0.554 0.046 257.417;
+    --sidebar: 0.208 0.042 265.755;
+    --sidebar-foreground: 0.984 0.003 247.858;
+    --sidebar-border: 0.35 0.04 260;
+  }
+  html, body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+  .font-mono { font-family: 'Geist Mono', ui-monospace, monospace; }
+</style>
+</head>
+<body class="bg-background text-foreground antialiased transition-colors">
+
+<div class="max-w-[1100px] mx-auto px-8 py-9 space-y-10">
+
+  <!-- Header -->
+  <header class="flex items-end justify-between gap-4 flex-wrap">
+    <div>
+      <h1 class="text-[26px] font-semibold tracking-tight leading-none">HRMS — Button Variants</h1>
+      <p class="text-[13px] text-muted-foreground mt-2">
+        Live preview of <span class="font-mono text-[12px]">button.variants.ts</span> — theme-token based, light &amp; dark.
+      </p>
+    </div>
+    <button id="themeToggle"
+      class="inline-flex items-center gap-2 h-9 px-3.5 rounded-md border border-border bg-card text-foreground text-[13px] font-medium hover:bg-muted/60 transition-all">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      <span id="themeLabel">Dark mode</span>
+    </button>
+  </header>
+
+  <!-- ============================================================ -->
+  <!-- CLASS 1 — Default button (zType)                             -->
+  <!-- ============================================================ -->
+  <section class="rounded-xl border border-border bg-card p-6 space-y-4">
+    <div>
+      <div class="flex items-center gap-2">
+        <span class="font-mono text-[10.5px] tracking-wide px-1.5 h-5 inline-flex items-center rounded bg-muted text-muted-foreground">CLASS 2</span>
+        <h2 class="text-[15px] font-semibold tracking-tight">Default button — <span class="font-mono text-[12.5px]">zType</span></h2>
+      </div>
+      <p class="text-[12.5px] text-muted-foreground mt-1">Primary CTA + supporting roles, all at <span class="font-mono text-[12px]">zSize="default"</span>.</p>
+    </div>
+    <div class="flex flex-wrap items-center gap-3">
+      <button class="cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium select-none transition-all duration-150 ease-out bg-primary text-primary-foreground hover:bg-primary/90 active:scale-[0.97] h-9 px-4 py-2 text-[13px]">Default</button>
+      <button class="cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium select-none transition-all duration-150 ease-out bg-destructive text-white hover:bg-destructive/90 active:scale-[0.97] dark:bg-destructive/60 h-9 px-4 py-2 text-[13px]">Destructive</button>
+      <button class="cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium select-none transition-all duration-150 ease-out border border-border bg-card text-foreground hover:bg-muted/60 active:scale-[0.97] dark:bg-input/30 dark:border-input dark:hover:bg-input/50 h-9 px-4 py-2 text-[13px]">Outline</button>
+      <button class="cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium select-none transition-all duration-150 ease-out bg-secondary text-secondary-foreground hover:bg-secondary/80 active:scale-[0.97] h-9 px-4 py-2 text-[13px]">Secondary</button>
+      <button class="cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium select-none transition-all duration-150 ease-out hover:bg-muted/60 dark:hover:bg-accent/50 h-9 px-4 py-2 text-[13px]">Ghost</button>
+      <button class="cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium select-none transition-all duration-150 ease-out text-primary underline-offset-4 hover:underline h-9 px-4 py-2 text-[13px]">Link</button>
+    </div>
+    <div class="flex flex-wrap items-center gap-3 pt-1">
+      <button class="cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium select-none transition-all duration-150 ease-out bg-primary text-primary-foreground hover:bg-primary/90 active:scale-[0.97] h-9 px-4 py-2 text-[13px]">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Acknowledge Policy
+      </button>
+      <button class="cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium select-none transition-all duration-150 ease-out border border-border bg-card text-foreground hover:bg-muted/60 active:scale-[0.97] dark:bg-input/30 dark:border-input dark:hover:bg-input/50 h-9 px-4 py-2 text-[13px]">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        Edit
+      </button>
+      <!-- icon-only -->
+      <button aria-label="More" class="cursor-pointer inline-flex items-center justify-center whitespace-nowrap rounded-md font-medium select-none transition-all duration-150 ease-out border border-border bg-card text-foreground hover:bg-muted/60 active:scale-[0.97] dark:bg-input/30 dark:border-input dark:hover:bg-input/50 h-9 w-9 text-[13px]">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+      </button>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- CLASS 3 — Small & Large (zSize)                              -->
+  <!-- ============================================================ -->
+  <section class="rounded-xl border border-border bg-card p-6 space-y-4">
+    <div>
+      <div class="flex items-center gap-2">
+        <span class="font-mono text-[10.5px] tracking-wide px-1.5 h-5 inline-flex items-center rounded bg-muted text-muted-foreground">CLASS 3</span>
+        <h2 class="text-[15px] font-semibold tracking-tight">Small &amp; Large — <span class="font-mono text-[12.5px]">zSize</span></h2>
+      </div>
+      <p class="text-[12.5px] text-muted-foreground mt-1">Scale derived from the default: 32 / 36 / 40&nbsp;px tall, type rhythm scaled with it.</p>
+    </div>
+    <div class="flex flex-wrap items-end gap-3">
+      <button class="cursor-pointer inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md font-medium select-none transition-all duration-150 ease-out bg-primary text-primary-foreground hover:bg-primary/90 active:scale-[0.97] h-8 px-3 text-xs">Small</button>
+      <button class="cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium select-none transition-all duration-150 ease-out bg-primary text-primary-foreground hover:bg-primary/90 active:scale-[0.97] h-9 px-4 py-2 text-[13px]">Default</button>
+      <button class="cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-semibold select-none transition-all duration-150 ease-out bg-primary text-primary-foreground hover:bg-primary/90 active:scale-[0.97] h-10 px-6 text-sm">Large</button>
+    </div>
+    <div class="flex flex-wrap items-end gap-3">
+      <button class="cursor-pointer inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md font-medium select-none transition-all duration-150 ease-out border border-border bg-card text-foreground hover:bg-muted/60 active:scale-[0.97] dark:bg-input/30 dark:border-input dark:hover:bg-input/50 h-8 px-3 text-xs">Small</button>
+      <button class="cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium select-none transition-all duration-150 ease-out border border-border bg-card text-foreground hover:bg-muted/60 active:scale-[0.97] dark:bg-input/30 dark:border-input dark:hover:bg-input/50 h-9 px-4 py-2 text-[13px]">Default</button>
+      <button class="cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-semibold select-none transition-all duration-150 ease-out border border-border bg-card text-foreground hover:bg-muted/60 active:scale-[0.97] dark:bg-input/30 dark:border-input dark:hover:bg-input/50 h-10 px-6 text-sm">Large</button>
+    </div>
+    <!-- states -->
+    <div class="flex flex-wrap items-center gap-3 pt-1">
+      <button disabled class="cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium select-none transition-all duration-150 ease-out bg-primary text-primary-foreground h-9 px-4 py-2 text-[13px] pointer-events-none opacity-50">Disabled</button>
+      <button class="cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium select-none transition-all duration-150 ease-out bg-primary text-primary-foreground h-9 px-4 py-2 text-[13px] opacity-50 pointer-events-none">
+        <svg class="animate-spin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+        Loading
+      </button>
+    </div>
+    <button class="cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-semibold select-none transition-all duration-150 ease-out bg-primary text-primary-foreground hover:bg-primary/90 active:scale-[0.97] h-10 px-6 text-sm w-full">Full-width Large CTA</button>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- CLASS 1 — Sidenav button (unchanged ghost)                   -->
+  <!-- ============================================================ -->
+  <section class="rounded-xl border border-border bg-card p-6 space-y-4">
+    <div>
+      <div class="flex items-center gap-2">
+        <span class="font-mono text-[10.5px] tracking-wide px-1.5 h-5 inline-flex items-center rounded bg-muted text-muted-foreground">CLASS 1</span>
+        <h2 class="text-[15px] font-semibold tracking-tight">Sidenav button — <span class="font-mono text-[12.5px]">zType="ghost"</span></h2>
+      </div>
+      <p class="text-[12.5px] text-muted-foreground mt-1">Left intentionally unchanged — the side navigation keeps its current look.</p>
+    </div>
+    <div class="w-[230px] rounded-lg border border-sidebar-border bg-sidebar p-3 flex flex-col gap-1">
+      <a class="cursor-pointer inline-flex items-center whitespace-nowrap rounded-md font-medium select-none transition-all duration-150 ease-out bg-primary/10 !text-primary h-9 px-2 py-1 text-sm justify-start" style="color:oklch(var(--primary))">
+        <svg class="mr-1" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <a class="cursor-pointer inline-flex items-center whitespace-nowrap rounded-md font-medium select-none transition-all duration-150 ease-out hover:bg-muted/60 dark:hover:bg-accent/50 h-9 px-2 py-1 text-sm justify-start text-foreground/65">
+        <svg class="mr-1" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        <span>Employees</span>
+      </a>
+      <a class="cursor-pointer inline-flex items-center whitespace-nowrap rounded-md font-medium select-none transition-all duration-150 ease-out hover:bg-muted/60 dark:hover:bg-accent/50 h-9 px-2 py-1 text-sm justify-start text-foreground/65">
+        <svg class="mr-1" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <span>Policies</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- caption -->
+  <div class="text-[12px] text-muted-foreground leading-relaxed">
+    <span class="font-medium text-foreground">How it maps.</span>
+    Three button classes, one source of truth in
+    <span class="font-mono text-[11.5px]">button.variants.ts</span> —
+    <span class="font-mono text-[11.5px]">ghost</span> for the sidenav (untouched),
+    <span class="font-mono text-[11.5px]">default</span> for primary CTAs (design-ref style),
+    and the <span class="font-mono text-[11.5px]">sm</span>/<span class="font-mono text-[11.5px]">lg</span>
+    sizes scaled from the default. All colours are theme tokens, so dark mode just works — toggle above.
+  </div>
+
+</div>
+
+<script>
+  const root = document.documentElement;
+  const btn = document.getElementById('themeToggle');
+  const label = document.getElementById('themeLabel');
+  btn.addEventListener('click', () => {
+    const dark = root.classList.toggle('dark');
+    label.textContent = dark ? 'Light mode' : 'Dark mode';
+  });
+</script>
+
+</body>
+</html>

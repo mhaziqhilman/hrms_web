@@ -108,8 +108,10 @@ export class MyProfileComponent implements OnInit {
     return `${years}`;
   });
 
-  // Computed: profile completion percentage
-  profileCompletion = computed(() => {
+  // Profile completion fields (used to compute %, count, and ring offset)
+  private readonly profileFieldsTotal = 20;
+
+  filledFieldsCount = computed(() => {
     const p = this.profile();
     if (!p) return 0;
 
@@ -136,8 +138,13 @@ export class MyProfileComponent implements OnInit {
       p.photo_url
     ];
 
-    const filled = fields.filter(f => f !== null && f !== undefined && f !== '').length;
-    return Math.round((filled / fields.length) * 100);
+    return fields.filter(f => f !== null && f !== undefined && f !== '').length;
+  });
+
+  totalFieldsCount = computed(() => this.profileFieldsTotal);
+
+  profileCompletion = computed(() => {
+    return Math.round((this.filledFieldsCount() / this.profileFieldsTotal) * 100);
   });
 
   ngOnInit(): void {
@@ -252,6 +259,19 @@ export class MyProfileComponent implements OnInit {
 
   formatDate(dateStr: string | null): string {
     return this.displayService.formatDate(dateStr);
+  }
+
+  formatJoinShort(dateStr: string): string {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return '';
+    return d.toLocaleDateString('en-MY', { month: 'short', year: 'numeric' });
+  }
+
+  editFromHeader(): void {
+    this.activeTab.set('contact');
+    if (!this.editMode()) {
+      this.editMode.set(true);
+    }
   }
 
   formatCurrency(amount: number): string {

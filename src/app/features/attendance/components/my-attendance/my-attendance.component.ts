@@ -14,6 +14,7 @@ import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { ZardMenuImports } from '@/shared/components/menu/menu.imports';
 import { ZardDatePickerComponent } from '@/shared/components/date-picker/date-picker.component';
 import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
+import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-dialog.service';
 
 @Component({
   selector: 'app-my-attendance',
@@ -80,6 +81,7 @@ export class MyAttendanceComponent implements OnInit, OnDestroy {
   wfhSuccess = signal<string | null>(null);
 
   private displayService = inject(DisplayService);
+  private alertDialogService = inject(ZardAlertDialogService);
 
   constructor(
     private fb: FormBuilder,
@@ -566,17 +568,25 @@ export class MyAttendanceComponent implements OnInit, OnDestroy {
   }
 
   cancelWfhApplication(id: number): void {
-    if (!confirm('Are you sure you want to cancel this WFH application?')) return;
-    this.attendanceService.cancelWFHApplication(id).subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.wfhSuccess.set('WFH application cancelled');
-          this.loadWfhApplications();
-          setTimeout(() => this.wfhSuccess.set(null), 3000);
-        }
-      },
-      error: (err) => {
-        this.wfhError.set(err.error?.message || 'Failed to cancel application');
+    this.alertDialogService.confirm({
+      zTitle: 'Cancel WFH Application',
+      zDescription: 'Are you sure you want to cancel this WFH application?',
+      zOkText: 'Cancel Application',
+      zCancelText: 'Close',
+      zOkDestructive: true,
+      zOnOk: () => {
+        this.attendanceService.cancelWFHApplication(id).subscribe({
+          next: (response) => {
+            if (response.success) {
+              this.wfhSuccess.set('WFH application cancelled');
+              this.loadWfhApplications();
+              setTimeout(() => this.wfhSuccess.set(null), 3000);
+            }
+          },
+          error: (err) => {
+            this.wfhError.set(err.error?.message || 'Failed to cancel application');
+          }
+        });
       }
     });
   }

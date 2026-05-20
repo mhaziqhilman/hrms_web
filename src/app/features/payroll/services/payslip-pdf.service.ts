@@ -6,11 +6,13 @@ import { jsPDF } from 'jspdf';
 import { PayrollService } from './payroll.service';
 import { Payslip, MONTH_NAMES } from '../models/payroll.model';
 import { DisplayService } from '@/core/services/display.service';
+import { ThemeService } from '@/core/services/theme';
 
 @Injectable({ providedIn: 'root' })
 export class PayslipPdfService {
   private payrollService = inject(PayrollService);
   private displayService = inject(DisplayService);
+  private themeService = inject(ThemeService);
 
   async generateForPayrollId(payrollPublicId: string): Promise<{ blob: Blob; fileName: string; payslip: Payslip }> {
     const response = await firstValueFrom(this.payrollService.getPayslip(payrollPublicId));
@@ -39,7 +41,7 @@ export class PayslipPdfService {
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="${GOOGLE_FONTS_URL}" rel="stylesheet">
-<style>${PAYSLIP_PRINT_CSS}</style>
+<style>${buildPayslipPrintCss(this.themeService.getFontFamilyValue())}</style>
 </head><body>${payslipHtml}</body></html>`);
     iframeDoc.close();
 
@@ -352,11 +354,12 @@ function amountInWords(amount: number): string {
   return result;
 }
 
-const GOOGLE_FONTS_URL = 'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap';
+const GOOGLE_FONTS_URL = 'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Geist:wght@100..900&family=Figtree:ital,wght@0,300..900;1,300..900&display=swap';
 
-const PAYSLIP_PRINT_CSS = `
+/** Payslip CSS for the PDF iframe. Font follows the active Settings theme. */
+const buildPayslipPrintCss = (fontFamily: string) => `
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; font-size: 12.5px; color: #1a1a1a; background: #fff; }
+body { font-family: ${fontFamily}; font-size: 12.5px; color: #1a1a1a; background: #fff; }
 .payslip { width: 100%; margin: 0; padding: 24px 28px; }
 .header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 18px; }
 .header-left { display: flex; align-items: flex-start; gap: 16px; }

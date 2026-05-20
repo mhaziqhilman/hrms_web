@@ -26,12 +26,24 @@ export interface Policy {
   author?: {
     id: number;
     email: string;
-    full_name: string;
+    role?: string;
+    employee?: {
+      full_name?: string;
+      position?: string;
+      department?: string;
+      photo_url?: string;
+    };
   };
   approver?: {
     id: number;
     email: string;
-    full_name: string;
+    role?: string;
+    employee?: {
+      full_name?: string;
+      position?: string;
+      department?: string;
+      photo_url?: string;
+    };
   };
   parent?: {
     id: number;

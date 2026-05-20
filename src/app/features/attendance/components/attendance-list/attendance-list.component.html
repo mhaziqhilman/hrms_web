@@ -1,4 +1,4 @@
-<div class="bg-background min-h-screen">
+<div>
   <!-- No Profile State -->
   @if (!loading() && !hasProfile()) {
     <z-card>
@@ -14,8 +14,11 @@
     <div class="flex items-center justify-between mb-6">
       <!-- Left: Title + Divider + Date Navigator -->
       <div class="flex items-center gap-4">
-        <h1 class="text-2xl font-semibold text-foreground">Attendance</h1>
-        <z-divider zOrientation="vertical" class="h-6" />
+        <div>
+          <h1 class="text-[28px] font-semibold tracking-tight leading-none text-foreground">Attendance</h1>
+          <p class="text-[13px] text-muted-foreground mt-2">Track daily attendance and work-from-home records</p>
+        </div>
+        <z-divider zOrientation="vertical" class="h-10" />
         <!-- Date Navigator -->
         <div class="inline-flex items-center bg-card border rounded-lg overflow-hidden">
           <button z-button zType="ghost" zSize="sm" (click)="navigateDate(-1)"
@@ -46,89 +49,214 @@
       </div>
     </div>
 
+    <!-- Shared SVG gradient defs for sparklines -->
+    <svg width="0" height="0" class="absolute pointer-events-none" aria-hidden="true">
+      <defs>
+        <linearGradient id="sparkEmerald" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="rgb(16 185 129)" stop-opacity="0.18" />
+          <stop offset="100%" stop-color="rgb(16 185 129)" stop-opacity="0" />
+        </linearGradient>
+        <linearGradient id="sparkRose" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="rgb(225 29 72)" stop-opacity="0.18" />
+          <stop offset="100%" stop-color="rgb(225 29 72)" stop-opacity="0" />
+        </linearGradient>
+        <linearGradient id="sparkSlate" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="rgb(71 85 105)" stop-opacity="0.16" />
+          <stop offset="100%" stop-color="rgb(71 85 105)" stop-opacity="0" />
+        </linearGradient>
+        <linearGradient id="sparkAmber" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="rgb(217 119 6)" stop-opacity="0.18" />
+          <stop offset="100%" stop-color="rgb(217 119 6)" stop-opacity="0" />
+        </linearGradient>
+        <linearGradient id="sparkViolet" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="rgb(124 58 237)" stop-opacity="0.18" />
+          <stop offset="100%" stop-color="rgb(124 58 237)" stop-opacity="0" />
+        </linearGradient>
+      </defs>
+    </svg>
+
     <!-- Summary Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
       <!-- Present Summary -->
-      <div class="bg-card rounded-xl border p-5">
-        <div class="flex items-center justify-between mb-4">
+      <div class="bg-card rounded-xl border overflow-hidden">
+        <div class="flex items-center justify-between px-5 pt-4 pb-3 border-b">
           <div class="flex items-center gap-2.5">
             <div class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center">
               <z-icon [zType]="$any('shield-check')" class="w-4 h-4 text-emerald-600" />
             </div>
-            <span class="font-medium text-sm text-foreground">Present Summary</span>
+            <div>
+              <h3 class="text-sm font-medium text-foreground leading-none">Present Summary</h3>
+              <p class="text-[11px] text-muted-foreground mt-1 leading-none">Punctuality across the period</p>
+            </div>
           </div>
           <z-icon [zType]="$any('ellipsis')" class="w-4 h-4 text-muted-foreground cursor-pointer hover:text-foreground transition-colors" />
         </div>
-        <div class="grid grid-cols-3 gap-3">
-          <div>
-            <p class="text-xs text-muted-foreground mb-1">On time</p>
-            <p class="text-2xl font-semibold text-foreground">{{ summaryStats().onTime }}</p>
+        <div class="flex">
+          <div class="substat flex-1 min-w-0 px-4 py-4">
+            <div class="flex items-center justify-between mb-1.5">
+              <p class="text-[11.5px] font-medium text-muted-foreground truncate">On time</p>
+              <ng-container *ngTemplateOutlet="deltaBadge; context: { $implicit: substat('onTime').delta }" />
+            </div>
+            <p class="text-[26px] leading-none font-semibold tracking-tight text-foreground tabular-nums">{{ summaryStats().onTime }}</p>
+            <div class="mt-2.5 -mx-1">
+              <ng-container *ngTemplateOutlet="spark; context: { paths: substat('onTime').paths, tone: 'emerald' }" />
+            </div>
           </div>
-          <div class="border-l pl-3">
-            <p class="text-xs text-muted-foreground mb-1">Late clock-in</p>
-            <p class="text-2xl font-semibold text-foreground">{{ summaryStats().late }}</p>
+          <div class="substat flex-1 min-w-0 px-4 py-4">
+            <div class="flex items-center justify-between mb-1.5">
+              <p class="text-[11.5px] font-medium text-muted-foreground truncate">Late clock-in</p>
+              <ng-container *ngTemplateOutlet="deltaBadge; context: { $implicit: substat('late').delta }" />
+            </div>
+            <p class="text-[26px] leading-none font-semibold tracking-tight text-foreground tabular-nums">{{ summaryStats().late }}</p>
+            <div class="mt-2.5 -mx-1">
+              <ng-container *ngTemplateOutlet="spark; context: { paths: substat('late').paths, tone: 'rose' }" />
+            </div>
           </div>
-          <div class="border-l pl-3">
-            <p class="text-xs text-muted-foreground mb-1">Early leave</p>
-            <p class="text-2xl font-semibold text-foreground">{{ summaryStats().earlyLeave }}</p>
+          <div class="substat flex-1 min-w-0 px-4 py-4">
+            <div class="flex items-center justify-between mb-1.5">
+              <p class="text-[11.5px] font-medium text-muted-foreground truncate">Early leave</p>
+              <ng-container *ngTemplateOutlet="deltaBadge; context: { $implicit: substat('earlyLeave').delta }" />
+            </div>
+            <p class="text-[26px] leading-none font-semibold tracking-tight text-foreground tabular-nums">{{ summaryStats().earlyLeave }}</p>
+            <div class="mt-2.5 -mx-1">
+              <ng-container *ngTemplateOutlet="spark; context: { paths: substat('earlyLeave').paths, tone: 'slate' }" />
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Clock Details -->
-      <div class="bg-card rounded-xl border p-5">
-        <div class="flex items-center justify-between mb-4">
+      <div class="bg-card rounded-xl border overflow-hidden">
+        <div class="flex items-center justify-between px-5 pt-4 pb-3 border-b">
           <div class="flex items-center gap-2.5">
             <div class="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center">
               <z-icon zType="clock" class="w-4 h-4 text-amber-600" />
             </div>
-            <span class="font-medium text-sm text-foreground">Clock Details</span>
+            <div>
+              <h3 class="text-sm font-medium text-foreground leading-none">Clock Details</h3>
+              <p class="text-[11px] text-muted-foreground mt-1 leading-none">Sessions in progress</p>
+            </div>
           </div>
           <z-icon [zType]="$any('ellipsis')" class="w-4 h-4 text-muted-foreground cursor-pointer hover:text-foreground transition-colors" />
         </div>
-        <div class="grid grid-cols-3 gap-3">
-          <div>
-            <p class="text-xs text-muted-foreground mb-1">No clock-out</p>
-            <p class="text-2xl font-semibold text-foreground">{{ summaryStats().noClockOut }}</p>
+        <div class="flex">
+          <div class="substat flex-1 min-w-0 px-4 py-4">
+            <div class="flex items-center justify-between mb-1.5">
+              <p class="text-[11.5px] font-medium text-muted-foreground truncate">No clock-out</p>
+              <ng-container *ngTemplateOutlet="deltaBadge; context: { $implicit: substat('noClockOut').delta }" />
+            </div>
+            <p class="text-[26px] leading-none font-semibold tracking-tight text-foreground tabular-nums">{{ summaryStats().noClockOut }}</p>
+            <div class="mt-2.5 -mx-1">
+              <ng-container *ngTemplateOutlet="spark; context: { paths: substat('noClockOut').paths, tone: 'rose' }" />
+            </div>
           </div>
-          <div class="border-l pl-3">
-            <p class="text-xs text-muted-foreground mb-1">Office</p>
-            <p class="text-2xl font-semibold text-foreground">{{ summaryStats().office }}</p>
+          <div class="substat flex-1 min-w-0 px-4 py-4">
+            <div class="flex items-center justify-between mb-1.5">
+              <p class="text-[11.5px] font-medium text-muted-foreground truncate">Office</p>
+              <ng-container *ngTemplateOutlet="deltaBadge; context: { $implicit: substat('office').delta }" />
+            </div>
+            <p class="text-[26px] leading-none font-semibold tracking-tight text-foreground tabular-nums">{{ summaryStats().office }}</p>
+            <div class="mt-2.5 -mx-1">
+              <ng-container *ngTemplateOutlet="spark; context: { paths: substat('office').paths, tone: 'emerald' }" />
+            </div>
           </div>
-          <div class="border-l pl-3">
-            <p class="text-xs text-muted-foreground mb-1">WFH</p>
-            <p class="text-2xl font-semibold text-foreground">{{ summaryStats().wfh }}</p>
+          <div class="substat flex-1 min-w-0 px-4 py-4">
+            <div class="flex items-center justify-between mb-1.5">
+              <p class="text-[11.5px] font-medium text-muted-foreground truncate">WFH</p>
+              <ng-container *ngTemplateOutlet="deltaBadge; context: { $implicit: substat('wfh').delta }" />
+            </div>
+            <p class="text-[26px] leading-none font-semibold tracking-tight text-foreground tabular-nums">{{ summaryStats().wfh }}</p>
+            <div class="mt-2.5 -mx-1">
+              <ng-container *ngTemplateOutlet="spark; context: { paths: substat('wfh').paths, tone: 'emerald' }" />
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Hours Summary -->
-      <div class="bg-card rounded-xl border p-5">
-        <div class="flex items-center justify-between mb-4">
+      <div class="bg-card rounded-xl border overflow-hidden">
+        <div class="flex items-center justify-between px-5 pt-4 pb-3 border-b">
           <div class="flex items-center gap-2.5">
             <div class="w-8 h-8 rounded-lg bg-violet-50 dark:bg-violet-950/30 flex items-center justify-center">
               <z-icon [zType]="$any('timer')" class="w-4 h-4 text-violet-600" />
             </div>
-            <span class="font-medium text-sm text-foreground">Hours Summary</span>
+            <div>
+              <h3 class="text-sm font-medium text-foreground leading-none">Hours Summary</h3>
+              <p class="text-[11px] text-muted-foreground mt-1 leading-none">Cumulative for {{ formatFooterRange() }}</p>
+            </div>
           </div>
           <z-icon [zType]="$any('ellipsis')" class="w-4 h-4 text-muted-foreground cursor-pointer hover:text-foreground transition-colors" />
         </div>
-        <div class="grid grid-cols-3 gap-3">
-          <div>
-            <p class="text-xs text-muted-foreground mb-1">Avg hours</p>
-            <p class="text-2xl font-semibold text-foreground">{{ formatHours(summaryStats().avgHours) }}</p>
+        <div class="flex">
+          <div class="substat flex-1 min-w-0 px-4 py-4">
+            <div class="flex items-center justify-between mb-1.5">
+              <p class="text-[11.5px] font-medium text-muted-foreground truncate">Avg hours</p>
+              <ng-container *ngTemplateOutlet="deltaBadge; context: { $implicit: substat('avgHours').delta }" />
+            </div>
+            <p class="text-[26px] leading-none font-semibold tracking-tight text-foreground tabular-nums">
+              {{ summaryStats().avgHours.toFixed(1) }}<span class="text-sm font-medium text-muted-foreground ml-0.5">h</span>
+            </p>
+            <div class="mt-2.5 -mx-1">
+              <ng-container *ngTemplateOutlet="spark; context: { paths: substat('avgHours').paths, tone: 'violet' }" />
+            </div>
           </div>
-          <div class="border-l pl-3">
-            <p class="text-xs text-muted-foreground mb-1">Overtime</p>
-            <p class="text-2xl font-semibold text-foreground">{{ summaryStats().overtime }}</p>
+          <div class="substat flex-1 min-w-0 px-4 py-4">
+            <div class="flex items-center justify-between mb-1.5">
+              <p class="text-[11.5px] font-medium text-muted-foreground truncate">Overtime</p>
+              <ng-container *ngTemplateOutlet="deltaBadge; context: { $implicit: substat('overtimeHours').delta }" />
+            </div>
+            <p class="text-[26px] leading-none font-semibold tracking-tight text-foreground tabular-nums">
+              {{ summaryStats().overtime.toFixed(0) }}<span class="text-sm font-medium text-muted-foreground ml-0.5">h</span>
+            </p>
+            <div class="mt-2.5 -mx-1">
+              <ng-container *ngTemplateOutlet="spark; context: { paths: substat('overtimeHours').paths, tone: 'amber' }" />
+            </div>
           </div>
-          <div class="border-l pl-3">
-            <p class="text-xs text-muted-foreground mb-1">Total</p>
-            <p class="text-2xl font-semibold text-foreground">{{ summaryStats().total }}</p>
+          <div class="substat flex-1 min-w-0 px-4 py-4">
+            <div class="flex items-center justify-between mb-1.5">
+              <p class="text-[11.5px] font-medium text-muted-foreground truncate">Total</p>
+              <ng-container *ngTemplateOutlet="deltaBadge; context: { $implicit: substat('total').delta }" />
+            </div>
+            <p class="text-[26px] leading-none font-semibold tracking-tight text-foreground tabular-nums">{{ summaryStats().total }}</p>
+            <div class="mt-2.5 -mx-1">
+              <ng-container *ngTemplateOutlet="spark; context: { paths: substat('total').paths, tone: 'slate' }" />
+            </div>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Reusable sparkline + delta templates -->
+    <ng-template #spark let-paths="paths" let-tone="tone">
+      <svg viewBox="0 0 96 28" width="100%" height="28" preserveAspectRatio="none" class="block">
+        <path [attr.d]="paths.area" [attr.fill]="'url(#spark' + (tone.charAt(0).toUpperCase() + tone.slice(1)) + ')'" />
+        <path [attr.d]="paths.line" fill="none"
+          [attr.stroke]="tone === 'emerald' ? 'rgb(16 185 129)' : tone === 'rose' ? 'rgb(225 29 72)' : tone === 'amber' ? 'rgb(217 119 6)' : tone === 'violet' ? 'rgb(124 58 237)' : 'rgb(71 85 105)'"
+          stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+        <circle [attr.cx]="paths.last.x" [attr.cy]="paths.last.y" r="1.8"
+          [attr.fill]="tone === 'emerald' ? 'rgb(16 185 129)' : tone === 'rose' ? 'rgb(225 29 72)' : tone === 'amber' ? 'rgb(217 119 6)' : tone === 'violet' ? 'rgb(124 58 237)' : 'rgb(71 85 105)'" />
+      </svg>
+    </ng-template>
+
+    <ng-template #deltaBadge let-pct>
+      @if (pct === null || pct === undefined) {
+        <span class="inline-flex items-center gap-0.5 text-[11px] font-medium text-muted-foreground tabular-nums">
+          <z-icon zType="minus" class="w-2.5 h-2.5" />
+        </span>
+      } @else if (pct === 0) {
+        <span class="inline-flex items-center gap-0.5 text-[11px] font-medium text-muted-foreground tabular-nums">
+          <z-icon zType="minus" class="w-2.5 h-2.5" /> 0.0%
+        </span>
+      } @else if (pct > 0) {
+        <span class="inline-flex items-center gap-0.5 px-1.5 h-[18px] rounded-full text-[10.5px] font-semibold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30 tabular-nums">
+          <z-icon zType="chevron-up" class="w-2.5 h-2.5" />+{{ pct.toFixed(1) }}%
+        </span>
+      } @else {
+        <span class="inline-flex items-center gap-0.5 px-1.5 h-[18px] rounded-full text-[10.5px] font-semibold text-rose-600 bg-rose-50 dark:bg-rose-950/30 tabular-nums">
+          <z-icon zType="chevron-down" class="w-2.5 h-2.5" />{{ pct.toFixed(1) }}%
+        </span>
+      }
+    </ng-template>
 
     <!-- Filters -->
     <div class="flex items-center gap-3 mb-6 flex-wrap justify-between">
@@ -136,10 +264,10 @@
         <!-- Search Bar -->
         <div class="relative flex-1 min-w-[180px] max-w-md">
           <z-icon zType="search"
-            class="absolute left-1.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+            class="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
           <input type="text" [value]="searchQuery()" (input)="searchQuery.set($any($event.target).value)"
             placeholder="Search by name or employee code..."
-            class="w-full pl-8 pr-2 py-2 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent" />
+            class="w-full pl-10 pr-3 py-2 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent" />
         </div>
 
         <!-- Type Filter -->
@@ -198,12 +326,20 @@
         }
       </div>
 
-      <!-- Column Toggle - Right Side -->
-      <div z-menu [zMenuTriggerFor]="columnMenu">
-        <button z-button zType="outline" class="gap-2 px-2">
-          <z-icon zType="eye" class="w-4 h-4" />
-          View
-        </button>
+      <div class="ml-auto flex items-center gap-2">
+        <!-- Day / Week / Month view toggle -->
+        <z-segmented
+          [zOptions]="viewModeOptions"
+          [zDefaultValue]="viewMode()"
+          (zChange)="onViewModeChange($event)" />
+
+        <!-- Column Toggle -->
+        <div z-menu [zMenuTriggerFor]="columnMenu">
+          <button z-button zType="outline" class="gap-2 px-2">
+            <z-icon zType="eye" class="w-4 h-4" />
+            View
+          </button>
+        </div>
       </div>
       <ng-template #columnMenu>
         <div z-menu-content class="w-56">
@@ -454,15 +590,23 @@
         <!-- Empty State -->
         <div class="bg-card border rounded-xl">
           <div class="flex flex-col items-center justify-center py-20 text-center">
-            <div class="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mb-4">
-              <z-icon zType="calendar" class="w-8 h-8 text-muted-foreground" />
+            <div class="w-14 h-14 rounded-full bg-muted/50 flex items-center justify-center mb-5">
+              <z-icon zType="calendar" class="w-6 h-6 text-muted-foreground" />
             </div>
             <h3 class="text-lg font-medium mb-1.5">No Attendance Records</h3>
-            <p class="text-muted-foreground text-sm mb-5">No attendance records found for {{ formatViewDate() }}</p>
-            <button z-button (click)="openAttendanceDialog()" class="gap-2">
-              <z-icon zType="clock" class="w-4 h-4" />
-              Clock In Now
-            </button>
+            <p class="text-muted-foreground text-sm mb-6 max-w-md">
+              No attendance records found for <span class="font-medium text-foreground">{{ formatFooterRange() }}</span>. Once your team clocks in, their activity will appear here.
+            </p>
+            <div class="flex items-center gap-2">
+              <button z-button zType="outline" (click)="openAttendanceDialog()" class="gap-2">
+                <z-icon zType="user-plus" class="w-4 h-4" />
+                Add Attendance
+              </button>
+              <button z-button (click)="openAttendanceDialog()" class="gap-2">
+                <z-icon zType="clock" class="w-4 h-4" />
+                Clock In Now
+              </button>
+            </div>
           </div>
         </div>
       }
@@ -505,6 +649,14 @@
           </div>
         </div>
       }
+
+      <!-- Footer hint -->
+      <div class="flex items-center justify-between mt-4 text-xs text-muted-foreground">
+        <span>Showing data for <span class="font-medium text-foreground">{{ formatFooterRange() }}</span> · auto-refreshes every 60s</span>
+        <span class="inline-flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>Live
+        </span>
+      </div>
     }
   }
 

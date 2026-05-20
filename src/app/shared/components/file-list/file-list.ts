@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FileService, FileMetadata } from '../../../core/services/file.service';
 import { FileViewer } from '../file-viewer/file-viewer';
 import { ZardIconComponent } from '../icon/icon.component';
+import { ZardButtonComponent } from '@/shared/components/button/button.component';
+import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-dialog.service';
 import { DisplayService } from '@/core/services/display.service';
 
 @Component({
   selector: 'app-file-list',
-  imports: [CommonModule, FileViewer, ZardIconComponent],
+  imports: [CommonModule, FileViewer, ZardIconComponent, ZardButtonComponent],
   templateUrl: './file-list.html',
   styleUrl: './file-list.css',
 })
@@ -22,6 +24,7 @@ export class FileList implements OnInit, OnDestroy {
   @Input() displayMode: 'grid' | 'compact' = 'grid';
 
   private displayService = inject(DisplayService);
+  private alertDialogService = inject(ZardAlertDialogService);
 
   @Output() fileDeleted = new EventEmitter<number>();
   @Output() fileDownloaded = new EventEmitter<FileMetadata>();
@@ -202,17 +205,24 @@ export class FileList implements OnInit, OnDestroy {
   }
 
   deleteFile(file: FileMetadata): void {
-    if (confirm(`Are you sure you want to delete "${file.original_filename}"?`)) {
-      this.fileService.deleteFile(file.id).subscribe({
-        next: () => {
-          this.fileDeleted.emit(file.id);
-          this.loadFiles();
-        },
-        error: (error) => {
-          this.error.set(error.error?.message || 'Failed to delete file');
-        }
-      });
-    }
+    this.alertDialogService.confirm({
+      zTitle: 'Delete File',
+      zDescription: `Are you sure you want to delete "${file.original_filename}"?`,
+      zOkText: 'Delete',
+      zCancelText: 'Cancel',
+      zOkDestructive: true,
+      zOnOk: () => {
+        this.fileService.deleteFile(file.id).subscribe({
+          next: () => {
+            this.fileDeleted.emit(file.id);
+            this.loadFiles();
+          },
+          error: (error) => {
+            this.error.set(error.error?.message || 'Failed to delete file');
+          }
+        });
+      }
+    });
   }
 
   canPreview(mimeType: string): boolean {

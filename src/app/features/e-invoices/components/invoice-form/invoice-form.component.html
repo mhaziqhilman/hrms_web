@@ -388,7 +388,7 @@
                 <h3 class="step-title">Line Items</h3>
                 <p class="step-description">Add products or services to the invoice</p>
               </div>
-              <button type="button" class="inline-flex items-center gap-1.5 text-sm font-normal text-primary hover:text-primary/80 transition-colors cursor-pointer" (click)="addItem()">
+              <button type="button" z-button zType="ghost" zSize="sm" (click)="addItem()">
                 <z-icon [zType]="$any('plus')" zSize="sm" />
                 <span class="underline underline-offset-2 text-sm">Add item</span>
               </button>
@@ -415,7 +415,7 @@
                     <tr class="border-b border-border/50">
                       @if (items.length > 1) {
                         <td class="py-2">
-                          <button type="button" class="text-red-400 hover:text-red-600 transition-colors cursor-pointer" [zTooltip]="'Remove item'" (click)="removeItem(i)">
+                          <button type="button" z-button zType="ghost" zSize="sm" class="text-destructive" [zTooltip]="'Remove item'" (click)="removeItem(i)">
                             <z-icon [zType]="$any('x')" zSize="sm" />
                           </button>
                         </td>

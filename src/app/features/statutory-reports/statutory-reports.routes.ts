@@ -9,6 +9,6 @@ export const STATUTORY_REPORTS_ROUTES: Routes = [
       import('./components/reports-list/reports-list.component').then(
         (m) => m.ReportsListComponent
       ),
-    data: { title: 'Statutory Reports' }
+    data: { title: 'Statutory Reports', layout: 'full' }
   }
 ];

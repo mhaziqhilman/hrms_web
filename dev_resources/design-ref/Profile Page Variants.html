@@ -1,0 +1,843 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Profile Page — 3 Variants · 2027</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  body { font-family: 'Geist', system-ui, -apple-system, sans-serif; }
+  .font-mono { font-family: 'Geist Mono', ui-monospace, monospace; }
+  .shad-card { box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.04); }
+  .shad-card-lg { box-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 1px 3px rgb(0 0 0 / 0.06); }
+  .grid-bg {
+    background-image:
+      linear-gradient(to right, rgb(241 245 249) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(241 245 249) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+  .variant-tab { display: none; }
+  .variant-tab.active { display: block; }
+  .tab-btn[data-active="true"] {
+    background: white; color: rgb(15 23 42);
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.06);
+  }
+  .pill-tab[data-active="true"] {
+    color: rgb(15 23 42);
+    border-bottom-color: rgb(15 23 42);
+  }
+</style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-900">
+
+  <div class="max-w-[1280px] mx-auto p-8">
+
+    <!-- Page header + variant switcher -->
+    <header class="mb-6 flex items-end justify-between flex-wrap gap-4">
+      <div>
+        <h1 class="text-xl font-semibold tracking-tight text-slate-900">Profile · 2027 redesign</h1>
+        <p class="text-[13px] text-slate-500 mt-1">3 modern, minimalist variants — shadcn/ui + Radix vibe.</p>
+      </div>
+      <div class="inline-flex h-9 items-center rounded-md bg-slate-100 p-1 text-[12px]">
+        <button class="tab-btn h-7 px-3 rounded font-medium text-slate-500 hover:text-slate-900" data-tab="v1" data-active="true">01 Editorial</button>
+        <button class="tab-btn h-7 px-3 rounded font-medium text-slate-500 hover:text-slate-900" data-tab="v2">02 Sidebar</button>
+        <button class="tab-btn h-7 px-3 rounded font-medium text-slate-500 hover:text-slate-900" data-tab="v3">03 Cover</button>
+      </div>
+    </header>
+
+
+    <!-- ============================================================== -->
+    <!-- VARIANT 01 — Editorial: airy, top-aligned identity + calm tabs -->
+    <!-- ============================================================== -->
+    <div class="variant-tab active" data-tab="v1">
+
+      <div class="bg-white rounded-2xl border border-slate-200 shad-card-lg overflow-hidden">
+
+        <!-- Identity block -->
+        <div class="p-8 flex items-start gap-6">
+          <div class="relative shrink-0">
+            <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-700 text-white text-[22px] font-semibold flex items-center justify-center tracking-tight">HA</div>
+            <span class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 ring-4 ring-white"></span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <h2 class="text-[22px] font-semibold tracking-tight text-slate-900 leading-none">Haziq Hilman</h2>
+              <span class="text-[13px] text-slate-400 font-mono">(Demo Admin)</span>
+              <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 text-[11px] font-medium">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Active
+              </span>
+            </div>
+            <div class="mt-2 flex items-center gap-3 text-[13px] text-slate-500 flex-wrap">
+              <span class="font-mono">DA-001</span>
+              <span class="w-1 h-1 rounded-full bg-slate-300"></span>
+              <span>Director</span>
+              <span class="w-1 h-1 rounded-full bg-slate-300"></span>
+              <span>Management</span>
+              <span class="w-1 h-1 rounded-full bg-slate-300"></span>
+              <span>Joined Jan 2023</span>
+            </div>
+
+            <!-- Profile completion bar -->
+            <div class="mt-5 max-w-md">
+              <div class="flex items-center justify-between text-[11px] text-slate-500 mb-1.5">
+                <span class="font-medium">Profile completion</span>
+                <span class="font-mono text-slate-700"><span class="font-semibold text-slate-900">35%</span> · 7 of 20 fields</span>
+              </div>
+              <div class="h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                <div class="h-full rounded-full bg-slate-900" style="width:35%"></div>
+              </div>
+              <p class="text-[11px] text-slate-500 mt-1.5">Complete <span class="text-slate-700 font-medium">Personal Information</span> and <span class="text-slate-700 font-medium">Statutory</span> next.</p>
+            </div>
+          </div>
+
+          <!-- Right actions -->
+          <div class="flex items-center gap-2 shrink-0">
+            <button class="inline-flex items-center justify-center h-9 px-3 rounded-md border border-slate-200 hover:bg-slate-50 text-[13px] font-medium text-slate-700">
+              <svg xmlns="http://www.w3.org/2000/svg" class="mr-1.5" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Edit
+            </button>
+            <button class="inline-flex items-center justify-center h-9 px-3 rounded-md border border-slate-200 hover:bg-slate-50 text-[13px] font-medium text-slate-700">
+              <svg xmlns="http://www.w3.org/2000/svg" class="mr-1.5" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              Settings
+            </button>
+          </div>
+        </div>
+
+        <!-- Quick stat strip -->
+        <div class="px-8 grid grid-cols-2 sm:grid-cols-4 gap-px bg-slate-200 border-y border-slate-200">
+          <div class="bg-white px-2 py-4">
+            <p class="text-[10px] uppercase tracking-wide text-slate-500 font-medium">Tenure</p>
+            <p class="font-mono text-[18px] font-semibold text-slate-900 mt-1 leading-none">3y 4m</p>
+            <p class="text-[10px] text-slate-500 mt-1">Since 15 Jan 2023</p>
+          </div>
+          <div class="bg-white px-2 py-4">
+            <p class="text-[10px] uppercase tracking-wide text-slate-500 font-medium">Direct reports</p>
+            <p class="font-mono text-[18px] font-semibold text-slate-900 mt-1 leading-none">2</p>
+            <p class="text-[10px] text-slate-500 mt-1">Eng, HR & Finance</p>
+          </div>
+          <div class="bg-white px-2 py-4">
+            <p class="text-[10px] uppercase tracking-wide text-slate-500 font-medium">Leave balance</p>
+            <p class="font-mono text-[18px] font-semibold text-slate-900 mt-1 leading-none">38</p>
+            <p class="text-[10px] text-slate-500 mt-1">days · all types</p>
+          </div>
+          <div class="bg-white px-2 py-4">
+            <p class="text-[10px] uppercase tracking-wide text-slate-500 font-medium">Last login</p>
+            <p class="font-mono text-[18px] font-semibold text-slate-900 mt-1 leading-none">2h ago</p>
+            <p class="text-[10px] text-slate-500 mt-1">Chrome · KL, MY</p>
+          </div>
+        </div>
+
+        <!-- Tab nav (underline style) -->
+        <div class="px-8 border-b border-slate-200 overflow-x-auto">
+          <div class="flex items-center gap-1">
+            <button class="pill-tab h-11 px-3 text-[13px] font-medium text-slate-500 hover:text-slate-900 border-b-2 border-transparent" data-active="true">My Team</button>
+            <button class="pill-tab h-11 px-3 text-[13px] font-medium text-slate-500 hover:text-slate-900 border-b-2 border-transparent">Personal</button>
+            <button class="pill-tab h-11 px-3 text-[13px] font-medium text-slate-500 hover:text-slate-900 border-b-2 border-transparent">Employment</button>
+            <button class="pill-tab h-11 px-3 text-[13px] font-medium text-slate-500 hover:text-slate-900 border-b-2 border-transparent">Contact</button>
+            <button class="pill-tab h-11 px-3 text-[13px] font-medium text-slate-500 hover:text-slate-900 border-b-2 border-transparent">Payslips</button>
+            <button class="pill-tab h-11 px-3 text-[13px] font-medium text-slate-500 hover:text-slate-900 border-b-2 border-transparent">Documents</button>
+            <button class="pill-tab h-11 px-3 text-[13px] font-medium text-slate-500 hover:text-slate-900 border-b-2 border-transparent">Statutory</button>
+          </div>
+        </div>
+
+        <!-- Tab content: My Team -->
+        <div class="p-8">
+          <div class="flex items-center justify-between mb-5">
+            <div>
+              <h3 class="text-[15px] font-semibold tracking-tight text-slate-900">My Team</h3>
+              <p class="text-[12px] text-slate-500 mt-0.5">2 direct reports</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="relative">
+                <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-2.5 top-1/2 -translate-y-1/2" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" placeholder="Search team..." class="h-9 pl-8 pr-3 rounded-md border border-slate-200 bg-white text-[13px] text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 w-56" />
+              </div>
+              <button class="inline-flex items-center justify-center h-9 px-3 rounded-md border border-slate-200 hover:bg-slate-50 text-[13px] font-medium text-slate-700">Org chart</button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            <!-- Card 1 -->
+            <div class="rounded-xl border border-slate-200 hover:border-slate-300 hover:shadow-sm transition p-5">
+              <div class="flex items-start gap-3">
+                <div class="w-11 h-11 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-700 text-white text-[13px] font-semibold flex items-center justify-center shrink-0">AI</div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-[14px] font-semibold tracking-tight text-slate-900">Ahmad Razak bin Ibrahim</p>
+                  <p class="text-[12px] text-slate-500">Engineering Manager</p>
+                  <p class="text-[11px] text-slate-400 font-mono mt-0.5">DM-001</p>
+                </div>
+                <button class="text-slate-400 hover:text-slate-700 -mr-1"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></button>
+              </div>
+              <div class="mt-4 pt-4 border-t border-slate-100 grid grid-cols-2 gap-y-2 text-[12px]">
+                <div class="flex items-center gap-1.5 text-slate-600"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/></svg>Engineering</div>
+                <div class="flex items-center gap-1.5 text-slate-600 font-mono"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>+60121111001</div>
+              </div>
+              <div class="mt-3 flex items-center justify-between">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[11px] font-medium">Permanent</span>
+                <span class="text-[11px] text-slate-500 font-mono">Joined 15/01/2023</span>
+              </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="rounded-xl border border-slate-200 hover:border-slate-300 hover:shadow-sm transition p-5">
+              <div class="flex items-start gap-3">
+                <div class="w-11 h-11 rounded-full bg-gradient-to-br from-rose-500 to-rose-700 text-white text-[13px] font-semibold flex items-center justify-center shrink-0">SA</div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-[14px] font-semibold tracking-tight text-slate-900">Siti Nurhaliza binti Abdullah</p>
+                  <p class="text-[12px] text-slate-500">HR & Finance Manager</p>
+                  <p class="text-[11px] text-slate-400 font-mono mt-0.5">DM-002</p>
+                </div>
+              </div>
+              <div class="mt-3 flex items-center justify-between">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[11px] font-medium">Permanent</span>
+                <span class="text-[11px] text-slate-500 font-mono">Joined 01/03/2023</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ============== PERSONAL INFORMATION (V01 design) ============== -->
+          <!-- Design idea: Definition-list editorial · two-col dl with section headers and inline edit -->
+          <div class="mt-10 pt-8 border-t border-slate-200">
+            <div class="flex items-center justify-between mb-6">
+              <div>
+                <p class="text-[10px] uppercase tracking-wide text-slate-500 font-medium">Tab preview</p>
+                <h3 class="text-[15px] font-semibold tracking-tight text-slate-900 mt-0.5">Personal Information</h3>
+                <p class="text-[12px] text-slate-500 mt-0.5">Definition-list editorial · clean dl with inline edit affordances</p>
+              </div>
+              <button class="inline-flex items-center justify-center h-9 px-3 rounded-md border border-slate-200 hover:bg-slate-50 text-[13px] font-medium text-slate-700">Edit all</button>
+            </div>
+
+            <div class="space-y-8">
+              <!-- Identity -->
+              <section>
+                <div class="flex items-baseline justify-between mb-3">
+                  <h4 class="text-[13px] font-semibold tracking-tight text-slate-900">Identity</h4>
+                  <span class="text-[11px] text-emerald-700 font-medium">✓ Verified · IC validated</span>
+                </div>
+                <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-5">
+                  <div class="group">
+                    <dt class="text-[11px] uppercase tracking-wide text-slate-500 font-medium">Full name</dt>
+                    <dd class="text-[14px] text-slate-900 mt-1 flex items-center gap-2">Muhammad Haziq Hilman bin Hamzan <button class="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-slate-700 transition"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button></dd>
+                  </div>
+                  <div class="group">
+                    <dt class="text-[11px] uppercase tracking-wide text-slate-500 font-medium">IC number</dt>
+                    <dd class="font-mono text-[14px] text-slate-900 mt-1">951109-06-5697</dd>
+                  </div>
+                  <div>
+                    <dt class="text-[11px] uppercase tracking-wide text-slate-500 font-medium">Gender</dt>
+                    <dd class="text-[14px] text-slate-900 mt-1">Male</dd>
+                  </div>
+                  <div>
+                    <dt class="text-[11px] uppercase tracking-wide text-slate-500 font-medium">Date of birth</dt>
+                    <dd class="text-[14px] text-slate-900 mt-1">9 Nov 1995 <span class="text-slate-500 font-mono text-[12px]">· age 30</span></dd>
+                  </div>
+                  <div>
+                    <dt class="text-[11px] uppercase tracking-wide text-slate-500 font-medium">Nationality</dt>
+                    <dd class="text-[14px] text-slate-900 mt-1">🇲🇾 Malaysian</dd>
+                  </div>
+                  <div>
+                    <dt class="text-[11px] uppercase tracking-wide text-slate-500 font-medium">Marital status</dt>
+                    <dd class="text-[14px] text-slate-400 italic mt-1">Not provided</dd>
+                  </div>
+                  <div>
+                    <dt class="text-[11px] uppercase tracking-wide text-slate-500 font-medium">Religion</dt>
+                    <dd class="text-[14px] text-slate-400 italic mt-1">Not provided</dd>
+                  </div>
+                  <div>
+                    <dt class="text-[11px] uppercase tracking-wide text-slate-500 font-medium">Race</dt>
+                    <dd class="text-[14px] text-slate-400 italic mt-1">Not provided</dd>
+                  </div>
+                </dl>
+              </section>
+
+              <!-- Address -->
+              <section>
+                <h4 class="text-[13px] font-semibold tracking-tight text-slate-900 mb-3">Address</h4>
+                <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-5">
+                  <div class="sm:col-span-2">
+                    <dt class="text-[11px] uppercase tracking-wide text-slate-500 font-medium">Residential address</dt>
+                    <dd class="text-[14px] text-slate-900 mt-1 leading-relaxed">2A-07-05 PPAM Saderi, Jalan Saderi P16ss<br/>Putrajaya, 62200, Malaysia</dd>
+                  </div>
+                  <div>
+                    <dt class="text-[11px] uppercase tracking-wide text-slate-500 font-medium">Mailing address</dt>
+                    <dd class="text-[13px] text-slate-500 italic mt-1">Same as residential</dd>
+                  </div>
+                </dl>
+              </section>
+
+              <!-- Emergency -->
+              <section>
+                <h4 class="text-[13px] font-semibold tracking-tight text-slate-900 mb-3">Emergency contact</h4>
+                <dl class="grid grid-cols-1 sm:grid-cols-3 gap-x-10 gap-y-5">
+                  <div>
+                    <dt class="text-[11px] uppercase tracking-wide text-slate-500 font-medium">Name</dt>
+                    <dd class="text-[14px] text-slate-900 mt-1">Muhammad Haziq Hilman bin Hamzan</dd>
+                  </div>
+                  <div>
+                    <dt class="text-[11px] uppercase tracking-wide text-slate-500 font-medium">Relationship</dt>
+                    <dd class="text-[14px] text-slate-900 mt-1">Father</dd>
+                  </div>
+                  <div>
+                    <dt class="text-[11px] uppercase tracking-wide text-slate-500 font-medium">Phone</dt>
+                    <dd class="font-mono text-[14px] text-slate-900 mt-1">+60 14-312 3647</dd>
+                  </div>
+                </dl>
+              </section>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ============================================================== -->
+    <!-- VARIANT 02 — Sidebar layout: left identity rail + right content -->
+    <!-- ============================================================== -->
+    <div class="variant-tab" data-tab="v2">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Left: identity rail -->
+        <aside class="lg:col-span-4 xl:col-span-3">
+          <div class="bg-white rounded-2xl border border-slate-200 shad-card-lg p-6 sticky top-6">
+            <div class="flex flex-col items-center text-center">
+              <div class="relative">
+                <div class="w-24 h-24 rounded-full bg-gradient-to-br from-slate-900 to-slate-700 text-white text-[28px] font-semibold flex items-center justify-center tracking-tight">HA</div>
+                <span class="absolute bottom-0.5 right-0.5 w-5 h-5 rounded-full bg-emerald-500 ring-4 ring-white"></span>
+              </div>
+              <h2 class="mt-4 text-[18px] font-semibold tracking-tight text-slate-900">Haziq Hilman</h2>
+              <p class="text-[12px] text-slate-500">(Demo Admin)</p>
+              <span class="mt-2 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 text-[11px] font-medium">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Active
+              </span>
+              <button class="mt-4 inline-flex items-center justify-center h-9 px-3 rounded-md bg-slate-900 hover:bg-slate-800 text-white text-[13px] font-medium w-full">Edit profile</button>
+            </div>
+
+            <!-- Meta dl list -->
+            <dl class="mt-6 space-y-3 text-[13px]">
+              <div class="flex items-center justify-between">
+                <dt class="text-slate-500">Employee ID</dt>
+                <dd class="font-mono text-slate-700">DA-001</dd>
+              </div>
+              <div class="flex items-center justify-between">
+                <dt class="text-slate-500">Role</dt>
+                <dd class="text-slate-700">Director</dd>
+              </div>
+              <div class="flex items-center justify-between">
+                <dt class="text-slate-500">Department</dt>
+                <dd class="text-slate-700">Management</dd>
+              </div>
+              <div class="flex items-center justify-between">
+                <dt class="text-slate-500">Tenure</dt>
+                <dd class="font-mono text-slate-700">3y 4m</dd>
+              </div>
+              <div class="flex items-center justify-between">
+                <dt class="text-slate-500">Reports</dt>
+                <dd class="font-mono text-slate-700">2</dd>
+              </div>
+            </dl>
+
+            <div class="mt-6 pt-6 border-t border-slate-200">
+              <div class="flex items-center justify-between text-[11px] text-slate-500 mb-1.5">
+                <span class="font-medium">Profile completion</span>
+                <span class="font-mono text-slate-700 font-semibold">35%</span>
+              </div>
+              <div class="h-1.5 rounded-full bg-slate-100 overflow-hidden"><div class="h-full bg-slate-900 rounded-full" style="width:35%"></div></div>
+              <p class="text-[11px] text-slate-500 mt-2">7 of 20 fields complete</p>
+            </div>
+
+            <!-- Side nav -->
+            <nav class="mt-6 pt-6 border-t border-slate-200 space-y-0.5">
+              <a class="flex items-center gap-2.5 px-2.5 py-2 rounded-md bg-slate-100 text-slate-900 text-[13px] font-medium" href="#">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                My Team <span class="ml-auto text-[10px] font-mono text-slate-500">2</span>
+              </a>
+              <a class="flex items-center gap-2.5 px-2.5 py-2 rounded-md text-slate-600 hover:bg-slate-50 text-[13px]" href="#">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                Personal Information
+              </a>
+              <a class="flex items-center gap-2.5 px-2.5 py-2 rounded-md text-slate-600 hover:bg-slate-50 text-[13px]" href="#">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/></svg>
+                Employment
+              </a>
+              <a class="flex items-center gap-2.5 px-2.5 py-2 rounded-md text-slate-600 hover:bg-slate-50 text-[13px]" href="#">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                Contact
+              </a>
+              <a class="flex items-center gap-2.5 px-2.5 py-2 rounded-md text-slate-600 hover:bg-slate-50 text-[13px]" href="#">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                Payslips
+              </a>
+              <a class="flex items-center gap-2.5 px-2.5 py-2 rounded-md text-slate-600 hover:bg-slate-50 text-[13px]" href="#">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                Documents
+              </a>
+              <a class="flex items-center gap-2.5 px-2.5 py-2 rounded-md text-slate-600 hover:bg-slate-50 text-[13px]" href="#">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                Statutory
+              </a>
+            </nav>
+          </div>
+        </aside>
+
+        <!-- Right: content -->
+        <main class="lg:col-span-8 xl:col-span-9 space-y-4">
+
+          <!-- Header card -->
+          <div class="bg-white rounded-2xl border border-slate-200 shad-card p-5 flex items-center justify-between">
+            <div>
+              <p class="text-[11px] uppercase tracking-wide text-slate-500 font-medium">Section</p>
+              <h3 class="text-[18px] font-semibold tracking-tight text-slate-900 mt-0.5">My Team</h3>
+              <p class="text-[12px] text-slate-500 mt-0.5">2 direct reports under your management</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="relative">
+                <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-2.5 top-1/2 -translate-y-1/2" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" placeholder="Search..." class="h-9 pl-8 pr-3 rounded-md border border-slate-200 bg-white text-[13px] text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 w-48" />
+              </div>
+              <button class="inline-flex items-center justify-center h-9 px-3 rounded-md bg-slate-900 hover:bg-slate-800 text-white text-[13px] font-medium">+ Add member</button>
+            </div>
+          </div>
+
+          <!-- Team table -->
+          <div class="bg-white rounded-2xl border border-slate-200 shad-card overflow-hidden">
+            <table class="w-full">
+              <thead>
+                <tr class="bg-slate-50/60 text-left">
+                  <th class="text-[10px] uppercase tracking-wide text-slate-500 font-medium px-5 py-2.5">Member</th>
+                  <th class="text-[10px] uppercase tracking-wide text-slate-500 font-medium px-3 py-2.5">Role</th>
+                  <th class="text-[10px] uppercase tracking-wide text-slate-500 font-medium px-3 py-2.5">Department</th>
+                  <th class="text-[10px] uppercase tracking-wide text-slate-500 font-medium px-3 py-2.5">Contact</th>
+                  <th class="text-[10px] uppercase tracking-wide text-slate-500 font-medium px-3 py-2.5">Type</th>
+                  <th class="text-[10px] uppercase tracking-wide text-slate-500 font-medium px-3 py-2.5">Joined</th>
+                  <th class="text-[10px] uppercase tracking-wide text-slate-500 font-medium px-5 py-2.5"></th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr class="hover:bg-slate-50/50 transition">
+                  <td class="px-5 py-3.5">
+                    <div class="flex items-center gap-3">
+                      <div class="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-700 text-white text-[12px] font-semibold flex items-center justify-center">AI</div>
+                      <div>
+                        <p class="text-[13px] font-medium text-slate-900">Ahmad Razak bin Ibrahim</p>
+                        <p class="text-[11px] text-slate-500 font-mono">DM-001</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-3 py-3.5 text-[13px] text-slate-700">Engineering Manager</td>
+                  <td class="px-3 py-3.5 text-[13px] text-slate-700">Engineering</td>
+                  <td class="px-3 py-3.5 font-mono text-[12px] text-slate-700">+60121111001</td>
+                  <td class="px-3 py-3.5"><span class="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[11px] font-medium">Permanent</span></td>
+                  <td class="px-3 py-3.5 font-mono text-[12px] text-slate-700">15/01/2023</td>
+                  <td class="px-5 py-3.5 text-right">
+                    <button class="h-7 w-7 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></button>
+                  </td>
+                </tr>
+                <tr class="hover:bg-slate-50/50 transition">
+                  <td class="px-5 py-3.5">
+                    <div class="flex items-center gap-3">
+                      <div class="w-9 h-9 rounded-full bg-gradient-to-br from-rose-500 to-rose-700 text-white text-[12px] font-semibold flex items-center justify-center">SA</div>
+                      <div>
+                        <p class="text-[13px] font-medium text-slate-900">Siti Nurhaliza binti Abdullah</p>
+                        <p class="text-[11px] text-slate-500 font-mono">DM-002</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-3 py-3.5 text-[13px] text-slate-700">HR & Finance Manager</td>
+                  <td class="px-3 py-3.5 text-[13px] text-slate-700">Human Resources</td>
+                  <td class="px-3 py-3.5 font-mono text-[12px] text-slate-700">+60121111002</td>
+                  <td class="px-3 py-3.5"><span class="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[11px] font-medium">Permanent</span></td>
+                  <td class="px-3 py-3.5 font-mono text-[12px] text-slate-700">01/03/2023</td>
+                  <td class="px-5 py-3.5 text-right">
+                    <button class="h-7 w-7 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Quick stats -->
+          <div class="grid grid-cols-3 gap-4">
+            <div class="bg-white rounded-xl border border-slate-200 shad-card p-4">
+              <p class="text-[10px] uppercase tracking-wide text-slate-500 font-medium">Active reports</p>
+              <p class="font-mono text-[22px] font-semibold text-slate-900 mt-1 leading-none">2</p>
+              <p class="text-[11px] text-slate-500 mt-1">Both permanent</p>
+            </div>
+            <div class="bg-white rounded-xl border border-slate-200 shad-card p-4">
+              <p class="text-[10px] uppercase tracking-wide text-slate-500 font-medium">On leave today</p>
+              <p class="font-mono text-[22px] font-semibold text-slate-900 mt-1 leading-none">0</p>
+              <p class="text-[11px] text-slate-500 mt-1">All available</p>
+            </div>
+            <div class="bg-white rounded-xl border border-slate-200 shad-card p-4">
+              <p class="text-[10px] uppercase tracking-wide text-slate-500 font-medium">Pending approvals</p>
+              <p class="font-mono text-[22px] font-semibold text-amber-600 mt-1 leading-none">2</p>
+              <p class="text-[11px] text-slate-500 mt-1">Leave requests</p>
+            </div>
+          </div>
+
+          <!-- ============== PERSONAL INFORMATION (V02 design) ============== -->
+          <!-- Design idea: Sectioned card grid · iconified cards with field rows + completion meter -->
+          <div class="bg-white rounded-2xl border border-slate-200 shad-card p-5">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-[10px] uppercase tracking-wide text-slate-500 font-medium">Tab preview</p>
+                <h3 class="text-[18px] font-semibold tracking-tight text-slate-900 mt-0.5">Personal Information</h3>
+                <p class="text-[12px] text-slate-500 mt-0.5">Sectioned card grid · iconified categories with completion bars</p>
+              </div>
+              <button class="inline-flex items-center justify-center h-9 px-3 rounded-md bg-slate-900 hover:bg-slate-800 text-white text-[13px] font-medium">+ Update info</button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Identity card -->
+            <div class="bg-white rounded-2xl border border-slate-200 shad-card p-5">
+              <div class="flex items-center justify-between mb-1">
+                <div class="flex items-center gap-2">
+                  <span class="w-8 h-8 rounded-md bg-slate-900 text-white flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="4"/><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/></svg></span>
+                  <h4 class="text-[14px] font-semibold tracking-tight text-slate-900">Identity</h4>
+                </div>
+                <span class="font-mono text-[11px] text-emerald-700">5/8</span>
+              </div>
+              <div class="h-1 rounded-full bg-slate-100 overflow-hidden mb-4"><div class="h-full bg-emerald-500 rounded-full" style="width:62%"></div></div>
+              <dl class="text-[13px] divide-y divide-slate-100">
+                <div class="py-2 flex items-center justify-between"><dt class="text-slate-500">Full name</dt><dd class="text-slate-900 font-medium text-right truncate ml-4">Muhammad Haziq Hilman bin Hamzan</dd></div>
+                <div class="py-2 flex items-center justify-between"><dt class="text-slate-500">IC number</dt><dd class="font-mono text-slate-900">951109-06-5697</dd></div>
+                <div class="py-2 flex items-center justify-between"><dt class="text-slate-500">Gender</dt><dd class="text-slate-900">Male</dd></div>
+                <div class="py-2 flex items-center justify-between"><dt class="text-slate-500">Date of birth</dt><dd class="text-slate-900">9 Nov 1995</dd></div>
+                <div class="py-2 flex items-center justify-between"><dt class="text-slate-500">Nationality</dt><dd class="text-slate-900">Malaysian</dd></div>
+                <div class="py-2 flex items-center justify-between"><dt class="text-slate-500">Marital status</dt><dd class="text-slate-400 italic">Not provided</dd></div>
+                <div class="py-2 flex items-center justify-between"><dt class="text-slate-500">Religion</dt><dd class="text-slate-400 italic">Not provided</dd></div>
+                <div class="py-2 flex items-center justify-between"><dt class="text-slate-500">Race</dt><dd class="text-slate-400 italic">Not provided</dd></div>
+              </dl>
+            </div>
+
+            <!-- Right column stack -->
+            <div class="space-y-4">
+              <!-- Address card -->
+              <div class="bg-white rounded-2xl border border-slate-200 shad-card p-5">
+                <div class="flex items-center justify-between mb-1">
+                  <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-md bg-indigo-600 text-white flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+                    <h4 class="text-[14px] font-semibold tracking-tight text-slate-900">Address</h4>
+                  </div>
+                  <span class="font-mono text-[11px] text-emerald-700">1/2</span>
+                </div>
+                <div class="h-1 rounded-full bg-slate-100 overflow-hidden mb-4"><div class="h-full bg-amber-500 rounded-full" style="width:50%"></div></div>
+                <p class="text-[11px] uppercase tracking-wide text-slate-500 font-medium">Residential</p>
+                <p class="text-[13px] text-slate-900 leading-relaxed mt-1">2A-07-05 PPAM Saderi<br/>Jalan Saderi P16ss, Putrajaya 62200</p>
+                <p class="mt-3 text-[11px] uppercase tracking-wide text-slate-500 font-medium">Mailing</p>
+                <p class="text-[13px] text-slate-400 italic mt-1">Not provided</p>
+              </div>
+
+              <!-- Emergency card -->
+              <div class="bg-white rounded-2xl border border-slate-200 shad-card p-5">
+                <div class="flex items-center justify-between mb-1">
+                  <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-md bg-rose-600 text-white flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
+                    <h4 class="text-[14px] font-semibold tracking-tight text-slate-900">Emergency contact</h4>
+                  </div>
+                  <span class="font-mono text-[11px] text-emerald-700">3/3</span>
+                </div>
+                <div class="h-1 rounded-full bg-slate-100 overflow-hidden mb-4"><div class="h-full bg-emerald-500 rounded-full" style="width:100%"></div></div>
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-white text-[12px] font-semibold flex items-center justify-center">MH</div>
+                  <div class="min-w-0">
+                    <p class="text-[13px] font-medium text-slate-900 truncate">Muhammad Haziq Hilman bin Hamzan</p>
+                    <p class="text-[11px] text-slate-500">Father · <span class="font-mono">+60 14-312 3647</span></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+
+    <!-- ============================================================== -->
+    <!-- VARIANT 03 — Cover banner: editorial profile with bold cover     -->
+    <!-- ============================================================== -->
+    <div class="variant-tab" data-tab="v3">
+      <div class="bg-white rounded-2xl border border-slate-200 shad-card-lg overflow-hidden">
+
+        <!-- Cover -->
+        <div class="relative h-40 bg-slate-900 overflow-hidden">
+          <div class="absolute inset-0 grid-bg opacity-30" style="background-image: linear-gradient(to right, rgb(255 255 255 / 0.06) 1px, transparent 1px), linear-gradient(to bottom, rgb(255 255 255 / 0.06) 1px, transparent 1px); background-size: 24px 24px;"></div>
+          <div class="absolute inset-0 bg-gradient-to-tr from-slate-900 via-slate-800 to-indigo-900/40"></div>
+          <button class="absolute top-4 right-4 inline-flex items-center justify-center h-8 px-3 rounded-md bg-white/10 hover:bg-white/20 ring-1 ring-white/20 text-white text-[12px] font-medium backdrop-blur">
+            <svg xmlns="http://www.w3.org/2000/svg" class="mr-1.5" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            Change cover
+          </button>
+          <div class="absolute top-4 left-6 flex items-center gap-2 text-white/70 text-[11px] font-mono">
+            <span>HR · Profile</span>
+            <span>/</span>
+            <span class="text-white">Haziq Hilman</span>
+          </div>
+        </div>
+
+        <!-- Identity row, overlapping cover -->
+        <div class="px-8 -mt-12 pb-6">
+          <div class="flex items-end justify-between gap-6 flex-wrap">
+            <div class="flex items-end gap-5">
+              <div class="relative">
+                <div class="w-28 h-28 rounded-2xl bg-white p-1 ring-1 ring-slate-200 shadow-md">
+                  <div class="w-full h-full rounded-xl bg-gradient-to-br from-slate-900 to-slate-700 text-white text-[34px] font-semibold flex items-center justify-center tracking-tight">HA</div>
+                </div>
+                <span class="absolute bottom-2 right-2 w-5 h-5 rounded-full bg-emerald-500 ring-4 ring-white"></span>
+              </div>
+              <div class="pb-1">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <h2 class="text-[24px] font-semibold tracking-tight text-slate-900 leading-none">Haziq Hilman</h2>
+                  <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 text-[11px] font-medium">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Active
+                  </span>
+                </div>
+                <p class="text-[13px] text-slate-500 mt-1.5">Director · Management · <span class="font-mono">DA-001</span></p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 pb-1">
+              <button class="inline-flex items-center justify-center h-9 px-3 rounded-md border border-slate-200 hover:bg-slate-50 text-[13px] font-medium text-slate-700">Message</button>
+              <button class="inline-flex items-center justify-center h-9 px-3 rounded-md border border-slate-200 hover:bg-slate-50 text-[13px] font-medium text-slate-700">Edit</button>
+              <button class="inline-flex items-center justify-center h-9 px-3 rounded-md bg-slate-900 hover:bg-slate-800 text-white text-[13px] font-medium">Share profile</button>
+            </div>
+          </div>
+
+          <!-- Compact meta + completion -->
+          <div class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div class="lg:col-span-2 grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div class="rounded-lg border border-slate-200 px-3 py-2.5">
+                <p class="text-[10px] uppercase tracking-wide text-slate-500 font-medium">Tenure</p>
+                <p class="font-mono text-[15px] font-semibold text-slate-900 mt-0.5">3y 4m</p>
+              </div>
+              <div class="rounded-lg border border-slate-200 px-3 py-2.5">
+                <p class="text-[10px] uppercase tracking-wide text-slate-500 font-medium">Reports</p>
+                <p class="font-mono text-[15px] font-semibold text-slate-900 mt-0.5">2</p>
+              </div>
+              <div class="rounded-lg border border-slate-200 px-3 py-2.5">
+                <p class="text-[10px] uppercase tracking-wide text-slate-500 font-medium">Leave</p>
+                <p class="font-mono text-[15px] font-semibold text-slate-900 mt-0.5">38d</p>
+              </div>
+              <div class="rounded-lg border border-slate-200 px-3 py-2.5">
+                <p class="text-[10px] uppercase tracking-wide text-slate-500 font-medium">Email</p>
+                <p class="text-[13px] font-medium text-slate-900 mt-0.5 truncate"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="2b434a51425a6b4844054652">[email&#160;protected]</a></p>
+              </div>
+            </div>
+            <div class="rounded-lg border border-slate-200 px-4 py-2.5 flex items-center gap-3">
+              <!-- Mini ring -->
+              <div class="relative shrink-0">
+                <svg width="44" height="44" viewBox="0 0 44 44">
+                  <circle cx="22" cy="22" r="18" fill="none" stroke="#e2e8f0" stroke-width="5"/>
+                  <circle cx="22" cy="22" r="18" fill="none" stroke="#0f172a" stroke-width="5" stroke-linecap="round" stroke-dasharray="113.1" stroke-dashoffset="73.51" transform="rotate(-90 22 22)"/>
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center font-mono text-[11px] font-semibold text-slate-900">35%</div>
+              </div>
+              <div class="min-w-0">
+                <p class="text-[12px] font-medium text-slate-900">Profile completion</p>
+                <p class="text-[11px] text-slate-500 mt-0.5">7 of 20 fields · finish setup</p>
+              </div>
+              <button class="ml-auto text-slate-400 hover:text-slate-700 shrink-0"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+            </div>
+          </div>
+
+          <!-- Tabs (segmented control) -->
+          <div class="mt-6 border-t border-slate-200 pt-5">
+            <div class="inline-flex h-9 items-center rounded-md bg-slate-100 p-1 text-[12px] flex-wrap">
+              <button class="h-7 px-3 rounded font-medium text-slate-900 bg-white shadow-sm">My Team</button>
+              <button class="h-7 px-3 rounded font-medium text-slate-500 hover:text-slate-900">Personal</button>
+              <button class="h-7 px-3 rounded font-medium text-slate-500 hover:text-slate-900">Employment</button>
+              <button class="h-7 px-3 rounded font-medium text-slate-500 hover:text-slate-900">Contact</button>
+              <button class="h-7 px-3 rounded font-medium text-slate-500 hover:text-slate-900">Payslips</button>
+              <button class="h-7 px-3 rounded font-medium text-slate-500 hover:text-slate-900">Documents</button>
+              <button class="h-7 px-3 rounded font-medium text-slate-500 hover:text-slate-900">Statutory</button>
+            </div>
+          </div>
+
+          <!-- Content: My Team list (vertical rows with mini-org tree feel) -->
+          <div class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+            <!-- Manager card -->
+            <div class="bg-slate-50 rounded-xl border border-slate-200 p-5 flex flex-col">
+              <p class="text-[10px] uppercase tracking-wide text-slate-500 font-medium mb-3">Reports to</p>
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 text-white text-[14px] font-semibold flex items-center justify-center">CE</div>
+                <div class="min-w-0">
+                  <p class="text-[14px] font-semibold text-slate-900">Chief Executive</p>
+                  <p class="text-[12px] text-slate-500">Board · Direct line</p>
+                </div>
+              </div>
+              <button class="mt-auto pt-4 text-[12px] font-medium text-slate-700 hover:text-slate-900 self-start">View org chart →</button>
+            </div>
+
+            <!-- Members -->
+            <div class="lg:col-span-2 bg-white rounded-xl border border-slate-200 shad-card">
+              <div class="p-5 border-b border-slate-200 flex items-center justify-between">
+                <div>
+                  <p class="text-[10px] uppercase tracking-wide text-slate-500 font-medium">Direct reports</p>
+                  <h4 class="text-[14px] font-semibold text-slate-900 mt-0.5">2 members</h4>
+                </div>
+                <div class="relative">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-2.5 top-1/2 -translate-y-1/2" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  <input type="text" placeholder="Search team..." class="h-8 pl-8 pr-3 rounded-md border border-slate-200 bg-white text-[12px] text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 w-44" />
+                </div>
+              </div>
+              <ul class="divide-y divide-slate-100">
+                <li class="px-5 py-4 flex items-center gap-4 hover:bg-slate-50/50">
+                  <div class="w-11 h-11 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-700 text-white text-[13px] font-semibold flex items-center justify-center shrink-0">AI</div>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <p class="text-[13px] font-semibold text-slate-900">Ahmad Razak bin Ibrahim</p>
+                      <span class="font-mono text-[11px] text-slate-500">DM-001</span>
+                    </div>
+                    <div class="flex items-center gap-2 mt-0.5 text-[12px] text-slate-500 flex-wrap">
+                      <span>Engineering Manager</span>
+                      <span class="w-1 h-1 rounded-full bg-slate-300"></span>
+                      <span>Engineering</span>
+                      <span class="w-1 h-1 rounded-full bg-slate-300"></span>
+                      <span class="font-mono">+60121111001</span>
+                    </div>
+                  </div>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[11px] font-medium shrink-0">Permanent</span>
+                  <span class="font-mono text-[11px] text-slate-500 shrink-0 hidden md:inline">15/01/2023</span>
+                  <button class="h-8 w-8 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex items-center justify-center shrink-0"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+                </li>
+                <li class="px-5 py-4 flex items-center gap-4 hover:bg-slate-50/50">
+                  <div class="w-11 h-11 rounded-full bg-gradient-to-br from-rose-500 to-rose-700 text-white text-[13px] font-semibold flex items-center justify-center shrink-0">SA</div>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <p class="text-[13px] font-semibold text-slate-900">Siti Nurhaliza binti Abdullah</p>
+                      <span class="font-mono text-[11px] text-slate-500">DM-002</span>
+                    </div>
+                    <div class="flex items-center gap-2 mt-0.5 text-[12px] text-slate-500 flex-wrap">
+                      <span>HR & Finance Manager</span>
+                      <span class="w-1 h-1 rounded-full bg-slate-300"></span>
+                      <span>Human Resources</span>
+                      <span class="w-1 h-1 rounded-full bg-slate-300"></span>
+                      <span class="font-mono">+60121111002</span>
+                    </div>
+                  </div>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[11px] font-medium shrink-0">Permanent</span>
+                  <span class="font-mono text-[11px] text-slate-500 shrink-0 hidden md:inline">01/03/2023</span>
+                  <button class="h-8 w-8 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex items-center justify-center shrink-0"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- ============== PERSONAL INFORMATION (V03 design) ============== -->
+          <!-- Design idea: Bento grid · IC card preview, mixed tile sizes, visual chips -->
+          <div class="mt-8 pt-6 border-t border-slate-200">
+            <div class="flex items-center justify-between mb-5">
+              <div>
+                <p class="text-[10px] uppercase tracking-wide text-slate-500 font-medium">Tab preview</p>
+                <h3 class="text-[18px] font-semibold tracking-tight text-slate-900 mt-0.5">Personal Information</h3>
+                <p class="text-[12px] text-slate-500 mt-0.5">Bento grid · IC preview · mixed-size tiles with visual chips</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <button class="inline-flex items-center justify-center h-9 px-3 rounded-md border border-slate-200 hover:bg-slate-50 text-[13px] font-medium text-slate-700">Request edit</button>
+                <button class="inline-flex items-center justify-center h-9 px-3 rounded-md bg-slate-900 hover:bg-slate-800 text-white text-[13px] font-medium">Edit</button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-6 gap-3">
+
+              <!-- IC card preview (large tile) -->
+              <div class="md:col-span-3 md:row-span-2 rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900 text-white p-5 relative overflow-hidden">
+                <div class="absolute inset-0 opacity-20" style="background-image: linear-gradient(to right, rgb(255 255 255 / 0.08) 1px, transparent 1px), linear-gradient(to bottom, rgb(255 255 255 / 0.08) 1px, transparent 1px); background-size: 18px 18px;"></div>
+                <div class="relative">
+                  <div class="flex items-center justify-between">
+                    <p class="text-[10px] uppercase tracking-[0.2em] text-white/60 font-medium">MyKad · Identity</p>
+                    <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 ring-1 ring-emerald-400/30 text-[10px] font-medium">Verified</span>
+                  </div>
+                  <p class="font-mono text-[20px] tracking-wider mt-6">951109-06-5697</p>
+                  <p class="text-[15px] font-semibold mt-3 leading-tight">Muhammad Haziq Hilman<br/>bin Hamzan</p>
+                  <div class="mt-6 flex items-end justify-between">
+                    <div class="space-y-1">
+                      <p class="text-[10px] uppercase tracking-wide text-white/50">DOB</p>
+                      <p class="font-mono text-[12px]">09 Nov 1995</p>
+                    </div>
+                    <div class="space-y-1">
+                      <p class="text-[10px] uppercase tracking-wide text-white/50">Gender</p>
+                      <p class="font-mono text-[12px]">Male</p>
+                    </div>
+                    <div class="space-y-1">
+                      <p class="text-[10px] uppercase tracking-wide text-white/50">Nationality</p>
+                      <p class="font-mono text-[12px]">🇲🇾 MYS</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Age tile -->
+              <div class="md:col-span-1 rounded-2xl border border-slate-200 bg-white p-4">
+                <p class="text-[10px] uppercase tracking-wide text-slate-500 font-medium">Age</p>
+                <p class="font-mono text-[28px] font-semibold text-slate-900 mt-1 leading-none">30</p>
+                <p class="text-[10px] text-slate-500 mt-1">years</p>
+              </div>
+
+              <!-- Marital tile -->
+              <div class="md:col-span-2 rounded-2xl border border-dashed border-slate-300 bg-slate-50/60 p-4 flex flex-col justify-between">
+                <div>
+                  <p class="text-[10px] uppercase tracking-wide text-slate-500 font-medium">Marital · Religion · Race</p>
+                  <p class="text-[12px] text-slate-500 mt-2 leading-relaxed">Three fields are still missing. Add them to reach <span class="font-mono text-slate-700 font-semibold">90%</span> profile completion.</p>
+                </div>
+                <button class="mt-3 self-start inline-flex items-center gap-1 text-[12px] font-semibold text-slate-900 hover:underline">+ Add details</button>
+              </div>
+
+              <!-- Address tile (wide) -->
+              <div class="md:col-span-3 rounded-2xl border border-slate-200 bg-white p-5">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="flex items-center gap-2">
+                    <span class="w-7 h-7 rounded-md bg-slate-100 flex items-center justify-center text-slate-600"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+                    <h4 class="text-[13px] font-semibold tracking-tight text-slate-900">Residential address</h4>
+                  </div>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[11px] font-medium">Putrajaya</span>
+                </div>
+                <p class="text-[14px] text-slate-900 leading-relaxed">2A-07-05 PPAM Saderi, Jalan Saderi P16ss<br/>Putrajaya, 62200, Malaysia</p>
+              </div>
+
+              <!-- Emergency tile (wide) -->
+              <div class="md:col-span-3 rounded-2xl border border-slate-200 bg-white p-5">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="flex items-center gap-2">
+                    <span class="w-7 h-7 rounded-md bg-rose-50 ring-1 ring-rose-100 flex items-center justify-center text-rose-600"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
+                    <h4 class="text-[13px] font-semibold tracking-tight text-slate-900">Emergency contact</h4>
+                  </div>
+                  <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 text-[10px] font-medium"><span class="w-1 h-1 rounded-full bg-emerald-500"></span>Reachable</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-white text-[12px] font-semibold flex items-center justify-center shrink-0">MH</div>
+                  <div class="min-w-0 flex-1">
+                    <p class="text-[13px] font-semibold text-slate-900 truncate">Muhammad Haziq Hilman bin Hamzan</p>
+                    <div class="flex items-center gap-2 mt-0.5">
+                      <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px] font-medium">Father</span>
+                      <span class="font-mono text-[11px] text-slate-500">+60 14-312 3647</span>
+                    </div>
+                  </div>
+                  <button class="h-8 w-8 rounded-md border border-slate-200 hover:bg-slate-50 text-slate-600 flex items-center justify-center shrink-0"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  const tabs = document.querySelectorAll('.tab-btn');
+  const panels = document.querySelectorAll('.variant-tab');
+  tabs.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.getAttribute('data-tab');
+      tabs.forEach(t => t.setAttribute('data-active', t === btn ? 'true' : 'false'));
+      panels.forEach(p => p.classList.toggle('active', p.getAttribute('data-tab') === target));
+    });
+  });
+</script>
+</body>
+</html>

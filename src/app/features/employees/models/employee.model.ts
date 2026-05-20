@@ -173,15 +173,13 @@ export interface EmployeeYTD {
   }>;
 }
 
+/** Matches the actual /employees/statistics backend response shape. */
 export interface EmployeeStatistics {
-  total_employees: number;
-  active_employees: number;
-  by_employment_type: {
-    Permanent: number;
-    Contract: number;
-    Probation: number;
-    Intern: number;
-  };
-  by_department: Record<string, number>;
-  recent_joiners: Employee[];
+  total: number;
+  active: number;
+  resigned: number;
+  terminated: number;
+  /** Sequelize GROUP BY result — count arrives as a string from Postgres. */
+  by_department: Array<{ department: string | null; count: number | string }>;
+  by_employment_type: Array<{ employment_type: string | null; count: number | string }>;
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, ChangeDetectorRef, inject, ViewChild, ViewContainerRef, HostListener } from '@angular/core';
+import { Component, OnInit, signal, computed, ChangeDetectorRef, inject, ViewChild, ViewContainerRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, RouterOutlet, Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { filter } from 'rxjs/operators';
@@ -80,6 +80,22 @@ export class MainLayoutComponent implements OnInit {
   }
   breadcrumbs = signal<{ label: string; url: string }[]>([]);
 
+  // Page-width tier, driven by route data: { layout: 'wide' | 'reading' | 'full' }.
+  // 'wide' (default) = capped 1600px · 'reading' = narrow ~768px · 'full' = edge-to-edge.
+  contentLayout = signal<'wide' | 'reading' | 'full'>('wide');
+
+  // Wrapper classes applied around <router-outlet> based on the active route's tier.
+  contentWrapperClass = computed(() => {
+    switch (this.contentLayout()) {
+      case 'full':
+        return 'flex-1 flex flex-col w-full';
+      case 'reading':
+        return 'flex-1 w-full mx-auto max-w-5xl p-6';
+      default:
+        return 'flex-1 w-full mx-auto max-w-[1600px] p-6';
+    }
+  });
+
   // Sidebar collapse state driven by ThemeService
   get sidebarCollapsed() {
     return this.themeService.sidebarCollapsed;
@@ -98,10 +114,12 @@ export class MainLayoutComponent implements OnInit {
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe(() => {
         this.breadcrumbs.set(this.createBreadcrumbs(this.activatedRoute.root));
+        this.contentLayout.set(this.resolveContentLayout());
       });
 
-    // Initialize breadcrumbs immediately
+    // Initialize breadcrumbs + content layout immediately
     this.breadcrumbs.set(this.createBreadcrumbs(this.activatedRoute.root));
+    this.contentLayout.set(this.resolveContentLayout());
   }
 
   ngOnInit(): void {
@@ -306,6 +324,23 @@ export class MainLayoutComponent implements OnInit {
   isItemVisible(item: { roles?: string[] }): boolean {
     if (!item.roles || item.roles.length === 0) return true;
     return !!this.currentUser && item.roles.includes(this.currentUser.role);
+  }
+
+  /**
+   * Resolves the page-width tier for the currently active route by walking to the
+   * deepest activated child and reading `data: { layout: 'wide' | 'reading' | 'full' }`.
+   * Defaults to 'wide' when no tier is declared.
+   */
+  private resolveContentLayout(): 'wide' | 'reading' | 'full' {
+    let route = this.activatedRoute.root;
+    while (route.firstChild) {
+      route = route.firstChild;
+    }
+    // route.snapshot may be undefined when this runs during construction,
+    // before the route tree is fully activated. The NavigationEnd handler
+    // re-resolves the tier once navigation completes.
+    const layout = route.snapshot?.data?.['layout'];
+    return layout === 'full' || layout === 'reading' ? layout : 'wide';
   }
 
   private createBreadcrumbs(

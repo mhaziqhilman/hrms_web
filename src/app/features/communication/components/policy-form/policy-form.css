@@ -1,312 +1,121 @@
-.policy-form-container {
-  padding: 1.5rem;
-  max-width: 1000px;
-  margin: 0 auto;
+/* Quill editor — themed to match design system */
+::ng-deep quill-editor {
+  display: block;
+  width: 100%;
 }
 
-/* Loading Container */
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 4rem 2rem;
-  text-align: center;
+::ng-deep .ql-toolbar.ql-snow {
+  border: none;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in oklab, var(--muted) 50%, transparent);
+  padding: 0.5rem 0.75rem;
+  border-radius: 0;
+  font-family: inherit;
 }
 
-/* Form Header */
-.form-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid #e9ecef;
-
-  .page-title {
-    font-size: 1.75rem;
-    font-weight: 500;
-    color: #2c3e50;
-    margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-
-    i {
-      color: #0d6efd;
-    }
-  }
-
-  .page-subtitle {
-    color: #6c757d;
-    margin: 0;
-    font-size: 0.95rem;
-  }
-
-  .header-actions {
-    display: flex;
-    gap: 0.5rem;
-  }
+::ng-deep .ql-container.ql-snow {
+  border: none;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  min-height: 320px;
 }
 
-/* Form Cards */
-.form-card {
-  background: white;
-  border: 1px solid #dee2e6;
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-
-  .card-title {
-    font-size: 1.1rem;
-    font-weight: 500;
-    color: #2c3e50;
-    margin-bottom: 1.5rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 2px solid #f8f9fa;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-
-    i {
-      color: #0d6efd;
-      font-size: 1.2rem;
-    }
-  }
+::ng-deep .ql-editor {
+  min-height: 320px;
+  padding: 1.25rem 1.5rem;
+  color: var(--foreground);
+  line-height: 1.65;
 }
 
-/* Form Groups */
-.form-group {
-  margin-bottom: 1.5rem;
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-
-  .form-label {
-    font-weight: 400;
-    color: #2c3e50;
-    margin-bottom: 0.5rem;
-    font-size: 0.95rem;
-
-    &.required::after {
-      content: ' *';
-      color: #dc3545;
-    }
-  }
-
-  .form-control,
-  .form-select {
-    border: 1px solid #ced4da;
-    border-radius: 6px;
-    padding: 0.625rem 0.875rem;
-    font-size: 0.95rem;
-    transition: border-color 0.2s, box-shadow 0.2s;
-
-    &:focus {
-      border-color: #0d6efd;
-      box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
-    }
-
-    &.is-invalid {
-      border-color: #dc3545;
-
-      &:focus {
-        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15);
-      }
-    }
-  }
-
-  textarea.form-control {
-    resize: vertical;
-    min-height: 80px;
-  }
-
-  .invalid-feedback {
-    font-size: 0.875rem;
-    margin-top: 0.25rem;
-  }
-
-  small.text-muted {
-    display: block;
-    margin-top: 0.25rem;
-    font-size: 0.85rem;
-  }
+::ng-deep .ql-editor.ql-blank::before {
+  color: var(--muted-foreground);
+  font-style: normal;
+  left: 1.5rem;
+  right: 1.5rem;
 }
 
-/* Quill Editor Styling */
-::ng-deep {
-  .quill-editor {
-    .ql-container {
-      border-bottom-left-radius: 6px;
-      border-bottom-right-radius: 6px;
-      border: 1px solid #ced4da;
-      min-height: 300px;
-      font-size: 1rem;
-
-      .ql-editor {
-        min-height: 300px;
-
-        &.ql-blank::before {
-          color: #6c757d;
-          font-style: normal;
-        }
-      }
-    }
-
-    .ql-toolbar {
-      border-top-left-radius: 6px;
-      border-top-right-radius: 6px;
-      border: 1px solid #ced4da;
-      background-color: #f8f9fa;
-    }
-
-    &.is-invalid {
-      .ql-container,
-      .ql-toolbar {
-        border-color: #dc3545;
-      }
-    }
-  }
+::ng-deep .ql-editor h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
 }
 
-/* Form Actions */
-.form-actions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem;
-  background: white;
-  border: 1px solid #dee2e6;
-  border-radius: 8px;
-  margin-top: 2rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-
-  .primary-actions {
-    display: flex;
-    gap: 0.75rem;
-  }
-
-  .btn {
-    padding: 0.625rem 1.25rem;
-    font-weight: 400;
-
-    i {
-      margin-right: 0.375rem;
-    }
-  }
+::ng-deep .ql-editor h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 0.875rem;
+  margin-bottom: 0.5rem;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .policy-form-container {
-    padding: 1rem;
-  }
-
-  .form-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-
-    .header-actions {
-      width: 100%;
-
-      button {
-        flex: 1;
-      }
-    }
-  }
-
-  .form-card {
-    padding: 1rem;
-
-    .card-title {
-      font-size: 1rem;
-    }
-  }
-
-  .form-actions {
-    flex-direction: column;
-    gap: 1rem;
-
-    button {
-      width: 100%;
-    }
-
-    .primary-actions {
-      width: 100%;
-      flex-direction: column;
-
-      button {
-        width: 100%;
-      }
-    }
-  }
-
-  ::ng-deep {
-    .quill-editor {
-      .ql-container .ql-editor {
-        min-height: 250px;
-      }
-    }
-  }
+::ng-deep .ql-editor h3 {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  margin-top: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
-@media (max-width: 576px) {
-  .form-header {
-    .page-title {
-      font-size: 1.5rem;
-    }
-  }
-
-  .form-group {
-    .form-label {
-      font-size: 0.9rem;
-    }
-
-    .form-control,
-    .form-select {
-      font-size: 0.9rem;
-      padding: 0.5rem 0.75rem;
-    }
-  }
-
-  ::ng-deep {
-    .quill-editor {
-      .ql-toolbar {
-        .ql-formats {
-          margin-right: 0.5rem;
-        }
-      }
-
-      .ql-container .ql-editor {
-        min-height: 200px;
-        font-size: 0.95rem;
-      }
-    }
-  }
+::ng-deep .ql-editor blockquote {
+  border-left: 3px solid var(--border);
+  padding-left: 1rem;
+  color: var(--muted-foreground);
+  margin: 0.75rem 0;
 }
 
-/* Alert Styles */
-.alert {
-  border-radius: 6px;
-  padding: 1rem 1.25rem;
-  margin-bottom: 1.5rem;
+::ng-deep .ql-editor pre.ql-syntax {
+  background: var(--muted);
+  color: var(--foreground);
+  border-radius: 0.5rem;
+  padding: 0.875rem 1rem;
+  font-size: 0.875rem;
+}
 
-  i {
-    margin-right: 0.5rem;
-  }
+::ng-deep .ql-snow .ql-stroke {
+  stroke: var(--muted-foreground);
+}
 
-  &.alert-info {
-    background-color: #e7f3ff;
-    border-color: #b8daff;
-    color: #004085;
-  }
+::ng-deep .ql-snow .ql-fill,
+::ng-deep .ql-snow .ql-stroke.ql-fill {
+  fill: var(--muted-foreground);
+}
 
-  &.alert-danger {
-    background-color: #f8d7da;
-    border-color: #f5c6cb;
-    color: #721c24;
-  }
+::ng-deep .ql-snow .ql-picker {
+  color: var(--muted-foreground);
+}
+
+::ng-deep .ql-snow.ql-toolbar button:hover .ql-stroke,
+::ng-deep .ql-snow.ql-toolbar button.ql-active .ql-stroke,
+::ng-deep .ql-snow .ql-picker-label:hover,
+::ng-deep .ql-snow .ql-picker-label.ql-active {
+  stroke: var(--foreground);
+  color: var(--foreground);
+}
+
+::ng-deep .ql-snow.ql-toolbar button:hover .ql-fill,
+::ng-deep .ql-snow.ql-toolbar button.ql-active .ql-fill {
+  fill: var(--foreground);
+}
+
+::ng-deep .ql-snow .ql-picker-options {
+  background: var(--popover);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.25rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+::ng-deep .ql-snow .ql-tooltip {
+  background: var(--popover);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  color: var(--foreground);
+}
+
+::ng-deep .ql-snow .ql-tooltip input[type='text'] {
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  padding: 0.25rem 0.5rem;
+  background: var(--background);
+  color: var(--foreground);
 }

@@ -2,6 +2,10 @@
   display: block;
 }
 
+.num-tabular {
+  font-variant-numeric: tabular-nums;
+}
+
 /* File Viewer Modal */
 .file-viewer-overlay {
   animation: overlayFadeIn 0.15s ease-out;

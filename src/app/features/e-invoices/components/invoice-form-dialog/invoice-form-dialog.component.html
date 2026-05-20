@@ -71,13 +71,13 @@
       <!-- Section: Invoice Details -->
       @if (activeSection === 'details') {
         <!-- Linked Project (pre-fills buyer + line items) -->
-        <div class="mb-5 rounded-lg border border-blue-200 bg-blue-50/40 p-4">
+        <div class="mb-5 rounded-lg border border-blue-200 dark:border-blue-900/50 bg-blue-50/40 dark:bg-blue-950/20 p-4">
           <div class="flex items-center justify-between gap-4">
             <div class="flex-1">
-              <label class="block text-sm font-medium text-blue-900">
+              <label class="block text-sm font-medium text-blue-900 dark:text-blue-300">
                 Linked Project / Purchase Order
               </label>
-              <p class="text-xs text-blue-700/70 mt-0.5">
+              <p class="text-xs text-blue-700/70 dark:text-blue-300/70 mt-0.5">
                 Toggle on to link this invoice to a project — buyer, currency and line item will auto-fill from its PO.
               </p>
             </div>
@@ -89,7 +89,9 @@
                     (click)="toggleLinkProject(); $event.currentTarget && ($any($event.currentTarget)).blur()"
                     class="relative h-5 w-9 shrink-0 cursor-pointer rounded-full transition-colors duration-200 focus:outline-none"
                     [class.bg-blue-600]="linkProjectEnabled()"
-                    [class.bg-slate-300]="!linkProjectEnabled()">
+                    [class.dark:bg-blue-500]="linkProjectEnabled()"
+                    [class.bg-slate-300]="!linkProjectEnabled()"
+                    [class.dark:bg-slate-600]="!linkProjectEnabled()">
               <span
                 class="pointer-events-none absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform duration-200"
                 [class.translate-x-4]="linkProjectEnabled()">
@@ -123,7 +125,7 @@
               }
             </z-select>
             @if (projects().length === 0) {
-              <p class="text-xs text-amber-700 mt-2">
+              <p class="text-xs text-amber-700 dark:text-amber-400 mt-2">
                 <a routerLink="/projects" class="underline">Create a project</a> to enable linking.
               </p>
             }
@@ -429,7 +431,7 @@
               <h3 class="step-title">Line Items</h3>
               <p class="step-description">Add products or services to the invoice</p>
             </div>
-            <button type="button" class="inline-flex items-center gap-1.5 text-sm font-normal text-primary hover:text-primary/80 transition-colors cursor-pointer" (click)="addItem()">
+            <button type="button" z-button zType="ghost" zSize="sm" (click)="addItem()">
               <z-icon [zType]="$any('plus')" zSize="sm" />
               <span class="underline underline-offset-2 text-sm">Add item</span>
             </button>
@@ -456,7 +458,7 @@
                   <tr class="border-b border-border/50">
                     @if (items.length > 1) {
                       <td class="py-2">
-                        <button type="button" class="text-red-400 hover:text-red-600 transition-colors cursor-pointer" [zTooltip]="'Remove item'" (click)="removeItem(i)">
+                        <button type="button" z-button zType="ghost" zSize="sm" class="text-destructive" [zTooltip]="'Remove item'" (click)="removeItem(i)">
                           <z-icon [zType]="$any('x')" zSize="sm" />
                         </button>
                       </td>
@@ -755,8 +757,7 @@
 
       <div class="flex gap-2">
         @if (currentStep < 4) {
-          <button z-button [disabled]="!canProceed()" (click)="nextStep()"
-          class="text-white rounded-lg box-border border border-transparent hover:bg-brand-strong focus:ring-4 focus:ring-brand-medium shadow-xs font-normal leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none">
+          <button z-button [disabled]="!canProceed()" (click)="nextStep()">
             Next
             <z-icon [zType]="$any('arrow-right')" zSize="sm" class="ml-0" />
           </button>

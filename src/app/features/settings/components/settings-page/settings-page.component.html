@@ -1,8 +1,8 @@
-<div class="space-y-6 max-w-5xl mx-auto">
+<div class="space-y-6">
   <!-- Header -->
   <div>
-    <h1 class="text-2xl font-semibold text-foreground">Settings</h1>
-    <p class="text-muted-foreground">Manage your account settings and preferences.</p>
+    <h1 class="text-[28px] font-semibold tracking-tight leading-none text-foreground">Settings</h1>
+    <p class="text-[13px] text-muted-foreground mt-2">Manage your account settings and preferences.</p>
   </div>
 
   <!-- Settings container -->
@@ -83,7 +83,7 @@
                           class="hidden"
                           #fileInput
                           (change)="onProfilePictureSelect($event)" />
-                        <button z-button zType="outline" zSize="sm" class="px-2"
+                        <button z-button zType="outline" zSize="sm"
                           [disabled]="uploadingPhoto() || removingPhoto()"
                           (click)="fileInput.click()">
                           <z-icon zType="upload" class="mr-2 h-4 w-4" />
@@ -167,7 +167,8 @@
                         class="pr-10">
                       <button
                         type="button"
-                        class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        z-button zType="ghost" zSize="sm"
+                        class="absolute right-1 top-1/2 -translate-y-1/2"
                         (click)="toggleCurrentPassword()">
                         <z-icon [zType]="showCurrentPassword() ? 'eye-off' : 'eye'" class="h-4 w-4" />
                       </button>
@@ -188,7 +189,8 @@
                         class="pr-10">
                       <button
                         type="button"
-                        class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        z-button zType="ghost" zSize="sm"
+                        class="absolute right-1 top-1/2 -translate-y-1/2"
                         (click)="toggleNewPassword()">
                         <z-icon [zType]="showNewPassword() ? 'eye-off' : 'eye'" class="h-4 w-4" />
                       </button>
@@ -249,7 +251,8 @@
                         class="pr-10">
                       <button
                         type="button"
-                        class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        z-button zType="ghost" zSize="sm"
+                        class="absolute right-1 top-1/2 -translate-y-1/2"
                         (click)="toggleConfirmPassword()">
                         <z-icon [zType]="showConfirmPassword() ? 'eye-off' : 'eye'" class="h-4 w-4" />
                       </button>
@@ -389,8 +392,7 @@
                         </div>
                       </div>
                       <div zCardFooter class="pt-6">
-                        <button z-button zType="outline"
-                          class="w-full"
+                        <button z-button zType="outline" zFull
                           [disabled]="downloading() === payslip.public_id"
                           (click)="downloadPayslip(payslip)">
                           @if (downloading() === payslip.public_id) {
@@ -521,6 +523,31 @@
                       <div class="h-10 w-10 border-2 border-foreground/40 rounded-2xl"></div>
                       <span class="text-sm font-normal">Round</span>
                     </button>
+                  </div>
+                </div>
+              </z-card>
+
+              <!-- Font Family -->
+              <z-card>
+                <div zCardHeader class="grid gap-2 pb-4">
+                  <h3 zCardTitle class="flex items-center gap-2 font-medium">
+                    <z-icon zType="palette" class="h-5 w-5" />
+                    Font Style
+                  </h3>
+                  <p zCardDescription class="text-sm font-extralight">Choose the typeface used across the application</p>
+                </div>
+                <div zCardContent>
+                  <div class="grid grid-cols-2 gap-3">
+                    @for (font of fontFamilies; track font.value) {
+                      <button
+                        type="button"
+                        class="flex flex-col items-start gap-2 rounded-lg border-2 p-4 transition-colors cursor-pointer text-left"
+                        [ngClass]="selectedFontFamily === font.value ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground/30'"
+                        (click)="setFontFamily(font.value)">
+                        <span class="text-xl" [style.fontFamily]="font.previewStyle">Aa</span>
+                        <span class="text-sm font-normal">{{ font.label }}</span>
+                      </button>
+                    }
                   </div>
                 </div>
               </z-card>

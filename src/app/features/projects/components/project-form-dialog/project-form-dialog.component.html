@@ -120,11 +120,11 @@
           <p class="step-description">Choose how the project is funded and set the schedule</p>
 
           <!-- Source toggle -->
-          <div class="mt-5 mb-5 rounded-lg border border-blue-200 bg-blue-50/40 p-4">
+          <div class="mt-5 mb-5 rounded-lg border border-blue-200 dark:border-blue-900/50 bg-blue-50/40 dark:bg-blue-950/20 p-4">
             <div class="flex items-center justify-between gap-4">
               <div class="flex-1">
-                <label class="block text-sm font-medium text-blue-900">Funding Source</label>
-                <p class="text-xs text-blue-700/70 mt-0.5">
+                <label class="block text-sm font-medium text-blue-900 dark:text-blue-300">Funding Source</label>
+                <p class="text-xs text-blue-700/70 dark:text-blue-300/70 mt-0.5">
                   Toggle on to capture purchase order details — budget will default to PO value.
                 </p>
               </div>
@@ -134,7 +134,9 @@
                       (click)="setSource(source() === 'po' ? 'manual' : 'po'); $event.currentTarget && ($any($event.currentTarget)).blur()"
                       class="relative h-5 w-9 shrink-0 cursor-pointer rounded-full transition-colors duration-200 focus:outline-none"
                       [class.bg-blue-600]="source() === 'po'"
-                      [class.bg-slate-300]="source() !== 'po'">
+                      [class.dark:bg-blue-500]="source() === 'po'"
+                      [class.bg-slate-300]="source() !== 'po'"
+                      [class.dark:bg-slate-600]="source() !== 'po'">
                 <span
                   class="pointer-events-none absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform duration-200"
                   [class.translate-x-4]="source() === 'po'">
@@ -184,11 +186,11 @@
 
             <!-- PO details -->
             @if (source() === 'po') {
-              <div class="mt-6 rounded-md border border-blue-200 bg-blue-50/40 p-4 space-y-4">
-                <div class="flex items-center gap-2 text-sm font-medium text-blue-900">
+              <div class="mt-6 rounded-md border border-blue-200 dark:border-blue-900/50 bg-blue-50/40 dark:bg-blue-950/20 p-4 space-y-4">
+                <div class="flex items-center gap-2 text-sm font-medium text-blue-900 dark:text-blue-300">
                   <z-icon [zType]="$any('file-text')" zSize="sm" />
                   <span>Purchase Order Details</span>
-                  <span class="text-xs text-blue-700/70 font-normal">— budget will default to PO value</span>
+                  <span class="text-xs text-blue-700/70 dark:text-blue-300/70 font-normal">— budget will default to PO value</span>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
@@ -454,7 +456,7 @@
   <z-divider zSpacing="none" />
   <div class="dialog-footer">
     @if (!isEditMode) {
-      <button z-button zType="outline" class="rounded-lg" (click)="currentStep === 1 ? close() : previousStep()">
+      <button z-button zType="outline" (click)="currentStep === 1 ? close() : previousStep()">
         @if (currentStep > 1) {
           <z-icon [zType]="$any('arrow-left')" zSize="sm" class="mr-0" />
         }
@@ -463,13 +465,12 @@
 
       <div class="flex gap-2">
         @if (currentStep < 3) {
-          <button z-button [disabled]="!canProceed()" (click)="nextStep()"
-          class="text-white rounded-lg box-border border border-transparent hover:bg-brand-strong focus:ring-4 focus:ring-brand-medium shadow-xs font-normal leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none">
+          <button z-button [disabled]="!canProceed()" (click)="nextStep()">
             Next
             <z-icon [zType]="$any('arrow-right')" zSize="sm" class="ml-0" />
           </button>
         } @else {
-          <button z-button [disabled]="saving() || !validateAll()" (click)="save()" class="rounded-lg">
+          <button z-button [disabled]="saving() || !validateAll()" (click)="save()">
             @if (saving()) {
               <z-icon zType="loader-circle" zSize="sm" class="animate-spin mr-1.5" />
             }
@@ -481,12 +482,12 @@
     }
 
     @if (isEditMode) {
-      <button z-button zType="outline" class="rounded-lg" (click)="close()">
+      <button z-button zType="outline" (click)="close()">
         Cancel
       </button>
 
       <div class="flex gap-2">
-        <button z-button [disabled]="saving() || !validateAll()" (click)="save()" class="rounded-lg">
+        <button z-button [disabled]="saving() || !validateAll()" (click)="save()">
           @if (saving()) {
             <z-icon zType="loader-circle" zSize="sm" class="animate-spin mr-1.5" />
           }

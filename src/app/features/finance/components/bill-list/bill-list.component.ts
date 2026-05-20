@@ -11,6 +11,7 @@ import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { ZardMenuImports } from '@/shared/components/menu/menu.imports';
 import { ZardTableImports } from '@/shared/components/table/table.imports';
 import { ZardDividerComponent } from '@/shared/components/divider/divider.component';
+import { ZardDatePickerComponent } from '@/shared/components/date-picker/date-picker.component';
 import { ZardDialogService } from '@/shared/components/dialog/dialog.service';
 import { BillFormDialogComponent } from '../bill-form-dialog/bill-form-dialog.component';
 
@@ -28,7 +29,8 @@ type BadgeType = 'soft-gray' | 'soft-blue' | 'soft-purple' | 'soft-yellow' | 'so
     ZardBadgeComponent,
     ZardMenuImports,
     ZardTableImports,
-    ZardDividerComponent
+    ZardDividerComponent,
+    ZardDatePickerComponent
   ],
   templateUrl: './bill-list.component.html'
 })
@@ -46,6 +48,8 @@ export class BillListComponent implements OnInit {
   searchTerm = signal('');
   fromDate = signal('');
   toDate = signal('');
+  fromDateValue: Date | null = null;
+  toDateValue: Date | null = null;
   private searchTimeout: any;
 
   statuses: BillStatus[] = ['Draft', 'Approved', 'Received', 'Partial_Paid', 'Paid', 'Cancelled'];
@@ -104,12 +108,31 @@ export class BillListComponent implements OnInit {
     this.load(1);
   }
 
+  onFromDateChange(date: Date | null) {
+    this.fromDate.set(date ? this.toIsoDate(date) : '');
+    this.load(1);
+  }
+
+  onToDateChange(date: Date | null) {
+    this.toDate.set(date ? this.toIsoDate(date) : '');
+    this.load(1);
+  }
+
+  private toIsoDate(date: Date): string {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
   resetFilters() {
     this.statusFilter.set('');
     this.typeFilter.set('');
     this.searchTerm.set('');
     this.fromDate.set('');
     this.toDate.set('');
+    this.fromDateValue = null;
+    this.toDateValue = null;
     this.load(1);
   }
 

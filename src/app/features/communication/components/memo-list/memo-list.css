@@ -1,14 +1,28 @@
 /* Announcement Feed Layout */
 :host {
-  display: block;
-  max-width: 1400px;
-  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+}
+
+/* Sticky page-header bar — mirrors the memo editor's .memo-sticky-bar
+   so navigating list <-> create keeps the header pinned in the same place. */
+.memo-list-bar {
+  position: sticky;
+  top: 64px;
+  z-index: 20;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+:host-context(.dark) .memo-list-bar {
+  background: rgba(15, 23, 42, 0.92);
 }
 
 /* Override card content padding to px-5 */
 :host ::ng-deep [data-slot="card-content"] {
-  padding-left: 1.15rem;
-  padding-right: 1.15rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
 }
 
 /* Line clamp utility */

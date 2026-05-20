@@ -88,9 +88,22 @@ export class MemoService {
     );
   }
 
+  remindPending(id: number | string): Observable<ApiResponse<{ reminded: number }>> {
+    return this.http.post<ApiResponse<{ reminded: number }>>(
+      `${API_CONFIG.apiUrl}${API_CONFIG.endpoints.announcements.remind(id)}`,
+      {}
+    );
+  }
+
   getPinnedMemos(): Observable<ApiResponse<Memo[]>> {
     return this.http.get<ApiResponse<Memo[]>>(
       `${API_CONFIG.apiUrl}${API_CONFIG.endpoints.announcements.pinned}`
+    );
+  }
+
+  getThisWeekStats(): Observable<ApiResponse<{ posts: number; reach: number; week_start: string }>> {
+    return this.http.get<ApiResponse<{ posts: number; reach: number; week_start: string }>>(
+      `${API_CONFIG.apiUrl}${API_CONFIG.endpoints.announcements.thisWeekStats}`
     );
   }
 

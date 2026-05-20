@@ -1,4 +1,4 @@
-<div class="bg-background min-h-screen">
+<div>
   <!-- Header -->
   <div class="flex items-center justify-between mb-8">
     <div>
@@ -30,11 +30,11 @@
     <div class="flex items-center gap-3 flex-1 flex-wrap">
       <!-- Search -->
       <div class="relative max-w-xs">
-        <z-icon zType="search" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <z-icon zType="search" class="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
         <input
           type="text"
           placeholder="Search employee..."
-          class="pl-9 pr-3 h-9 w-full text-sm border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+          class="pl-10 pr-3 h-9 w-full text-sm border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary"
           [ngModel]="searchQuery()"
           (ngModelChange)="searchQuery.set($event)"
           (input)="onSearchChange()" />

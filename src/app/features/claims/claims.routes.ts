@@ -15,7 +15,7 @@ export const CLAIMS_ROUTES: Routes = [
       import('./components/claim-form/claim-form.component').then(
         (m) => m.ClaimFormComponent
       ),
-    data: { title: 'Submit Claim' }
+    data: { title: 'Submit Claim', layout: 'reading' }
   },
   {
     path: 'approval',
@@ -31,7 +31,7 @@ export const CLAIMS_ROUTES: Routes = [
       import('./components/claim-form/claim-form.component').then(
         (m) => m.ClaimFormComponent
       ),
-    data: { title: 'Edit Claim' }
+    data: { title: 'Edit Claim', layout: 'reading' }
   },
   {
     path: ':id',
@@ -39,6 +39,6 @@ export const CLAIMS_ROUTES: Routes = [
       import('./components/claim-form/claim-form.component').then(
         (m) => m.ClaimFormComponent
       ),
-    data: { title: 'View Claim' }
+    data: { title: 'View Claim', layout: 'reading' }
   }
 ];

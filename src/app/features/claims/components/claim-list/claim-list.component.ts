@@ -1,11 +1,13 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { Subject, debounceTime, distinctUntilChanged, forkJoin } from 'rxjs';
 import { ClaimService } from '../../services/claim.service';
 import { AuthService } from '@/core/services/auth.service';
 import { DisplayService } from '@/core/services/display.service';
-import { Claim, ClaimAnalytics, ClaimQueryParams } from '../../models/claim.model';
+import { Claim, ClaimAnalytics, ClaimQueryParams, ClaimType } from '../../models/claim.model';
 
 // ZardUI Components
 import { ZardCardComponent } from '@/shared/components/card/card.component';
@@ -68,8 +70,30 @@ export class ClaimListComponent implements OnInit {
   totalRecords = signal(0);
   limit = 10;
 
-  // Status Tabs
+  // Density
+  density = signal<'compact' | 'default' | 'comfortable'>('default');
+
+  // Claim types (for category filter)
+  claimTypes = signal<ClaimType[]>([]);
+
+  // Status Tabs (dot color drives pill marker; icon is fallback for "All")
   activeTab = signal<string>('All');
+  statusTabs: { key: string; label: string; icon?: string; dot?: string }[] = [
+    { key: 'All', label: 'All Claims', icon: 'layers' },
+    { key: 'Pending', label: 'Pending', dot: 'bg-amber-500' },
+    { key: 'Manager_Approved', label: 'Manager Approved', dot: 'bg-indigo-500' },
+    { key: 'Finance_Approved', label: 'Finance Approved', dot: 'bg-emerald-500' },
+    { key: 'Paid', label: 'Paid', dot: 'bg-slate-500' },
+    { key: 'Rejected', label: 'Rejected', dot: 'bg-rose-500' }
+  ];
+
+  // Sort options for dropdown
+  sortOptions = [
+    { key: 'date_desc', label: 'Newest first', column: 'date', direction: 'desc' as const },
+    { key: 'date_asc', label: 'Oldest first', column: 'date', direction: 'asc' as const },
+    { key: 'amount_desc', label: 'Highest amount', column: 'amount', direction: 'desc' as const },
+    { key: 'amount_asc', label: 'Lowest amount', column: 'amount', direction: 'asc' as const }
+  ];
   statusCounts = signal<{[key: string]: number}>({
     'All': 0,
     'Pending': 0,
@@ -84,6 +108,14 @@ export class ClaimListComponent implements OnInit {
   selectedStatus = signal<'Pending' | 'Manager_Approved' | 'Finance_Approved' | 'Rejected' | 'Paid' | ''>('');
   selectedClaimType = signal<number | null>(null);
   employeeIdFilter = signal<number | null>(null);
+  startDate = signal<string>('');
+  endDate = signal<string>('');
+  minAmount = signal<number | null>(null);
+  maxAmount = signal<number | null>(null);
+
+  // Search debounce
+  private searchInput$ = new Subject<string>();
+  private destroyRef = inject(DestroyRef);
 
   // Sorting
   sortColumn = signal<string>('');
@@ -93,29 +125,40 @@ export class ClaimListComponent implements OnInit {
   selectAll = false;
   selectedClaims = signal<Set<number>>(new Set());
 
-  // Column visibility
+  // Column visibility (matches new design columns)
   visibleColumns = signal<{[key: string]: boolean}>({
     employee: true,
-    claimType: true,
-    date: true,
+    description: true,
     amount: true,
-    status: true,
-    approval: true
+    submitted: true,
+    status: true
   });
 
   columnList = [
-    { key: 'employee', label: 'Employee' },
-    { key: 'claimType', label: 'Claim Type' },
-    { key: 'date', label: 'Date' },
+    { key: 'employee', label: 'Claimant' },
+    { key: 'description', label: 'Description' },
     { key: 'amount', label: 'Amount' },
-    { key: 'status', label: 'Status' },
-    { key: 'approval', label: 'Approval' }
+    { key: 'submitted', label: 'Submitted' },
+    { key: 'status', label: 'Status' }
   ];
 
   // Expose Math to template
   Math = Math;
 
+  // Current month label (e.g. "May 2026")
+  currentMonthLabel = new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' });
+
   ngOnInit(): void {
+    this.loadClaimTypes();
+    // Debounce search keystrokes (300ms) before hitting the API
+    this.searchInput$
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
+      .subscribe(value => {
+        this.searchQuery.set(value);
+        this.currentPage.set(1);
+        this.loadClaims();
+      });
+
     const user = this.authService.getCurrentUserValue();
     if (user?.employee) {
       this.hasProfile.set(true);
@@ -142,6 +185,222 @@ export class ClaimListComponent implements OnInit {
     }
   }
 
+  loadClaimTypes(): void {
+    this.claimService.getAllClaimTypes().subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.claimTypes.set(res.data.filter(t => t.is_active !== false));
+        }
+      },
+      error: (err) => console.error('Error loading claim types:', err)
+    });
+  }
+
+  setClaimType(id: number | null): void {
+    this.selectedClaimType.set(id);
+    this.onFilterChange();
+  }
+
+  getSelectedClaimTypeName(): string {
+    const id = this.selectedClaimType();
+    if (!id) return '';
+    return this.claimTypes().find(t => t.id === id)?.name || '';
+  }
+
+  setDensity(d: 'compact' | 'default' | 'comfortable'): void {
+    this.density.set(d);
+  }
+
+  setLimit(size: number): void {
+    this.limit = size;
+    this.currentPage.set(1);
+    this.loadClaims();
+  }
+
+  rangeStart(): number {
+    if (this.totalRecords() === 0) return 0;
+    return (this.currentPage() - 1) * this.limit + 1;
+  }
+
+  rangeEnd(): number {
+    return Math.min(this.currentPage() * this.limit, this.totalRecords());
+  }
+
+  // --- Sort dropdown ---
+  setSort(opt: { column: string; direction: 'asc' | 'desc' }): void {
+    this.sortColumn.set(opt.column);
+    this.sortDirection.set(opt.direction);
+    this.currentPage.set(1);
+    this.loadClaims();
+  }
+
+  currentSortLabel(): string {
+    const col = this.sortColumn();
+    const dir = this.sortDirection();
+    if (!col) return 'Newest first';
+    return this.sortOptions.find(o => o.column === col && o.direction === dir)?.label || 'Newest first';
+  }
+
+  // --- Rates (KPI footers) ---
+  rejectionRate(): string {
+    const a = this.analytics();
+    if (!a || a.status.total === 0) return '0.0%';
+    return `${((a.status.rejected / a.status.total) * 100).toFixed(1)}%`;
+  }
+
+  approvalRate(): string {
+    const a = this.analytics();
+    if (!a || a.status.total === 0) return '0.0%';
+    return `${((a.status.approved / a.status.total) * 100).toFixed(1)}%`;
+  }
+
+  percentChange(current: number, previous: number): number | null {
+    if (previous === 0) return current === 0 ? 0 : null;
+    return ((current - previous) / previous) * 100;
+  }
+
+  // --- Row helpers ---
+  formatClaimId(id: number): string {
+    return id.toString().padStart(4, '0');
+  }
+
+  getInitials(name: string): string {
+    if (!name || name === '?') return '?';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+
+  private gradientTones = [
+    'from-violet-500 to-violet-700',
+    'from-amber-500 to-amber-700',
+    'from-emerald-500 to-emerald-700',
+    'from-rose-500 to-rose-700',
+    'from-indigo-500 to-indigo-700',
+    'from-cyan-500 to-cyan-700',
+    'from-pink-500 to-pink-700'
+  ];
+
+  getGradientTone(name: string): string {
+    if (!name) return this.gradientTones[0];
+    let hash = 0;
+    for (const c of name) hash = (hash + c.charCodeAt(0));
+    return this.gradientTones[hash % this.gradientTones.length];
+  }
+
+  getCategoryTone(name?: string): string {
+    if (!name) return 'bg-muted text-muted-foreground';
+    const lower = name.toLowerCase();
+    if (lower.includes('travel') || lower.includes('mileage') || lower.includes('transport')) return 'bg-indigo-100 text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-300';
+    if (lower.includes('meal') || lower.includes('food') || lower.includes('entertain')) return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300';
+    if (lower.includes('office') || lower.includes('suppl') || lower.includes('station')) return 'bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300';
+    if (lower.includes('software') || lower.includes('tool') || lower.includes('subscript') || lower.includes('license')) return 'bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300';
+    return 'bg-muted text-muted-foreground';
+  }
+
+  getCategoryShort(name?: string): string {
+    if (!name) return 'Other';
+    return name.split(/[\s&·\-,/]+/)[0] || name;
+  }
+
+  getRelativeTime(date: string | Date | undefined | null): string {
+    if (!date) return '—';
+    const d = new Date(date);
+    const diff = Date.now() - d.getTime();
+    if (diff < 0) return 'Just now';
+    const min = Math.floor(diff / 60_000);
+    const hr = Math.floor(diff / 3_600_000);
+    const days = Math.floor(diff / 86_400_000);
+    if (min < 1) return 'Just now';
+    if (min < 60) return `${min} minute${min === 1 ? '' : 's'} ago`;
+    if (hr < 24) return `${hr} hour${hr === 1 ? '' : 's'} ago`;
+    if (days === 1) return 'Yesterday';
+    if (days < 30) return `${days} days ago`;
+    const months = Math.floor(days / 30);
+    return `${months} month${months === 1 ? '' : 's'} ago`;
+  }
+
+  getAging(claim: Claim): number {
+    if (!claim.created_at) return 0;
+    return Math.max(0, Math.floor((Date.now() - new Date(claim.created_at).getTime()) / 86_400_000));
+  }
+
+  getAgingTone(claim: Claim): string {
+    const a = this.getAging(claim);
+    if (a >= 5) return 'text-rose-600 dark:text-rose-400';
+    if (a >= 3) return 'text-amber-600 dark:text-amber-400';
+    return 'text-muted-foreground';
+  }
+
+  isBreaching(claim: Claim): boolean {
+    return this.isInQueue(claim) && this.getAging(claim) > 5;
+  }
+
+  isInQueue(claim: Claim): boolean {
+    return claim.status === 'Pending' || claim.status === 'Manager_Approved';
+  }
+
+  refresh(): void {
+    this.loadClaims();
+    this.loadAnalytics();
+  }
+
+  getStatusInfo(claim: Claim): { text: string; tone: string } {
+    switch (claim.status) {
+      case 'Pending':
+        return { text: 'Pending manager', tone: 'bg-amber-50 text-amber-700 ring-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:ring-amber-900' };
+      case 'Manager_Approved':
+        return { text: 'Pending finance', tone: 'bg-indigo-50 text-indigo-700 ring-indigo-200 dark:bg-indigo-950/40 dark:text-indigo-300 dark:ring-indigo-900' };
+      case 'Finance_Approved':
+        return { text: 'Approved', tone: 'bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:ring-emerald-900' };
+      case 'Paid':
+        return { text: 'Paid', tone: 'bg-muted text-muted-foreground ring-border' };
+      case 'Rejected':
+        return { text: 'Rejected', tone: 'bg-rose-50 text-rose-700 ring-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:ring-rose-900' };
+      default:
+        return { text: claim.status, tone: 'bg-muted text-muted-foreground ring-border' };
+    }
+  }
+
+  canQuickApprove(claim: Claim): boolean {
+    return claim.status === 'Pending' || claim.status === 'Manager_Approved';
+  }
+
+  exportClaims(): void {
+    this.downloadCsv(this.claims(), 'claims.csv');
+  }
+
+  exportSelected(): void {
+    const selectedIds = this.selectedClaims();
+    const rows = this.claims().filter(c => selectedIds.has(c.id));
+    this.downloadCsv(rows.length ? rows : this.claims(), 'claims-selected.csv');
+  }
+
+  private downloadCsv(rows: Claim[], filename: string): void {
+    if (!rows.length) return;
+    const header = ['ID', 'Claimant', 'Category', 'Description', 'Amount', 'Status', 'Submitted'];
+    const esc = (v: any) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    const lines = [header.join(',')];
+    for (const c of rows) {
+      lines.push([
+        `CLM-${this.formatClaimId(c.id)}`,
+        c.employee?.full_name || '',
+        c.claimType?.name || '',
+        c.description || '',
+        c.amount,
+        c.status,
+        c.created_at
+      ].map(esc).join(','));
+    }
+    const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   loadAnalytics(): void {
     this.claimService.getClaimsAnalytics().subscribe({
       next: (res) => {
@@ -157,11 +416,6 @@ export class ClaimListComponent implements OnInit {
     return current - previous;
   }
 
-  getMaxTypeCount(): number {
-    const types = this.analytics()?.by_type || [];
-    return types.length ? Math.max(...types.map(t => t.count)) : 1;
-  }
-
   loadClaims(): void {
     this.loading.set(true);
     this.error.set(null);
@@ -171,27 +425,18 @@ export class ClaimListComponent implements OnInit {
       limit: this.limit
     };
 
-    // Add active tab filter
-    if (this.activeTab() !== 'All') {
-      params.status = this.activeTab() as any;
-    }
-
-    // Add filters if set
-    if (this.selectedStatus()) {
-      params.status = this.selectedStatus() as any;
-    }
-
-    if (this.selectedClaimType()) {
-      params.claim_type_id = this.selectedClaimType()!;
-    }
-
-    if (this.employeeIdFilter()) {
-      params.employee_id = this.employeeIdFilter()!;
-    }
-
+    if (this.activeTab() !== 'All') params.status = this.activeTab() as any;
+    if (this.selectedStatus()) params.status = this.selectedStatus() as any;
+    if (this.selectedClaimType()) params.claim_type_id = this.selectedClaimType()!;
+    if (this.employeeIdFilter()) params.employee_id = this.employeeIdFilter()!;
+    if (this.searchQuery().trim()) params.search = this.searchQuery().trim();
+    if (this.startDate()) params.start_date = this.startDate();
+    if (this.endDate()) params.end_date = this.endDate();
+    if (this.minAmount() !== null) params.min_amount = this.minAmount()!;
+    if (this.maxAmount() !== null) params.max_amount = this.maxAmount()!;
     if (this.sortColumn()) {
-      (params as any).sort = this.sortColumnMap[this.sortColumn()];
-      (params as any).order = this.sortDirection();
+      params.sort = this.sortColumnMap[this.sortColumn()] as any;
+      params.order = this.sortDirection();
     }
 
     this.claimService.getAllClaims(params).subscribe({
@@ -202,7 +447,9 @@ export class ClaimListComponent implements OnInit {
           this.totalPages.set(response.pagination.totalPages);
           this.totalRecords.set(response.pagination.total);
           this.currentPage.set(response.pagination.page);
-          this.calculateStatusCounts();
+          if (response.status_counts) {
+            this.statusCounts.set({ ...response.status_counts });
+          }
         }
         this.loading.set(false);
       },
@@ -214,23 +461,31 @@ export class ClaimListComponent implements OnInit {
     });
   }
 
-  calculateStatusCounts(): void {
-    const counts: {[key: string]: number} = {
-      'All': this.allData.length,
-      'Pending': 0,
-      'Manager_Approved': 0,
-      'Finance_Approved': 0,
-      'Rejected': 0,
-      'Paid': 0
-    };
+  onSearchInput(value: string): void {
+    this.searchInput$.next(value);
+  }
 
-    this.allData.forEach(claim => {
-      if (counts[claim.status] !== undefined) {
-        counts[claim.status]++;
-      }
-    });
+  setDateRange(start: string, end: string): void {
+    this.startDate.set(start);
+    this.endDate.set(end);
+    this.currentPage.set(1);
+    this.loadClaims();
+  }
 
-    this.statusCounts.set(counts);
+  setAmountRange(min: number | null, max: number | null): void {
+    this.minAmount.set(min);
+    this.maxAmount.set(max);
+    this.currentPage.set(1);
+    this.loadClaims();
+  }
+
+  hasActiveFilters(): boolean {
+    return !!(this.selectedClaimType()
+      || this.searchQuery()
+      || this.startDate()
+      || this.endDate()
+      || this.minAmount() !== null
+      || this.maxAmount() !== null);
   }
 
   onTabChange(status: string): void {
@@ -256,6 +511,10 @@ export class ClaimListComponent implements OnInit {
     this.selectedStatus.set('');
     this.selectedClaimType.set(null);
     this.employeeIdFilter.set(null);
+    this.startDate.set('');
+    this.endDate.set('');
+    this.minAmount.set(null);
+    this.maxAmount.set(null);
     this.currentPage.set(1);
     this.loadClaims();
   }
@@ -295,13 +554,14 @@ export class ClaimListComponent implements OnInit {
     this.selectAll = false;
   }
 
-  // Bulk actions
+  // Bulk actions — call manager/finance approval per claim based on current status
   bulkApprove(): void {
-    const selected = Array.from(this.selectedClaims());
-    if (selected.length === 0) {
+    const selectedIds = Array.from(this.selectedClaims());
+    const selectedClaims = this.claims().filter(c => selectedIds.includes(c.id) && this.canQuickApprove(c));
+    if (selectedClaims.length === 0) {
       this.alertDialogService.warning({
-        zTitle: 'No Selection',
-        zDescription: 'Please select claims to approve',
+        zTitle: 'No approvable selection',
+        zDescription: 'Selected claims are not in an approvable state.',
         zOkText: 'OK'
       });
       return;
@@ -309,39 +569,127 @@ export class ClaimListComponent implements OnInit {
 
     this.alertDialogService.confirm({
       zTitle: 'Approve Selected Claims',
-      zDescription: `Are you sure you want to approve ${selected.length} claim(s)?`,
-      zOkText: 'Approve All',
+      zDescription: `Approve ${selectedClaims.length} claim(s)? This will advance pending claims to the next stage.`,
+      zOkText: 'Approve all',
       zCancelText: 'Cancel',
-      zOnOk: () => {
-        // Implement bulk approve logic
+      zOnOk: () => this.runBulkApproval(selectedClaims, 'approve')
+    });
+  }
+
+  bulkReject(): void {
+    const selectedIds = Array.from(this.selectedClaims());
+    const selectedClaims = this.claims().filter(c => selectedIds.includes(c.id) && this.canQuickApprove(c));
+    if (selectedClaims.length === 0) {
+      this.alertDialogService.warning({
+        zTitle: 'No rejectable selection',
+        zDescription: 'Selected claims are not in a rejectable state.',
+        zOkText: 'OK'
+      });
+      return;
+    }
+    const reason = window.prompt(`Reject ${selectedClaims.length} claim(s).\n\nEnter rejection reason:`);
+    if (reason === null) return;
+    const trimmed = reason.trim();
+    if (!trimmed) {
+      this.alertDialogService.warning({
+        zTitle: 'Reason required',
+        zDescription: 'A rejection reason is required.',
+        zOkText: 'OK'
+      });
+      return;
+    }
+    this.runBulkApproval(selectedClaims, 'reject', trimmed);
+  }
+
+  private runBulkApproval(claims: Claim[], action: 'approve' | 'reject', reason?: string): void {
+    const calls = claims.map(c => {
+      if (c.status === 'Pending') {
+        return this.claimService.managerApproval(c.public_id!, {
+          action,
+          ...(action === 'reject' ? { rejection_reason: reason } : {})
+        });
+      }
+      // Manager_Approved → finance stage
+      return this.claimService.financeApproval(c.public_id!, {
+        action,
+        ...(action === 'reject' ? { rejection_reason: reason } : {})
+      });
+    });
+
+    forkJoin(calls).subscribe({
+      next: () => {
+        this.alertDialogService.info({
+          zTitle: action === 'approve' ? 'Approved' : 'Rejected',
+          zDescription: `${claims.length} claim(s) ${action === 'approve' ? 'approved' : 'rejected'} successfully.`,
+          zOkText: 'OK'
+        });
+        this.clearSelection();
+        this.loadClaims();
+        this.loadAnalytics();
+      },
+      error: (err) => {
+        console.error('Bulk action failed:', err);
+        this.alertDialogService.warning({
+          zTitle: 'Bulk action failed',
+          zDescription: err?.error?.message || 'Some claims could not be processed.',
+          zOkText: 'OK'
+        });
         this.clearSelection();
         this.loadClaims();
       }
     });
   }
 
-  bulkDelete(): void {
-    const selected = Array.from(this.selectedClaims());
-    if (selected.length === 0) {
+  // Inline row approve/reject — one-click with confirmation
+  inlineApprove(claim: Claim, event: Event): void {
+    event.stopPropagation();
+    if (!this.canQuickApprove(claim) || !claim.public_id) return;
+    const nextStage = claim.status === 'Pending' ? 'manager' : 'finance';
+    this.alertDialogService.confirm({
+      zTitle: `Approve as ${nextStage}`,
+      zDescription: `Approve claim ${this.getInitials(claim.employee?.full_name || '')} · ${this.formatCurrency(claim.amount)}?`,
+      zOkText: 'Approve',
+      zCancelText: 'Cancel',
+      zOnOk: () => {
+        const call = claim.status === 'Pending'
+          ? this.claimService.managerApproval(claim.public_id!, { action: 'approve' })
+          : this.claimService.financeApproval(claim.public_id!, { action: 'approve' });
+        call.subscribe({
+          next: () => { this.loadClaims(); this.loadAnalytics(); },
+          error: (err) => this.alertDialogService.warning({
+            zTitle: 'Approval failed',
+            zDescription: err?.error?.message || 'Could not approve the claim.',
+            zOkText: 'OK'
+          })
+        });
+      }
+    });
+  }
+
+  inlineReject(claim: Claim, event: Event): void {
+    event.stopPropagation();
+    if (!this.canQuickApprove(claim) || !claim.public_id) return;
+    const reason = window.prompt(`Reject claim from ${claim.employee?.full_name || 'employee'}.\n\nEnter rejection reason:`);
+    if (reason === null) return;
+    const trimmed = reason.trim();
+    if (!trimmed) {
       this.alertDialogService.warning({
-        zTitle: 'No Selection',
-        zDescription: 'Please select claims to delete',
+        zTitle: 'Reason required',
+        zDescription: 'A rejection reason is required.',
         zOkText: 'OK'
       });
       return;
     }
-
-    this.alertDialogService.confirm({
-      zTitle: 'Delete Selected Claims',
-      zDescription: `Are you sure you want to delete ${selected.length} claim(s)? This action cannot be undone.`,
-      zOkText: 'Delete All',
-      zCancelText: 'Cancel',
-      zOkDestructive: true,
-      zOnOk: () => {
-        // Implement bulk delete logic
-        this.clearSelection();
-        this.loadClaims();
-      }
+    const call = claim.status === 'Pending'
+      ? this.claimService.managerApproval(claim.public_id, { action: 'reject', rejection_reason: trimmed })
+      : this.claimService.financeApproval(claim.public_id, { action: 'reject', rejection_reason: trimmed });
+    call.subscribe({
+      next: () => { this.loadClaims(); this.loadAnalytics(); },
+      error: (err) => this.alertDialogService.warning({
+        zTitle: 'Rejection failed',
+        zDescription: err?.error?.message || 'Could not reject the claim.',
+        zOkText: 'OK'
+      })
     });
   }
 
@@ -380,23 +728,6 @@ export class ClaimListComponent implements OnInit {
       ...current,
       [column]: !current[column]
     });
-  }
-
-  getStatusBadgeClass(status: string): string {
-    switch (status) {
-      case 'Pending':
-        return 'badge-warning';
-      case 'Manager_Approved':
-        return 'badge-info';
-      case 'Finance_Approved':
-        return 'badge-primary';
-      case 'Paid':
-        return 'badge-success';
-      case 'Rejected':
-        return 'badge-danger';
-      default:
-        return 'badge-secondary';
-    }
   }
 
   getStatusBadgeType(status: string): string {
@@ -445,7 +776,7 @@ export class ClaimListComponent implements OnInit {
     if (numAmount === null || numAmount === undefined || isNaN(numAmount)) {
       return 'RM 0.00';
     }
-    return `RM ${numAmount.toFixed(2)}`;
+    return `RM ${numAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   }
 
   deleteClaim(id: number | string): void {

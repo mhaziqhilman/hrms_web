@@ -1,7 +1,7 @@
-<div class="leave-details-container min-h-screen bg-background">
+<div class="leave-details-container">
   <!-- Loading State -->
   @if (loading()) {
-    <div class="max-w-4xl mx-auto p-6 space-y-6">
+    <div class="space-y-6">
       <!-- Header Skeleton -->
       <div class="flex items-start justify-between gap-4">
         <div class="flex-1 space-y-3">
@@ -63,7 +63,7 @@
 
   <!-- Error State -->
   @if (error() && !loading()) {
-    <div class="max-w-4xl mx-auto p-6">
+    <div>
       <div class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
         <z-icon zType="triangle-alert" class="w-12 h-12 text-red-500 mx-auto mb-4" />
         <h3 class="text-lg font-medium text-red-800 mb-2">Error Loading Leave Details</h3>
@@ -78,7 +78,7 @@
 
   <!-- Content -->
   @if (leave() && !loading()) {
-    <div class="max-w-4xl mx-auto p-6 space-y-6">
+    <div class="space-y-6">
       <!-- Header -->
       <div class="flex items-start justify-between gap-4">
         <div class="flex-1 space-y-1">

@@ -1,4 +1,4 @@
-<div class="bg-background min-h-screen">
+<div>
   <!-- Header -->
   <div class="flex items-start justify-between mb-6 flex-wrap gap-4">
     <div class="flex items-center gap-4">
@@ -6,8 +6,8 @@
         <z-icon zType="arrow-left" class="w-4 h-4" />
       </button>
       <div>
-        <h1 class="text-2xl font-semibold text-foreground tracking-tight">Claims Approval</h1>
-        <p class="text-sm text-muted-foreground mt-0.5">
+        <h1 class="text-[28px] font-semibold tracking-tight leading-none text-foreground">Claims Approval</h1>
+        <p class="text-[13px] text-muted-foreground mt-2">
           {{ isAdmin() ? 'Review, approve, and process claim payments' : 'Review and approve pending claims' }}
         </p>
       </div>
@@ -67,13 +67,13 @@
     </z-segmented>
 
     <div class="relative flex-1 min-w-[220px] max-w-sm">
-      <z-icon zType="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+      <z-icon zType="search" class="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
       <input
         type="text"
         [ngModel]="searchQuery()"
         (ngModelChange)="searchQuery.set($event)"
         placeholder="Search employees..."
-        class="w-full pl-9 pr-3 py-2 text-sm border border-input rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent" />
+        class="w-full pl-10 pr-3 py-2 text-sm border border-input rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent" />
     </div>
 
     @if (hasActiveFilters()) {
