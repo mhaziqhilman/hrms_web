@@ -1,0 +1,26 @@
+:host {
+  display: block;
+}
+
+/* Drop zone — soft teal radial wash, matching the Variant 2 reference */
+.dropzone {
+  background: radial-gradient(
+    circle at 50% 35%,
+    color-mix(in srgb, rgb(13 148 136) 6%, transparent),
+    transparent 60%
+  );
+  transition: border-color 0.18s ease, background-color 0.18s ease;
+}
+.dropzone-drag {
+  border-color: rgb(13 148 136);
+  background: color-mix(in srgb, rgb(13 148 136) 9%, transparent);
+}
+
+/* Expand/collapse + reveal niceties */
+@keyframes bi-rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .bi-rise { animation: bi-rise 0.42s cubic-bezier(0.22, 0.61, 0.36, 1) both; }
+}

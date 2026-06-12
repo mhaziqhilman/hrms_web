@@ -718,6 +718,36 @@
               </z-form-control>
               <z-form-message>Date when probation was confirmed.</z-form-message>
             </z-form-field>
+
+            @if (isEditMode()) {
+              <z-form-field>
+                <label z-form-label>Employment Status</label>
+                <z-form-control>
+                  <z-select
+                    formControlName="employment_status"
+                    zPlaceholder="Select Employment Status">
+                    @for (status of employmentStatuses; track status) {
+                      <z-select-item [zValue]="status">{{ status }}</z-select-item>
+                    }
+                  </z-select>
+                </z-form-control>
+                <z-form-message>Set whether the employee is currently active.</z-form-message>
+              </z-form-field>
+
+              @if (employmentStatusControl?.value && employmentStatusControl?.value !== 'Active') {
+                <z-form-field>
+                  <label z-form-label>Last Working Day</label>
+                  <z-form-control>
+                    <z-date-picker
+                      formControlName="end_date"
+                      placeholder="Pick last working day"
+                      zFormat="dd-MM-yyyy">
+                    </z-date-picker>
+                  </z-form-control>
+                  <z-form-message>The employee's final day of work.</z-form-message>
+                </z-form-field>
+              }
+            }
           </div>
         </z-card>
       </div>

@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="en" class="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Bulk Import Invoices · Variant 2</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;450;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = { darkMode: 'class', theme: { extend: { fontFamily: { sans:['Geist','system-ui','sans-serif'], mono:['Geist Mono','ui-monospace','monospace'] } } } };
+</script>
+<style>
+  :root {
+    --bg: #f6f7f7;
+    --panel: #ffffff;
+    --rail: #ffffff;
+    --ink: #0c0e0d;
+    --muted: #6c7370;
+    --faint: #a3a8a5;
+    --line: #ebeded;
+    --line-strong: #dfe2e1;
+    --accent: #0d9488;
+    --accent-soft: #ecfbf8;
+    --accent-ink: #0b7a70;
+    --good: #0d9488;
+    --good-soft: #ecfbf8;
+    --warn: #b45309;
+    --warn-soft: #fdf4ea;
+    --danger: #e11d48;
+    --shadow-sm: 0 1px 2px rgb(12 14 13 / .04), 0 1px 1px rgb(12 14 13 / .03);
+    --shadow-md: 0 1px 2px rgb(12 14 13 / .04), 0 6px 16px -4px rgb(12 14 13 / .08);
+    --shadow-lg: 0 2px 4px rgb(12 14 13 / .04), 0 14px 34px -10px rgb(12 14 13 / .14);
+  }
+  html.dark {
+    --bg: #0a0c0b;
+    --panel: #121514;
+    --rail: #0e110f;
+    --ink: #f4f6f5;
+    --muted: #98a09c;
+    --faint: #646b67;
+    --line: #1f2422;
+    --line-strong: #29302d;
+    --accent: #2dd4bf;
+    --accent-soft: #102420;
+    --accent-ink: #6ee7d7;
+    --good: #2dd4bf;
+    --good-soft: #102420;
+    --warn: #f0b365;
+    --warn-soft: #271e12;
+    --danger: #fb7185;
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / .4);
+    --shadow-md: 0 1px 2px rgb(0 0 0 / .3), 0 6px 18px -4px rgb(0 0 0 / .5);
+    --shadow-lg: 0 2px 4px rgb(0 0 0 / .4), 0 18px 40px -10px rgb(0 0 0 / .7);
+  }
+  html, body { font-family:'Geist',system-ui,sans-serif; background:var(--bg); color:var(--ink); }
+  body { -webkit-font-smoothing:antialiased; letter-spacing:-0.011em; }
+  .font-mono { font-family:'Geist Mono',ui-monospace,monospace; }
+  .tnum { font-variant-numeric:tabular-nums; }
+  .panel { background:var(--panel); border:1px solid var(--line); }
+  .shadow-sm2 { box-shadow:var(--shadow-sm); }
+  .shadow-md2 { box-shadow:var(--shadow-md); }
+  .shadow-lg2 { box-shadow:var(--shadow-lg); }
+  .text-ink{color:var(--ink)} .text-muted{color:var(--muted)} .text-faint{color:var(--faint)}
+  .bg-bg{background:var(--bg)} .border-line{border-color:var(--line)} .border-line-strong{border-color:var(--line-strong)}
+  .ring-focus:focus-visible{outline:none;box-shadow:0 0 0 2px var(--panel),0 0 0 4px var(--accent)}
+  ::selection{background:var(--accent-soft);color:var(--accent-ink)}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:13.5px;font-weight:500;border-radius:9px;transition:all .14s ease;white-space:nowrap}
+  .btn-primary{background:var(--ink);color:var(--bg);padding:0 16px;height:40px;box-shadow:var(--shadow-sm)}
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:var(--shadow-md)}
+  .btn-primary:active{transform:translateY(0)}
+  .btn-primary:disabled{opacity:.45;pointer-events:none;transform:none;box-shadow:none}
+  .btn-ghost{background:transparent;color:var(--ink);padding:0 14px;height:40px;border:1px solid var(--line-strong)}
+  .btn-ghost:hover{background:var(--bg);border-color:var(--muted)}
+  .btn-soft{background:var(--bg);color:var(--ink);padding:0 12px;height:32px;border:1px solid var(--line);font-size:12.5px}
+  .btn-soft:hover{border-color:var(--line-strong);box-shadow:var(--shadow-sm)}
+
+  .step-view{display:none}
+  .step-view.active{display:block}
+  @keyframes rise{from{transform:translateY(9px)}to{transform:none}}
+  @media (prefers-reduced-motion:no-preference){
+    .step-view.active{animation:rise .42s cubic-bezier(.22,.61,.36,1) both}
+    .stagger>*{animation:rise .5s cubic-bezier(.22,.61,.36,1) both}
+    .stagger>*:nth-child(1){animation-delay:.03s}
+    .stagger>*:nth-child(2){animation-delay:.09s}
+    .stagger>*:nth-child(3){animation-delay:.15s}
+    .stagger>*:nth-child(4){animation-delay:.21s}
+  }
+
+  .dz{border:1.5px dashed var(--line-strong);transition:all .18s ease;background:radial-gradient(circle at 50% 38%, color-mix(in srgb, var(--accent) 5%, transparent), transparent 60%)}
+  .dz.drag{border-color:var(--accent);background:var(--accent-soft)}
+
+  .chk{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--line-strong);display:inline-flex;align-items:center;justify-content:center;transition:all .14s;flex:none}
+  .chk.on{background:var(--accent);border-color:var(--accent)}
+  .chk svg{opacity:0;transform:scale(.6);transition:all .14s;color:#fff}
+  .chk.on svg{opacity:1;transform:scale(1)}
+
+  .pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;padding:3px 8px;border-radius:7px;line-height:1;letter-spacing:0}
+
+  /* vertical stepper */
+  .vstep{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left}
+  .vrail{position:relative;width:26px;flex:none;display:flex;justify-content:center}
+  .vdot{width:26px;height:26px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;transition:all .2s;z-index:1}
+  .vrail{color:var(--line-strong)}
+  .vstep:not(:last-child) .vrail::after{content:'';position:absolute;left:50%;transform:translateX(-50%);top:28px;height:34px;width:2px;background:currentColor;transition:background .2s}
+  .vbody{padding-bottom:36px;flex:1}
+  .vstep:last-child .vbody{padding-bottom:0}
+  .vlabel{font-size:13.5px;font-weight:550;display:block;line-height:1.2}
+  .vsub{font-size:11.5px;display:block;margin-top:2px}
+
+  .seg{display:inline-flex;padding:3px;border-radius:9px;background:var(--bg);border:1px solid var(--line)}
+
+  .inv-body{overflow:hidden;transition:height .34s cubic-bezier(.22,.61,.36,1)}
+  .chev{transition:transform .26s ease}
+  .chev.open{transform:rotate(180deg)}
+  .gridline td,.gridline th{border-bottom:1px solid var(--line)}
+  .gridline tr:last-child td{border-bottom:none}
+  .removing{animation:collapse .34s ease forwards;overflow:hidden}
+  @keyframes collapse{to{opacity:0;transform:scale(.98);height:0;margin:0;padding:0;border-width:0}}
+  @keyframes pop{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+  .pop{animation:pop .5s cubic-bezier(.22,.61,.36,1) both}
+  select.native{-webkit-appearance:none;appearance:none}
+  .scan{position:relative;overflow:hidden}
+  .scan::after{content:'';position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--accent) 16%,transparent),transparent);animation:sweep 1.4s ease-in-out infinite}
+  @keyframes sweep{to{transform:translateX(100%)}}
+  .invCard{transition:box-shadow .16s ease, border-color .16s ease}
+  /* thin scrollbar for main */
+  .scroll-main::-webkit-scrollbar{width:10px}
+  .scroll-main::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:99px;border:3px solid var(--bg)}
+</style>
+</head>
+<body>
+<div class="flex h-screen overflow-hidden">
+
+  <!-- ============ LEFT RAIL ============ -->
+  <aside class="flex-none w-[296px] h-full flex flex-col" style="background:var(--rail);border-right:1px solid var(--line)">
+    <!-- brand -->
+    <div class="flex items-center justify-between px-6 h-16 flex-none" style="border-bottom:1px solid var(--line)">
+      <div class="flex items-center gap-2.5">
+        <div class="w-7 h-7 rounded-[8px] flex items-center justify-center text-[13px] font-semibold" style="background:var(--ink);color:var(--bg)">e</div>
+        <span class="text-[14px]" style="font-weight:600">Velarix</span>
+      </div>
+      <button id="themeBtn" class="w-9 h-9 rounded-lg flex items-center justify-center text-muted hover:text-ink transition ring-focus" style="border:1px solid var(--line)" aria-label="Toggle theme">
+        <svg class="theme-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <svg class="theme-moon hidden" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </div>
+
+    <!-- scrollable middle: stepper + summary -->
+    <div class="flex-1 min-h-0 overflow-y-auto flex flex-col">
+    <!-- vertical stepper -->
+    <div class="px-6 pt-7 pb-2 flex-none">
+      <div class="text-[11px] font-medium uppercase tracking-[.08em] text-faint mb-5">Import steps</div>
+      <ol class="vstepper" id="vstepper">
+        <li class="vstep" data-step="1">
+          <span class="vrail"><span class="vdot"></span></span>
+          <span class="vbody"><span class="vlabel">Upload</span><span class="vsub text-muted">Add PDF invoices</span></span>
+        </li>
+        <li class="vstep" data-step="2">
+          <span class="vrail"><span class="vdot"></span></span>
+          <span class="vbody"><span class="vlabel">Review</span><span class="vsub text-muted">Check extracted data</span></span>
+        </li>
+        <li class="vstep" data-step="3">
+          <span class="vrail"><span class="vdot"></span></span>
+          <span class="vbody"><span class="vlabel">Confirm</span><span class="vsub text-muted">Create invoices</span></span>
+        </li>
+      </ol>
+    </div>
+
+    <!-- live summary -->
+    <div class="px-6 mt-auto pb-5">
+      <div class="text-[11px] font-medium uppercase tracking-[.08em] text-faint mb-3">Import summary</div>
+      <div class="grid gap-px rounded-xl overflow-hidden" style="background:var(--line)">
+        <div class="flex items-center justify-between px-3.5 py-2.5" style="background:var(--panel)">
+          <span class="text-[12.5px] text-muted">Provider</span>
+          <span id="sumProvider" class="text-[12.5px] font-medium">Claude</span>
+        </div>
+        <div class="flex items-center justify-between px-3.5 py-2.5" style="background:var(--panel)">
+          <span class="text-[12.5px] text-muted">Save mode</span>
+          <span id="sumMode" class="pill" style="background:var(--accent-soft);color:var(--accent-ink)">Recorded</span>
+        </div>
+        <div class="flex items-center justify-between px-3.5 py-2.5" style="background:var(--panel)">
+          <span class="text-[12.5px] text-muted" id="sumCountLabel">Documents</span>
+          <span id="sumCount" class="font-mono text-[12.5px] font-medium tnum">0</span>
+        </div>
+        <div class="flex items-center justify-between px-3.5 py-2.5" style="background:var(--panel)">
+          <span class="text-[12.5px] text-muted">Total value</span>
+          <span id="sumTotal" class="font-mono text-[12.5px] font-medium tnum">—</span>
+        </div>
+      </div>
+    </div>
+
+    </div>
+    <!-- /scrollable middle -->
+
+    <!-- contextual CTA -->
+    <div id="sideCta" class="px-6 py-5 flex-none" style="border-top:1px solid var(--line)"></div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="flex-1 h-full overflow-y-auto scroll-main">
+    <!-- sticky header -->
+    <header class="sticky top-0 z-20 px-8 lg:px-12 h-16 flex items-center" style="background:color-mix(in srgb, var(--bg) 80%, transparent);backdrop-filter:saturate(140%) blur(12px);border-bottom:1px solid var(--line)">
+      <nav class="flex items-center gap-1.5 text-[12.5px] text-muted">
+        <a href="#" class="hover:text-ink transition">e-Invoices</a>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-faint"><path d="m9 18 6-6-6-6"/></svg>
+        <span class="text-ink font-medium">Bulk Import</span>
+      </nav>
+    </header>
+
+    <div class="px-8 lg:px-12 py-9 max-w-[900px]">
+      <div class="mb-8">
+        <h1 class="text-[26px] sm:text-[28px] font-semibold tracking-[-0.02em] leading-[1.1]">Bulk Import Invoices</h1>
+        <p class="text-muted text-[14px] mt-1.5">Upload PDF invoices, AI extracts the data, you review each one, then confirm.</p>
+      </div>
+
+      <!-- ===== STEP 1 ===== -->
+      <section class="step-view active" data-view="1">
+        <div class="stagger grid gap-5">
+          <!-- settings -->
+          <div class="panel rounded-xl shadow-sm2 overflow-hidden">
+            <button id="recordToggle" class="w-full flex items-start gap-3.5 p-5 text-left ring-focus">
+              <span class="chk on mt-0.5" id="recordChk"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+              <span class="flex-1">
+                <span class="flex items-center gap-2">
+                  <span class="text-[14px] font-medium">Save as “Recorded”</span>
+                  <span class="pill" style="background:var(--accent-soft);color:var(--accent-ink)">record only · not sent to LHDN</span>
+                </span>
+                <span class="block text-[13px] text-muted mt-1">Recommended for historical invoices. Untick to save as <span class="text-ink font-medium">Draft</span> instead.</span>
+              </span>
+            </button>
+            <div class="h-px" style="background:var(--line)"></div>
+            <div class="flex items-center justify-between gap-4 p-5">
+              <div>
+                <div class="text-[14px] font-medium">AI Provider</div>
+                <div class="text-[12.5px] text-muted mt-0.5"><span class="text-ink font-medium">Claude</span> — best accuracy · <span class="text-ink font-medium">Qwen</span> — third-party</div>
+              </div>
+              <div class="relative">
+                <select id="provider" class="native panel rounded-lg pl-3.5 pr-9 h-10 text-[13.5px] font-medium cursor-pointer ring-focus" style="border:1px solid var(--line-strong)">
+                  <option>Claude (Anthropic)</option><option>Qwen (Alibaba)</option><option>GPT-4o (OpenAI)</option>
+                </select>
+                <svg class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-muted" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- dropzone -->
+          <div id="dropzone" class="dz rounded-xl px-6 py-14 text-center cursor-pointer">
+            <div class="mx-auto w-14 h-14 rounded-2xl flex items-center justify-center mb-5" style="background:var(--accent-soft);color:var(--accent)">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
+            </div>
+            <div class="text-[16px] font-semibold">Drop PDF files here</div>
+            <div class="text-[13px] text-muted mt-1.5">or click to browse · up to 20 files, 10 MB each</div>
+            <div class="mt-5"><span class="btn btn-soft" style="height:36px;padding:0 15px;font-size:13px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>Choose Files</span></div>
+          </div>
+
+          <div id="fileList" class="hidden grid gap-2.5"></div>
+        </div>
+      </section>
+
+      <!-- ===== STEP 2 ===== -->
+      <section class="step-view" data-view="2">
+        <div class="flex items-center justify-between mb-5">
+          <div class="flex items-center gap-2.5">
+            <span id="readyCount" class="text-[14px] font-medium">2 of 2 ready to import</span>
+            <span class="pill" style="background:var(--good-soft);color:var(--good)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg>extracted</span>
+          </div>
+          <button id="startOver" class="text-[13px] text-muted hover:text-ink transition flex items-center gap-1.5">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Start over
+          </button>
+        </div>
+        <div id="invoiceList" class="grid gap-4"></div>
+      </section>
+
+      <!-- ===== STEP 3 ===== -->
+      <section class="step-view" data-view="3">
+        <div class="max-w-[560px] pt-2">
+          <div class="pop w-14 h-14 rounded-2xl flex items-center justify-center mb-6" style="background:var(--good-soft);color:var(--good)">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          </div>
+          <h2 class="text-[22px] font-semibold tracking-[-0.02em]"><span id="confirmCount">2</span> invoices created</h2>
+          <p class="text-muted text-[14px] mt-2">Saved as <span class="text-ink font-medium">Recorded</span> · not submitted to LHDN. You can submit them individually from the invoice list.</p>
+          <div class="panel rounded-xl shadow-sm2 mt-7 overflow-hidden">
+            <div id="confirmSummary" class="divide-y" style="border-color:var(--line)"></div>
+            <div class="flex items-center justify-between p-4" style="border-top:1px solid var(--line)">
+              <span class="text-[13px] text-muted">Total value</span>
+              <span id="confirmTotal" class="font-mono text-[14px] font-medium tnum">MYR 54,060.00</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 mt-7">
+            <button id="restart" class="btn btn-ghost">Import more</button>
+            <button class="btn btn-primary">View invoices<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script>
+/* ---------------- data ---------------- */
+const INVOICES = [
+  { id:'VTX-INV-CSV-MS-25-02', file:'VTX-INV-CSV-MS-25-02.pdf', title:'Manpower Resources on Measures — Feb 2025',
+    supplier:'VELARIX TECHNOLOGY SDN. BHD.', buyer:'CONSURV TECHNIC (M) SDN BHD', date:'2025-03-25', total:27030, confidence:'High', po:true,
+    lines:[
+      {d:'Muhamad Akram Hakim Jamaludin — Manpower Resources on Measures (Feb 2025)',qty:1,price:9010,tax:'Exempt 0%',total:9010},
+      {d:'Ainaa Rasyidah Binti Hashim — Manpower Resources on Measures (Feb 2025)',qty:1,price:9010,tax:'Exempt 0%',total:9010},
+      {d:'Abdul Muhaimin Bin Zulkifli — Manpower Resources on Measures (Feb 2025)',qty:1,price:9010,tax:'Exempt 0%',total:9010},
+    ],
+    warnings:[
+      'Supplier BRN extracted from parenthetical “1405681-K” beside the company name; no TIN or SST number present.',
+      'No TIN provided for either supplier or buyer — fields left blank.',
+      'Buyer contact is “Attn: Mr Fuad” — no phone, email, TIN or BRN provided for buyer.',
+    ] },
+  { id:'VTX-INV-CSV-MS-25-03', file:'VTX-INV-CSV-MS-25-03.pdf', title:'Manpower Resources on Measures — March 2025',
+    supplier:'VELARIX TECHNOLOGY SDN. BHD.', buyer:'CONSURV TECHNIC (M) SDN BHD', date:'2025-03-25', total:27030, confidence:'High', po:true,
+    lines:[
+      {d:'Muhamad Akram Hakim Jamaludin — Manpower Resources on Measures (March 2025)',qty:1,price:9010,tax:'Exempt 0%',total:9010},
+      {d:'Ainaa Rasyidah Binti Hashim — Manpower Resources on Measures (March 2025)',qty:1,price:9010,tax:'Exempt 0%',total:9010},
+      {d:'Abdul Muhaimin Bin Zulkifli — Manpower Resources on Measures (March 2025)',qty:1,price:9010,tax:'Exempt 0%',total:9010},
+    ],
+    warnings:[
+      'Supplier TIN not present on document — left blank.',
+      'Buyer TIN/BRN not present on document — left blank.',
+      'No tax (SST/GST) shown on any line or in totals; all lines marked Exempt 0%.',
+      'Unit of measurement inferred as MTH (monthly) from the March 2025 commencement period.',
+      'Due date not explicitly stated; payment terms reference receipt from PETRONAS client.',
+    ] },
+];
+
+const fmt = n => n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+let state = { step:1, recorded:true, files:[], invoices:structuredClone(INVOICES) };
+
+/* ---------------- theme ---------------- */
+const root = document.documentElement;
+function applyTheme(t){
+  root.classList.toggle('dark', t==='dark');
+  root.classList.toggle('light', t!=='dark');
+  $('.theme-sun').classList.toggle('hidden', t==='dark');
+  $('.theme-moon').classList.toggle('hidden', t!=='dark');
+  localStorage.setItem('bii2-theme', t);
+}
+applyTheme(localStorage.getItem('bii2-theme') || 'light');
+$('#themeBtn').onclick = () => applyTheme(root.classList.contains('dark')?'light':'dark');
+
+/* ---------------- vertical stepper ---------------- */
+function renderStepper(){
+  $$('.vstep').forEach(el => {
+    const n = +el.dataset.step;
+    const dot = el.querySelector('.vdot');
+    const sub = el.querySelector('.vsub');
+    const label = el.querySelector('.vlabel');
+    const done = n < state.step, cur = n === state.step;
+    dot.innerHTML = '';
+    if (done){
+      dot.style.background='var(--accent)'; dot.style.color='#fff'; dot.style.border='none'; dot.style.boxShadow='none';
+      dot.innerHTML='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+      label.style.color='var(--ink)'; sub.style.color='var(--muted)';
+      el.querySelector('.vrail').style.setProperty('--ln','var(--accent)');
+    } else if (cur){
+      dot.style.background='var(--ink)'; dot.style.color='var(--bg)'; dot.style.border='none'; dot.style.boxShadow='0 0 0 4px var(--accent-soft)';
+      dot.textContent=n; label.style.color='var(--ink)'; sub.style.color='var(--accent-ink)';
+    } else {
+      dot.style.background='var(--panel)'; dot.style.color='var(--faint)'; dot.style.border='1.5px solid var(--line-strong)'; dot.style.boxShadow='none';
+      dot.textContent=n; label.style.color='var(--faint)'; sub.style.color='var(--faint)';
+    }
+    // connector color: green when the step above is done
+    const rail = el.querySelector('.vrail');
+    rail.style.setProperty('color', done ? 'var(--accent)' : 'var(--line-strong)');
+  });
+  // recolor connectors via inline style on ::after isn't possible; use box-shadow trick handled in CSS var
+}
+
+function setSideCta(){
+  const el = $('#sideCta');
+  const total = state.invoices.reduce((s,i)=>s+i.total,0);
+  if (state.step === 1){
+    const ready = state.files.length > 0;
+    el.innerHTML = `<button id="ctaReview" class="btn btn-primary w-full" ${ready?'':'disabled'}>
+      <span id="ctaReviewLabel">${ready?`Extract & review ${state.files.length} file${state.files.length>1?'s':''}`:'Add files to continue'}</span>
+      ${ready?'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>':''}
+    </button>`;
+    if (ready) $('#ctaReview').onclick = runExtraction;
+  } else if (state.step === 2){
+    el.innerHTML = `<div class="text-[12px] text-muted mb-3">Ready to create <span class="text-ink font-medium">${state.invoices.length}</span> invoices · <span class="font-mono tnum">MYR ${fmt(total)}</span></div>
+      <div class="grid grid-cols-[1fr_auto] gap-2.5">
+        <button id="confirmCreate" class="btn btn-primary"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Confirm & Create</button>
+        <button id="cancelReview" class="btn btn-ghost">Cancel</button>
+      </div>`;
+    $('#confirmCreate').onclick = doCreate;
+    $('#cancelReview').onclick = () => goStep(1);
+  } else {
+    el.innerHTML = `<button id="restart2" class="btn btn-ghost w-full">Import more invoices</button>`;
+    $('#restart2').onclick = () => { state.invoices=structuredClone(INVOICES); goStep(1); resetUpload(); };
+  }
+}
+
+function updateSidebar(){
+  $('#sumProvider').textContent = $('#provider').value.split(' ')[0];
+  const m = $('#sumMode');
+  m.textContent = state.recorded ? 'Recorded' : 'Draft';
+  m.style.background = state.recorded ? 'var(--accent-soft)' : 'var(--bg)';
+  m.style.color = state.recorded ? 'var(--accent-ink)' : 'var(--muted)';
+  const onReview = state.step >= 2;
+  $('#sumCountLabel').textContent = onReview ? 'Invoices' : 'Documents';
+  $('#sumCount').textContent = onReview ? state.invoices.length : state.files.length;
+  const total = state.invoices.reduce((s,i)=>s+i.total,0);
+  $('#sumTotal').textContent = onReview ? ('MYR ' + fmt(total)) : '—';
+}
+
+function goStep(n){
+  state.step = n;
+  $$('.step-view').forEach(v => v.classList.toggle('active', +v.dataset.view === n));
+  renderStepper(); setSideCta(); updateSidebar();
+  $('.scroll-main').scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ---------------- step 1 ---------------- */
+$('#recordToggle').onclick = () => { state.recorded=!state.recorded; $('#recordChk').classList.toggle('on',state.recorded); updateSidebar(); };
+$('#provider').onchange = updateSidebar;
+
+const SAMPLE_FILES = [{name:'VTX-INV-CSV-MS-25-02.pdf',size:'248 KB'},{name:'VTX-INV-CSV-MS-25-03.pdf',size:'251 KB'}];
+function addFiles(){ if(state.files.length) return; state.files=[...SAMPLE_FILES]; renderFiles(); }
+function renderFiles(){
+  const wrap=$('#fileList');
+  if(!state.files.length){ wrap.classList.add('hidden'); setSideCta(); updateSidebar(); return; }
+  wrap.classList.remove('hidden');
+  wrap.innerHTML = state.files.map((f,i)=>`
+    <div class="panel rounded-lg shadow-sm2 flex items-center gap-3.5 p-3 pr-4" style="animation:rise .4s cubic-bezier(.22,.61,.36,1) both;animation-delay:${i*60}ms">
+      <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-none" style="background:var(--accent-soft);color:var(--accent)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+      </div>
+      <div class="flex-1 min-w-0"><div class="text-[13.5px] font-medium truncate">${f.name}</div><div class="text-[12px] text-muted">${f.size} · PDF</div></div>
+      <span class="pill" style="background:var(--good-soft);color:var(--good)">ready</span>
+      <button class="rmFile w-7 h-7 rounded-md flex items-center justify-center text-faint hover:text-[color:var(--danger)] transition" data-i="${i}" aria-label="Remove"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>`).join('');
+  $$('.rmFile').forEach(b=>b.onclick=e=>{e.stopPropagation(); state.files.splice(+b.dataset.i,1); renderFiles();});
+  setSideCta(); updateSidebar();
+}
+const dz=$('#dropzone');
+dz.onclick=addFiles;
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag');addFiles();});
+
+function runExtraction(){
+  const btn=$('#ctaReview'); btn.disabled=true; btn.style.opacity=.85;
+  $('#ctaReviewLabel').textContent='Extracting with '+$('#provider').value.split(' ')[0]+'…';
+  $$('#fileList > div').forEach(c=>c.classList.add('scan'));
+  setTimeout(()=>{ renderInvoices(); goStep(2); },1250);
+}
+
+/* ---------------- step 2 ---------------- */
+function confBadge(c){
+  const map={High:['var(--ink)','var(--bg)'],Medium:['var(--warn-soft)','var(--warn)'],Low:['var(--warn-soft)','var(--warn)']};
+  const [bg,fg]=map[c]||map.High;
+  return `<span class="pill" style="background:${bg};color:${fg}">${c} confidence</span>`;
+}
+function renderInvoices(){
+  const list=$('#invoiceList');
+  list.innerHTML = state.invoices.map(inv=>`
+    <article class="invCard panel rounded-xl shadow-sm2 overflow-hidden" data-id="${inv.id}">
+      <div class="flex items-start gap-3 p-5">
+        <button class="toggleInv mt-0.5 w-6 h-6 rounded-md flex items-center justify-center text-muted hover:text-ink transition flex-none" aria-label="Toggle"><svg class="chev open" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div class="flex-1 min-w-0">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="font-mono text-[13.5px] font-medium">${inv.id}</span>
+            ${confBadge(inv.confidence)}
+            ${inv.po?`<span class="pill" style="background:var(--good-soft);color:var(--good)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg>PO match</span>`:''}
+          </div>
+          <div class="text-[12.5px] text-muted mt-1">${inv.title}</div>
+          <div class="flex flex-wrap items-center gap-x-2 gap-y-1 mt-2.5 text-[12px] text-muted">
+            <span class="text-ink font-medium">${inv.supplier}</span>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-faint"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            <span class="text-ink font-medium">${inv.buyer}</span>
+            <span class="text-faint">·</span><span>${inv.date}</span>
+            <span class="text-faint">·</span><span class="font-mono">${inv.file}</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 flex-none">
+          <div class="text-right mr-1">
+            <div class="font-mono text-[15px] font-medium tnum" style="color:var(--good)">MYR ${fmt(inv.total)}</div>
+            <div class="text-[11px] text-faint">${inv.lines.length} line items</div>
+          </div>
+          <button class="btn btn-soft"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Edit</button>
+          <button class="rmInv w-8 h-8 rounded-md flex items-center justify-center text-faint hover:text-[color:var(--danger)] transition" aria-label="Remove invoice"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+        </div>
+      </div>
+      <div class="inv-body">
+        <div class="px-5 pb-5">
+          <div class="rounded-lg overflow-hidden" style="border:1px solid var(--line)">
+            <table class="w-full text-[13px] gridline">
+              <thead><tr class="text-muted text-[11px] uppercase" style="background:var(--bg);letter-spacing:.04em">
+                <th class="text-left font-medium py-2.5 pl-4 w-8">#</th><th class="text-left font-medium py-2.5">Description</th>
+                <th class="text-right font-medium py-2.5 px-3 w-14">Qty</th><th class="text-right font-medium py-2.5 px-3 w-28">Unit Price</th>
+                <th class="text-left font-medium py-2.5 px-3 w-24">Tax</th><th class="text-right font-medium py-2.5 pr-4 w-28">Total</th>
+              </tr></thead>
+              <tbody>${inv.lines.map((l,i)=>`<tr>
+                <td class="py-3 pl-4 text-faint font-mono">${i+1}</td><td class="py-3 pr-3">${l.d}</td>
+                <td class="py-3 px-3 text-right font-mono tnum">${l.qty}</td><td class="py-3 px-3 text-right font-mono tnum">${fmt(l.price)}</td>
+                <td class="py-3 px-3"><span class="pill" style="background:var(--bg);color:var(--muted);border:1px solid var(--line)">${l.tax}</span></td>
+                <td class="py-3 pr-4 text-right font-mono tnum font-medium">${fmt(l.total)}</td></tr>`).join('')}</tbody>
+            </table>
+          </div>
+          <details class="mt-4 group" open>
+            <summary class="flex items-center gap-2 cursor-pointer list-none select-none">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--warn)"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4M12 17h.01"/></svg>
+              <span class="text-[12.5px] font-medium" style="color:var(--warn)">${inv.warnings.length} extraction warnings</span>
+              <svg class="ml-0.5 group-open:rotate-180 transition" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--warn)"><path d="m6 9 6 6 6-6"/></svg>
+            </summary>
+            <ul class="mt-2.5 rounded-lg p-4 grid gap-2" style="background:var(--warn-soft)">
+              ${inv.warnings.map(w=>`<li class="flex gap-2.5 text-[12.5px]" style="color:var(--warn)"><span class="mt-1.5 w-1 h-1 rounded-full flex-none" style="background:var(--warn)"></span><span class="leading-snug">${w}</span></li>`).join('')}
+            </ul>
+          </details>
+        </div>
+      </div>
+    </article>`).join('');
+  $$('.invCard').forEach(card=>{
+    const body=card.querySelector('.inv-body');
+    const chev=card.querySelector('.toggleInv .chev');
+    body.style.height='auto'; card.dataset.open='1';
+    const setOpen=open=>{
+      chev.classList.toggle('open',open);
+      if(open){ body.style.height=body.scrollHeight+'px'; setTimeout(()=>{ if(chev.classList.contains('open')) body.style.height='auto'; },340); }
+      else { body.style.height=body.scrollHeight+'px'; requestAnimationFrame(()=>body.style.height='0px'); }
+      card.dataset.open=open?'1':'0';
+    };
+    card.querySelector('.toggleInv').onclick=()=>setOpen(card.dataset.open!=='1');
+    card.addEventListener('mouseenter',()=>{card.style.boxShadow='var(--shadow-md)';card.style.borderColor='var(--line-strong)';});
+    card.addEventListener('mouseleave',()=>{card.style.boxShadow='var(--shadow-sm)';card.style.borderColor='var(--line)';});
+    card.querySelector('.rmInv').onclick=()=>removeInvoice(card.dataset.id);
+  });
+  updateReviewTotals();
+}
+function removeInvoice(id){
+  const card=document.querySelector(`.invCard[data-id="${id}"]`);
+  if(!card) return;
+  card.classList.add('removing');
+  setTimeout(()=>{ state.invoices=state.invoices.filter(i=>i.id!==id); if(!state.invoices.length){goStep(1);resetUpload();return;} renderInvoices(); setSideCta(); updateSidebar(); },320);
+}
+function updateReviewTotals(){
+  const n=state.invoices.length;
+  $('#readyCount').textContent=`${n} of ${n} ready to import`;
+  $('#confirmCount').textContent=n;
+}
+$('#startOver').onclick=()=>{ goStep(1); resetUpload(); };
+
+/* ---------------- step 2 -> 3 ---------------- */
+function doCreate(){
+  const btn=$('#confirmCreate');
+  btn.innerHTML='<svg class="animate-spin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M21 12a9 9 0 1 1-6.22-8.56" stroke-linecap="round"/></svg> Creating…';
+  setTimeout(()=>{ renderConfirm(); goStep(3); },1100);
+}
+function renderConfirm(){
+  const total=state.invoices.reduce((s,i)=>s+i.total,0);
+  $('#confirmTotal').textContent='MYR '+fmt(total);
+  $('#confirmSummary').innerHTML=state.invoices.map(inv=>`
+    <div class="flex items-center gap-3 p-4">
+      <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-none" style="background:var(--good-soft);color:var(--good)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+      <div class="flex-1 min-w-0"><div class="font-mono text-[13px] font-medium truncate">${inv.id}</div><div class="text-[12px] text-muted truncate">${inv.buyer}</div></div>
+      <span class="font-mono text-[13px] tnum">MYR ${fmt(inv.total)}</span>
+    </div>`).join('');
+}
+$('#restart').onclick=()=>{ state.invoices=structuredClone(INVOICES); goStep(1); resetUpload(); };
+
+function resetUpload(){ state.files=[]; renderFiles(); }
+
+/* ---------------- boot ---------------- */
+goStep(1);
+</script>
+</body>
+</html>

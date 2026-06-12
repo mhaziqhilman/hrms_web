@@ -43,18 +43,6 @@ Permissions-Policy = "camera=(), microphone=(), geolocation=()"
 Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
 
 [[redirects]]
-from = "http://nextura-hrms.netlify.app/*"
-to = "https://nextura-hrms.netlify.app/:splat"
-status = 301.0
-force = true
-
-[redirects.query]
-
-[redirects.conditions]
-
-[redirects.headers]
-
-[[redirects]]
 from = "/*"
 to = "/index.html"
 status = 200.0

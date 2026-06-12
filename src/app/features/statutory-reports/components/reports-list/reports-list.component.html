@@ -56,6 +56,16 @@
               }
             </z-select>
 
+            <!-- Form Date (EA form "Tarikh" — back-date older forms) -->
+            @if (selectedReportType() === 'ea') {
+              <z-date-picker
+                [(ngModel)]="eaFormDate"
+                zFormat="dd-MM-yyyy"
+                placeholder="Form date"
+                class="w-40">
+              </z-date-picker>
+            }
+
             <!-- Month Filter (for monthly reports) -->
             @if (selectedReportType() !== 'ea') {
               <z-select

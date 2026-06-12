@@ -3,8 +3,11 @@ export interface Invoice {
   public_id: string;
   company_id: number;
   invoice_number: string;
+  title: string | null;
   invoice_date: string;
   due_date: string | null;
+  commence_date_start: string | null;
+  commence_date_end: string | null;
   invoice_type: '01' | '02' | '03' | '04';
   is_self_billed: boolean;
   currency: string;
@@ -92,6 +95,9 @@ export interface InvoiceItem {
   total: number;
   classification_code: string | null;
   unit_of_measurement: string;
+  po_number?: string | null;
+  project_id?: number | null;
+  project?: { id: number; public_id: string; code: string; name: string } | null;
 }
 
 export interface InvoicePayment {
@@ -153,6 +159,133 @@ export interface InvoiceListResponse {
   };
 }
 
+export type ExtractionProvider = 'anthropic' | 'qwen';
+
+export interface PoMatchProject {
+  id: number;
+  public_id: string;
+  code: string;
+  name: string;
+  client_name: string | null;
+  po_number: string | null;
+  currency: string | null;
+}
+
+export interface PoMatchEntry {
+  po_number: string;
+  project: PoMatchProject | null;
+  recipient_match: boolean;
+}
+
+export interface PoMatchResult {
+  found: boolean;
+  matches: PoMatchEntry[];
+  multi_po?: boolean;
+  single_project?: boolean;
+  // Convenience fields populated only when a single project covers all POs:
+  recipient_match?: boolean;
+  project?: PoMatchProject;
+  extracted_buyer_name?: string;
+  project_client_name?: string | null;
+  searched_pos?: string[];
+}
+
+export interface ExtractedInvoiceData {
+  invoice_number?: string;
+  po_number?: string;
+  title?: string;
+  invoice_date?: string;
+  due_date?: string;
+  commence_date_start?: string;
+  commence_date_end?: string;
+  invoice_type?: '01' | '02' | '03' | '04';
+  currency?: string;
+  payment_terms?: string;
+  is_self_billed?: boolean;
+  notes?: string;
+  supplier_name?: string;
+  supplier_tin?: string;
+  supplier_brn?: string;
+  supplier_sst_no?: string;
+  supplier_msic_code?: string;
+  supplier_address?: string;
+  supplier_phone?: string;
+  supplier_email?: string;
+  buyer_name?: string;
+  buyer_tin?: string;
+  buyer_brn?: string;
+  buyer_address?: string;
+  buyer_phone?: string;
+  buyer_email?: string;
+  items: Array<{
+    description: string;
+    quantity: number;
+    unit_price: number;
+    discount_amount?: number;
+    tax_type: TaxType;
+    tax_rate: number;
+    unit_of_measurement?: string;
+    classification_code?: string;
+    po_number?: string;
+  }>;
+  confidence: 'high' | 'medium' | 'low';
+  extraction_notes?: string[];
+}
+
+export interface ExtractFromPdfResponse {
+  extracted: ExtractedInvoiceData;
+  filename: string;
+  provider: ExtractionProvider | string;
+  po_match: PoMatchResult;
+  usage: {
+    input_tokens: number;
+    output_tokens: number;
+    cache_read_input_tokens: number;
+    cache_creation_input_tokens: number;
+    pages_rendered?: number;
+  };
+}
+
+export interface BulkImportResult {
+  created: Array<{
+    filename: string;
+    public_id: string;
+    invoice_number: string;
+    title: string | null;
+    total_amount: number;
+    confidence: 'high' | 'medium' | 'low';
+    extraction_notes: string[];
+  }>;
+  failed: Array<{
+    filename: string;
+    error: string;
+  }>;
+}
+
+export interface BulkExtractItem {
+  filename: string;
+  extracted?: ExtractedInvoiceData;
+  po_match?: PoMatchResult;
+  usage?: {
+    input_tokens: number;
+    output_tokens: number;
+    cache_read_input_tokens: number;
+    cache_creation_input_tokens: number;
+    pages_rendered?: number;
+  };
+  error?: string;
+}
+
+export interface BulkExtractResult {
+  results: BulkExtractItem[];
+}
+
+export interface BulkCreateItem {
+  filename: string;
+  extracted: ExtractedInvoiceData;
+  project_id?: number | null;
+}
+
 export interface TinValidationResult {
   isValid: boolean;
   tin: string;
@@ -166,7 +299,7 @@ export interface BulkSubmitResult {
   skipped: { invoice_number?: string; message?: string; error?: string }[];
 }
 
-export type InvoiceStatus = 'Draft' | 'Pending' | 'Submitted' | 'Valid' | 'Invalid' | 'Cancelled' | 'Superseded';
+export type InvoiceStatus = 'Draft' | 'Pending' | 'Submitted' | 'Valid' | 'Invalid' | 'Cancelled' | 'Superseded' | 'Recorded';
 export type InvoiceType = '01' | '02' | '03' | '04';
 export type TaxType = 'SST' | 'Service Tax' | 'Exempt' | 'Zero Rated';
 export type PaymentMethod = 'Bank Transfer' | 'Cash' | 'Cheque' | 'Credit Card' | 'E-Wallet' | 'Other';
@@ -185,5 +318,6 @@ export const INVOICE_STATUS_COLORS: Record<string, string> = {
   Valid: 'bg-emerald-50 text-emerald-700',
   Invalid: 'bg-red-50 text-red-700',
   Cancelled: 'bg-gray-100 text-gray-500',
-  Superseded: 'bg-purple-50 text-purple-700'
+  Superseded: 'bg-purple-50 text-purple-700',
+  Recorded: 'bg-indigo-50 text-indigo-700'
 };

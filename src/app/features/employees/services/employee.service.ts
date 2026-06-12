@@ -113,6 +113,24 @@ export class EmployeeService {
   }
 
   /**
+   * Change an employee's employment status (Active / Resigned / Terminated).
+   * Reactivating (-> Active) clears the end date server-side.
+   */
+  setEmploymentStatus(
+    id: number | string,
+    employment_status: 'Active' | 'Resigned' | 'Terminated',
+    end_date?: string | null,
+    reason?: string
+  ): Observable<ApiResponse<Employee>> {
+    return this.http.patch<ApiResponse<Employee>>(
+      `${this.apiUrl}${API_CONFIG.endpoints.employees.detail(id)}/status`,
+      { employment_status, end_date, reason }
+    ).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
    * Delete employee (soft delete - change status)
    */
   deleteEmployee(id: number | string, status: 'Resigned' | 'Terminated', reason?: string): Observable<ApiResponse> {

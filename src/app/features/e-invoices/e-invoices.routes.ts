@@ -16,6 +16,12 @@ export const E_INVOICES_ROUTES: Routes = [
     data: { title: 'Invoice Form' }
   },
   {
+    path: 'bulk-import',
+    canActivate: [roleGuard(['super_admin', 'admin'])],
+    loadComponent: () => import('./components/bulk-import/bulk-import.component').then(m => m.BulkImportComponent),
+    data: { title: 'Bulk Import Invoices' }
+  },
+  {
     path: ':id',
     canActivate: [roleGuard(['super_admin', 'admin'])],
     loadComponent: () => import('./components/invoice-detail/invoice-detail.component').then(m => m.InvoiceDetailComponent),

@@ -55,6 +55,7 @@ export interface ProjectFilters {
   limit?: number;
   status?: ProjectStatus | string;
   search?: string;
+  year?: number;
   sort?: string;
   order?: 'ASC' | 'DESC';
 }

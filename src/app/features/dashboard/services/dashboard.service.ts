@@ -74,6 +74,18 @@ export interface AdminDashboardData {
 }
 
 // Manager Dashboard Types
+export interface WeekDay {
+  key: string;
+  label: string;
+  isToday: boolean;
+  events: { employee: string; type: 'WFH' | 'Leave'; detail: string }[];
+}
+
+export interface WeekData {
+  rangeLabel: string;
+  days: WeekDay[];
+}
+
 export interface ManagerDashboardData {
   teamStats: {
     totalMembers: number;
@@ -94,8 +106,25 @@ export interface ManagerDashboardData {
     hours: string;
     late: boolean;
   }[];
+  teamRoster: {
+    name: string;
+    status: 'Present' | 'WFH' | 'Leave' | 'Absent';
+    clockIn: string | null;
+    late: boolean;
+  }[];
+  weekAhead: {
+    thisWeek: WeekData;
+    nextWeek: WeekData;
+    coverageNote: string;
+  };
+  teamPulse: {
+    attendanceRate: number;
+    onTimeRate: number;
+    decisions: number;
+  };
   leavePendingApproval: {
     id: number;
+    public_id: string;
     employee: string;
     type: string;
     from: string;
@@ -103,9 +132,11 @@ export interface ManagerDashboardData {
     days: number;
     reason: string;
     status: string;
+    urgent: boolean;
   }[];
   claimsPendingApproval: {
     id: number;
+    public_id: string;
     employee: string;
     type: string;
     amount: number;

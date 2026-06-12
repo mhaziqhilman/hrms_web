@@ -1,0 +1,531 @@
+<div class="max-w-6xl mx-auto">
+
+  <!-- Breadcrumb -->
+  <div class="flex items-center gap-1.5 text-[12.5px] text-muted-foreground mb-6">
+    <a class="hover:text-foreground cursor-pointer transition-colors" routerLink="/e-invoices">e-Invoices</a>
+    <z-icon [zType]="$any('chevron-right')" zSize="sm" class="text-muted-foreground/50" />
+    <span class="text-foreground font-medium">Bulk Import</span>
+  </div>
+
+  <div class="lg:grid lg:grid-cols-[236px_minmax(0,1fr)] lg:gap-12">
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- LEFT RAIL: stepper + live summary (desktop)             -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <aside class="hidden lg:block">
+      <div class="sticky top-6">
+
+        <!-- Vertical stepper -->
+        <p class="text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground/70 mb-5">Import steps</p>
+        <ol>
+          @for (s of [
+            { n: 1, label: 'Upload', sub: 'Add PDF invoices' },
+            { n: 2, label: 'Review', sub: 'Check extracted data' },
+            { n: 3, label: 'Confirm', sub: 'Create invoices' }
+          ]; track s.n) {
+            <li class="flex gap-3 relative pb-6 last:pb-0">
+              <!-- connector -->
+              @if (s.n < 3) {
+                <div class="absolute left-[13px] top-7 bottom-0 w-px"
+                     [class]="s.n < currentStep() ? 'bg-teal-500' : 'bg-border'"></div>
+              }
+              <!-- dot -->
+              <div class="relative z-10 w-[27px] h-[27px] rounded-full flex items-center justify-center text-[12px] font-semibold shrink-0 transition-colors"
+                   [class]="s.n < currentStep()
+                     ? 'bg-teal-600 text-white'
+                     : (s.n === currentStep()
+                        ? 'bg-foreground text-background ring-4 ring-teal-500/15'
+                        : 'bg-card text-muted-foreground border border-border')">
+                @if (s.n < currentStep()) {
+                  <z-icon [zType]="$any('check')" zSize="sm" class="w-3.5 h-3.5" />
+                } @else {
+                  {{ s.n }}
+                }
+              </div>
+              <!-- label -->
+              <div class="pt-0.5">
+                <p class="text-[13.5px] font-medium leading-tight"
+                   [class.text-foreground]="s.n <= currentStep()"
+                   [class.text-muted-foreground]="s.n > currentStep()">{{ s.label }}</p>
+                <p class="text-[11.5px] mt-0.5"
+                   [class.text-teal-600]="s.n === currentStep()"
+                   [class.text-muted-foreground]="s.n !== currentStep()">{{ s.sub }}</p>
+              </div>
+            </li>
+          }
+        </ol>
+
+        <!-- Live import summary -->
+        <p class="text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground/70 mt-9 mb-3">Import summary</p>
+        <div class="rounded-xl border border-border overflow-hidden divide-y divide-border bg-card">
+          <div class="flex items-center justify-between px-3.5 py-2.5">
+            <span class="text-[12.5px] text-muted-foreground">Provider</span>
+            <span class="text-[12.5px] font-medium text-foreground">{{ providerLabel() }}</span>
+          </div>
+          <div class="flex items-center justify-between px-3.5 py-2.5">
+            <span class="text-[12.5px] text-muted-foreground">Save mode</span>
+            <span class="text-[11px] font-medium px-2 py-0.5 rounded-md"
+                  [class]="asRecorded
+                    ? 'bg-teal-50 text-teal-700 dark:bg-teal-950/40 dark:text-teal-400'
+                    : 'bg-muted text-muted-foreground'">
+              {{ asRecorded ? 'Recorded' : 'Draft' }}
+            </span>
+          </div>
+          <div class="flex items-center justify-between px-3.5 py-2.5">
+            <span class="text-[12.5px] text-muted-foreground">{{ currentStep() >= 2 ? 'Invoices' : 'Documents' }}</span>
+            <span class="text-[12.5px] font-medium text-foreground tabular-nums">
+              {{ currentStep() >= 2 ? countActive() : files().length }}
+            </span>
+          </div>
+          <div class="flex items-center justify-between px-3.5 py-2.5">
+            <span class="text-[12.5px] text-muted-foreground">Total value</span>
+            <span class="text-[12.5px] font-medium text-foreground tabular-nums">
+              {{ currentStep() >= 2 ? 'MYR ' + formatCurrency(grandTotal()) : '—' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- RIGHT: content column                                   -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div>
+
+      <!-- Header -->
+      <div class="mb-8">
+        <h1 class="text-[26px] sm:text-[28px] font-semibold tracking-[-0.02em] leading-[1.1] text-foreground">Bulk Import Invoices</h1>
+        <p class="text-[14px] text-muted-foreground mt-1.5">Upload PDF invoices, AI extracts the data, review each one, then confirm.</p>
+      </div>
+
+      <!-- Mobile horizontal stepper -->
+      <div class="flex items-center gap-2 mb-7 text-xs lg:hidden">
+        @for (s of [{ n: 1, label: 'Upload' }, { n: 2, label: 'Review' }, { n: 3, label: 'Confirm' }]; track s.n) {
+          @if (s.n > 1) {
+            <z-icon [zType]="$any('chevron-right')" zSize="sm" class="text-muted-foreground/40" />
+          }
+          <div class="flex items-center gap-1.5"
+               [class.font-medium]="s.n === currentStep()">
+            <div class="w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-semibold"
+                 [class]="s.n < currentStep()
+                   ? 'bg-teal-600 text-white'
+                   : (s.n === currentStep() ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground')">
+              @if (s.n < currentStep()) {
+                <z-icon [zType]="$any('check')" zSize="sm" class="w-3 h-3" />
+              } @else { {{ s.n }} }
+            </div>
+            <span [class.text-foreground]="s.n === currentStep()"
+                  [class.text-muted-foreground]="s.n !== currentStep()">{{ s.label }}</span>
+          </div>
+        }
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════ -->
+      <!-- STAGE 1: Idle / file selection                          -->
+      <!-- ═══════════════════════════════════════════════════════ -->
+      @if (stage() === 'idle') {
+        <div class="space-y-5">
+
+          <!-- Settings -->
+          <div class="rounded-xl border border-border bg-card overflow-hidden">
+            <!-- Recorded toggle -->
+            <button type="button" (click)="asRecorded = !asRecorded"
+                    class="w-full flex items-start gap-3.5 p-5 text-left transition-colors hover:bg-muted/30">
+              <span class="mt-0.5 w-5 h-5 rounded-md flex items-center justify-center shrink-0 transition-colors border"
+                    [class]="asRecorded ? 'bg-teal-600 border-teal-600 text-white' : 'border-input bg-background'">
+                @if (asRecorded) {
+                  <z-icon [zType]="$any('check')" zSize="sm" class="w-3.5 h-3.5" />
+                }
+              </span>
+              <span class="flex-1 min-w-0">
+                <span class="flex items-center gap-2 flex-wrap">
+                  <span class="text-[14px] font-medium text-foreground">Save as "Recorded"</span>
+                  <span class="text-[11px] font-medium px-2 py-0.5 rounded-md bg-teal-50 text-teal-700 dark:bg-teal-950/40 dark:text-teal-400">record only · not sent to LHDN</span>
+                </span>
+                <span class="block text-[13px] text-muted-foreground mt-1">
+                  Recommended for historical invoices. Untick to save as <span class="font-medium text-foreground">Draft</span> instead.
+                </span>
+              </span>
+            </button>
+
+            <div class="h-px bg-border"></div>
+
+            <!-- AI Provider -->
+            <div class="flex items-center justify-between gap-4 p-5">
+              <div>
+                <p class="text-[14px] font-medium text-foreground">AI Provider</p>
+                <p class="text-[12.5px] text-muted-foreground mt-0.5">
+                  <span class="font-medium text-foreground">Claude</span> — best accuracy ·
+                  <span class="font-medium text-foreground">Qwen</span> — third-party
+                </p>
+              </div>
+              <div class="relative flex-shrink-0">
+                <select [value]="selectedProvider()" (change)="onProviderChange($any($event.target).value)"
+                        class="appearance-none text-[13.5px] font-medium pl-3.5 pr-9 h-10 rounded-lg border border-input bg-background cursor-pointer focus:outline-none focus:ring-2 focus:ring-teal-500/40">
+                  <option value="anthropic">Claude (Anthropic)</option>
+                  <option value="qwen">Qwen (third-party)</option>
+                </select>
+                <z-icon [zType]="$any('chevron-down')" zSize="sm" class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Drop zone -->
+          <div
+            (dragover)="onDragOver($event)"
+            (dragleave)="onDragLeave($event)"
+            (drop)="onDrop($event)"
+            (click)="fileInput.click()"
+            class="dropzone rounded-xl border-[1.5px] border-dashed px-6 py-14 text-center cursor-pointer"
+            [class.dropzone-drag]="dragging()"
+            [class.border-border]="!dragging()">
+            <div class="mx-auto w-14 h-14 rounded-2xl flex items-center justify-center mb-5 bg-teal-50 text-teal-600 dark:bg-teal-950/40 dark:text-teal-400">
+              <z-icon [zType]="$any('upload-cloud')" class="w-6 h-6" />
+            </div>
+            <p class="text-[16px] font-semibold text-foreground">Drop PDF files here</p>
+            <p class="text-[13px] text-muted-foreground mt-1.5">or click to browse · up to {{ MAX_FILES }} files, {{ MAX_SIZE_MB }} MB each</p>
+            <div class="mt-5">
+              <button z-button zType="outline" zSize="sm" (click)="$event.stopPropagation(); fileInput.click()">
+                <z-icon [zType]="$any('folder-open')" zSize="sm" class="mr-1.5" /> Choose Files
+              </button>
+            </div>
+            <input #fileInput type="file" accept="application/pdf" multiple class="hidden" (change)="onFilesPicked($event)" />
+          </div>
+
+          <!-- File list -->
+          @if (files().length > 0) {
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <h3 class="text-[13px] font-medium text-foreground">{{ files().length }} file{{ files().length === 1 ? '' : 's' }} ready</h3>
+                <button z-button zType="ghost" zSize="sm" class="text-muted-foreground" (click)="clearAll()">Clear all</button>
+              </div>
+
+              <div class="space-y-2.5">
+                @for (f of files(); track $index; let i = $index) {
+                  <div class="bi-rise flex items-center gap-3.5 p-3 pr-4 rounded-lg border border-border bg-card">
+                    <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-none bg-teal-50 text-teal-600 dark:bg-teal-950/40 dark:text-teal-400">
+                      <z-icon [zType]="$any('file-text')" zSize="sm" />
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-[13.5px] font-medium text-foreground truncate">{{ f.name }}</p>
+                      <p class="text-[12px] text-muted-foreground">{{ formatSize(f.size) }} · PDF</p>
+                    </div>
+                    <span class="text-[11px] font-medium px-2 py-0.5 rounded-md bg-teal-50 text-teal-700 dark:bg-teal-950/40 dark:text-teal-400">ready</span>
+                    <button z-button zType="ghost" zSize="sm" class="text-muted-foreground hover:text-red-500" (click)="removeFile(i)">
+                      <z-icon [zType]="$any('x')" zSize="sm" />
+                    </button>
+                  </div>
+                }
+              </div>
+
+              <div class="flex justify-end gap-2 pt-1">
+                <button z-button zType="outline" routerLink="/e-invoices">Cancel</button>
+                <button z-button (click)="startExtract()">
+                  <z-icon [zType]="$any('sparkles')" zSize="sm" class="mr-1.5" />
+                  Extract &amp; review {{ files().length }} file{{ files().length === 1 ? '' : 's' }}
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- ═══════════════════════════════════════════════════════ -->
+      <!-- STAGE 2: Extracting (loading)                            -->
+      <!-- ═══════════════════════════════════════════════════════ -->
+      @if (stage() === 'extracting') {
+        <div class="rounded-xl border border-border bg-card p-12">
+          <div class="flex flex-col items-center gap-4 text-center">
+            <z-icon zType="loader-circle" class="w-11 h-11 text-teal-600 animate-spin" />
+            <div>
+              <p class="text-[16px] font-semibold text-foreground">Extracting {{ files().length }} invoice{{ files().length === 1 ? '' : 's' }}…</p>
+              <p class="text-[13px] text-muted-foreground mt-1">{{ providerLabel() }} is reading each PDF. This may take a moment.</p>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- ═══════════════════════════════════════════════════════ -->
+      <!-- STAGE 3: Review extracted items                          -->
+      <!-- ═══════════════════════════════════════════════════════ -->
+      @if (stage() === 'review') {
+
+        <div class="flex items-center justify-between mb-5">
+          <div class="flex items-center gap-2.5 flex-wrap">
+            <span class="text-[14px] font-medium text-foreground">{{ countActive() }} of {{ items().length }} ready to import</span>
+            <span class="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md bg-teal-50 text-teal-700 dark:bg-teal-950/40 dark:text-teal-400">
+              <z-icon [zType]="$any('check')" zSize="sm" class="w-3 h-3" /> extracted
+            </span>
+            @if (countErrors() > 0) {
+              <span class="text-[12.5px] text-red-600">· {{ countErrors() }} failed extraction</span>
+            }
+          </div>
+          <button z-button zType="ghost" zSize="sm" class="text-muted-foreground" (click)="startOver()">
+            <z-icon [zType]="$any('rotate-ccw')" zSize="sm" class="mr-1" /> Start over
+          </button>
+        </div>
+
+        <div class="space-y-4 mb-5">
+          @for (it of items(); track $index; let i = $index) {
+            <article class="rounded-xl border border-border bg-card overflow-hidden transition-shadow hover:shadow-md"
+                     [class.opacity-50]="it.skip">
+
+              @if (it.error) {
+                <!-- Failed extraction -->
+                <div class="flex items-start gap-3 p-5">
+                  <z-icon [zType]="$any('circle-x')" zSize="sm" class="text-red-600 flex-shrink-0 mt-0.5" />
+                  <div class="flex-1 min-w-0">
+                    <p class="text-[13.5px] font-medium text-foreground truncate">{{ it.filename }}</p>
+                    <p class="text-[12.5px] text-red-700 dark:text-red-400 mt-0.5">{{ it.error }}</p>
+                  </div>
+                </div>
+              } @else if (it.extracted; as e) {
+
+                <!-- Header row -->
+                <div class="flex items-start gap-3 p-5 cursor-pointer" (click)="toggleExpand(i)">
+                  <button type="button" class="mt-0.5 text-muted-foreground hover:text-foreground transition-colors flex-none">
+                    <z-icon [zType]="$any(it.expanded ? 'chevron-down' : 'chevron-right')" zSize="sm" />
+                  </button>
+
+                  <div class="flex-1 min-w-0">
+                    <!-- Top row: number + badges -->
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <span class="font-mono text-[13.5px] font-medium text-foreground">{{ e.invoice_number || '—' }}</span>
+                      <z-badge [zType]="confidenceBadge(e.confidence)" class="capitalize text-[10px]">
+                        {{ e.confidence }}
+                      </z-badge>
+                      @if (it.reviewed) {
+                        <z-badge zType="outline" class="text-teal-600 border-teal-300 text-[10px]">
+                          <z-icon [zType]="$any('check')" zSize="sm" class="mr-0.5 w-3 h-3" /> reviewed
+                        </z-badge>
+                      }
+                      @if (it.po_match?.found && it.po_match?.single_project && it.po_match?.recipient_match) {
+                        <z-badge zType="outline" class="text-teal-600 border-teal-300 text-[10px]"
+                                 [zTooltip]="'Auto-linked to ' + it.po_match!.project!.code">
+                          <z-icon [zType]="$any('link-2')" zSize="sm" class="mr-0.5 w-3 h-3" /> PO match
+                        </z-badge>
+                      } @else if (it.po_match?.found && it.po_match?.single_project && !it.po_match?.recipient_match) {
+                        <z-badge zType="outline" class="text-amber-600 border-amber-300 text-[10px]"
+                                 [zTooltip]="'PO matches ' + it.po_match!.project!.code + ' but recipient differs'">
+                          <z-icon [zType]="$any('triangle-alert')" zSize="sm" class="mr-0.5 w-3 h-3" /> PO mismatch
+                        </z-badge>
+                      } @else if (it.po_match?.found && !it.po_match?.single_project) {
+                        <z-badge zType="outline" class="text-blue-600 border-blue-300 text-[10px]"
+                                 [zTooltip]="'Multi-PO: review to pick primary project'">
+                          <z-icon [zType]="$any('git-branch')" zSize="sm" class="mr-0.5 w-3 h-3" /> Multi-PO
+                        </z-badge>
+                      }
+                    </div>
+
+                    @if (e.title) {
+                      <p class="text-[12.5px] text-muted-foreground mt-1 truncate">{{ e.title }}</p>
+                    }
+
+                    <!-- Sub row: supplier → buyer + date + file -->
+                    <div class="flex items-center gap-2 flex-wrap text-[12px] text-muted-foreground mt-2.5">
+                      <span class="font-medium text-foreground truncate max-w-[200px]">{{ e.supplier_name || '?' }}</span>
+                      <z-icon [zType]="$any('arrow-right')" zSize="sm" class="w-3 h-3 text-muted-foreground/60" />
+                      <span class="font-medium text-foreground truncate max-w-[200px]">{{ e.buyer_name || '?' }}</span>
+                      <span class="text-muted-foreground/40">·</span>
+                      <span>{{ e.invoice_date || '—' }}</span>
+                      <span class="text-muted-foreground/40">·</span>
+                      <span class="font-mono truncate max-w-[180px]">{{ it.filename }}</span>
+                    </div>
+                  </div>
+
+                  <!-- Right: amount + actions -->
+                  <div class="flex items-center gap-2 flex-none" (click)="$event.stopPropagation()">
+                    <div class="text-right mr-1 hidden sm:block">
+                      <div class="font-mono text-[15px] font-medium text-teal-600 tabular-nums">{{ e.currency || 'MYR' }} {{ formatCurrency(itemTotal(it)) }}</div>
+                      <div class="text-[11px] text-muted-foreground">{{ e.items.length }} line item{{ e.items.length === 1 ? '' : 's' }}</div>
+                    </div>
+                    <button z-button zType="outline" zSize="sm" (click)="openReview(i)">
+                      <z-icon [zType]="$any('pencil')" zSize="sm" class="mr-1" /> Review
+                    </button>
+                    <button z-button zType="ghost" zSize="sm"
+                            [class.text-red-500]="!it.skip"
+                            [class.text-teal-600]="it.skip"
+                            (click)="toggleSkip(i)"
+                            [zTooltip]="it.skip ? 'Include' : 'Skip'">
+                      <z-icon [zType]="$any(it.skip ? 'undo-2' : 'x')" zSize="sm" />
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Expanded: line items -->
+                @if (it.expanded) {
+                  <div class="border-t border-border bg-muted/20 px-5 py-4">
+                    @if (e.items && e.items.length > 0) {
+                      <div class="rounded-lg border border-border overflow-hidden">
+                        <table class="w-full text-[12.5px]">
+                          <thead>
+                            <tr class="text-left text-[11px] uppercase tracking-[0.04em] text-muted-foreground bg-muted/40">
+                              <th class="py-2.5 pl-4 font-medium w-8">#</th>
+                              <th class="py-2.5 font-medium">Description</th>
+                              <th class="py-2.5 px-3 font-medium w-24">PO No.</th>
+                              <th class="py-2.5 px-3 font-medium text-right w-14">Qty</th>
+                              <th class="py-2.5 px-3 font-medium text-right w-24">Unit Price</th>
+                              <th class="py-2.5 px-3 font-medium w-24">Tax</th>
+                              <th class="py-2.5 pr-4 font-medium text-right w-24">Total</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            @for (li of e.items; track $index; let liIdx = $index) {
+                              <tr class="border-t border-border/60">
+                                <td class="py-3 pl-4 font-mono text-muted-foreground">{{ liIdx + 1 }}</td>
+                                <td class="py-3 pr-3 text-foreground">{{ li.description }}</td>
+                                <td class="py-3 px-3 font-mono text-[11px] text-muted-foreground">{{ li.po_number || '—' }}</td>
+                                <td class="py-3 px-3 text-right font-mono tabular-nums">{{ li.quantity }}</td>
+                                <td class="py-3 px-3 text-right font-mono tabular-nums">{{ formatCurrency(li.unit_price) }}</td>
+                                <td class="py-3 px-3">
+                                  <span class="text-[11px] px-1.5 py-0.5 rounded border border-border bg-background text-muted-foreground whitespace-nowrap">{{ li.tax_type }} {{ li.tax_rate }}%</span>
+                                </td>
+                                <td class="py-3 pr-4 text-right font-mono tabular-nums font-medium">{{ formatCurrency((li.quantity * li.unit_price - (li.discount_amount || 0)) * (1 + (li.tax_rate || 0) / 100)) }}</td>
+                              </tr>
+                            }
+                          </tbody>
+                        </table>
+                      </div>
+                    } @else {
+                      <p class="text-[12.5px] text-muted-foreground italic">No line items extracted.</p>
+                    }
+
+                    @if (e.extraction_notes && e.extraction_notes.length > 0) {
+                      <div class="mt-4 rounded-lg p-4 bg-amber-50 dark:bg-amber-950/20">
+                        <p class="flex items-center gap-1.5 text-[12.5px] font-medium text-amber-700 dark:text-amber-400 mb-2">
+                          <z-icon [zType]="$any('triangle-alert')" zSize="sm" class="w-3.5 h-3.5" />
+                          {{ e.extraction_notes.length }} extraction warning{{ e.extraction_notes.length === 1 ? '' : 's' }}
+                        </p>
+                        <ul class="grid gap-1.5">
+                          @for (note of e.extraction_notes; track $index) {
+                            <li class="flex gap-2.5 text-[12.5px] text-amber-700 dark:text-amber-400">
+                              <span class="mt-1.5 w-1 h-1 rounded-full flex-none bg-amber-600 dark:bg-amber-400"></span>
+                              <span class="leading-snug">{{ note }}</span>
+                            </li>
+                          }
+                        </ul>
+                      </div>
+                    }
+                  </div>
+                }
+              }
+            </article>
+          }
+        </div>
+
+        <!-- Confirm action (sticky) -->
+        <div class="sticky bottom-4 rounded-xl border border-border bg-card shadow-md p-4">
+          <div class="flex items-center justify-between gap-3 flex-wrap">
+            <div>
+              <p class="text-[13.5px] font-medium text-foreground">Ready to create {{ countActive() }} invoice{{ countActive() === 1 ? '' : 's' }}</p>
+              <p class="text-[12px] text-muted-foreground mt-0.5">
+                Will be saved as <span class="font-medium text-foreground">{{ asRecorded ? 'Recorded' : 'Draft' }}</span> ·
+                <span class="font-mono tabular-nums">MYR {{ formatCurrency(grandTotal()) }}</span>
+              </p>
+            </div>
+            <div class="flex gap-2">
+              <button z-button zType="outline" (click)="startOver()">Cancel</button>
+              <button z-button [disabled]="countActive() === 0" (click)="confirmCreate()">
+                <z-icon [zType]="$any('check')" zSize="sm" class="mr-1.5" />
+                Confirm &amp; Create
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- ═══════════════════════════════════════════════════════ -->
+      <!-- STAGE 4: Creating                                        -->
+      <!-- ═══════════════════════════════════════════════════════ -->
+      @if (stage() === 'creating') {
+        <div class="rounded-xl border border-border bg-card p-12">
+          <div class="flex flex-col items-center gap-4 text-center">
+            <z-icon zType="loader-circle" class="w-11 h-11 text-teal-600 animate-spin" />
+            <div>
+              <p class="text-[16px] font-semibold text-foreground">Creating {{ countActive() }} invoice{{ countActive() === 1 ? '' : 's' }}…</p>
+              <p class="text-[13px] text-muted-foreground mt-1">Almost there.</p>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- ═══════════════════════════════════════════════════════ -->
+      <!-- STAGE 5: Done — results                                  -->
+      <!-- ═══════════════════════════════════════════════════════ -->
+      @if (stage() === 'done' && result(); as r) {
+        <div class="max-w-[640px]">
+          <div class="bi-rise w-14 h-14 rounded-2xl flex items-center justify-center mb-6 bg-teal-50 text-teal-600 dark:bg-teal-950/40 dark:text-teal-400">
+            <z-icon [zType]="$any('check')" class="w-7 h-7" />
+          </div>
+          <h2 class="text-[22px] font-semibold tracking-[-0.02em] text-foreground">Import complete</h2>
+          <p class="text-[14px] text-muted-foreground mt-2">
+            {{ r.created.length }} created@if (r.failed.length > 0) { · {{ r.failed.length }} failed }.
+            Saved as <span class="font-medium text-foreground">{{ asRecorded ? 'Recorded' : 'Draft' }}</span>.
+          </p>
+
+          @if (r.created.length > 0) {
+            <div class="rounded-xl border border-border bg-card overflow-hidden mt-7">
+              <table class="w-full text-[13px]">
+                <thead class="bg-muted/40">
+                  <tr class="text-left text-[11px] uppercase tracking-[0.04em] font-medium text-muted-foreground">
+                    <th class="px-4 py-2.5">Invoice #</th>
+                    <th class="px-4 py-2.5">Title</th>
+                    <th class="px-4 py-2.5 text-right">Amount</th>
+                    <th class="px-4 py-2.5"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (c of r.created; track c.public_id) {
+                    <tr class="border-t border-border">
+                      <td class="px-4 py-2.5 font-mono font-medium text-foreground">{{ c.invoice_number }}</td>
+                      <td class="px-4 py-2.5 text-muted-foreground">{{ c.title || '—' }}</td>
+                      <td class="px-4 py-2.5 text-right font-mono tabular-nums font-medium text-teal-600">RM {{ formatCurrency(c.total_amount) }}</td>
+                      <td class="px-4 py-2.5 text-right">
+                        <button z-button zType="outline" zSize="sm" (click)="goToInvoice(c.public_id)">View</button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+
+          @if (r.failed.length > 0) {
+            <h4 class="text-[13px] font-medium text-foreground mt-6 mb-2">Failed</h4>
+            <div class="space-y-1.5">
+              @for (f of r.failed; track $index) {
+                <div class="flex items-start gap-2.5 px-3.5 py-2.5 rounded-lg border border-red-200/60 bg-red-50/50 dark:bg-red-950/20 dark:border-red-900/40">
+                  <z-icon [zType]="$any('circle-x')" zSize="sm" class="text-red-600 flex-shrink-0 mt-0.5" />
+                  <div class="flex-1 min-w-0">
+                    <p class="text-[13px] font-medium text-foreground truncate">{{ f.filename }}</p>
+                    <p class="text-[12.5px] text-red-700 dark:text-red-400">{{ f.error }}</p>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+
+          <div class="flex items-center gap-2 mt-7">
+            <button z-button zType="outline" (click)="startOver()">Import more</button>
+            <button z-button routerLink="/e-invoices">
+              View invoices
+              <z-icon [zType]="$any('arrow-right')" zSize="sm" class="ml-1.5" />
+            </button>
+          </div>
+        </div>
+      }
+
+    </div>
+    <!-- /right column -->
+  </div>
+
+  <!-- Review sheet -->
+  <app-invoice-review-sheet
+    [open]="reviewSheetOpen()"
+    [item]="reviewItem()"
+    [projects]="projects()"
+    (openChange)="onReviewClosed($event)"
+    (itemSaved)="onReviewSaved($event)">
+  </app-invoice-review-sheet>
+
+</div>

@@ -318,6 +318,10 @@
                     <z-icon zType="pencil" class="w-4 h-4" />
                     Edit
                   </a>
+                  <button z-menu-item (click)="openChangeStatusDialog(employee)" class="gap-2">
+                    <z-icon [zType]="$any('refresh-cw')" class="w-4 h-4" />
+                    Change Status
+                  </button>
                   <z-divider zSpacing="sm" />
                   <button z-menu-item (click)="deleteEmployee(employee)" class="gap-2 text-destructive">
                     <z-icon zType="trash" class="w-4 h-4" />
@@ -363,6 +367,10 @@
               <z-icon zType="pencil" class="w-4 h-4" />
               Edit
             </a>
+            <button z-menu-item (click)="openChangeStatusDialog(employee)" class="gap-2">
+              <z-icon [zType]="$any('refresh-cw')" class="w-4 h-4" />
+              Change Status
+            </button>
             <z-divider zSpacing="sm" />
             <button z-menu-item (click)="deleteEmployee(employee)" class="gap-2 text-destructive">
               <z-icon zType="trash" class="w-4 h-4" />

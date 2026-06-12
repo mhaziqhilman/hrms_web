@@ -10,6 +10,10 @@
         <z-icon [zType]="$any('calendar')" zSize="sm" />
         {{ getTodayDate() }}
       </span>
+      <button z-button zType="outline" routerLink="/e-invoices/bulk-import" class="gap-1">
+        <z-icon [zType]="$any('sparkles')" zSize="sm" class="mr-0" />
+        Bulk Import
+      </button>
       <button z-button (click)="navigateToCreate()" class="gap-1">
         <z-icon [zType]="$any('plus')" zSize="sm" class="mr-0" />
         Create Invoice
@@ -99,6 +103,7 @@
     <z-tab label="Valid" icon="check-circle" [badge]="analytics()?.statusCounts?.['Valid'] || 0" badgeClass="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"></z-tab>
     <z-tab label="Invalid" icon="circle-x" [badge]="analytics()?.statusCounts?.['Invalid'] || 0" badgeClass="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"></z-tab>
     <z-tab label="Cancelled" icon="ban" [badge]="analytics()?.statusCounts?.['Cancelled'] || 0" badgeClass="bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300"></z-tab>
+    <z-tab label="Recorded" icon="archive" [badge]="analytics()?.statusCounts?.['Recorded'] || 0" badgeClass="bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400"></z-tab>
   </z-tab-group>
 
   <!-- Bulk Actions Bar -->
@@ -118,6 +123,10 @@
         <button z-button zSize="sm" (click)="onBulkSubmit()">
           <z-icon [zType]="$any('send')" zSize="sm" class="mr-1.5" />
           Submit to LHDN
+        </button>
+        <button z-button zType="destructive" zSize="sm" (click)="onBulkDelete()">
+          <z-icon [zType]="$any('trash')" zSize="sm" class="mr-1.5" />
+          Delete
         </button>
         <div class="w-px h-6 bg-border mx-1"></div>
         <button z-button zType="ghost" zSize="sm" (click)="selectedInvoices.clear(); allSelected = false">
@@ -342,6 +351,9 @@
             <td class="!pl-3">
               <div class="flex flex-col">
                 <span class="font-normal text-foreground">{{ invoice.invoice_number }}</span>
+                @if (invoice.title) {
+                <span class="text-xs text-muted-foreground truncate max-w-[220px]">{{ invoice.title }}</span>
+                }
                 @if (invoice.is_self_billed) {
                 <span class="text-sm text-muted-foreground">Self-Billed</span>
                 }
@@ -403,7 +415,7 @@
                 </button>
 
                 <!-- Edit -->
-                @if (invoice.status === 'Draft' || invoice.status === 'Invalid') {
+                @if (invoice.status === 'Draft' || invoice.status === 'Invalid' || invoice.status === 'Recorded') {
                 <button z-button zType="outline" zSize="sm" [zTooltip]="'Edit'" (click)="navigateToEdit(invoice.public_id)">
                   <z-icon zType="pencil" class="w-4 h-4" />
                 </button>
@@ -424,7 +436,7 @@
                 }
 
                 <!-- Delete -->
-                @if (invoice.status === 'Draft') {
+                @if (invoice.status === 'Draft' || invoice.status === 'Recorded') {
                 <button z-button zType="outline" zSize="sm" [zTooltip]="'Delete'" class="text-red-600 hover:text-red-700" (click)="onDelete(invoice)">
                   <z-icon zType="trash" class="w-4 h-4" />
                 </button>

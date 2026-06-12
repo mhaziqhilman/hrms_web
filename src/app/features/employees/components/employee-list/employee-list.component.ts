@@ -30,6 +30,7 @@ import { ZardDividerComponent } from '@/shared/components/divider/divider.compon
 // Dialog Components
 import { InviteUserDialogComponent } from './dialogs/invite-user-dialog.component';
 import { EmployeeFormDialogComponent } from '../employee-form-dialog/employee-form-dialog.component';
+import { ChangeStatusDialogComponent } from '../change-status-dialog/change-status-dialog.component';
 
 @Component({
   selector: 'app-employee-list',
@@ -330,6 +331,40 @@ export class EmployeeListComponent implements OnInit {
             });
           }
         });
+      }
+    });
+  }
+
+  openChangeStatusDialog(employee: Employee): void {
+    this.dialogService.create({
+      zTitle: 'Change Employment Status',
+      zContent: ChangeStatusDialogComponent,
+      zViewContainerRef: this.viewContainerRef,
+      zData: { employee },
+      zMaskClosable: false,
+      zOkText: 'Save',
+      zCancelText: 'Cancel',
+      zOnOk: (instance: ChangeStatusDialogComponent): false | void => {
+        if (!instance.isValid()) {
+          return false;
+        }
+        const { employment_status, end_date, reason } = instance.getData();
+        this.employeeService
+          .setEmploymentStatus(employee.public_id!, employment_status, end_date, reason)
+          .subscribe({
+            next: (response) => {
+              if (response.success) {
+                this.loadEmployees();
+              }
+            },
+            error: (err) => {
+              this.alertDialogService.warning({
+                zTitle: 'Error',
+                zDescription: err?.message || 'Failed to update employment status',
+                zOkText: 'OK'
+              });
+            }
+          });
       }
     });
   }

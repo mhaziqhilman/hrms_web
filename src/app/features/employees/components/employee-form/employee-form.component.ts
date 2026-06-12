@@ -8,7 +8,8 @@ import {
   UpdateEmployeeRequest,
   Gender,
   MaritalStatus,
-  EmploymentType
+  EmploymentType,
+  EmploymentStatus
 } from '../../models/employee.model';
 
 // ZardUI Components
@@ -64,6 +65,7 @@ export class EmployeeFormComponent implements OnInit {
   genders: Gender[] = ['Male', 'Female'];
   maritalStatuses: MaritalStatus[] = ['Single', 'Married', 'Divorced', 'Widowed'];
   employmentTypes: EmploymentType[] = ['Permanent', 'Contract', 'Probation', 'Intern'];
+  employmentStatuses: EmploymentStatus[] = ['Active', 'Resigned', 'Terminated'];
   taxCategories = [
     { value: 'KA', label: 'KA - Single / Widowed' },
     { value: 'KB', label: 'KB - Married (Spouse not working)' },
@@ -142,6 +144,8 @@ export class EmployeeFormComponent implements OnInit {
       join_date: ['', Validators.required],
       confirmation_date: [''],
       employment_type: ['Probation'],
+      employment_status: ['Active'],
+      end_date: [''],
       work_location: ['', [Validators.maxLength(100)]],
 
       // Banking Information
@@ -194,7 +198,11 @@ export class EmployeeFormComponent implements OnInit {
 
     if (this.isEditMode() && this.employeeId()) {
       // Update existing employee
-      const updateData: UpdateEmployeeRequest = formData;
+      const updateData: UpdateEmployeeRequest = { ...formData };
+      // An Active employee has no last working day — clear it.
+      if (updateData.employment_status === 'Active') {
+        updateData.end_date = null;
+      }
       this.employeeService.updateEmployee(this.employeeId()!, updateData).subscribe({
         next: (response) => {
           if (response.success) {
@@ -269,6 +277,8 @@ export class EmployeeFormComponent implements OnInit {
   get joinDateControl() { return this.employeeForm?.get('join_date'); }
   get confirmationDateControl() { return this.employeeForm?.get('confirmation_date'); }
   get employmentTypeControl() { return this.employeeForm?.get('employment_type'); }
+  get employmentStatusControl() { return this.employeeForm?.get('employment_status'); }
+  get endDateControl() { return this.employeeForm?.get('end_date'); }
   get workLocationControl() { return this.employeeForm?.get('work_location'); }
 
   get bankNameControl() { return this.employeeForm?.get('bank_name'); }

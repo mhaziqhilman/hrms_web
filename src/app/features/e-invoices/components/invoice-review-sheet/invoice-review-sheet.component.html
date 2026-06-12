@@ -1,0 +1,352 @@
+<z-sheet [zOpen]="open" zSide="right" zClass="sheet-panel" (zOpenChange)="handleOpenChange($event)">
+  <div class="sheet-wrapper">
+
+    <!-- Header -->
+    <div class="sheet-header">
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10 flex-shrink-0">
+            <z-icon [zType]="$any('file-pen-line')" class="text-primary" zSize="lg" />
+          </div>
+          <div class="min-w-0">
+            <h2 class="text-base font-medium text-foreground truncate">Review Extracted Invoice</h2>
+            <p class="text-xs text-muted-foreground truncate">{{ item?.filename || '' }}</p>
+          </div>
+        </div>
+        @if (item?.extracted?.confidence; as conf) {
+          <z-badge [zType]="conf === 'high' ? 'default' : conf === 'medium' ? 'secondary' : 'destructive'" class="flex-shrink-0 capitalize">
+            {{ conf }}
+          </z-badge>
+        }
+      </div>
+    </div>
+
+    <z-divider zSpacing="none" />
+
+    <!-- Body -->
+    <div class="sheet-body">
+
+      <!-- PO match alert -->
+      @if (item?.po_match; as pm) {
+        @if (pm.found && pm.single_project && pm.recipient_match) {
+          <div class="mb-4 rounded-lg border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50/40 p-2.5 flex items-start gap-2">
+            <z-icon [zType]="$any('link-2')" zSize="sm" class="text-emerald-600 mt-0.5" />
+            <p class="text-xs text-emerald-800 dark:text-emerald-300">
+              Auto-linked to <span class="font-medium">{{ pm.project!.code }} — {{ pm.project!.name }}</span>
+            </p>
+          </div>
+        } @else if (pm.found && pm.single_project && !pm.recipient_match) {
+          <div class="mb-4 rounded-lg border border-amber-200 dark:border-amber-900/50 bg-amber-50/40 p-2.5 flex items-start gap-2">
+            <z-icon [zType]="$any('triangle-alert')" zSize="sm" class="text-amber-600 mt-0.5" />
+            <div class="text-xs text-amber-800 dark:text-amber-300">
+              <p>PO matches <span class="font-medium">{{ pm.project!.code }} — {{ pm.project!.name }}</span>, but recipient differs.</p>
+              <p class="mt-1">Extracted: <span class="font-medium">{{ pm.extracted_buyer_name || '(empty)' }}</span> · Project: <span class="font-medium">{{ pm.project_client_name || '(none)' }}</span></p>
+            </div>
+          </div>
+        } @else if (pm.found && !pm.single_project) {
+          <div class="mb-4 rounded-lg border border-blue-200 dark:border-blue-900/50 bg-blue-50/40 p-2.5 flex items-start gap-2">
+            <z-icon [zType]="$any('git-branch')" zSize="sm" class="text-blue-600 mt-0.5" />
+            <div class="text-xs text-blue-800 dark:text-blue-300 flex-1">
+              <p class="mb-1 font-medium">Multi-PO invoice — pick primary project below:</p>
+              <ul class="space-y-0.5 ml-2">
+                @for (m of pm.matches; track m.po_number) {
+                  <li class="flex items-start gap-1.5">
+                    <span class="font-mono text-[11px] flex-shrink-0">{{ m.po_number }}</span>
+                    <span>→</span>
+                    @if (m.project) {
+                      <span>{{ m.project.code }} — {{ m.project.name }}</span>
+                      @if (m.recipient_match) {
+                        <z-icon [zType]="$any('check')" zSize="sm" class="text-emerald-600 w-3 h-3" />
+                      }
+                    } @else {
+                      <span class="text-muted-foreground italic">(not found)</span>
+                    }
+                  </li>
+                }
+              </ul>
+            </div>
+          </div>
+        }
+      }
+
+      <!-- Extraction notes -->
+      @if (item?.extracted?.extraction_notes?.length) {
+        <div class="mb-4 rounded-lg border border-border bg-muted/30 p-2.5">
+          <p class="text-xs font-medium text-foreground mb-1">Extraction warnings</p>
+          <ul class="text-xs text-muted-foreground list-disc list-inside space-y-0.5">
+            @for (note of item!.extracted!.extraction_notes!; track $index) {
+              <li>{{ note }}</li>
+            }
+          </ul>
+        </div>
+      }
+
+      <!-- Project linkage -->
+      <div class="section">
+        <h3 class="section-title">Project Linkage</h3>
+        <z-form-field>
+          <label z-form-label>Primary Project (optional)</label>
+          <z-form-control>
+            <z-select
+              [ngModel]="selectedProjectId()"
+              (ngModelChange)="onProjectChange($event ? +$event : null)"
+              zPlaceholder="No project linked">
+              <z-select-item [zValue]="null">— None —</z-select-item>
+              @for (p of projects; track p.id) {
+                <z-select-item [zValue]="p.id">
+                  {{ p.code }} — {{ p.name }}{{ p.po_number ? ' · PO ' + p.po_number : '' }}
+                </z-select-item>
+              }
+            </z-select>
+          </z-form-control>
+        </z-form-field>
+
+        <!-- All linked projects (chips) -->
+        @if (getLinkedProjects().length > 1) {
+          <div class="mt-2 rounded-md border border-blue-200/50 bg-blue-50/40 dark:bg-blue-950/20 p-2.5">
+            <div class="flex items-start gap-2">
+              <z-icon [zType]="$any('git-branch')" zSize="sm" class="text-blue-600 mt-0.5 flex-shrink-0" />
+              <div class="flex-1 min-w-0">
+                <p class="text-xs font-medium text-blue-800 dark:text-blue-300 mb-1.5">
+                  Linked to {{ getLinkedProjects().length }} projects (via per-line POs):
+                </p>
+                <div class="flex flex-wrap gap-1.5">
+                  @for (p of getLinkedProjects(); track p.id) {
+                    <span class="inline-flex items-center gap-1 text-[11px] font-medium bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-full border border-blue-300/50">
+                      {{ p.code }}
+                      @if (p.po_number) {
+                        <span class="font-mono text-blue-500 dark:text-blue-400">· {{ p.po_number }}</span>
+                      }
+                    </span>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <z-divider zSpacing="sm" />
+
+      <!-- Invoice details -->
+      <div class="section" [formGroup]="detailsForm">
+        <h3 class="section-title">Invoice Details</h3>
+        <div class="form-grid">
+          <z-form-field>
+            <label z-form-label>Invoice Number</label>
+            <z-form-control><input z-input type="text" formControlName="invoice_number" /></z-form-control>
+          </z-form-field>
+          <z-form-field>
+            <label z-form-label>PO Number</label>
+            <z-form-control><input z-input type="text" formControlName="po_number" /></z-form-control>
+          </z-form-field>
+          <z-form-field class="col-span-2">
+            <label z-form-label>Title / Reference</label>
+            <z-form-control><input z-input type="text" formControlName="title" /></z-form-control>
+          </z-form-field>
+          <z-form-field>
+            <label z-form-label>Type</label>
+            <z-form-control>
+              <z-select formControlName="invoice_type" zPlaceholder="Type">
+                @for (t of INVOICE_TYPES; track t.value) {
+                  <z-select-item [zValue]="t.value">{{ t.label }}</z-select-item>
+                }
+              </z-select>
+            </z-form-control>
+          </z-form-field>
+          <z-form-field>
+            <label z-form-label>Currency</label>
+            <z-form-control>
+              <z-select formControlName="currency" zPlaceholder="Currency">
+                @for (c of CURRENCIES; track c) {
+                  <z-select-item [zValue]="c">{{ c }}</z-select-item>
+                }
+              </z-select>
+            </z-form-control>
+          </z-form-field>
+          <z-form-field>
+            <label z-form-label>Invoice Date</label>
+            <z-form-control><z-date-picker formControlName="invoice_date" placeholder="Invoice date" zFormat="dd-MM-yyyy" /></z-form-control>
+          </z-form-field>
+          <z-form-field>
+            <label z-form-label>Due Date</label>
+            <z-form-control><z-date-picker formControlName="due_date" placeholder="Due date" zFormat="dd-MM-yyyy" /></z-form-control>
+          </z-form-field>
+          <z-form-field>
+            <label z-form-label>Service Period Start</label>
+            <z-form-control><z-date-picker formControlName="commence_date_start" placeholder="Start" zFormat="dd-MM-yyyy" /></z-form-control>
+          </z-form-field>
+          <z-form-field>
+            <label z-form-label>Service Period End</label>
+            <z-form-control><z-date-picker formControlName="commence_date_end" placeholder="End" zFormat="dd-MM-yyyy" /></z-form-control>
+          </z-form-field>
+          <z-form-field class="col-span-2">
+            <label z-form-label>Payment Terms</label>
+            <z-form-control><input z-input type="text" formControlName="payment_terms" /></z-form-control>
+          </z-form-field>
+          <z-form-field class="col-span-2">
+            <label z-form-label>Notes</label>
+            <z-form-control><textarea z-input formControlName="notes" rows="2" class="resize-y h-16"></textarea></z-form-control>
+          </z-form-field>
+        </div>
+      </div>
+
+      <z-divider zSpacing="sm" />
+
+      <!-- Supplier -->
+      <div class="section" [formGroup]="supplierForm">
+        <h3 class="section-title">Supplier</h3>
+        <div class="form-grid">
+          <z-form-field class="col-span-2">
+            <label z-form-label>Name</label>
+            <z-form-control><input z-input type="text" formControlName="supplier_name" /></z-form-control>
+          </z-form-field>
+          <z-form-field>
+            <label z-form-label>TIN</label>
+            <z-form-control><input z-input type="text" formControlName="supplier_tin" /></z-form-control>
+          </z-form-field>
+          <z-form-field>
+            <label z-form-label>BRN</label>
+            <z-form-control><input z-input type="text" formControlName="supplier_brn" /></z-form-control>
+          </z-form-field>
+          <z-form-field>
+            <label z-form-label>SST No.</label>
+            <z-form-control><input z-input type="text" formControlName="supplier_sst_no" /></z-form-control>
+          </z-form-field>
+          <z-form-field>
+            <label z-form-label>MSIC Code</label>
+            <z-form-control><input z-input type="text" formControlName="supplier_msic_code" /></z-form-control>
+          </z-form-field>
+          <z-form-field class="col-span-2">
+            <label z-form-label>Address</label>
+            <z-form-control><textarea z-input formControlName="supplier_address" rows="2" class="resize-y h-14"></textarea></z-form-control>
+          </z-form-field>
+          <z-form-field>
+            <label z-form-label>Phone</label>
+            <z-form-control><input z-input type="text" formControlName="supplier_phone" /></z-form-control>
+          </z-form-field>
+          <z-form-field>
+            <label z-form-label>Email</label>
+            <z-form-control><input z-input type="email" formControlName="supplier_email" /></z-form-control>
+          </z-form-field>
+        </div>
+      </div>
+
+      <z-divider zSpacing="sm" />
+
+      <!-- Buyer -->
+      <div class="section" [formGroup]="buyerForm">
+        <h3 class="section-title">Buyer</h3>
+        <div class="form-grid">
+          <z-form-field class="col-span-2">
+            <label z-form-label>Name</label>
+            <z-form-control><input z-input type="text" formControlName="buyer_name" /></z-form-control>
+          </z-form-field>
+          <z-form-field>
+            <label z-form-label>TIN</label>
+            <z-form-control><input z-input type="text" formControlName="buyer_tin" /></z-form-control>
+          </z-form-field>
+          <z-form-field>
+            <label z-form-label>BRN</label>
+            <z-form-control><input z-input type="text" formControlName="buyer_brn" /></z-form-control>
+          </z-form-field>
+          <z-form-field class="col-span-2">
+            <label z-form-label>Address</label>
+            <z-form-control><textarea z-input formControlName="buyer_address" rows="2" class="resize-y h-14"></textarea></z-form-control>
+          </z-form-field>
+          <z-form-field>
+            <label z-form-label>Phone</label>
+            <z-form-control><input z-input type="text" formControlName="buyer_phone" /></z-form-control>
+          </z-form-field>
+          <z-form-field>
+            <label z-form-label>Email</label>
+            <z-form-control><input z-input type="email" formControlName="buyer_email" /></z-form-control>
+          </z-form-field>
+        </div>
+      </div>
+
+      <z-divider zSpacing="sm" />
+
+      <!-- Line items -->
+      <div class="section">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="section-title mb-0">Line Items</h3>
+          <button type="button" z-button zType="ghost" zSize="sm" (click)="addItem()">
+            <z-icon [zType]="$any('plus')" zSize="sm" class="mr-1" /> Add
+          </button>
+        </div>
+        <div class="space-y-3">
+          @for (it of items; track $index; let i = $index) {
+            <div class="border border-border rounded-md p-3">
+              <div class="flex items-start gap-2 mb-1">
+                <span class="text-xs text-muted-foreground mt-2">{{ i + 1 }}.</span>
+                <input z-input type="text" [(ngModel)]="it.description" placeholder="Description" class="flex-1" />
+                @if (items.length > 1) {
+                  <button type="button" z-button zType="ghost" zSize="sm" class="text-destructive" (click)="removeItem(i)">
+                    <z-icon [zType]="$any('x')" zSize="sm" />
+                  </button>
+                }
+              </div>
+              <div class="flex items-center gap-2 mb-2 pl-4">
+                <label class="text-[11px] text-muted-foreground flex-shrink-0">PO No.</label>
+                <input z-input type="text" [(ngModel)]="it.po_number" placeholder="e.g. PO-000236" class="flex-1 font-mono text-xs" />
+                @if (it.po_number) {
+                  <span class="text-[11px] text-muted-foreground flex-shrink-0">
+                    @if (lookupProjectByPo(it.po_number); as proj) {
+                      → <span class="font-medium text-primary">{{ proj.code }}</span>
+                    } @else {
+                      → <span class="italic">no project match</span>
+                    }
+                  </span>
+                }
+              </div>
+              <div class="grid grid-cols-4 gap-2 text-xs">
+                <div>
+                  <label class="text-muted-foreground">Qty</label>
+                  <input z-input type="number" [(ngModel)]="it.quantity" min="0" step="1" class="w-full" />
+                </div>
+                <div>
+                  <label class="text-muted-foreground">Unit Price</label>
+                  <input z-input type="number" [(ngModel)]="it.unit_price" min="0" step="0.01" class="w-full" />
+                </div>
+                <div>
+                  <label class="text-muted-foreground">Tax</label>
+                  <z-select [(ngModel)]="it.tax_type" zSize="sm">
+                    @for (t of TAX_TYPES; track t) {
+                      <z-select-item [zValue]="t">{{ t }}</z-select-item>
+                    }
+                  </z-select>
+                </div>
+                <div>
+                  <label class="text-muted-foreground">Tax %</label>
+                  <input z-input type="number" [(ngModel)]="it.tax_rate" min="0" max="100" step="0.5" class="w-full" />
+                </div>
+              </div>
+              <div class="mt-2 text-right text-xs">
+                Line total: <span class="font-medium text-foreground">{{ formatCurrency(lineTotal(it)) }}</span>
+              </div>
+            </div>
+          }
+        </div>
+        <div class="mt-3 flex justify-end text-sm">
+          <div class="flex items-center gap-3">
+            <span class="text-muted-foreground">Grand Total</span>
+            <span class="font-semibold text-base">{{ detailsForm.value.currency }} {{ formatCurrency(grandTotal) }}</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <z-divider zSpacing="none" />
+    <div class="sheet-footer">
+      <button z-button zType="outline" (click)="cancel()">Cancel</button>
+      <button z-button (click)="saveChanges()">
+        <z-icon [zType]="$any('check')" zSize="sm" class="mr-1.5" />
+        Save Changes
+      </button>
+    </div>
+
+  </div>
+</z-sheet>

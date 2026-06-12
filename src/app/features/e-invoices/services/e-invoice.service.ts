@@ -9,7 +9,12 @@ import {
   InvoiceAnalytics,
   InvoicePayment,
   TinValidationResult,
-  BulkSubmitResult
+  BulkSubmitResult,
+  ExtractFromPdfResponse,
+  BulkImportResult,
+  ExtractionProvider,
+  BulkExtractResult,
+  BulkCreateItem
 } from '../models/invoice.model';
 
 interface ApiResponse<T> {
@@ -107,7 +112,42 @@ export class EInvoiceService {
     return this.http.post<ApiResponse<BulkSubmitResult>>(`${this.baseUrl}/bulk-submit`, { invoice_ids: invoiceIds });
   }
 
+  bulkDelete(invoiceIds: string[]): Observable<ApiResponse<{ deleted: string[]; skipped: any[] }>> {
+    return this.http.post<ApiResponse<{ deleted: string[]; skipped: any[] }>>(`${this.baseUrl}/bulk-delete`, { invoice_ids: invoiceIds });
+  }
+
   validateTin(tin: string): Observable<ApiResponse<TinValidationResult>> {
     return this.http.post<ApiResponse<TinValidationResult>>(`${this.baseUrl}/validate-tin`, { tin });
+  }
+
+  // ─── AI Extraction ─────────────────────────────────────────
+
+  extractFromPdf(file: File, provider?: ExtractionProvider): Observable<ApiResponse<ExtractFromPdfResponse>> {
+    const form = new FormData();
+    form.append('file', file);
+    if (provider) form.append('provider', provider);
+    return this.http.post<ApiResponse<ExtractFromPdfResponse>>(`${this.baseUrl}/extract-from-pdf`, form);
+  }
+
+  bulkImport(files: File[], asRecorded: boolean, provider?: ExtractionProvider): Observable<ApiResponse<BulkImportResult>> {
+    const form = new FormData();
+    for (const f of files) form.append('files', f);
+    form.append('as_recorded', String(asRecorded));
+    if (provider) form.append('provider', provider);
+    return this.http.post<ApiResponse<BulkImportResult>>(`${this.baseUrl}/bulk-import`, form);
+  }
+
+  bulkExtract(files: File[], provider?: ExtractionProvider): Observable<ApiResponse<BulkExtractResult>> {
+    const form = new FormData();
+    for (const f of files) form.append('files', f);
+    if (provider) form.append('provider', provider);
+    return this.http.post<ApiResponse<BulkExtractResult>>(`${this.baseUrl}/bulk-extract`, form);
+  }
+
+  bulkCreate(items: BulkCreateItem[], asRecorded: boolean): Observable<ApiResponse<BulkImportResult>> {
+    return this.http.post<ApiResponse<BulkImportResult>>(`${this.baseUrl}/bulk-create`, {
+      items,
+      as_recorded: asRecorded
+    });
   }
 }

@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
@@ -32,6 +32,7 @@ import {
   imports: [
     CommonModule,
     FormsModule,
+    RouterLink,
     ZardCardComponent,
     ZardButtonComponent,
     ZardIconComponent,
@@ -89,7 +90,7 @@ export class InvoiceListComponent implements OnInit, OnDestroy {
 
   readonly TYPE_LABELS = INVOICE_TYPE_LABELS;
   readonly STATUS_COLORS = INVOICE_STATUS_COLORS;
-  readonly statuses = ['Draft', 'Pending', 'Submitted', 'Valid', 'Invalid', 'Cancelled'];
+  readonly statuses = ['Draft', 'Pending', 'Submitted', 'Valid', 'Invalid', 'Cancelled', 'Recorded'];
 
   // Math reference for template
   readonly mathMin = Math.min;
@@ -156,7 +157,8 @@ export class InvoiceListComponent implements OnInit, OnDestroy {
       3: 'Submitted',
       4: 'Valid',
       5: 'Invalid',
-      6: 'Cancelled'
+      6: 'Cancelled',
+      7: 'Recorded'
     };
     this.activeStatus = statusMap[event.index] || '';
     this.pagination.update(p => ({ ...p, page: 1 }));
@@ -346,6 +348,28 @@ export class InvoiceListComponent implements OnInit, OnDestroy {
         this.allSelected = false;
         this.loadInvoices();
         this.loadAnalytics();
+      }
+    });
+  }
+
+  onBulkDelete() {
+    const count = this.selectedInvoices.size;
+    this.alertDialogService.confirm({
+      zTitle: 'Delete Invoices',
+      zDescription: `Are you sure you want to delete ${count} selected invoice${count === 1 ? '' : 's'}? Only Draft or Recorded invoices will be removed. This action cannot be undone.`,
+      zOkText: 'Delete',
+      zCancelText: 'Cancel',
+      zOkDestructive: true,
+      zOnOk: () => {
+        const ids = Array.from(this.selectedInvoices);
+        this.invoiceService.bulkDelete(ids).subscribe({
+          next: () => {
+            this.selectedInvoices.clear();
+            this.allSelected = false;
+            this.loadInvoices();
+            this.loadAnalytics();
+          }
+        });
       }
     });
   }

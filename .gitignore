@@ -28,6 +28,9 @@ yarn-error.log
 !.vscode/extensions.json
 .history/*
 
+# Agent skills (installed globally in ~/.claude/skills, not part of the repo)
+.agents/
+
 # Miscellaneous
 /.angular/cache
 .sass-cache/

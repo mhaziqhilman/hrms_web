@@ -1,0 +1,242 @@
+<div class="lh">
+  <!-- NAV — N5 floating pill -->
+  <nav class="lh-nav" aria-label="Primary">
+    <a routerLink="/" class="lh-nav__brand" aria-label="Nexura home">
+      <img src="assets/images/Nexura_Logo.webp" alt="" class="lh-nav__logo" />
+      <span class="lh-nav__wordmark">Nexura</span>
+    </a>
+    <ul class="lh-nav__links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#workflow">How it works</a></li>
+    </ul>
+    <div class="lh-nav__actions">
+      <a routerLink="/auth/login" class="lh-link">Sign in</a>
+      <a routerLink="/auth/register" class="lh-btn lh-btn--fill">Get started</a>
+    </div>
+  </nav>
+
+  <main>
+    <!-- HERO — H2 split diptych, 7/5, left-biased -->
+    <header class="lh-hero lh-wrap">
+      <div class="lh-hero__copy lh-reveal" style="--i: 0">
+        <h1 class="lh-hero__title">Run all of HR from one place.</h1>
+        <p class="lh-hero__lede">
+          Nexura brings payroll, leave, claims, attendance and documents into a single
+          system — built for Malaysian businesses, with statutory calculations handled
+          for you.
+        </p>
+        <div class="lh-hero__actions">
+          <a routerLink="/auth/register" class="lh-btn lh-btn--fill lh-btn--lg">Get started</a>
+          <a href="#workflow" class="lh-btn lh-btn--ghost lh-btn--lg">See how it works</a>
+        </div>
+        <p class="lh-hero__strip">
+          Payroll · Leave · Claims · Attendance · Documents · Announcements
+        </p>
+      </div>
+
+      <!-- honest product surface — no re-drawn browser chrome -->
+      <figure class="lh-panel lh-reveal" style="--i: 1">
+        <div class="lh-panel__bar">
+          <span class="lh-panel__title">Leave requests</span>
+          <span class="lh-panel__count">3 pending</span>
+        </div>
+        <ul class="lh-panel__list">
+          <li class="lh-req">
+            <span class="lh-avatar" aria-hidden="true">NA</span>
+            <span class="lh-req__who">
+              <strong>Nurul Aziz</strong>
+              <span>Annual leave · 2 days</span>
+            </span>
+            <span class="lh-tag lh-tag--wait">Pending</span>
+          </li>
+          <li class="lh-req">
+            <span class="lh-avatar" aria-hidden="true">AR</span>
+            <span class="lh-req__who">
+              <strong>Arjun Rao</strong>
+              <span>Medical leave · 1 day</span>
+            </span>
+            <span class="lh-tag lh-tag--wait">Pending</span>
+          </li>
+          <li class="lh-req">
+            <span class="lh-avatar" aria-hidden="true">ST</span>
+            <span class="lh-req__who">
+              <strong>Sam Tan</strong>
+              <span>Annual leave · 5 days</span>
+            </span>
+            <span class="lh-tag lh-tag--done">Approved</span>
+          </li>
+        </ul>
+        <figcaption class="lh-panel__cap">The approvals queue, as a manager sees it.</figcaption>
+      </figure>
+    </header>
+
+    <!-- BENTO — 7 HR modules, irregular grid -->
+    <section id="features" class="lh-section lh-bento-section">
+      <div class="lh-wrap">
+        <div class="lh-section__head">
+          <h2>Everything HR, without the spreadsheets.</h2>
+          <p>
+            Each part of Nexura is a tool your team already needs — pay runs, leave
+            balances, claim approvals — kept behind one login.
+          </p>
+        </div>
+
+        <div class="lh-bento">
+          <!-- 2x2 — payroll, with a payslip fragment -->
+          <article class="lh-cell lh-cell--2x2">
+            <h3>Payroll</h3>
+            <p>
+              Monthly pay runs with EPF, SOCSO, EIS and PCB worked out for you. Generate
+              payslips your team can open whenever they need them.
+            </p>
+            <div class="lh-cell__fill"></div>
+            <div class="lh-slip">
+              <span class="lh-slip__label">Payslip · May 2026</span>
+              <dl>
+                <div class="lh-slip__row"><dt>Gross</dt><dd>5,200.00</dd></div>
+                <div class="lh-slip__row"><dt>EPF (11%)</dt><dd>−572.00</dd></div>
+                <div class="lh-slip__row"><dt>SOCSO</dt><dd>−24.75</dd></div>
+                <div class="lh-slip__row"><dt>EIS</dt><dd>−9.90</dd></div>
+                <div class="lh-slip__row"><dt>PCB</dt><dd>−185.00</dd></div>
+                <div class="lh-slip__row lh-slip__row--net"><dt>Net pay</dt><dd>4,408.35</dd></div>
+              </dl>
+            </div>
+          </article>
+
+          <!-- 2x1 — leave & attendance, with a balance ring -->
+          <article class="lh-cell lh-cell--2x1 lh-cell--leave">
+            <div class="lh-ring" role="img" aria-label="12 of 16 annual leave days remaining">
+              <span class="lh-ring__text">
+                <span class="lh-ring__num">12</span>
+                <span class="lh-ring__unit">of 16 days</span>
+              </span>
+            </div>
+            <div class="lh-cell__body">
+              <h3>Leave &amp; attendance</h3>
+              <p>
+                See who is in, who is on leave and who is working from home. Balances
+                update on their own as requests are approved.
+              </p>
+            </div>
+          </article>
+
+          <!-- 1x1 — claims -->
+          <article class="lh-cell">
+            <h3>Claims</h3>
+            <p>
+              Submit a claim, route it from manager to finance, and keep every receipt
+              attached to it.
+            </p>
+          </article>
+
+          <!-- 1x1 — documents -->
+          <article class="lh-cell">
+            <h3>Documents</h3>
+            <p>
+              Keep contracts and letters in one secure store, shared through signed,
+              expiring links.
+            </p>
+          </article>
+
+          <!-- 2x1 — announcements & policies, with a week strip -->
+          <article class="lh-cell lh-cell--2x1">
+            <h3>Announcements &amp; policies</h3>
+            <p>
+              Publish memos and company policies; staff are notified the moment something
+              changes. Attendance is logged by day — office or work-from-home.
+            </p>
+            <div class="lh-week" aria-hidden="true">
+              <span data-on="office">M</span>
+              <span data-on="office">T</span>
+              <span data-on="wfh">W</span>
+              <span data-on="office">T</span>
+              <span data-on="wfh">F</span>
+            </div>
+          </article>
+
+          <!-- 1x1 — multi-company -->
+          <article class="lh-cell">
+            <h3>Multi-company</h3>
+            <p>
+              Running more than one entity? Switch between companies without logging out.
+            </p>
+          </article>
+
+          <!-- 1x1 — roles & audit -->
+          <article class="lh-cell">
+            <h3>Roles &amp; audit</h3>
+            <p>
+              Admin, manager and staff roles, with an audit log of every approval made.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- WORKFLOW — F4 step sequence, 5 ordered stages -->
+    <section id="workflow" class="lh-section">
+      <div class="lh-wrap">
+        <div class="lh-section__head">
+          <h2>From sign-up to your first payroll run.</h2>
+          <p>Five steps. No migration project, no consultant.</p>
+        </div>
+
+        <ol class="lh-flow">
+          <li class="lh-step">
+            <span class="lh-step__num">01</span>
+            <h3>Set up your company</h3>
+            <p>Add company details and your pay calendar in the setup wizard.</p>
+          </li>
+          <li class="lh-step">
+            <span class="lh-step__num">02</span>
+            <h3>Invite your team</h3>
+            <p>Send invitations; employees join with their own login and profile.</p>
+          </li>
+          <li class="lh-step">
+            <span class="lh-step__num">03</span>
+            <h3>Track time and leave</h3>
+            <p>Staff log attendance and request leave; balances keep themselves current.</p>
+          </li>
+          <li class="lh-step">
+            <span class="lh-step__num">04</span>
+            <h3>Approve in one queue</h3>
+            <p>Managers and finance clear leave and claims from a single list.</p>
+          </li>
+          <li class="lh-step">
+            <span class="lh-step__num">05</span>
+            <h3>Run payroll</h3>
+            <p>Process pay with statutory deductions calculated, then share payslips.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- FINAL CTA — inverted band, single action -->
+    <section class="lh-cta">
+      <div class="lh-wrap">
+        <div class="lh-cta__inner">
+          <h2>Bring your whole HR into one system.</h2>
+          <p>Start with your company setup — payroll, leave and claims are ready the moment your team joins.</p>
+          <a routerLink="/auth/register" class="lh-btn lh-btn--invert lh-btn--lg">Get started</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER — Ft2 inline single line -->
+  <footer class="lh-foot">
+    <div class="lh-wrap">
+      <div class="lh-foot__line">
+        <a routerLink="/" class="lh-foot__brand" aria-label="Nexura home">
+          <img src="assets/images/Nexura_Logo.webp" alt="" />
+          Nexura
+        </a>
+        <span class="lh-foot__sep" aria-hidden="true">·</span>
+        <span>The HR system for Malaysian teams.</span>
+        <a routerLink="/auth/login">Sign in</a>
+        <a routerLink="/auth/register">Get started</a>
+        <span class="lh-foot__credit">© 2026 Nexura HRMS</span>
+      </div>
+    </div>
+  </footer>
+</div>

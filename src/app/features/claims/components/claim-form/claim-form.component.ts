@@ -325,16 +325,25 @@ export class ClaimFormComponent implements OnInit {
     return labels[fieldName] || fieldName;
   }
 
+  // Format a Date as YYYY-MM-DD using LOCAL components.
+  // toISOString() converts to UTC and can yield the wrong day in UTC+8.
+  private formatLocalDate(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
   getMaxDate(): string {
     // Cannot claim for future dates
-    return new Date().toISOString().split('T')[0];
+    return this.formatLocalDate(new Date());
   }
 
   getMinDate(): string {
     // Can claim up to 90 days in the past
     const minDate = new Date();
     minDate.setDate(minDate.getDate() - 90);
-    return minDate.toISOString().split('T')[0];
+    return this.formatLocalDate(minDate);
   }
 
   formatCurrency(amount: number | string | null | undefined): string {

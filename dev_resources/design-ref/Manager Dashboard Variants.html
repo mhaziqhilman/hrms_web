@@ -1,0 +1,1273 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Manager Dashboard · Variants</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  html, body { font-family: 'Geist', system-ui, -apple-system, sans-serif; }
+  .font-mono { font-family: 'Geist Mono', ui-monospace, monospace; font-feature-settings: "tnum" 1; }
+  .num-tabular { font-variant-numeric: tabular-nums; }
+  .shad-card    { box-shadow: 0 1px 2px 0 rgb(16 24 40 / 0.04); }
+  .shad-card-lg { box-shadow: 0 1px 2px rgb(16 24 40 / 0.04), 0 1px 3px rgb(16 24 40 / 0.06); }
+  button:focus-visible, input:focus-visible {
+    outline: 2px solid rgb(15 23 42 / 0.5); outline-offset: 2px;
+  }
+  .variant-tag {
+    font-family: 'Geist Mono', ui-monospace, monospace;
+    font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase;
+  }
+  .hr-line { height: 1px; background: rgb(226 232 240); }
+  .stack > * + * { margin-left: -8px; }
+  .av {
+    display: inline-flex; align-items: center; justify-content: center;
+    color: white; font-weight: 600; border-radius: 999px;
+    flex: none; box-shadow: 0 0 0 2px white;
+  }
+  .dotted-bg {
+    background-image: radial-gradient(circle, rgb(226 232 240) 1px, transparent 1px);
+    background-size: 14px 14px;
+  }
+  /* Sparkline default */
+  .spark-bar { width: 4px; background: rgb(203 213 225); border-radius: 1px; }
+  /* Live dot */
+  @keyframes softPulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50%      { transform: scale(1.18); opacity: .85; }
+  }
+  .live-dot { animation: softPulse 2.2s ease-in-out infinite; }
+  /* Status pill */
+  .pill-bare {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11.5px; font-weight: 500;
+    padding: 2px 8px; border-radius: 999px;
+  }
+  /* Subtle row hover */
+  .row-hover { transition: background-color .12s ease; }
+  .row-hover:hover { background: rgb(248 250 252); }
+  /* Bar chart bars */
+  .bar {
+    background: rgb(241 245 249);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .bar > span {
+    display: block;
+    height: 100%;
+    background: rgb(15 23 42);
+  }
+  /* tabs */
+  .seg { display: inline-flex; height: 32px; align-items: center; padding: 3px; border-radius: 8px; background: rgb(241 245 249); }
+  .seg button { height: 26px; padding: 0 10px; border-radius: 5px; font-size: 12px; font-weight: 500; color: rgb(71 85 105); }
+  .seg button.on { background: white; color: rgb(15 23 42); box-shadow: 0 1px 2px rgb(0 0 0 / 0.06); }
+  /* mini calendar dot */
+  .cal-dot { width: 4px; height: 4px; border-radius: 999px; }
+  /* attendance dots */
+  .att-dot {
+    width: 28px; height: 28px; border-radius: 8px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 10.5px; font-weight: 600;
+  }
+  .att-present { background: rgb(220 252 231); color: rgb(5 122 85); }
+  .att-wfh     { background: rgb(219 234 254); color: rgb(29 78 216); }
+  .att-leave   { background: rgb(254 243 199); color: rgb(146 64 14); }
+  .att-absent  { background: rgb(241 245 249); color: rgb(100 116 139); }
+  /* Donut SVG strokes */
+  .donut-bg { stroke: rgb(241 245 249); }
+</style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-900 antialiased">
+
+<div class="max-w-[1440px] mx-auto px-8 py-7 space-y-14" data-screen-label="Manager Dashboard Variants">
+
+  <!-- ========================== INTRO ========================== -->
+  <header class="flex items-end justify-between gap-4 flex-wrap">
+    <div>
+      <p class="variant-tag text-slate-400 mb-2">EXPLORATION · MANAGER DASHBOARD</p>
+      <h1 class="text-[28px] font-semibold tracking-tight leading-none">Manager Dashboard — Redesign</h1>
+      <p class="text-[13px] text-slate-500 mt-2 max-w-2xl leading-relaxed">
+        Three variants of the manager dashboard in the existing HR admin style. Same content, different
+        information architecture: faithful refresh, hero overview with focus rail, and action-first inbox.
+      </p>
+    </div>
+    <div class="flex items-center gap-2 text-[12px] text-slate-500">
+      <span class="font-mono">Geist · slate · minimal</span>
+    </div>
+  </header>
+
+
+  <!-- ================================================================== -->
+  <!-- VARIANT 1 — Faithful refresh                                       -->
+  <!-- Same blocks as source. Cleaner KPI cards, real attendance roster,  -->
+  <!-- numeric overview, dense pending-approval tables instead of empty   -->
+  <!-- states. Same 2-col rhythm.                                         -->
+  <!-- ================================================================== -->
+  <section data-screen-label="V1 Faithful">
+    <div class="flex items-baseline justify-between mb-3">
+      <h2 class="text-[15px] font-semibold tracking-tight text-slate-900">Variant 1 — Faithful refresh</h2>
+      <span class="variant-tag text-slate-400">V1 · KPI ROW · 2-COL · DENSE</span>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 shad-card overflow-hidden">
+
+      <!-- Tabs + header -->
+      <div class="px-6 pt-5">
+        <div class="flex items-center gap-5 -mb-px text-[13px]">
+          <button class="pb-3 border-b-2 border-slate-900 font-medium text-slate-900">Manager Dashboard</button>
+          <button class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-900">My Dashboard</button>
+        </div>
+      </div>
+      <div class="hr-line"></div>
+
+      <div class="px-6 pt-6 pb-5 flex items-end justify-between gap-4 flex-wrap">
+        <div>
+          <h3 class="text-[24px] font-semibold tracking-tight leading-none">Manager Dashboard</h3>
+          <p class="text-[12.5px] text-slate-500 mt-1.5">
+            Team attendance, leave requests, and claims · Thursday, <span class="font-mono num-tabular">21/05/2026</span>
+          </p>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="seg">
+            <button class="on">Today</button>
+            <button>Week</button>
+            <button>Month</button>
+          </div>
+          <button class="inline-flex items-center gap-2 h-9 px-3 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-[12.5px] font-medium text-slate-700 shad-card">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export
+          </button>
+          <button class="inline-flex items-center gap-2 h-9 px-3.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-[12.5px] font-medium">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Quick action
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI ROW -->
+      <div class="px-6 grid grid-cols-4 gap-4">
+        <!-- Team Members -->
+        <div class="rounded-xl border border-slate-200 bg-white p-4 shad-card">
+          <div class="flex items-start justify-between mb-3">
+            <p class="text-[12px] font-medium text-slate-600">Team Members</p>
+            <span class="w-7 h-7 rounded-md bg-slate-100 flex items-center justify-center text-slate-600">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </span>
+          </div>
+          <p class="font-mono text-[28px] font-semibold leading-none text-slate-900">12</p>
+          <div class="mt-3 flex items-center justify-between text-[11px] text-slate-500">
+            <span>Active</span>
+            <div class="stack flex">
+              <span class="av w-5 h-5 text-[8px] bg-gradient-to-br from-violet-500 to-violet-700">AH</span>
+              <span class="av w-5 h-5 text-[8px] bg-gradient-to-br from-emerald-500 to-emerald-700">NF</span>
+              <span class="av w-5 h-5 text-[8px] bg-gradient-to-br from-rose-500 to-rose-700">SK</span>
+              <span class="av w-5 h-5 text-[8px] bg-slate-200 text-slate-600">+9</span>
+            </div>
+          </div>
+        </div>
+        <!-- Present Today -->
+        <div class="rounded-xl border border-slate-200 bg-white p-4 shad-card">
+          <div class="flex items-start justify-between mb-3">
+            <p class="text-[12px] font-medium text-slate-600">Present Today</p>
+            <span class="w-7 h-7 rounded-md bg-emerald-100 flex items-center justify-center text-emerald-700">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>
+            </span>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <p class="font-mono text-[28px] font-semibold leading-none text-slate-900">9</p>
+            <p class="text-[12px] text-slate-400 font-mono num-tabular">/ 12</p>
+          </div>
+          <div class="mt-3 h-1 rounded-full bg-slate-100 overflow-hidden">
+            <div class="h-full bg-emerald-500 rounded-full" style="width:75%"></div>
+          </div>
+          <p class="mt-1.5 text-[11px] text-slate-500">75% attendance rate</p>
+        </div>
+        <!-- Leave Requests -->
+        <div class="rounded-xl border border-slate-200 bg-white p-4 shad-card">
+          <div class="flex items-start justify-between mb-3">
+            <p class="text-[12px] font-medium text-slate-600">Leave Requests</p>
+            <span class="w-7 h-7 rounded-md bg-amber-100 flex items-center justify-center text-amber-700">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </span>
+          </div>
+          <p class="font-mono text-[28px] font-semibold leading-none text-slate-900">3</p>
+          <div class="mt-3 flex items-center justify-between text-[11px] text-slate-500">
+            <span>Awaiting your review</span>
+            <span class="font-mono num-tabular text-slate-700">2 urgent</span>
+          </div>
+        </div>
+        <!-- Claims Pending -->
+        <div class="rounded-xl border border-slate-200 bg-white p-4 shad-card">
+          <div class="flex items-start justify-between mb-3">
+            <p class="text-[12px] font-medium text-slate-600">Claims Pending</p>
+            <span class="w-7 h-7 rounded-md bg-sky-100 flex items-center justify-center text-sky-700">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </span>
+          </div>
+          <p class="font-mono text-[28px] font-semibold leading-none text-slate-900">2</p>
+          <div class="mt-3 flex items-center justify-between text-[11px] text-slate-500">
+            <span>Total value</span>
+            <span class="font-mono num-tabular text-slate-700">RM 1,840</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2-col body -->
+      <div class="px-6 pt-6 pb-6 grid grid-cols-2 gap-4">
+
+        <!-- Team Attendance Today (with roster) -->
+        <div class="rounded-xl border border-slate-200 bg-white shad-card overflow-hidden">
+          <div class="px-5 py-4 flex items-center justify-between">
+            <div>
+              <p class="text-[14px] font-semibold tracking-tight text-slate-900">Team Attendance Today</p>
+              <p class="text-[11.5px] text-slate-500 mt-0.5">Real-time tracking · <span class="font-mono num-tabular">21/05/2026</span></p>
+            </div>
+            <span class="pill-bare bg-emerald-50 text-emerald-700">
+              <span class="relative flex w-1.5 h-1.5">
+                <span class="absolute inset-0 rounded-full bg-emerald-500/40 live-dot"></span>
+                <span class="relative w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              </span>
+              Live
+            </span>
+          </div>
+          <div class="hr-line"></div>
+          <ul class="divide-y divide-slate-100">
+            <li class="row-hover px-5 py-3 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="av w-8 h-8 text-[10px] bg-gradient-to-br from-violet-500 to-violet-700">AH</div>
+                <div>
+                  <p class="text-[13px] font-medium text-slate-900 leading-tight">Aishah binti Hassan</p>
+                  <p class="text-[11.5px] text-slate-500 font-mono num-tabular mt-0.5">Engineering · Senior Analyst</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="pill-bare bg-emerald-50 text-emerald-700">Present</span>
+                <span class="text-[11.5px] font-mono num-tabular text-slate-500">in 08:54</span>
+              </div>
+            </li>
+            <li class="row-hover px-5 py-3 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="av w-8 h-8 text-[10px] bg-gradient-to-br from-emerald-500 to-emerald-700">NF</div>
+                <div>
+                  <p class="text-[13px] font-medium text-slate-900 leading-tight">Nur Farah binti Razak</p>
+                  <p class="text-[11.5px] text-slate-500 font-mono num-tabular mt-0.5">People Ops · Coordinator</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="pill-bare bg-blue-50 text-blue-700">Work from home</span>
+                <span class="text-[11.5px] font-mono num-tabular text-slate-500">in 09:02</span>
+              </div>
+            </li>
+            <li class="row-hover px-5 py-3 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="av w-8 h-8 text-[10px] bg-gradient-to-br from-rose-500 to-rose-700">SK</div>
+                <div>
+                  <p class="text-[13px] font-medium text-slate-900 leading-tight">Siti Khadijah</p>
+                  <p class="text-[11.5px] text-slate-500 font-mono num-tabular mt-0.5">Engineering · Lead</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="pill-bare bg-amber-50 text-amber-700">On leave</span>
+                <span class="text-[11.5px] font-mono num-tabular text-slate-500">until 23/05</span>
+              </div>
+            </li>
+            <li class="row-hover px-5 py-3 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="av w-8 h-8 text-[10px] bg-gradient-to-br from-amber-500 to-amber-700">RH</div>
+                <div>
+                  <p class="text-[13px] font-medium text-slate-900 leading-tight">Rashid Hassan</p>
+                  <p class="text-[11.5px] text-slate-500 font-mono num-tabular mt-0.5">Finance · Analyst</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="pill-bare bg-emerald-50 text-emerald-700">Present</span>
+                <span class="text-[11.5px] font-mono num-tabular text-slate-500">in 09:11</span>
+              </div>
+            </li>
+            <li class="row-hover px-5 py-3 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="av w-8 h-8 text-[10px] bg-gradient-to-br from-sky-500 to-sky-700">LT</div>
+                <div>
+                  <p class="text-[13px] font-medium text-slate-900 leading-tight">Lim Tian</p>
+                  <p class="text-[11.5px] text-slate-500 font-mono num-tabular mt-0.5">Design · Senior</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="pill-bare bg-slate-100 text-slate-600">Not clocked in</span>
+                <button class="text-[11.5px] font-medium text-slate-900 hover:underline">Nudge</button>
+              </div>
+            </li>
+          </ul>
+          <div class="hr-line"></div>
+          <div class="px-5 py-3 flex items-center justify-between text-[12px] text-slate-500">
+            <span>Showing 5 of 12</span>
+            <button class="font-medium text-slate-900 hover:underline">View full roster →</button>
+          </div>
+        </div>
+
+        <!-- Team Overview -->
+        <div class="rounded-xl border border-slate-200 bg-white shad-card overflow-hidden">
+          <div class="px-5 py-4 flex items-center justify-between">
+            <div>
+              <p class="text-[14px] font-semibold tracking-tight text-slate-900">Team Overview</p>
+              <p class="text-[11.5px] text-slate-500 mt-0.5">Current status breakdown</p>
+            </div>
+            <span class="text-[11px] font-mono num-tabular text-slate-400">12 PEOPLE</span>
+          </div>
+          <div class="hr-line"></div>
+
+          <!-- Donut + legend -->
+          <div class="px-5 py-5 flex items-center gap-6">
+            <div class="relative w-[120px] h-[120px] flex-none">
+              <svg viewBox="0 0 36 36" class="w-full h-full -rotate-90">
+                <circle class="donut-bg" cx="18" cy="18" r="14" fill="none" stroke-width="4"/>
+                <!-- present 5/12 = 41.67%, wfh 3/12 = 25%, leave 2/12 = 16.67%, wfh-req 2/12 = 16.67% -->
+                <!-- circumference = 2*pi*14 ≈ 87.96 -->
+                <circle cx="18" cy="18" r="14" fill="none" stroke="rgb(16 185 129)" stroke-width="4" stroke-dasharray="36.65 87.96" stroke-dashoffset="0"/>
+                <circle cx="18" cy="18" r="14" fill="none" stroke="rgb(59 130 246)" stroke-width="4" stroke-dasharray="21.99 87.96" stroke-dashoffset="-36.65"/>
+                <circle cx="18" cy="18" r="14" fill="none" stroke="rgb(245 158 11)" stroke-width="4" stroke-dasharray="14.66 87.96" stroke-dashoffset="-58.64"/>
+                <circle cx="18" cy="18" r="14" fill="none" stroke="rgb(148 163 184)" stroke-width="4" stroke-dasharray="14.66 87.96" stroke-dashoffset="-73.30"/>
+              </svg>
+              <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <p class="font-mono text-[20px] font-semibold leading-none num-tabular">9</p>
+                <p class="text-[10px] text-slate-500 mt-1">of 12 in</p>
+              </div>
+            </div>
+            <ul class="flex-1 space-y-2.5">
+              <li class="flex items-center justify-between">
+                <span class="text-[12.5px] text-slate-700 inline-flex items-center gap-2"><span class="w-2 h-2 rounded-sm bg-emerald-500"></span>Present (Office)</span>
+                <div class="flex items-baseline gap-2">
+                  <span class="font-mono num-tabular text-[14px] font-semibold text-slate-900">5</span>
+                  <span class="font-mono num-tabular text-[11px] text-slate-400">42%</span>
+                </div>
+              </li>
+              <li class="flex items-center justify-between">
+                <span class="text-[12.5px] text-slate-700 inline-flex items-center gap-2"><span class="w-2 h-2 rounded-sm bg-blue-500"></span>Work From Home</span>
+                <div class="flex items-baseline gap-2">
+                  <span class="font-mono num-tabular text-[14px] font-semibold text-slate-900">3</span>
+                  <span class="font-mono num-tabular text-[11px] text-slate-400">25%</span>
+                </div>
+              </li>
+              <li class="flex items-center justify-between">
+                <span class="text-[12.5px] text-slate-700 inline-flex items-center gap-2"><span class="w-2 h-2 rounded-sm bg-amber-500"></span>On Leave</span>
+                <div class="flex items-baseline gap-2">
+                  <span class="font-mono num-tabular text-[14px] font-semibold text-slate-900">2</span>
+                  <span class="font-mono num-tabular text-[11px] text-slate-400">17%</span>
+                </div>
+              </li>
+              <li class="flex items-center justify-between">
+                <span class="text-[12.5px] text-slate-700 inline-flex items-center gap-2"><span class="w-2 h-2 rounded-sm bg-slate-400"></span>Pending / Not in</span>
+                <div class="flex items-baseline gap-2">
+                  <span class="font-mono num-tabular text-[14px] font-semibold text-slate-900">2</span>
+                  <span class="font-mono num-tabular text-[11px] text-slate-400">17%</span>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <div class="hr-line"></div>
+
+          <!-- Mini schedule strip -->
+          <div class="px-5 py-4">
+            <div class="flex items-center justify-between mb-2.5">
+              <p class="text-[11.5px] font-semibold tracking-tight text-slate-700">Next 7 days · planned out</p>
+              <span class="text-[11px] font-mono num-tabular text-slate-400">22 MAY – 28 MAY</span>
+            </div>
+            <div class="grid grid-cols-7 gap-1.5">
+              <div class="text-center">
+                <p class="text-[10px] text-slate-400 font-mono mb-1.5">FRI</p>
+                <div class="bar h-12"><span style="height:25%"></span></div>
+                <p class="text-[10px] font-mono num-tabular text-slate-700 mt-1.5">3</p>
+              </div>
+              <div class="text-center">
+                <p class="text-[10px] text-slate-400 font-mono mb-1.5">SAT</p>
+                <div class="bar h-12"><span style="height:8%"></span></div>
+                <p class="text-[10px] font-mono num-tabular text-slate-300 mt-1.5">—</p>
+              </div>
+              <div class="text-center">
+                <p class="text-[10px] text-slate-400 font-mono mb-1.5">SUN</p>
+                <div class="bar h-12"><span style="height:8%"></span></div>
+                <p class="text-[10px] font-mono num-tabular text-slate-300 mt-1.5">—</p>
+              </div>
+              <div class="text-center">
+                <p class="text-[10px] text-slate-400 font-mono mb-1.5">MON</p>
+                <div class="bar h-12"><span style="height:42%"></span></div>
+                <p class="text-[10px] font-mono num-tabular text-slate-700 mt-1.5">5</p>
+              </div>
+              <div class="text-center">
+                <p class="text-[10px] text-slate-400 font-mono mb-1.5">TUE</p>
+                <div class="bar h-12"><span style="height:33%"></span></div>
+                <p class="text-[10px] font-mono num-tabular text-slate-700 mt-1.5">4</p>
+              </div>
+              <div class="text-center">
+                <p class="text-[10px] text-slate-400 font-mono mb-1.5">WED</p>
+                <div class="bar h-12"><span style="height:17%"></span></div>
+                <p class="text-[10px] font-mono num-tabular text-slate-700 mt-1.5">2</p>
+              </div>
+              <div class="text-center">
+                <p class="text-[10px] text-slate-400 font-mono mb-1.5">THU</p>
+                <div class="bar h-12"><span style="height:8%"></span></div>
+                <p class="text-[10px] font-mono num-tabular text-slate-700 mt-1.5">1</p>
+              </div>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-2 inline-flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-sm bg-slate-900"></span> people on leave each day
+            </p>
+          </div>
+        </div>
+
+        <!-- Claims Pending Approval -->
+        <div class="rounded-xl border border-slate-200 bg-white shad-card overflow-hidden">
+          <div class="px-5 py-4 flex items-center justify-between">
+            <div>
+              <p class="text-[14px] font-semibold tracking-tight text-slate-900">Claims Pending Approval</p>
+              <p class="text-[11.5px] text-slate-500 mt-0.5">Team expense claims · RM 1,840 total</p>
+            </div>
+            <span class="pill-bare bg-amber-50 text-amber-700">2 pending</span>
+          </div>
+          <div class="hr-line"></div>
+          <ul class="divide-y divide-slate-100">
+            <li class="row-hover px-5 py-3 flex items-center gap-3">
+              <div class="av w-8 h-8 text-[10px] bg-gradient-to-br from-violet-500 to-violet-700">AH</div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between gap-2">
+                  <p class="text-[13px] font-medium text-slate-900 truncate">Client lunch — Petronas pitch</p>
+                  <span class="font-mono num-tabular text-[13px] font-semibold text-slate-900">RM 420.00</span>
+                </div>
+                <p class="text-[11.5px] text-slate-500 mt-0.5 font-mono num-tabular">Aishah Hassan · Meals · 18/05</p>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <button class="h-7 w-7 rounded-md border border-slate-200 hover:bg-slate-50 text-rose-600 inline-flex items-center justify-center">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+                <button class="h-7 px-2.5 rounded-md bg-slate-900 hover:bg-slate-800 text-white text-[11.5px] font-medium">Approve</button>
+              </div>
+            </li>
+            <li class="row-hover px-5 py-3 flex items-center gap-3">
+              <div class="av w-8 h-8 text-[10px] bg-gradient-to-br from-amber-500 to-amber-700">RH</div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between gap-2">
+                  <p class="text-[13px] font-medium text-slate-900 truncate">Grab to KLIA — vendor visit</p>
+                  <span class="font-mono num-tabular text-[13px] font-semibold text-slate-900">RM 1,420.00</span>
+                </div>
+                <p class="text-[11.5px] text-slate-500 mt-0.5 font-mono num-tabular">Rashid Hassan · Transport · 19/05</p>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <button class="h-7 w-7 rounded-md border border-slate-200 hover:bg-slate-50 text-rose-600 inline-flex items-center justify-center">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+                <button class="h-7 px-2.5 rounded-md bg-slate-900 hover:bg-slate-800 text-white text-[11.5px] font-medium">Approve</button>
+              </div>
+            </li>
+          </ul>
+          <div class="hr-line"></div>
+          <div class="px-5 py-3 flex items-center justify-between text-[12px] text-slate-500">
+            <span class="font-mono num-tabular">Avg this month: RM 624 / claim</span>
+            <button class="font-medium text-slate-900 hover:underline">View all claims →</button>
+          </div>
+        </div>
+
+        <!-- Work From Home Requests -->
+        <div class="rounded-xl border border-slate-200 bg-white shad-card overflow-hidden">
+          <div class="px-5 py-4 flex items-center justify-between">
+            <div>
+              <p class="text-[14px] font-semibold tracking-tight text-slate-900">Work From Home Requests</p>
+              <p class="text-[11.5px] text-slate-500 mt-0.5">Awaiting your approval</p>
+            </div>
+            <span class="pill-bare bg-blue-50 text-blue-700">2 pending</span>
+          </div>
+          <div class="hr-line"></div>
+          <ul class="divide-y divide-slate-100">
+            <li class="row-hover px-5 py-3 flex items-center gap-3">
+              <div class="av w-8 h-8 text-[10px] bg-gradient-to-br from-emerald-500 to-emerald-700">NF</div>
+              <div class="flex-1 min-w-0">
+                <p class="text-[13px] font-medium text-slate-900 truncate">Nur Farah binti Razak</p>
+                <p class="text-[11.5px] text-slate-500 mt-0.5 font-mono num-tabular">22/05 – 23/05 · 2 days · "Childcare"</p>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <button class="h-7 w-7 rounded-md border border-slate-200 hover:bg-slate-50 text-rose-600 inline-flex items-center justify-center">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+                <button class="h-7 px-2.5 rounded-md bg-slate-900 hover:bg-slate-800 text-white text-[11.5px] font-medium">Approve</button>
+              </div>
+            </li>
+            <li class="row-hover px-5 py-3 flex items-center gap-3">
+              <div class="av w-8 h-8 text-[10px] bg-gradient-to-br from-sky-500 to-sky-700">LT</div>
+              <div class="flex-1 min-w-0">
+                <p class="text-[13px] font-medium text-slate-900 truncate">Lim Tian</p>
+                <p class="text-[11.5px] text-slate-500 mt-0.5 font-mono num-tabular">26/05 · 1 day · "Internet upgrade"</p>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <button class="h-7 w-7 rounded-md border border-slate-200 hover:bg-slate-50 text-rose-600 inline-flex items-center justify-center">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+                <button class="h-7 px-2.5 rounded-md bg-slate-900 hover:bg-slate-800 text-white text-[11.5px] font-medium">Approve</button>
+              </div>
+            </li>
+          </ul>
+          <div class="hr-line"></div>
+          <div class="px-5 py-3 flex items-center justify-between text-[12px] text-slate-500">
+            <span class="font-mono num-tabular">Team usage: 18 of 60 days used in May</span>
+            <button class="font-medium text-slate-900 hover:underline">View all →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Leave Approvals Pending (full width) -->
+      <div class="px-6 pb-6">
+        <div class="rounded-xl border border-slate-200 bg-white shad-card overflow-hidden">
+          <div class="px-5 py-4 flex items-center justify-between">
+            <div>
+              <p class="text-[14px] font-semibold tracking-tight text-slate-900">Leave Approvals Pending</p>
+              <p class="text-[11.5px] text-slate-500 mt-0.5">3 requests requiring your decision</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button class="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-md border border-slate-200 bg-white hover:bg-slate-50 text-[12px] font-medium text-slate-700">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                Filter
+              </button>
+              <button class="inline-flex items-center gap-1.5 h-8 px-3 rounded-md bg-slate-900 hover:bg-slate-800 text-white text-[12px] font-medium">View all</button>
+            </div>
+          </div>
+          <div class="hr-line"></div>
+          <!-- column header -->
+          <div class="grid grid-cols-12 gap-3 px-5 py-2.5 bg-slate-50/60 text-[10.5px] font-mono tracking-wide text-slate-500 uppercase">
+            <span class="col-span-4">Employee</span>
+            <span class="col-span-2">Type</span>
+            <span class="col-span-3">Dates</span>
+            <span class="col-span-1 text-right">Days</span>
+            <span class="col-span-2 text-right">Action</span>
+          </div>
+          <ul class="divide-y divide-slate-100">
+            <li class="row-hover grid grid-cols-12 gap-3 px-5 py-3.5 items-center">
+              <div class="col-span-4 flex items-center gap-3 min-w-0">
+                <div class="av w-8 h-8 text-[10px] bg-gradient-to-br from-rose-500 to-rose-700">SK</div>
+                <div class="min-w-0">
+                  <p class="text-[13px] font-medium text-slate-900 truncate">Siti Khadijah</p>
+                  <p class="text-[11.5px] text-slate-500 truncate">Engineering Lead · "Family wedding"</p>
+                </div>
+              </div>
+              <div class="col-span-2"><span class="pill-bare bg-rose-50 text-rose-700">Annual</span></div>
+              <div class="col-span-3 text-[12.5px] font-mono num-tabular text-slate-700">22 May – 23 May</div>
+              <div class="col-span-1 text-right font-mono num-tabular text-[13px] font-semibold text-slate-900">2</div>
+              <div class="col-span-2 flex items-center justify-end gap-1.5">
+                <button class="h-7 w-7 rounded-md border border-slate-200 hover:bg-slate-50 text-rose-600 inline-flex items-center justify-center">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+                <button class="h-7 px-2.5 rounded-md bg-slate-900 hover:bg-slate-800 text-white text-[11.5px] font-medium">Approve</button>
+              </div>
+            </li>
+            <li class="row-hover grid grid-cols-12 gap-3 px-5 py-3.5 items-center">
+              <div class="col-span-4 flex items-center gap-3 min-w-0">
+                <div class="av w-8 h-8 text-[10px] bg-gradient-to-br from-violet-500 to-violet-700">AH</div>
+                <div class="min-w-0">
+                  <p class="text-[13px] font-medium text-slate-900 truncate">Aishah binti Hassan</p>
+                  <p class="text-[11.5px] text-slate-500 truncate">Senior Analyst · "Fever, with MC"</p>
+                </div>
+              </div>
+              <div class="col-span-2"><span class="pill-bare bg-pink-50 text-pink-700">Medical</span></div>
+              <div class="col-span-3 text-[12.5px] font-mono num-tabular text-slate-700">20 May</div>
+              <div class="col-span-1 text-right font-mono num-tabular text-[13px] font-semibold text-slate-900">1</div>
+              <div class="col-span-2 flex items-center justify-end gap-1.5">
+                <button class="h-7 w-7 rounded-md border border-slate-200 hover:bg-slate-50 text-rose-600 inline-flex items-center justify-center">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+                <button class="h-7 px-2.5 rounded-md bg-slate-900 hover:bg-slate-800 text-white text-[11.5px] font-medium">Approve</button>
+              </div>
+            </li>
+            <li class="row-hover grid grid-cols-12 gap-3 px-5 py-3.5 items-center">
+              <div class="col-span-4 flex items-center gap-3 min-w-0">
+                <div class="av w-8 h-8 text-[10px] bg-gradient-to-br from-amber-500 to-amber-700">RH</div>
+                <div class="min-w-0">
+                  <p class="text-[13px] font-medium text-slate-900 truncate">Rashid Hassan</p>
+                  <p class="text-[11.5px] text-slate-500 truncate">Finance Analyst · "Vacation, planned"</p>
+                </div>
+              </div>
+              <div class="col-span-2"><span class="pill-bare bg-rose-50 text-rose-700">Annual</span></div>
+              <div class="col-span-3 text-[12.5px] font-mono num-tabular text-slate-700">3 Jun – 7 Jun</div>
+              <div class="col-span-1 text-right font-mono num-tabular text-[13px] font-semibold text-slate-900">5</div>
+              <div class="col-span-2 flex items-center justify-end gap-1.5">
+                <button class="h-7 w-7 rounded-md border border-slate-200 hover:bg-slate-50 text-rose-600 inline-flex items-center justify-center">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+                <button class="h-7 px-2.5 rounded-md bg-slate-900 hover:bg-slate-800 text-white text-[11.5px] font-medium">Approve</button>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ================================================================== -->
+  <!-- VARIANT 2 — Hero overview + focus rail                             -->
+  <!-- Big editorial hero with today-at-a-glance, sidebar with stacked    -->
+  <!-- pending widgets. Calendar timeline for the week.                   -->
+  <!-- ================================================================== -->
+  <section data-screen-label="V2 Hero">
+    <div class="flex items-baseline justify-between mb-3">
+      <h2 class="text-[15px] font-semibold tracking-tight text-slate-900">Variant 2 — Hero overview + focus rail</h2>
+      <span class="variant-tag text-slate-400">V2 · EDITORIAL · WEEK STRIP · SIDE RAIL</span>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 shad-card overflow-hidden">
+
+      <!-- Tabs + header -->
+      <div class="px-7 pt-5">
+        <div class="flex items-center gap-5 -mb-px text-[13px]">
+          <button class="pb-3 border-b-2 border-slate-900 font-medium text-slate-900">Manager Dashboard</button>
+          <button class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-900">My Dashboard</button>
+        </div>
+      </div>
+      <div class="hr-line"></div>
+
+      <div class="px-7 pt-7 pb-2 flex items-end justify-between gap-4 flex-wrap">
+        <div>
+          <p class="variant-tag text-slate-400 mb-2">THURSDAY · 21 MAY 2026</p>
+          <h3 class="text-[32px] font-semibold tracking-tight leading-none">Good afternoon, Haziq.</h3>
+          <p class="text-[13px] text-slate-500 mt-2.5 max-w-xl leading-relaxed">
+            Your team is mostly in today — <span class="font-medium text-slate-900">9 of 12</span> people checked in,
+            <span class="font-medium text-slate-900">5 items</span> are waiting on your decision.
+          </p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="inline-flex items-center gap-2 h-9 px-3 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-[12.5px] font-medium text-slate-700 shad-card">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            Search team
+          </button>
+          <button class="inline-flex items-center gap-2 h-9 px-3.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-[12.5px] font-medium">
+            Approve all (5)
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-12 gap-6 px-7 py-7">
+
+        <!-- ========= HERO (8 cols) ========= -->
+        <div class="col-span-8 space-y-6">
+
+          <!-- Today at a glance -->
+          <div class="rounded-2xl border border-slate-200 bg-white p-6 shad-card">
+            <div class="flex items-baseline justify-between mb-5">
+              <div>
+                <p class="text-[14px] font-semibold tracking-tight text-slate-900">Today at a glance</p>
+                <p class="text-[11.5px] text-slate-500 mt-0.5">Live · refreshed 12s ago</p>
+              </div>
+              <span class="pill-bare bg-emerald-50 text-emerald-700">
+                <span class="relative flex w-1.5 h-1.5">
+                  <span class="absolute inset-0 rounded-full bg-emerald-500/40 live-dot"></span>
+                  <span class="relative w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                </span>
+                Live
+              </span>
+            </div>
+
+            <div class="grid grid-cols-4 gap-0 divide-x divide-slate-200">
+              <div class="px-4 first:pl-0">
+                <p class="text-[11.5px] text-slate-500 mb-2 inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-sm bg-emerald-500"></span>In office</p>
+                <div class="flex items-baseline gap-1.5">
+                  <p class="font-mono num-tabular text-[32px] font-semibold leading-none">5</p>
+                  <p class="text-[12px] font-mono num-tabular text-slate-400">/ 12</p>
+                </div>
+                <p class="text-[11px] text-emerald-700 mt-2 font-medium">↑ 2 vs Monday</p>
+              </div>
+              <div class="px-4">
+                <p class="text-[11.5px] text-slate-500 mb-2 inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-sm bg-blue-500"></span>Work from home</p>
+                <div class="flex items-baseline gap-1.5">
+                  <p class="font-mono num-tabular text-[32px] font-semibold leading-none">3</p>
+                  <p class="text-[12px] font-mono num-tabular text-slate-400">/ 12</p>
+                </div>
+                <p class="text-[11px] text-slate-400 mt-2 font-medium">→ same as yest</p>
+              </div>
+              <div class="px-4">
+                <p class="text-[11.5px] text-slate-500 mb-2 inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-sm bg-amber-500"></span>On leave</p>
+                <div class="flex items-baseline gap-1.5">
+                  <p class="font-mono num-tabular text-[32px] font-semibold leading-none">2</p>
+                  <p class="text-[12px] font-mono num-tabular text-slate-400">/ 12</p>
+                </div>
+                <p class="text-[11px] text-slate-500 mt-2 font-medium">Back Mon 26</p>
+              </div>
+              <div class="px-4">
+                <p class="text-[11.5px] text-slate-500 mb-2 inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-sm bg-slate-400"></span>Not in yet</p>
+                <div class="flex items-baseline gap-1.5">
+                  <p class="font-mono num-tabular text-[32px] font-semibold leading-none">2</p>
+                  <p class="text-[12px] font-mono num-tabular text-slate-400">/ 12</p>
+                </div>
+                <p class="text-[11px] text-rose-600 mt-2 font-medium">Lim T. late</p>
+              </div>
+            </div>
+
+            <div class="hr-line my-5"></div>
+
+            <!-- Team roster grid -->
+            <div class="flex items-baseline justify-between mb-3">
+              <p class="text-[12.5px] font-semibold text-slate-700">Roster</p>
+              <span class="text-[11px] font-mono num-tabular text-slate-400">12 PEOPLE</span>
+            </div>
+            <div class="grid grid-cols-6 gap-3">
+              <div class="flex flex-col items-center gap-1.5">
+                <div class="relative">
+                  <div class="av w-10 h-10 text-[11px] bg-gradient-to-br from-violet-500 to-violet-700">AH</div>
+                  <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 ring-2 ring-white"></span>
+                </div>
+                <p class="text-[11px] font-medium text-slate-700 truncate w-full text-center">Aishah</p>
+                <p class="text-[10px] text-slate-400 font-mono">08:54</p>
+              </div>
+              <div class="flex flex-col items-center gap-1.5">
+                <div class="relative">
+                  <div class="av w-10 h-10 text-[11px] bg-gradient-to-br from-emerald-500 to-emerald-700">NF</div>
+                  <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-blue-500 ring-2 ring-white"></span>
+                </div>
+                <p class="text-[11px] font-medium text-slate-700 truncate w-full text-center">Nur Farah</p>
+                <p class="text-[10px] text-slate-400 font-mono">WFH</p>
+              </div>
+              <div class="flex flex-col items-center gap-1.5">
+                <div class="relative">
+                  <div class="av w-10 h-10 text-[11px] bg-gradient-to-br from-rose-500 to-rose-700">SK</div>
+                  <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-amber-500 ring-2 ring-white"></span>
+                </div>
+                <p class="text-[11px] font-medium text-slate-700 truncate w-full text-center">Siti K.</p>
+                <p class="text-[10px] text-slate-400 font-mono">Leave</p>
+              </div>
+              <div class="flex flex-col items-center gap-1.5">
+                <div class="relative">
+                  <div class="av w-10 h-10 text-[11px] bg-gradient-to-br from-amber-500 to-amber-700">RH</div>
+                  <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 ring-2 ring-white"></span>
+                </div>
+                <p class="text-[11px] font-medium text-slate-700 truncate w-full text-center">Rashid</p>
+                <p class="text-[10px] text-slate-400 font-mono">09:11</p>
+              </div>
+              <div class="flex flex-col items-center gap-1.5">
+                <div class="relative">
+                  <div class="av w-10 h-10 text-[11px] bg-gradient-to-br from-sky-500 to-sky-700">LT</div>
+                  <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-slate-400 ring-2 ring-white"></span>
+                </div>
+                <p class="text-[11px] font-medium text-slate-700 truncate w-full text-center">Lim Tian</p>
+                <p class="text-[10px] text-rose-500 font-mono">Late</p>
+              </div>
+              <div class="flex flex-col items-center gap-1.5">
+                <div class="relative">
+                  <div class="av w-10 h-10 text-[11px] bg-gradient-to-br from-pink-500 to-pink-700">MA</div>
+                  <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 ring-2 ring-white"></span>
+                </div>
+                <p class="text-[11px] font-medium text-slate-700 truncate w-full text-center">Marina</p>
+                <p class="text-[10px] text-slate-400 font-mono">09:05</p>
+              </div>
+
+              <div class="flex flex-col items-center gap-1.5">
+                <div class="relative">
+                  <div class="av w-10 h-10 text-[11px] bg-gradient-to-br from-teal-500 to-teal-700">JL</div>
+                  <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 ring-2 ring-white"></span>
+                </div>
+                <p class="text-[11px] font-medium text-slate-700 truncate w-full text-center">Jia Ling</p>
+                <p class="text-[10px] text-slate-400 font-mono">08:48</p>
+              </div>
+              <div class="flex flex-col items-center gap-1.5">
+                <div class="relative">
+                  <div class="av w-10 h-10 text-[11px] bg-gradient-to-br from-orange-500 to-orange-700">PK</div>
+                  <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-blue-500 ring-2 ring-white"></span>
+                </div>
+                <p class="text-[11px] font-medium text-slate-700 truncate w-full text-center">Priya K.</p>
+                <p class="text-[10px] text-slate-400 font-mono">WFH</p>
+              </div>
+              <div class="flex flex-col items-center gap-1.5">
+                <div class="relative">
+                  <div class="av w-10 h-10 text-[11px] bg-gradient-to-br from-indigo-500 to-indigo-700">YS</div>
+                  <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 ring-2 ring-white"></span>
+                </div>
+                <p class="text-[11px] font-medium text-slate-700 truncate w-full text-center">Yusof</p>
+                <p class="text-[10px] text-slate-400 font-mono">09:20</p>
+              </div>
+              <div class="flex flex-col items-center gap-1.5">
+                <div class="relative">
+                  <div class="av w-10 h-10 text-[11px] bg-gradient-to-br from-fuchsia-500 to-fuchsia-700">DH</div>
+                  <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-amber-500 ring-2 ring-white"></span>
+                </div>
+                <p class="text-[11px] font-medium text-slate-700 truncate w-full text-center">Dania</p>
+                <p class="text-[10px] text-slate-400 font-mono">Leave</p>
+              </div>
+              <div class="flex flex-col items-center gap-1.5">
+                <div class="relative">
+                  <div class="av w-10 h-10 text-[11px] bg-gradient-to-br from-cyan-500 to-cyan-700">KT</div>
+                  <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-blue-500 ring-2 ring-white"></span>
+                </div>
+                <p class="text-[11px] font-medium text-slate-700 truncate w-full text-center">Kelvin</p>
+                <p class="text-[10px] text-slate-400 font-mono">WFH</p>
+              </div>
+              <div class="flex flex-col items-center gap-1.5">
+                <div class="relative">
+                  <div class="av w-10 h-10 text-[11px] bg-gradient-to-br from-slate-500 to-slate-700">??</div>
+                  <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-slate-300 ring-2 ring-white"></span>
+                </div>
+                <p class="text-[11px] font-medium text-slate-400 truncate w-full text-center">Open seat</p>
+                <p class="text-[10px] text-slate-400 font-mono">—</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Week timeline -->
+          <div class="rounded-2xl border border-slate-200 bg-white p-6 shad-card">
+            <div class="flex items-baseline justify-between mb-5">
+              <div>
+                <p class="text-[14px] font-semibold tracking-tight text-slate-900">Week ahead</p>
+                <p class="text-[11.5px] text-slate-500 mt-0.5">Planned leave &amp; WFH · 25 May – 31 May</p>
+              </div>
+              <div class="seg">
+                <button class="on">This week</button>
+                <button>Next week</button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-[100px_1fr] gap-y-2.5 gap-x-3 items-center">
+              <!-- Day labels left -->
+              <p class="text-[11px] font-mono num-tabular text-slate-500 uppercase">Mon 25</p>
+              <div class="relative h-7 bg-slate-50 rounded-md overflow-hidden">
+                <div class="absolute top-0 bottom-0 left-[0%] w-[35%] bg-blue-100 rounded-md border border-blue-200/80 px-2 flex items-center text-[11px] text-blue-800 font-medium">Nur Farah · WFH</div>
+                <div class="absolute top-0 bottom-0 left-[40%] w-[20%] bg-amber-100 rounded-md border border-amber-200/80 px-2 flex items-center text-[11px] text-amber-800 font-medium">Siti K.</div>
+                <div class="absolute top-0 bottom-0 left-[65%] w-[28%] bg-blue-100 rounded-md border border-blue-200/80 px-2 flex items-center text-[11px] text-blue-800 font-medium">Priya K.</div>
+              </div>
+
+              <p class="text-[11px] font-mono num-tabular text-slate-500 uppercase">Tue 26</p>
+              <div class="relative h-7 bg-slate-50 rounded-md overflow-hidden">
+                <div class="absolute top-0 bottom-0 left-[10%] w-[22%] bg-blue-100 rounded-md border border-blue-200/80 px-2 flex items-center text-[11px] text-blue-800 font-medium">Lim Tian · WFH</div>
+                <div class="absolute top-0 bottom-0 left-[40%] w-[40%] bg-amber-100 rounded-md border border-amber-200/80 px-2 flex items-center text-[11px] text-amber-800 font-medium">Dania</div>
+              </div>
+
+              <p class="text-[11px] font-mono num-tabular text-slate-500 uppercase">Wed 27</p>
+              <div class="relative h-7 bg-slate-50 rounded-md overflow-hidden">
+                <div class="absolute top-0 bottom-0 left-[15%] w-[18%] bg-blue-100 rounded-md border border-blue-200/80 px-2 flex items-center text-[11px] text-blue-800 font-medium">Kelvin · WFH</div>
+              </div>
+
+              <p class="text-[11px] font-mono num-tabular text-slate-500 uppercase">Thu 28</p>
+              <div class="relative h-7 bg-slate-50 rounded-md overflow-hidden">
+                <!-- empty -->
+              </div>
+
+              <p class="text-[11px] font-mono num-tabular text-slate-500 uppercase">Fri 29</p>
+              <div class="relative h-7 bg-slate-50 rounded-md overflow-hidden">
+                <div class="absolute top-0 bottom-0 left-[5%] w-[40%] bg-amber-100 rounded-md border border-amber-200/80 px-2 flex items-center text-[11px] text-amber-800 font-medium">Aishah · Annual</div>
+              </div>
+            </div>
+
+            <div class="hr-line my-4"></div>
+            <div class="flex items-center gap-5 text-[11.5px] text-slate-500">
+              <span class="inline-flex items-center gap-1.5"><span class="w-3 h-2 rounded-sm bg-blue-200 border border-blue-300/70"></span>Work from home</span>
+              <span class="inline-flex items-center gap-1.5"><span class="w-3 h-2 rounded-sm bg-amber-200 border border-amber-300/70"></span>Leave</span>
+              <span class="text-slate-300">·</span>
+              <span class="font-mono num-tabular">Coverage gap: Thu 28 — no one out</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========= FOCUS RAIL (4 cols) ========= -->
+        <aside class="col-span-4 space-y-4">
+
+          <div class="rounded-2xl border border-slate-200 bg-slate-900 text-white p-5 shad-card-lg">
+            <div class="flex items-center justify-between mb-1">
+              <p class="text-[11px] font-mono uppercase tracking-wider text-white/60">Needs you</p>
+              <span class="font-mono num-tabular text-[11px] text-white/60">5 ITEMS</span>
+            </div>
+            <p class="text-[26px] font-semibold tracking-tight leading-tight mt-1">5 things waiting<br/>on your call</p>
+            <p class="text-[12.5px] text-white/70 mt-2 leading-relaxed">Two leave requests are flagged urgent. Approve in bulk or jump to one below.</p>
+            <button class="mt-4 w-full inline-flex items-center justify-center gap-2 h-9 rounded-lg bg-white text-slate-900 text-[12.5px] font-semibold hover:bg-slate-100">
+              Review queue
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
+          </div>
+
+          <!-- Leave requests -->
+          <div class="rounded-2xl border border-slate-200 bg-white shad-card overflow-hidden">
+            <div class="px-5 py-4 flex items-center justify-between">
+              <p class="text-[13px] font-semibold tracking-tight text-slate-900">Leave requests <span class="text-slate-400 font-normal">· 3</span></p>
+              <button class="text-[11.5px] font-medium text-slate-500 hover:text-slate-900">All →</button>
+            </div>
+            <div class="hr-line"></div>
+            <ul class="divide-y divide-slate-100">
+              <li class="row-hover px-5 py-3">
+                <div class="flex items-center gap-3">
+                  <div class="av w-7 h-7 text-[9.5px] bg-gradient-to-br from-rose-500 to-rose-700">SK</div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-[12.5px] font-medium text-slate-900 truncate">Siti Khadijah</p>
+                    <p class="text-[11px] text-slate-500 font-mono num-tabular">22–23 May · Annual · 2d</p>
+                  </div>
+                  <span class="pill-bare bg-rose-50 text-rose-700">Urgent</span>
+                </div>
+                <div class="flex items-center gap-1.5 mt-2 ml-10">
+                  <button class="h-6 px-2 rounded-md border border-slate-200 hover:bg-slate-50 text-[11px] font-medium text-slate-700">Decline</button>
+                  <button class="h-6 px-2.5 rounded-md bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-medium">Approve</button>
+                </div>
+              </li>
+              <li class="row-hover px-5 py-3">
+                <div class="flex items-center gap-3">
+                  <div class="av w-7 h-7 text-[9.5px] bg-gradient-to-br from-violet-500 to-violet-700">AH</div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-[12.5px] font-medium text-slate-900 truncate">Aishah Hassan</p>
+                    <p class="text-[11px] text-slate-500 font-mono num-tabular">20 May · Medical · 1d</p>
+                  </div>
+                  <span class="pill-bare bg-rose-50 text-rose-700">Urgent</span>
+                </div>
+                <div class="flex items-center gap-1.5 mt-2 ml-10">
+                  <button class="h-6 px-2 rounded-md border border-slate-200 hover:bg-slate-50 text-[11px] font-medium text-slate-700">Decline</button>
+                  <button class="h-6 px-2.5 rounded-md bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-medium">Approve</button>
+                </div>
+              </li>
+              <li class="row-hover px-5 py-3">
+                <div class="flex items-center gap-3">
+                  <div class="av w-7 h-7 text-[9.5px] bg-gradient-to-br from-amber-500 to-amber-700">RH</div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-[12.5px] font-medium text-slate-900 truncate">Rashid Hassan</p>
+                    <p class="text-[11px] text-slate-500 font-mono num-tabular">3–7 Jun · Annual · 5d</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1.5 mt-2 ml-10">
+                  <button class="h-6 px-2 rounded-md border border-slate-200 hover:bg-slate-50 text-[11px] font-medium text-slate-700">Decline</button>
+                  <button class="h-6 px-2.5 rounded-md bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-medium">Approve</button>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Claims -->
+          <div class="rounded-2xl border border-slate-200 bg-white shad-card overflow-hidden">
+            <div class="px-5 py-4 flex items-center justify-between">
+              <p class="text-[13px] font-semibold tracking-tight text-slate-900">Claims <span class="text-slate-400 font-normal">· 2</span></p>
+              <span class="text-[11.5px] font-mono num-tabular text-slate-500">RM 1,840</span>
+            </div>
+            <div class="hr-line"></div>
+            <ul class="divide-y divide-slate-100">
+              <li class="row-hover px-5 py-3 flex items-center gap-3">
+                <div class="av w-7 h-7 text-[9.5px] bg-gradient-to-br from-violet-500 to-violet-700">AH</div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-[12.5px] font-medium text-slate-900 truncate">Client lunch — Petronas</p>
+                  <p class="text-[11px] text-slate-500 font-mono num-tabular">Aishah · Meals</p>
+                </div>
+                <span class="font-mono num-tabular text-[12px] font-semibold">RM 420</span>
+              </li>
+              <li class="row-hover px-5 py-3 flex items-center gap-3">
+                <div class="av w-7 h-7 text-[9.5px] bg-gradient-to-br from-amber-500 to-amber-700">RH</div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-[12.5px] font-medium text-slate-900 truncate">Grab to KLIA</p>
+                  <p class="text-[11px] text-slate-500 font-mono num-tabular">Rashid · Transport</p>
+                </div>
+                <span class="font-mono num-tabular text-[12px] font-semibold">RM 1,420</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- KPI Mini -->
+          <div class="rounded-2xl border border-slate-200 bg-white p-5 shad-card">
+            <div class="flex items-baseline justify-between">
+              <p class="text-[13px] font-semibold tracking-tight text-slate-900">Team pulse</p>
+              <span class="text-[10.5px] font-mono num-tabular text-slate-400">LAST 30 DAYS</span>
+            </div>
+            <div class="mt-4 grid grid-cols-3 gap-3">
+              <div>
+                <p class="font-mono num-tabular text-[20px] font-semibold leading-none text-slate-900">94%</p>
+                <p class="text-[10.5px] text-slate-500 mt-1.5">Attendance</p>
+              </div>
+              <div>
+                <p class="font-mono num-tabular text-[20px] font-semibold leading-none text-slate-900">2.1d</p>
+                <p class="text-[10.5px] text-slate-500 mt-1.5">Avg approval</p>
+              </div>
+              <div>
+                <p class="font-mono num-tabular text-[20px] font-semibold leading-none text-slate-900">31</p>
+                <p class="text-[10.5px] text-slate-500 mt-1.5">Decisions</p>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ================================================================== -->
+  <!-- VARIANT 3 — Action-first inbox                                     -->
+  <!-- Pending queue as the page itself. Tabs for Leave / WFH / Claims.   -->
+  <!-- Status strip at top instead of KPI cards. Footer with mini stats.  -->
+  <!-- ================================================================== -->
+  <section data-screen-label="V3 Inbox">
+    <div class="flex items-baseline justify-between mb-3">
+      <h2 class="text-[15px] font-semibold tracking-tight text-slate-900">Variant 3 — Action-first inbox</h2>
+      <span class="variant-tag text-slate-400">V3 · APPROVAL QUEUE · TABS</span>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 shad-card overflow-hidden">
+
+      <!-- Tabs + header -->
+      <div class="px-6 pt-5">
+        <div class="flex items-center gap-5 -mb-px text-[13px]">
+          <button class="pb-3 border-b-2 border-slate-900 font-medium text-slate-900">Manager Dashboard</button>
+          <button class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-900">My Dashboard</button>
+        </div>
+      </div>
+      <div class="hr-line"></div>
+
+      <!-- Status strip -->
+      <div class="px-6 py-4 flex items-center justify-between gap-4 flex-wrap bg-slate-50/60 border-b border-slate-200">
+        <div class="flex items-center gap-5 flex-wrap">
+          <div class="flex items-center gap-2.5">
+            <span class="relative flex items-center justify-center w-2.5 h-2.5">
+              <span class="absolute inset-0 rounded-full bg-emerald-500/30 live-dot"></span>
+              <span class="relative w-2 h-2 rounded-full bg-emerald-500"></span>
+            </span>
+            <div class="flex items-baseline gap-1.5">
+              <span class="text-[14px] font-semibold text-slate-900 num-tabular">9</span>
+              <span class="text-[12.5px] text-slate-500">of 12 in today</span>
+            </div>
+            <div class="stack flex items-center ml-1">
+              <span class="av w-6 h-6 text-[9px] bg-gradient-to-br from-violet-500 to-violet-700">AH</span>
+              <span class="av w-6 h-6 text-[9px] bg-gradient-to-br from-emerald-500 to-emerald-700">NF</span>
+              <span class="av w-6 h-6 text-[9px] bg-gradient-to-br from-amber-500 to-amber-700">RH</span>
+              <span class="av w-6 h-6 text-[9px] bg-slate-200 text-slate-600">+6</span>
+            </div>
+          </div>
+          <span class="w-px h-6 bg-slate-200"></span>
+          <div class="flex items-center gap-2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgb(217 119 6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span class="text-[14px] font-semibold num-tabular">2</span>
+            <span class="text-[12.5px] text-slate-500">on leave</span>
+          </div>
+          <span class="w-px h-6 bg-slate-200"></span>
+          <div class="flex items-center gap-2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgb(29 78 216)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span class="text-[14px] font-semibold num-tabular">3</span>
+            <span class="text-[12.5px] text-slate-500">working from home</span>
+          </div>
+          <span class="w-px h-6 bg-slate-200"></span>
+          <div class="flex items-center gap-2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgb(220 38 38)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span class="text-[14px] font-semibold num-tabular text-rose-600">1</span>
+            <span class="text-[12.5px] text-slate-500">not clocked in</span>
+          </div>
+        </div>
+        <div class="seg">
+          <button class="on">Today</button>
+          <button>Week</button>
+          <button>Month</button>
+        </div>
+      </div>
+
+      <!-- Header -->
+      <div class="px-6 pt-7 pb-4 flex items-end justify-between gap-4 flex-wrap">
+        <div>
+          <h3 class="text-[24px] font-semibold tracking-tight leading-none">Approval inbox</h3>
+          <p class="text-[12.5px] text-slate-500 mt-1.5">
+            <span class="font-medium text-slate-900">5 items</span> requiring your decision · oldest waiting
+            <span class="font-mono num-tabular text-slate-700">2 days</span>
+          </p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="inline-flex items-center gap-2 h-9 px-3 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-[12.5px] font-medium text-slate-700 shad-card">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+            Filter
+          </button>
+          <button class="inline-flex items-center gap-2 h-9 px-3.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-[12.5px] font-medium">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Approve all (5)
+          </button>
+        </div>
+      </div>
+
+      <!-- Inbox tabs -->
+      <div class="px-6 flex items-center gap-1 border-b border-slate-200">
+        <button class="h-9 px-3 -mb-px border-b-2 border-slate-900 text-[12.5px] font-medium text-slate-900 inline-flex items-center gap-2">
+          All
+          <span class="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1.5 rounded-full bg-slate-900 text-white text-[10.5px] font-semibold num-tabular">5</span>
+        </button>
+        <button class="h-9 px-3 -mb-px border-b-2 border-transparent text-[12.5px] font-medium text-slate-500 hover:text-slate-900 inline-flex items-center gap-2">
+          Leave
+          <span class="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1.5 rounded-full bg-slate-100 text-slate-700 text-[10.5px] font-semibold num-tabular">3</span>
+        </button>
+        <button class="h-9 px-3 -mb-px border-b-2 border-transparent text-[12.5px] font-medium text-slate-500 hover:text-slate-900 inline-flex items-center gap-2">
+          Work from home
+          <span class="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1.5 rounded-full bg-slate-100 text-slate-700 text-[10.5px] font-semibold num-tabular">2</span>
+        </button>
+        <button class="h-9 px-3 -mb-px border-b-2 border-transparent text-[12.5px] font-medium text-slate-500 hover:text-slate-900 inline-flex items-center gap-2">
+          Claims
+          <span class="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1.5 rounded-full bg-slate-100 text-slate-700 text-[10.5px] font-semibold num-tabular">2</span>
+        </button>
+        <span class="flex-1"></span>
+        <span class="text-[11px] font-mono num-tabular text-slate-400 py-2">SORTED BY URGENCY</span>
+      </div>
+
+      <!-- Inbox list -->
+      <ul class="divide-y divide-slate-100">
+
+        <!-- Item -->
+        <li class="row-hover px-6 py-4 grid grid-cols-12 gap-4 items-center">
+          <div class="col-span-1">
+            <span class="pill-bare bg-rose-50 text-rose-700 font-mono num-tabular">2d</span>
+          </div>
+          <div class="col-span-5 flex items-center gap-3 min-w-0">
+            <div class="av w-9 h-9 text-[10px] bg-gradient-to-br from-rose-500 to-rose-700">SK</div>
+            <div class="min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <p class="text-[13px] font-semibold text-slate-900 truncate">Siti Khadijah</p>
+                <span class="pill-bare bg-rose-50 text-rose-700">Annual leave</span>
+              </div>
+              <p class="text-[12px] text-slate-500 mt-0.5 truncate">"Family wedding — sister"</p>
+            </div>
+          </div>
+          <div class="col-span-3">
+            <p class="text-[12.5px] font-mono num-tabular text-slate-700">22 May – 23 May</p>
+            <p class="text-[11px] text-slate-400 font-mono num-tabular mt-0.5">2 working days</p>
+          </div>
+          <div class="col-span-3 flex items-center justify-end gap-2">
+            <button class="h-8 px-3 rounded-md border border-slate-200 hover:bg-slate-50 text-[12px] font-medium text-slate-700">Decline</button>
+            <button class="h-8 px-3 rounded-md bg-slate-900 hover:bg-slate-800 text-white text-[12px] font-medium">Approve</button>
+            <button class="h-8 w-8 rounded-md hover:bg-slate-100 text-slate-500 inline-flex items-center justify-center">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>
+            </button>
+          </div>
+        </li>
+
+        <li class="row-hover px-6 py-4 grid grid-cols-12 gap-4 items-center">
+          <div class="col-span-1">
+            <span class="pill-bare bg-rose-50 text-rose-700 font-mono num-tabular">1d</span>
+          </div>
+          <div class="col-span-5 flex items-center gap-3 min-w-0">
+            <div class="av w-9 h-9 text-[10px] bg-gradient-to-br from-violet-500 to-violet-700">AH</div>
+            <div class="min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <p class="text-[13px] font-semibold text-slate-900 truncate">Aishah binti Hassan</p>
+                <span class="pill-bare bg-pink-50 text-pink-700">Medical leave</span>
+                <span class="pill-bare bg-slate-100 text-slate-600">MC attached</span>
+              </div>
+              <p class="text-[12px] text-slate-500 mt-0.5 truncate">"Fever &amp; sore throat — clinic visit"</p>
+            </div>
+          </div>
+          <div class="col-span-3">
+            <p class="text-[12.5px] font-mono num-tabular text-slate-700">20 May</p>
+            <p class="text-[11px] text-slate-400 font-mono num-tabular mt-0.5">1 working day · today</p>
+          </div>
+          <div class="col-span-3 flex items-center justify-end gap-2">
+            <button class="h-8 px-3 rounded-md border border-slate-200 hover:bg-slate-50 text-[12px] font-medium text-slate-700">Decline</button>
+            <button class="h-8 px-3 rounded-md bg-slate-900 hover:bg-slate-800 text-white text-[12px] font-medium">Approve</button>
+            <button class="h-8 w-8 rounded-md hover:bg-slate-100 text-slate-500 inline-flex items-center justify-center">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>
+            </button>
+          </div>
+        </li>
+
+        <li class="row-hover px-6 py-4 grid grid-cols-12 gap-4 items-center">
+          <div class="col-span-1">
+            <span class="pill-bare bg-slate-100 text-slate-600 font-mono num-tabular">6h</span>
+          </div>
+          <div class="col-span-5 flex items-center gap-3 min-w-0">
+            <div class="av w-9 h-9 text-[10px] bg-gradient-to-br from-emerald-500 to-emerald-700">NF</div>
+            <div class="min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <p class="text-[13px] font-semibold text-slate-900 truncate">Nur Farah binti Razak</p>
+                <span class="pill-bare bg-blue-50 text-blue-700">Work from home</span>
+              </div>
+              <p class="text-[12px] text-slate-500 mt-0.5 truncate">"Childcare — sitter unavailable"</p>
+            </div>
+          </div>
+          <div class="col-span-3">
+            <p class="text-[12.5px] font-mono num-tabular text-slate-700">22 May – 23 May</p>
+            <p class="text-[11px] text-slate-400 font-mono num-tabular mt-0.5">2 days · this week</p>
+          </div>
+          <div class="col-span-3 flex items-center justify-end gap-2">
+            <button class="h-8 px-3 rounded-md border border-slate-200 hover:bg-slate-50 text-[12px] font-medium text-slate-700">Decline</button>
+            <button class="h-8 px-3 rounded-md bg-slate-900 hover:bg-slate-800 text-white text-[12px] font-medium">Approve</button>
+            <button class="h-8 w-8 rounded-md hover:bg-slate-100 text-slate-500 inline-flex items-center justify-center">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>
+            </button>
+          </div>
+        </li>
+
+        <li class="row-hover px-6 py-4 grid grid-cols-12 gap-4 items-center">
+          <div class="col-span-1">
+            <span class="pill-bare bg-slate-100 text-slate-600 font-mono num-tabular">5h</span>
+          </div>
+          <div class="col-span-5 flex items-center gap-3 min-w-0">
+            <div class="av w-9 h-9 text-[10px] bg-gradient-to-br from-violet-500 to-violet-700">AH</div>
+            <div class="min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <p class="text-[13px] font-semibold text-slate-900 truncate">Aishah binti Hassan</p>
+                <span class="pill-bare bg-sky-50 text-sky-700">Claim · Meals</span>
+              </div>
+              <p class="text-[12px] text-slate-500 mt-0.5 truncate">"Client lunch — Petronas pitch · receipt attached"</p>
+            </div>
+          </div>
+          <div class="col-span-3">
+            <p class="text-[12.5px] font-mono num-tabular text-slate-700">RM 420.00</p>
+            <p class="text-[11px] text-slate-400 font-mono num-tabular mt-0.5">Incurred 18 May</p>
+          </div>
+          <div class="col-span-3 flex items-center justify-end gap-2">
+            <button class="h-8 px-3 rounded-md border border-slate-200 hover:bg-slate-50 text-[12px] font-medium text-slate-700">Decline</button>
+            <button class="h-8 px-3 rounded-md bg-slate-900 hover:bg-slate-800 text-white text-[12px] font-medium">Approve</button>
+            <button class="h-8 w-8 rounded-md hover:bg-slate-100 text-slate-500 inline-flex items-center justify-center">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>
+            </button>
+          </div>
+        </li>
+
+        <li class="row-hover px-6 py-4 grid grid-cols-12 gap-4 items-center">
+          <div class="col-span-1">
+            <span class="pill-bare bg-slate-100 text-slate-600 font-mono num-tabular">3h</span>
+          </div>
+          <div class="col-span-5 flex items-center gap-3 min-w-0">
+            <div class="av w-9 h-9 text-[10px] bg-gradient-to-br from-amber-500 to-amber-700">RH</div>
+            <div class="min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <p class="text-[13px] font-semibold text-slate-900 truncate">Rashid Hassan</p>
+                <span class="pill-bare bg-sky-50 text-sky-700">Claim · Transport</span>
+                <span class="pill-bare bg-amber-50 text-amber-700">Over RM 1k</span>
+              </div>
+              <p class="text-[12px] text-slate-500 mt-0.5 truncate">"Grab + airport transfers to KLIA — vendor visit"</p>
+            </div>
+          </div>
+          <div class="col-span-3">
+            <p class="text-[12.5px] font-mono num-tabular text-slate-700">RM 1,420.00</p>
+            <p class="text-[11px] text-slate-400 font-mono num-tabular mt-0.5">Incurred 19 May</p>
+          </div>
+          <div class="col-span-3 flex items-center justify-end gap-2">
+            <button class="h-8 px-3 rounded-md border border-slate-200 hover:bg-slate-50 text-[12px] font-medium text-slate-700">Decline</button>
+            <button class="h-8 px-3 rounded-md bg-slate-900 hover:bg-slate-800 text-white text-[12px] font-medium">Approve</button>
+            <button class="h-8 w-8 rounded-md hover:bg-slate-100 text-slate-500 inline-flex items-center justify-center">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>
+            </button>
+          </div>
+        </li>
+      </ul>
+
+      <!-- Footer mini-stats -->
+      <div class="px-6 py-4 border-t border-slate-200 bg-slate-50/60 grid grid-cols-4 gap-6 items-center">
+        <div>
+          <p class="text-[10.5px] font-mono uppercase tracking-wide text-slate-400">Avg response</p>
+          <p class="font-mono num-tabular text-[16px] font-semibold mt-1 text-slate-900">2.1 days</p>
+        </div>
+        <div>
+          <p class="text-[10.5px] font-mono uppercase tracking-wide text-slate-400">Approved this month</p>
+          <p class="font-mono num-tabular text-[16px] font-semibold mt-1 text-slate-900">28 / 31</p>
+        </div>
+        <div>
+          <p class="text-[10.5px] font-mono uppercase tracking-wide text-slate-400">Claims total</p>
+          <p class="font-mono num-tabular text-[16px] font-semibold mt-1 text-slate-900">RM 4,260</p>
+        </div>
+        <div class="flex items-center justify-end">
+          <button class="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-slate-900 hover:underline">
+            Open analytics
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="text-[11.5px] text-slate-400 pt-2 pb-8 flex items-center justify-between">
+    <span class="font-mono">END · MANAGER DASHBOARD VARIANTS</span>
+    <span>Geist · slate · Nextura HR</span>
+  </footer>
+
+</div>
+
+</body>
+</html>

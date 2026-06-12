@@ -87,6 +87,10 @@
                 <z-icon zType="pencil" class="w-4 h-4" />
                 Edit Employee
               </button>
+              <button z-menu-item (click)="openChangeStatusDialog()" class="gap-2">
+                <z-icon [zType]="$any('refresh-cw')" class="w-4 h-4" />
+                Change Status
+              </button>
             </div>
           </ng-template>
 
@@ -435,6 +439,14 @@
                       {{ employee()!.confirmation_date ? formatDate(employee()!.confirmation_date!) : '-' }}
                     </dd>
                   </div>
+                  @if (employee()!.employment_status !== 'Active') {
+                    <div>
+                      <dt class="text-xs font-normal text-muted-foreground mb-1">Last Working Day</dt>
+                      <dd class="text-sm text-foreground">
+                        {{ employee()!.end_date ? formatDate(employee()!.end_date!) : '-' }}
+                      </dd>
+                    </div>
+                  }
                   <div>
                     <dt class="text-xs font-normal text-muted-foreground mb-1">Work Location</dt>
                     <dd class="text-sm text-foreground">{{ employee()!.work_location || '-' }}</dd>

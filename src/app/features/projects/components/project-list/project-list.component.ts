@@ -38,6 +38,7 @@ export class ProjectListComponent implements OnInit {
   projects = signal<Project[]>([]);
   pagination = signal({ page: 1, limit: 15, totalItems: 0, totalPages: 0 });
   statusFilter = signal<ProjectStatus | ''>('');
+  yearFilter = signal<number | null>(null);
   searchTerm = signal('');
   private searchTimeout: any;
 
@@ -49,7 +50,13 @@ export class ProjectListComponent implements OnInit {
     { value: 'Cancelled', label: 'Cancelled' }
   ];
 
-  hasActiveFilters = computed(() => !!(this.statusFilter() || this.searchTerm()));
+  // Selectable years — current year +1 down to 6 years back
+  years: number[] = (() => {
+    const current = new Date().getFullYear();
+    return Array.from({ length: 8 }, (_, i) => current + 1 - i);
+  })();
+
+  hasActiveFilters = computed(() => !!(this.statusFilter() || this.searchTerm() || this.yearFilter()));
 
   pageRange = computed(() => {
     const total = this.pagination().totalPages;
@@ -63,6 +70,11 @@ export class ProjectListComponent implements OnInit {
     return this.statuses.find(s => s.value === v)?.label || v;
   });
 
+  yearLabel = computed(() => {
+    const v = this.yearFilter();
+    return v ? String(v) : 'Year';
+  });
+
   ngOnInit() {
     this.load(1);
   }
@@ -73,6 +85,7 @@ export class ProjectListComponent implements OnInit {
       page, limit: 15,
       status: this.statusFilter() || undefined,
       search: this.searchTerm() || undefined,
+      year: this.yearFilter() || undefined,
       sort: 'created_at',
       order: 'DESC'
     }).subscribe({
@@ -96,9 +109,15 @@ export class ProjectListComponent implements OnInit {
     this.load(1);
   }
 
+  setYear(y: number | null) {
+    this.yearFilter.set(y);
+    this.load(1);
+  }
+
   resetFilters() {
     this.searchTerm.set('');
     this.statusFilter.set('');
+    this.yearFilter.set(null);
     this.load(1);
   }
 

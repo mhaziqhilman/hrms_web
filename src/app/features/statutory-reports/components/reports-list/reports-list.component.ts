@@ -17,6 +17,7 @@ import { ZardBadgeComponent } from '@/shared/components/badge/badge.component';
 import { ZardSelectComponent } from '@/shared/components/select/select.component';
 import { ZardSelectItemComponent } from '@/shared/components/select/select-item.component';
 import { ZardDividerComponent } from '@/shared/components/divider/divider.component';
+import { ZardDatePickerComponent } from '@/shared/components/date-picker/date-picker.component';
 
 @Component({
   selector: 'app-reports-list',
@@ -29,7 +30,8 @@ import { ZardDividerComponent } from '@/shared/components/divider/divider.compon
     ZardBadgeComponent,
     ZardSelectComponent,
     ZardSelectItemComponent,
-    ZardDividerComponent
+    ZardDividerComponent,
+    ZardDatePickerComponent
   ],
   templateUrl: './reports-list.component.html',
   styleUrl: './reports-list.component.css'
@@ -55,6 +57,8 @@ export class ReportsListComponent implements OnInit {
   // EA Form specific
   eaEmployees = signal<EAEmployee[]>([]);
   selectedEmployeeId = signal<string | null>(null);
+  // "Tarikh" printed on the EA form — defaults to today, can be back-dated.
+  eaFormDate: Date = new Date();
 
   // Report data
   reportData = signal<any>(null);
@@ -218,7 +222,7 @@ export class ReportsListComponent implements OnInit {
       const filename = `EA_Form_${employee?.employee_id || employeePublicId}_${year}.pdf`;
       const toastId = toast.loading('Preparing download...');
 
-      this.reportsService.downloadEAFormPDF(employeePublicId, year).subscribe({
+      this.reportsService.downloadEAFormPDF(employeePublicId, year, this.eaFormDateParam()).subscribe({
         next: (blob) => {
           this.reportsService.downloadFile(blob, filename);
           toast.success(`${filename} downloaded successfully.`, { id: toastId });
@@ -235,7 +239,7 @@ export class ReportsListComponent implements OnInit {
       const filename = `EA_Form_${employee?.employee_id || employeePublicId}_${year}.xlsx`;
       const toastId = toast.loading('Preparing download...');
 
-      this.reportsService.downloadEAFormExcel(employeePublicId, year).subscribe({
+      this.reportsService.downloadEAFormExcel(employeePublicId, year, this.eaFormDateParam()).subscribe({
         next: (blob) => {
           this.reportsService.downloadFile(blob, filename);
           toast.success(`${filename} downloaded successfully.`, { id: toastId });
@@ -385,7 +389,7 @@ export class ReportsListComponent implements OnInit {
     switch (type) {
       case 'ea':
         if (!employeeId) return;
-        download$ = this.reportsService.downloadEAFormPDF(employeeId, year);
+        download$ = this.reportsService.downloadEAFormPDF(employeeId, year, this.eaFormDateParam());
         const employee = this.eaEmployees().find(e => e.public_id === employeeId);
         filename = `EA_Form_${employee?.employee_id || employeeId}_${year}.pdf`;
         break;
@@ -451,7 +455,7 @@ export class ReportsListComponent implements OnInit {
 
     const toastId = toast.loading('Preparing download...');
 
-    this.reportsService.downloadEAFormExcel(employeeId, year).subscribe({
+    this.reportsService.downloadEAFormExcel(employeeId, year, this.eaFormDateParam()).subscribe({
       next: (blob) => {
         this.reportsService.downloadFile(blob, filename);
         this.loading.set(false);
@@ -498,6 +502,16 @@ export class ReportsListComponent implements OnInit {
     });
   }
 
+  /**
+   * The selected EA form date as a YYYY-MM-DD string for the API, or undefined
+   * (backend then defaults to today).
+   */
+  private eaFormDateParam(): string | undefined {
+    const d = this.eaFormDate;
+    if (!(d instanceof Date) || isNaN(d.getTime())) return undefined;
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+
   formatCurrency(amount: number | null | undefined): string {
     if (amount === null || amount === undefined) return 'RM 0.00';
     return `RM ${amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
@@ -510,7 +524,7 @@ export class ReportsListComponent implements OnInit {
     this.bulkDownloading.set(true);
     const toastId = toast.loading(`Generating EA Forms for all employees... This may take a moment.`);
 
-    this.reportsService.bulkDownloadEAFormPDF(year).subscribe({
+    this.reportsService.bulkDownloadEAFormPDF(year, this.eaFormDateParam()).subscribe({
       next: (blob) => {
         this.reportsService.downloadFile(blob, `EA_Forms_${year}.zip`);
         this.bulkDownloading.set(false);
@@ -536,7 +550,7 @@ export class ReportsListComponent implements OnInit {
     this.sendingEmail.set(true);
     const toastId = toast.loading('Sending EA Form email...');
 
-    this.reportsService.sendEAFormEmail(employeeId, year).subscribe({
+    this.reportsService.sendEAFormEmail(employeeId, year, this.eaFormDateParam()).subscribe({
       next: (response) => {
         this.sendingEmail.set(false);
         if (response.success) {

@@ -297,9 +297,17 @@ export class BillFormDialogComponent implements OnInit {
   }
 
   // ─── Save ───────────────────────────────────────────────
+  // Format a Date as YYYY-MM-DD using LOCAL components.
+  // Never use toISOString() here — it converts to UTC and shifts the
+  // date back a day for timezones ahead of UTC (e.g. Malaysia, UTC+8).
   private formatDateToString(date: Date | null): string | null {
     if (!date) return null;
-    return new Date(date).toISOString().split('T')[0];
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return null;
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   save() {

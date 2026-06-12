@@ -20,7 +20,9 @@ import { Z_MODAL_DATA } from '@/shared/components/dialog/dialog.service';
 import { ZardSegmentedComponent, SegmentedOption } from '@/shared/components/segmented/segmented.component';
 
 import { EInvoiceService } from '../../services/e-invoice.service';
-import { Invoice, TaxType, INVOICE_TYPE_LABELS } from '../../models/invoice.model';
+import { Invoice, TaxType, INVOICE_TYPE_LABELS, ExtractedInvoiceData, ExtractionProvider, PoMatchResult } from '../../models/invoice.model';
+
+const EXTRACTION_PROVIDER_KEY = 'einvoice.extractionProvider';
 import { ProjectService } from '@/features/projects/services/project.service';
 import { Project } from '@/features/projects/models/project.model';
 
@@ -34,6 +36,7 @@ interface LineItem {
   tax_rate: number;
   classification_code: string;
   unit_of_measurement: string;
+  po_number: string;
   subtotal: number;
   tax_amount: number;
   total: number;
@@ -123,14 +126,34 @@ export class InvoiceFormDialogComponent implements OnInit {
   supplierExpanded = true;
   buyerExpanded = true;
 
+  // AI extraction state
+  extracting = signal(false);
+  importedFilename = signal<string | null>(null);
+  extractionConfidence = signal<'high' | 'medium' | 'low' | null>(null);
+  extractionWarnings = signal<string[]>([]);
+  poMatch = signal<PoMatchResult | null>(null);
+  selectedProvider = signal<ExtractionProvider>(
+    (localStorage.getItem(EXTRACTION_PROVIDER_KEY) as ExtractionProvider) || 'anthropic'
+  );
+
+  onProviderChange(value: ExtractionProvider) {
+    this.selectedProvider.set(value);
+    localStorage.setItem(EXTRACTION_PROVIDER_KEY, value);
+  }
+
   // Step 1: Invoice Details Form
   detailsForm: FormGroup = this.fb.group({
+    invoiceNumber: [''],
     invoiceType: ['01'],
     currency: ['MYR'],
     invoiceDate: [new Date()],
     dueDate: [this.getDefaultDueDate()],
+    commenceDateStart: [null],
+    commenceDateEnd: [null],
     paymentTerms: [''],
     isSelfBilled: [false],
+    title: [''],
+    isRecorded: [false],
     notes: ['']
   });
 
@@ -244,6 +267,147 @@ export class InvoiceFormDialogComponent implements OnInit {
     return due;
   }
 
+  // ─── AI Extraction ────────────────────────────────────────
+
+  onImportPdfSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    input.value = ''; // allow re-import of the same filename later
+
+    if (file.type !== 'application/pdf') {
+      this.extractionWarnings.set(['Only PDF files are supported.']);
+      return;
+    }
+
+    this.extracting.set(true);
+    this.extractionWarnings.set([]);
+    this.poMatch.set(null);
+    this.invoiceService.extractFromPdf(file, this.selectedProvider()).subscribe({
+      next: (res) => {
+        this.extracting.set(false);
+        if (res.success) {
+          this.applyExtractedData(res.data.extracted, res.data.filename, res.data.po_match);
+        }
+      },
+      error: (err) => {
+        this.extracting.set(false);
+        const message = err?.error?.message || 'Failed to extract data from the document.';
+        this.extractionWarnings.set([message]);
+      }
+    });
+  }
+
+  private applyExtractedData(extracted: ExtractedInvoiceData, filename: string, poMatch?: PoMatchResult) {
+    this.importedFilename.set(filename);
+    this.extractionConfidence.set(extracted.confidence);
+    this.extractionWarnings.set(extracted.extraction_notes || []);
+    this.poMatch.set(poMatch || null);
+
+    // Auto-pre-select the primary project from PO matches:
+    //  • Single-PO + recipient match → that project (existing behavior)
+    //  • Multi-PO with any matches → first matched project as primary
+    //  • Recipient mismatch case → still pre-select so user has a starting point,
+    //    banner already warns them to verify.
+    // Backend resolves per-line project_id from po_number regardless.
+    const primary = poMatch?.project
+      || poMatch?.matches?.find(m => m.project)?.project
+      || null;
+    if (primary) {
+      this.selectedProjectId.set(primary.id);
+      this.linkProjectEnabled.set(true);
+    }
+
+    this.detailsForm.patchValue({
+      invoiceNumber: extracted.invoice_number || '',
+      invoiceType: extracted.invoice_type || '01',
+      currency: extracted.currency || 'MYR',
+      invoiceDate: extracted.invoice_date ? new Date(extracted.invoice_date) : new Date(),
+      dueDate: extracted.due_date ? new Date(extracted.due_date) : null,
+      commenceDateStart: extracted.commence_date_start ? new Date(extracted.commence_date_start) : null,
+      commenceDateEnd: extracted.commence_date_end ? new Date(extracted.commence_date_end) : null,
+      paymentTerms: extracted.payment_terms || '',
+      isSelfBilled: !!extracted.is_self_billed,
+      title: extracted.title || '',
+      isRecorded: true, // imported invoices default to record-only — safer than auto-submitting to LHDN
+      notes: extracted.notes || ''
+    });
+
+    this.supplierForm.patchValue({
+      name: extracted.supplier_name || '',
+      tin: extracted.supplier_tin || '',
+      brn: extracted.supplier_brn || '',
+      sstNo: extracted.supplier_sst_no || '',
+      msicCode: extracted.supplier_msic_code || '',
+      address: extracted.supplier_address || '',
+      phone: extracted.supplier_phone || '',
+      email: extracted.supplier_email || ''
+    });
+
+    this.buyerForm.patchValue({
+      name: extracted.buyer_name || '',
+      tin: extracted.buyer_tin || '',
+      brn: extracted.buyer_brn || '',
+      address: extracted.buyer_address || '',
+      phone: extracted.buyer_phone || '',
+      email: extracted.buyer_email || ''
+    });
+
+    this.items = (extracted.items || []).map(it => {
+      const item = {
+        description: it.description || '',
+        quantity: Number(it.quantity) || 1,
+        unit_price: Number(it.unit_price) || 0,
+        discount_amount: Number(it.discount_amount) || 0,
+        discount_rate: 0,
+        tax_type: (it.tax_type || 'Exempt') as TaxType,
+        tax_rate: Number(it.tax_rate) || 0,
+        classification_code: it.classification_code || '',
+        unit_of_measurement: it.unit_of_measurement || 'EA',
+        po_number: it.po_number || '',
+        subtotal: 0,
+        tax_amount: 0,
+        total: 0
+      };
+      this.recalculateItem(item);
+      return item;
+    });
+
+    if (this.items.length === 0) this.addItem();
+  }
+
+  dismissImportBanner() {
+    this.importedFilename.set(null);
+    this.extractionConfidence.set(null);
+    this.extractionWarnings.set([]);
+    this.poMatch.set(null);
+  }
+
+  /**
+   * Aggregate every project this invoice will be linked to — the primary one
+   * from the dropdown, plus every distinct project derived from line-item POs.
+   * Returns a deduplicated list so the UI can show all of them as chips.
+   */
+  getLinkedProjects(): { id: number; code: string; name: string; po_number: string | null }[] {
+    const map = new Map<number, { id: number; code: string; name: string; po_number: string | null }>();
+    const primaryId = this.selectedProjectId();
+    if (primaryId) {
+      const primary = this.projects().find(p => p.id === primaryId);
+      if (primary) {
+        map.set(primary.id, { id: primary.id, code: primary.code, name: primary.name, po_number: primary.po_number || null });
+      }
+    }
+    for (const it of this.items) {
+      const po = (it.po_number || '').trim();
+      if (!po) continue;
+      const proj = this.projects().find(p => (p.po_number || '').trim() === po);
+      if (proj && !map.has(proj.id)) {
+        map.set(proj.id, { id: proj.id, code: proj.code, name: proj.name, po_number: proj.po_number || null });
+      }
+    }
+    return Array.from(map.values());
+  }
+
   // ─── Unified Active Section ───────────────────────────────
   // Maps both stepper (create) and segmented (edit) to a single section key
 
@@ -264,12 +428,17 @@ export class InvoiceFormDialogComponent implements OnInit {
     this.selectedProjectId.set(invoice.project_id ?? null);
     this.linkProjectEnabled.set(invoice.project_id != null);
     this.detailsForm.patchValue({
+      invoiceNumber: invoice.invoice_number || '',
       invoiceType: invoice.invoice_type,
       currency: invoice.currency,
       invoiceDate: invoice.invoice_date ? new Date(invoice.invoice_date) : new Date(),
       dueDate: invoice.due_date ? new Date(invoice.due_date) : null,
+      commenceDateStart: invoice.commence_date_start ? new Date(invoice.commence_date_start) : null,
+      commenceDateEnd: invoice.commence_date_end ? new Date(invoice.commence_date_end) : null,
       paymentTerms: invoice.payment_terms || '',
       isSelfBilled: invoice.is_self_billed,
+      title: invoice.title || '',
+      isRecorded: invoice.status === 'Recorded',
       notes: invoice.notes || ''
     });
 
@@ -303,6 +472,7 @@ export class InvoiceFormDialogComponent implements OnInit {
       tax_rate: +item.tax_rate,
       classification_code: item.classification_code || '',
       unit_of_measurement: item.unit_of_measurement || 'EA',
+      po_number: item.po_number || '',
       subtotal: +item.subtotal,
       tax_amount: +item.tax_amount,
       total: +item.total
@@ -313,14 +483,19 @@ export class InvoiceFormDialogComponent implements OnInit {
 
   // ─── Form Value Helpers ─────────────────────────────────
 
+  get invoiceNumber(): string { return (this.detailsForm.get('invoiceNumber')?.value || '').trim(); }
   get invoiceType(): string { return this.detailsForm.get('invoiceType')?.value || '01'; }
   get currency(): string { return this.detailsForm.get('currency')?.value || 'MYR'; }
   get isSelfBilled(): boolean { return this.detailsForm.get('isSelfBilled')?.value || false; }
+  get title(): string { return this.detailsForm.get('title')?.value || ''; }
+  get isRecorded(): boolean { return this.detailsForm.get('isRecorded')?.value || false; }
   get notes(): string { return this.detailsForm.get('notes')?.value || ''; }
   get paymentTerms(): string { return this.detailsForm.get('paymentTerms')?.value || ''; }
 
   get invoiceDateValue(): Date | null { return this.detailsForm.get('invoiceDate')?.value; }
   get dueDateValue(): Date | null { return this.detailsForm.get('dueDate')?.value; }
+  get commenceDateStartValue(): Date | null { return this.detailsForm.get('commenceDateStart')?.value; }
+  get commenceDateEndValue(): Date | null { return this.detailsForm.get('commenceDateEnd')?.value; }
 
   get supplierName(): string { return this.supplierForm.get('name')?.value || ''; }
   get supplierTin(): string { return this.supplierForm.get('tin')?.value || ''; }
@@ -381,6 +556,7 @@ export class InvoiceFormDialogComponent implements OnInit {
       discount_amount: 0, discount_rate: 0,
       tax_type: 'Exempt', tax_rate: 0,
       classification_code: '', unit_of_measurement: 'EA',
+      po_number: '',
       subtotal: 0, tax_amount: 0, total: 0
     });
   }
@@ -436,10 +612,17 @@ export class InvoiceFormDialogComponent implements OnInit {
 
   // ─── Save ───────────────────────────────────────────────
 
+  // Format a Date as YYYY-MM-DD using LOCAL components.
+  // Never use toISOString() here — it converts to UTC and shifts the
+  // date back a day for timezones ahead of UTC (e.g. Malaysia, UTC+8).
   private formatDateToString(date: Date | null): string | null {
     if (!date) return null;
     const d = new Date(date);
-    return d.toISOString().split('T')[0];
+    if (isNaN(d.getTime())) return null;
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   save(andApprove = false) {
@@ -450,12 +633,18 @@ export class InvoiceFormDialogComponent implements OnInit {
     const b = this.buyerForm.value;
 
     const data: any = {
+      // Invoice number only on create — immutable after creation.
+      // Empty string = auto-generate on backend.
+      ...(!this.isEditMode && this.invoiceNumber ? { invoice_number: this.invoiceNumber } : {}),
       invoice_type: this.invoiceType,
       is_self_billed: this.isSelfBilled,
       invoice_date: this.formatDateToString(this.invoiceDateValue),
       due_date: this.formatDateToString(this.dueDateValue),
+      commence_date_start: this.formatDateToString(this.commenceDateStartValue),
+      commence_date_end: this.formatDateToString(this.commenceDateEndValue),
       payment_terms: this.paymentTerms || null,
       currency: this.currency,
+      title: this.title || null,
       notes: this.notes || null,
       project_id: this.selectedProjectId() || null,
       supplier_name: s.name,
@@ -472,13 +661,14 @@ export class InvoiceFormDialogComponent implements OnInit {
       buyer_address: b.address || null,
       buyer_phone: b.phone || null,
       buyer_email: b.email || null,
-      status: andApprove ? 'Pending' : 'Draft',
+      status: this.isRecorded ? 'Recorded' : (andApprove ? 'Pending' : 'Draft'),
       items: this.items.map(item => ({
         description: item.description, quantity: item.quantity,
         unit_price: item.unit_price, discount_amount: item.discount_amount,
         discount_rate: item.discount_rate, tax_type: item.tax_type,
         tax_rate: item.tax_rate, classification_code: item.classification_code || null,
-        unit_of_measurement: item.unit_of_measurement || 'EA'
+        unit_of_measurement: item.unit_of_measurement || 'EA',
+        po_number: item.po_number || null
       }))
     };
 

@@ -38,6 +38,8 @@ export interface Employee {
   confirmation_date?: string;
   employment_type?: EmploymentType;
   employment_status?: EmploymentStatus;
+  // Last working day — set when the employee resigns/is terminated.
+  end_date?: string;
   work_location?: string;
   // If true, employee may clock in as WFH without a prior WFH application.
   wfh_flexible?: boolean;
@@ -117,6 +119,7 @@ export interface CreateEmployeeRequest {
 
 export interface UpdateEmployeeRequest extends Partial<CreateEmployeeRequest> {
   employment_status?: EmploymentStatus;
+  end_date?: string | null;
 }
 
 export interface EmployeeListParams {

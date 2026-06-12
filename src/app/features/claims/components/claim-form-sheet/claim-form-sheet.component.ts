@@ -185,14 +185,23 @@ export class ClaimFormSheetComponent implements OnChanges {
     return this.claimForm.get(name);
   }
 
+  // Format a Date as YYYY-MM-DD using LOCAL components.
+  // toISOString() converts to UTC and can yield the wrong day in UTC+8.
+  private formatLocalDate(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
   getMaxDate(): string {
-    return new Date().toISOString().split('T')[0];
+    return this.formatLocalDate(new Date());
   }
 
   getMinDate(): string {
     const d = new Date();
     d.setDate(d.getDate() - 90);
-    return d.toISOString().split('T')[0];
+    return this.formatLocalDate(d);
   }
 
   formatCurrency(amount: number | string | null | undefined): string {
@@ -215,7 +224,7 @@ export class ClaimFormSheetComponent implements OnChanges {
     const d = new Date();
     if (shortcut === 'yesterday') d.setDate(d.getDate() - 1);
     if (shortcut === 'last-week') d.setDate(d.getDate() - 7);
-    const iso = d.toISOString().split('T')[0];
+    const iso = this.formatLocalDate(d);
     this.claimForm.patchValue({ date: iso });
   }
 

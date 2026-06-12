@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
@@ -38,6 +38,7 @@ interface ActivityEvent {
   imports: [
     CommonModule,
     FormsModule,
+    RouterLink,
     ZardCardComponent,
     ZardButtonComponent,
     ZardIconComponent,
@@ -65,7 +66,7 @@ export class InvoiceDetailComponent implements OnInit {
 
   // Payment form
   showPaymentForm = signal(false);
-  paymentDate = new Date().toISOString().split('T')[0];
+  paymentDate = this.formatLocalDate(new Date());
   paymentAmount = 0;
   paymentMethod: PaymentMethod = 'Bank Transfer';
   paymentRef = '';
@@ -233,8 +234,17 @@ export class InvoiceDetailComponent implements OnInit {
     });
   }
 
+  // Format a Date as YYYY-MM-DD using LOCAL components.
+  // toISOString() converts to UTC and can yield the wrong day in UTC+8.
+  private formatLocalDate(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
   resetPaymentForm() {
-    this.paymentDate = new Date().toISOString().split('T')[0];
+    this.paymentDate = this.formatLocalDate(new Date());
     this.paymentAmount = 0;
     this.paymentMethod = 'Bank Transfer';
     this.paymentRef = '';
@@ -383,7 +393,7 @@ export class InvoiceDetailComponent implements OnInit {
 
   canEdit(): boolean {
     const s = this.invoice()?.status;
-    return s === 'Draft' || s === 'Invalid';
+    return s === 'Draft' || s === 'Invalid' || s === 'Recorded';
   }
 
   canApprove(): boolean {
@@ -404,10 +414,11 @@ export class InvoiceDetailComponent implements OnInit {
 
   canRecordPayment(): boolean {
     const s = this.invoice()?.status;
-    return (s === 'Valid' || s === 'Pending' || s === 'Submitted') && parseFloat(String(this.invoice()?.balance_due || 0)) > 0;
+    return (s === 'Valid' || s === 'Pending' || s === 'Submitted' || s === 'Recorded') && parseFloat(String(this.invoice()?.balance_due || 0)) > 0;
   }
 
   canDelete(): boolean {
-    return this.invoice()?.status === 'Draft';
+    const s = this.invoice()?.status;
+    return s === 'Draft' || s === 'Recorded';
   }
 }

@@ -49,11 +49,18 @@ export class StatutoryReportsService {
   }
 
   /**
+   * Build a `?form_date=YYYY-MM-DD` query suffix for back-dating EA forms.
+   */
+  private formDateQuery(formDate?: string): string {
+    return formDate ? `?form_date=${encodeURIComponent(formDate)}` : '';
+  }
+
+  /**
    * Download EA Form as PDF
    */
-  downloadEAFormPDF(employeeId: number | string, year: number): Observable<Blob> {
+  downloadEAFormPDF(employeeId: number | string, year: number, formDate?: string): Observable<Blob> {
     return this.http.get(
-      `${this.apiUrl}${API_CONFIG.endpoints.statutoryReports.eaPdf(employeeId, year)}`,
+      `${this.apiUrl}${API_CONFIG.endpoints.statutoryReports.eaPdf(employeeId, year)}${this.formDateQuery(formDate)}`,
       { responseType: 'blob' }
     );
   }
@@ -61,9 +68,9 @@ export class StatutoryReportsService {
   /**
    * Download EA Form as Excel (LHDN C.P.8A template)
    */
-  downloadEAFormExcel(employeeId: number | string, year: number): Observable<Blob> {
+  downloadEAFormExcel(employeeId: number | string, year: number, formDate?: string): Observable<Blob> {
     return this.http.get(
-      `${this.apiUrl}${API_CONFIG.endpoints.statutoryReports.eaExcel(employeeId, year)}`,
+      `${this.apiUrl}${API_CONFIG.endpoints.statutoryReports.eaExcel(employeeId, year)}${this.formDateQuery(formDate)}`,
       { responseType: 'blob' }
     );
   }
@@ -71,9 +78,9 @@ export class StatutoryReportsService {
   /**
    * Send EA Form via email with PDF attachment
    */
-  sendEAFormEmail(employeeId: number | string, year: number): Observable<{ success: boolean; message: string }> {
+  sendEAFormEmail(employeeId: number | string, year: number, formDate?: string): Observable<{ success: boolean; message: string }> {
     return this.http.post<{ success: boolean; message: string }>(
-      `${this.apiUrl}${API_CONFIG.endpoints.statutoryReports.eaSendEmail(employeeId, year)}`,
+      `${this.apiUrl}${API_CONFIG.endpoints.statutoryReports.eaSendEmail(employeeId, year)}${this.formDateQuery(formDate)}`,
       {}
     );
   }
@@ -81,9 +88,9 @@ export class StatutoryReportsService {
   /**
    * Bulk download all EA Forms as ZIP (PDFs)
    */
-  bulkDownloadEAFormPDF(year: number): Observable<Blob> {
+  bulkDownloadEAFormPDF(year: number, formDate?: string): Observable<Blob> {
     return this.http.get(
-      `${this.apiUrl}${API_CONFIG.endpoints.statutoryReports.eaBulkDownload(year)}`,
+      `${this.apiUrl}${API_CONFIG.endpoints.statutoryReports.eaBulkDownload(year)}${this.formDateQuery(formDate)}`,
       { responseType: 'blob' }
     );
   }

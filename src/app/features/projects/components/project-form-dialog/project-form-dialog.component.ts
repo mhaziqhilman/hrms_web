@@ -154,6 +154,17 @@ export class ProjectFormDialogComponent implements OnInit {
     return this.isEditMode ? this.activeTab : this.stepToSection[this.currentStep];
   }
 
+  // Parse a backend date (YYYY-MM-DD or ISO) into a LOCAL-time Date.
+  // `new Date('2025-07-01')` parses as UTC midnight, which can render as
+  // the previous day in negative-offset timezones — build it locally instead.
+  private parseDateLocal(value: string | null | undefined): Date | null {
+    if (!value) return null;
+    const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
+    if (m) return new Date(+m[1], +m[2] - 1, +m[3]);
+    const d = new Date(value);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
   // ─── Populate (Edit) ────────────────────────────────────
   private populateForm(p: Project) {
     this.infoForm.patchValue({
@@ -165,12 +176,12 @@ export class ProjectFormDialogComponent implements OnInit {
     });
 
     this.budgetForm.patchValue({
-      startDate: p.start_date ? new Date(p.start_date) : null,
-      endDate: p.end_date ? new Date(p.end_date) : null,
+      startDate: this.parseDateLocal(p.start_date),
+      endDate: this.parseDateLocal(p.end_date),
       currency: p.currency || 'MYR',
       budget: p.budget != null ? +p.budget : null,
       poNumber: p.po_number || '',
-      poDate: p.po_date ? new Date(p.po_date) : null,
+      poDate: this.parseDateLocal(p.po_date),
       poCurrency: p.po_currency || p.currency || 'MYR',
       poValue: p.po_value != null ? +p.po_value : null,
       poDurationMonths: p.po_duration_months ?? null,
@@ -278,9 +289,17 @@ export class ProjectFormDialogComponent implements OnInit {
   }
 
   // ─── Save ────────────────────────────────────────────────
+  // Format a Date as YYYY-MM-DD using LOCAL components.
+  // Never use toISOString() here — it converts to UTC and shifts the
+  // date back a day for timezones ahead of UTC (e.g. Malaysia, UTC+8).
   private formatDateToString(date: Date | null): string | null {
     if (!date) return null;
-    return new Date(date).toISOString().split('T')[0];
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return null;
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   save() {

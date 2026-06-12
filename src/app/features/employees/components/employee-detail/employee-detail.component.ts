@@ -1,9 +1,12 @@
-import { Component, OnInit, signal, computed, inject } from '@angular/core';
+import { Component, OnInit, signal, computed, inject, ViewContainerRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { EmployeeService } from '../../services/employee.service';
 import { Employee, EmployeeYTD } from '../../models/employee.model';
+import { ZardDialogService } from '@/shared/components/dialog/dialog.service';
+import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-dialog.service';
+import { ChangeStatusDialogComponent } from '../change-status-dialog/change-status-dialog.component';
 import { FileUpload } from '../../../../shared/components/file-upload/file-upload';
 import { FileList as FileListComponent } from '../../../../shared/components/file-list/file-list';
 import { FileService, FileUploadMetadata } from '../../../../core/services/file.service';
@@ -82,6 +85,9 @@ export class EmployeeDetailComponent implements OnInit {
   availableYears: number[] = [];
 
   private displayService = inject(DisplayService);
+  private dialogService = inject(ZardDialogService);
+  private alertDialogService = inject(ZardAlertDialogService);
+  private viewContainerRef = inject(ViewContainerRef);
 
   // Document management
   showDocumentUpload = signal<boolean>(false);
@@ -222,6 +228,43 @@ export class EmployeeDetailComponent implements OnInit {
 
   onBack(): void {
     this.router.navigate(['/employees']);
+  }
+
+  openChangeStatusDialog(): void {
+    const emp = this.employee();
+    const id = this.employeeId();
+    if (!emp || !id) return;
+
+    this.dialogService.create({
+      zTitle: 'Change Employment Status',
+      zContent: ChangeStatusDialogComponent,
+      zViewContainerRef: this.viewContainerRef,
+      zData: { employee: emp },
+      zMaskClosable: false,
+      zOkText: 'Save',
+      zCancelText: 'Cancel',
+      zOnOk: (instance: ChangeStatusDialogComponent): false | void => {
+        if (!instance.isValid()) {
+          return false;
+        }
+        const { employment_status, end_date, reason } = instance.getData();
+        this.employeeService.setEmploymentStatus(id, employment_status, end_date, reason).subscribe({
+          next: (response) => {
+            if (response.success && response.data) {
+              // Preserve the signed photo_url already resolved on the loaded record.
+              this.employee.set({ ...emp, ...response.data, photo_url: emp.photo_url });
+            }
+          },
+          error: (err) => {
+            this.alertDialogService.warning({
+              zTitle: 'Error',
+              zDescription: err?.message || 'Failed to update employment status',
+              zOkText: 'OK'
+            });
+          }
+        });
+      }
+    });
   }
 
   sendEmail(): void {
