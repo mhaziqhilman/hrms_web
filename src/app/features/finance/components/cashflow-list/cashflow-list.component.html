@@ -1,0 +1,84 @@
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex items-start justify-between gap-4 flex-wrap">
+    <div>
+      <h1 class="text-[28px] font-semibold tracking-tight leading-none text-foreground">Cash Flow</h1>
+      <p class="text-[13px] text-muted-foreground mt-2">Monthly cash-flow forecasts & solvency tests.</p>
+    </div>
+    <button z-button (click)="create()" class="gap-2">
+      <z-icon zType="plus" class="w-4 h-4" />
+      New Forecast
+    </button>
+  </div>
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="flex items-center justify-center py-24">
+      <z-icon zType="loader-circle" class="w-8 h-8 animate-spin text-primary" />
+    </div>
+  }
+
+  <!-- Empty -->
+  @if (!loading() && statements().length === 0) {
+    <div class="flex flex-col items-center justify-center text-center py-20 border border-dashed border-border rounded-xl">
+      <div class="w-14 h-14 rounded-full bg-muted flex items-center justify-center mb-4">
+        <z-icon zType="trending-up" class="w-7 h-7 text-muted-foreground" />
+      </div>
+      <h3 class="text-base font-semibold text-foreground">No cash flow forecasts yet</h3>
+      <p class="text-[13px] text-muted-foreground mt-1 max-w-sm">
+        Build a monthly projection of inflows and outflows to track your company's solvency over time.
+      </p>
+      <button z-button (click)="create()" class="gap-2 mt-5">
+        <z-icon zType="plus" class="w-4 h-4" />
+        New Forecast
+      </button>
+    </div>
+  }
+
+  <!-- Table -->
+  @if (!loading() && statements().length > 0) {
+    <div class="border border-border rounded-xl overflow-hidden">
+      <table z-table class="w-full">
+        <thead>
+          <tr>
+            <th class="!pl-4">Title</th>
+            <th>Period</th>
+            <th class="text-right">Inflows</th>
+            <th class="text-right">Outflows</th>
+            <th class="text-right">Net</th>
+            <th class="text-right">Closing balance</th>
+            <th>Status</th>
+            <th class="text-right !pr-4">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (s of statements(); track s.public_id) {
+            <tr (click)="open(s)" class="cursor-pointer">
+              <td class="!pl-4 font-medium text-foreground">{{ s.title }}</td>
+              <td class="text-muted-foreground text-xs">{{ periodLabel(s) }}</td>
+              <td class="text-right text-emerald-600 dark:text-emerald-400">{{ money(s.summary.total_inflows, s.currency) }}</td>
+              <td class="text-right text-rose-600 dark:text-rose-400">{{ money(s.summary.total_outflows, s.currency) }}</td>
+              <td class="text-right font-medium"
+                  [class.text-emerald-600]="s.summary.net >= 0"
+                  [class.text-rose-600]="s.summary.net < 0">
+                {{ money(s.summary.net, s.currency) }}
+              </td>
+              <td class="text-right font-semibold text-foreground">{{ money(s.summary.closing_balance, s.currency) }}</td>
+              <td>
+                <z-badge [zType]="s.status === 'Final' ? 'soft-green' : 'soft-gray'" zShape="pill" class="text-xs">
+                  {{ s.status }}
+                </z-badge>
+              </td>
+              <td class="text-right !pr-4">
+                <button type="button" z-button zType="ghost" zSize="sm" (click)="remove(s, $event)"
+                        class="text-muted-foreground hover:text-destructive">
+                  <z-icon zType="trash" class="w-4 h-4" />
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

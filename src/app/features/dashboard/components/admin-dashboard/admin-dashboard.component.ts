@@ -54,7 +54,14 @@ export class AdminDashboardComponent implements OnInit {
     totalGrossSalary: 0,
     totalStatutory: 0,
     totalPCB: 0,
-    totalNetSalary: 0
+    totalNetSalary: 0,
+    epfEmployee: 0,
+    epfEmployer: 0,
+    socsoEmployee: 0,
+    socsoEmployer: 0,
+    eisEmployee: 0,
+    eisEmployer: 0,
+    pcbEmployee: 0
   };
 
   employeeStats = {
@@ -397,6 +404,44 @@ export class AdminDashboardComponent implements OnInit {
     return sel ? sel.pcb : this.payrollSummary.totalPCB;
   });
 
+  // ─── Statutory breakdown (employee vs employer), trend-aware ────────────────
+  displayEpfEmployee = computed(() => {
+    const sel = this.selectedTrendItem();
+    return sel ? sel.epfEmployee : this.payrollSummary.epfEmployee;
+  });
+  displayEpfEmployer = computed(() => {
+    const sel = this.selectedTrendItem();
+    return sel ? sel.epfEmployer : this.payrollSummary.epfEmployer;
+  });
+  displaySocsoEmployee = computed(() => {
+    const sel = this.selectedTrendItem();
+    return sel ? sel.socsoEmployee : this.payrollSummary.socsoEmployee;
+  });
+  displaySocsoEmployer = computed(() => {
+    const sel = this.selectedTrendItem();
+    return sel ? sel.socsoEmployer : this.payrollSummary.socsoEmployer;
+  });
+  displayEisEmployee = computed(() => {
+    const sel = this.selectedTrendItem();
+    return sel ? sel.eisEmployee : this.payrollSummary.eisEmployee;
+  });
+  displayEisEmployer = computed(() => {
+    const sel = this.selectedTrendItem();
+    return sel ? sel.eisEmployer : this.payrollSummary.eisEmployer;
+  });
+  displayPcbEmployee = computed(() => {
+    const sel = this.selectedTrendItem();
+    return sel ? sel.pcb : this.payrollSummary.pcbEmployee;
+  });
+
+  // Column totals for the breakdown card
+  displayEmployeeStatutoryTotal = computed(() =>
+    this.displayEpfEmployee() + this.displaySocsoEmployee() + this.displayEisEmployee() + this.displayPcbEmployee()
+  );
+  displayEmployerStatutoryTotal = computed(() =>
+    this.displayEpfEmployer() + this.displaySocsoEmployer() + this.displayEisEmployer()
+  );
+
   // ─── Animated counters ─────────────────────────────────
   // Tween from previous value → target whenever a display value changes.
   // The template reads these *Animated signals; raw display* values still drive layout/comparisons.
@@ -405,6 +450,17 @@ export class AdminDashboardComponent implements OnInit {
   statutoryAnimated = signal(0);
   pcbAnimated = signal(0);
   prevNetAnimated = signal(0);
+
+  // Statutory breakdown counters (employee / employer)
+  epfEmployeeAnimated = signal(0);
+  epfEmployerAnimated = signal(0);
+  socsoEmployeeAnimated = signal(0);
+  socsoEmployerAnimated = signal(0);
+  eisEmployeeAnimated = signal(0);
+  eisEmployerAnimated = signal(0);
+  pcbEmployeeAnimated = signal(0);
+  employeeStatutoryTotalAnimated = signal(0);
+  employerStatutoryTotalAnimated = signal(0);
 
   private animationFrames = new Map<string, number>();
 
@@ -456,6 +512,34 @@ export class AdminDashboardComponent implements OnInit {
     });
     effect(() => {
       this.animateValue('prevNet', this.payrollPrevNet(), v => this.prevNetAnimated.set(v), this.prevNetAnimated());
+    });
+    // Statutory breakdown counters
+    effect(() => {
+      this.animateValue('epfEmp', this.displayEpfEmployee(), v => this.epfEmployeeAnimated.set(v), this.epfEmployeeAnimated());
+    });
+    effect(() => {
+      this.animateValue('epfEmpr', this.displayEpfEmployer(), v => this.epfEmployerAnimated.set(v), this.epfEmployerAnimated());
+    });
+    effect(() => {
+      this.animateValue('socsoEmp', this.displaySocsoEmployee(), v => this.socsoEmployeeAnimated.set(v), this.socsoEmployeeAnimated());
+    });
+    effect(() => {
+      this.animateValue('socsoEmpr', this.displaySocsoEmployer(), v => this.socsoEmployerAnimated.set(v), this.socsoEmployerAnimated());
+    });
+    effect(() => {
+      this.animateValue('eisEmp', this.displayEisEmployee(), v => this.eisEmployeeAnimated.set(v), this.eisEmployeeAnimated());
+    });
+    effect(() => {
+      this.animateValue('eisEmpr', this.displayEisEmployer(), v => this.eisEmployerAnimated.set(v), this.eisEmployerAnimated());
+    });
+    effect(() => {
+      this.animateValue('pcbEmp', this.displayPcbEmployee(), v => this.pcbEmployeeAnimated.set(v), this.pcbEmployeeAnimated());
+    });
+    effect(() => {
+      this.animateValue('empStatTotal', this.displayEmployeeStatutoryTotal(), v => this.employeeStatutoryTotalAnimated.set(v), this.employeeStatutoryTotalAnimated());
+    });
+    effect(() => {
+      this.animateValue('emprStatTotal', this.displayEmployerStatutoryTotal(), v => this.employerStatutoryTotalAnimated.set(v), this.employerStatutoryTotalAnimated());
     });
   }
 

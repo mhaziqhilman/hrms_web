@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard, onboardingGuard } from './core/guards/auth.guard';
+import { packageFeatureGuard } from './core/guards/package-feature.guard';
 import { MainLayoutComponent } from './shared/layouts/main-layout/main-layout.component';
 
 export const routes: Routes = [
@@ -35,6 +36,7 @@ export const routes: Routes = [
             },
             {
                 path: 'payroll',
+                canActivate: [packageFeatureGuard('payroll')],
                 loadChildren: () => import('./features/payroll/payroll.routes').then(m => m.PAYROLL_ROUTES)
             },
             {
@@ -47,10 +49,12 @@ export const routes: Routes = [
             },
             {
                 path: 'claims',
+                canActivate: [packageFeatureGuard('claims')],
                 loadChildren: () => import('./features/claims/claims.routes').then(m => m.CLAIMS_ROUTES)
             },
             {
                 path: 'documents',
+                canActivate: [packageFeatureGuard('document_management')],
                 loadChildren: () => import('./features/documents/documents.routes').then(m => m.DOCUMENTS_ROUTES)
             },
             {
@@ -59,10 +63,12 @@ export const routes: Routes = [
             },
             {
                 path: 'statutory-reports',
+                canActivate: [packageFeatureGuard('statutory_reports')],
                 loadChildren: () => import('./features/statutory-reports/statutory-reports.routes').then(m => m.STATUTORY_REPORTS_ROUTES)
             },
             {
                 path: 'analytics',
+                canActivate: [packageFeatureGuard('analytics')],
                 loadChildren: () => import('./features/analytics/analytics.routes').then(m => m.analyticsRoutes)
             },
             {
@@ -91,11 +97,25 @@ export const routes: Routes = [
             },
             {
                 path: 'audit-log',
+                canActivate: [packageFeatureGuard('audit_log')],
                 loadChildren: () => import('./features/audit-log/audit-log.routes').then(m => m.AUDIT_LOG_ROUTES)
             },
             {
                 path: 'e-invoices',
+                canActivate: [packageFeatureGuard('e_invoice')],
                 loadChildren: () => import('./features/e-invoices/e-invoices.routes').then(m => m.E_INVOICES_ROUTES)
+            },
+            {
+                path: 'billing',
+                loadChildren: () => import('./features/billing/billing.routes').then(m => m.BILLING_ROUTES)
+            },
+            {
+                path: 'upgrade',
+                loadChildren: () => import('./features/billing/billing.routes').then(m => m.UPGRADE_ROUTES)
+            },
+            {
+                path: 'admin/subscriptions',
+                loadChildren: () => import('./features/admin-subscriptions/admin-subscriptions.routes').then(m => m.ADMIN_SUBSCRIPTIONS_ROUTES)
             },
             {
                 path: 'projects',

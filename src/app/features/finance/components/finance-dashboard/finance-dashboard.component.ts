@@ -335,6 +335,8 @@ export class FinanceDashboardComponent implements OnInit {
       line('Expenses', 'Bills paid', p.expenses.bills.paid);
       line('Expenses', 'Claims paid', p.expenses.claims.paid);
       line('Expenses', 'Payroll net paid', p.expenses.payroll.net_paid);
+      line('Expenses', 'Payroll employer contributions', p.expenses.payroll.employer_contrib_paid);
+      line('Expenses', 'Payroll total cost', p.expenses.payroll.total_cost_paid);
       line('Realized', 'Revenue', p.realized.revenue);
       line('Realized', 'Expense', p.realized.expense);
       line('Realized', 'Profit', p.realized.profit);

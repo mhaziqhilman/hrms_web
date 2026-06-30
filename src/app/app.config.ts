@@ -6,6 +6,7 @@ import { provideHighcharts } from 'highcharts-angular';
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { loadingInterceptor } from './core/interceptors/loading.interceptor';
+import { packageInterceptor } from './core/interceptors/package.interceptor';
 import { provideZard } from '@/core/provider/providezard';
 
 export const appConfig: ApplicationConfig = {
@@ -13,7 +14,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideHttpClient(
-      withInterceptors([loadingInterceptor, authInterceptor])
+      withInterceptors([loadingInterceptor, authInterceptor, packageInterceptor])
     ),
     provideZard(),
     provideHighcharts()

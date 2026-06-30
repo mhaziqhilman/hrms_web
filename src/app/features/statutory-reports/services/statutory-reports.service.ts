@@ -9,7 +9,8 @@ import {
   EPFBorangAResponse,
   SOCSOForm8AResponse,
   EISLampiran1Response,
-  PCBCP39Response
+  PCBCP39Response,
+  StatutorySummaryResponse
 } from '../models/statutory-reports.model';
 
 @Injectable({
@@ -25,6 +26,15 @@ export class StatutoryReportsService {
   getAvailablePeriods(): Observable<AvailablePeriodsResponse> {
     return this.http.get<AvailablePeriodsResponse>(
       `${this.apiUrl}${API_CONFIG.endpoints.statutoryReports.periods}`
+    );
+  }
+
+  /**
+   * Get the consolidated statutory expenses summary for a whole year
+   */
+  getStatutorySummary(year: number): Observable<StatutorySummaryResponse> {
+    return this.http.get<StatutorySummaryResponse>(
+      `${this.apiUrl}${API_CONFIG.endpoints.statutoryReports.summary(year)}`
     );
   }
 

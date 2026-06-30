@@ -15,10 +15,10 @@ import { ZardDialogService } from '@/shared/components/dialog/dialog.service';
 
 import { EInvoiceService } from '../../services/e-invoice.service';
 import { InvoiceFormDialogComponent } from '../invoice-form-dialog/invoice-form-dialog.component';
+import { PaymentDialogComponent } from '../payment-dialog/payment-dialog.component';
 import {
   Invoice,
   InvoicePayment,
-  PaymentMethod,
   INVOICE_TYPE_LABELS,
   INVOICE_STATUS_COLORS
 } from '../../models/invoice.model';
@@ -64,14 +64,32 @@ export class InvoiceDetailComponent implements OnInit {
   checkingStatus = signal(false);
   printPreview = signal(false);
 
-  // Payment form
-  showPaymentForm = signal(false);
-  paymentDate = this.formatLocalDate(new Date());
-  paymentAmount = 0;
-  paymentMethod: PaymentMethod = 'Bank Transfer';
-  paymentRef = '';
-  paymentNotes = '';
-  savingPayment = signal(false);
+  // Payment status (invoice-level)
+  paidPercent = computed(() => {
+    const inv = this.invoice();
+    if (!inv) return 0;
+    const total = +inv.total_amount || 0;
+    if (total <= 0) return 0;
+    const pct = ((+inv.amount_paid || 0) / total) * 100;
+    return Math.min(100, Math.max(0, Math.round(pct)));
+  });
+  paymentStatus = computed<{ label: string; dotClass: string; textClass: string }>(() => {
+    const inv = this.invoice();
+    if (!inv) return { label: 'Unpaid', dotClass: 'bg-muted-foreground', textClass: 'text-muted-foreground' };
+    const paid = +inv.amount_paid || 0;
+    const total = +inv.total_amount || 0;
+    if (paid >= total && total > 0) {
+      return { label: 'Paid', dotClass: 'bg-emerald-500', textClass: 'text-emerald-600' };
+    }
+    if (paid > 0) {
+      return { label: 'Partially paid', dotClass: 'bg-amber-500', textClass: 'text-amber-600' };
+    }
+    const overdue = inv.due_date && new Date(inv.due_date) < new Date();
+    if (overdue) {
+      return { label: 'Overdue', dotClass: 'bg-red-500', textClass: 'text-red-600' };
+    }
+    return { label: 'Unpaid', dotClass: 'bg-muted-foreground', textClass: 'text-muted-foreground' };
+  });
 
   // Cancel form
   showCancelForm = signal(false);
@@ -86,7 +104,6 @@ export class InvoiceDetailComponent implements OnInit {
 
   readonly TYPE_LABELS = INVOICE_TYPE_LABELS;
   readonly STATUS_COLORS = INVOICE_STATUS_COLORS;
-  readonly PAYMENT_METHODS: PaymentMethod[] = ['Bank Transfer', 'Cash', 'Cheque', 'Credit Card', 'E-Wallet', 'Other'];
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
@@ -196,25 +213,19 @@ export class InvoiceDetailComponent implements OnInit {
 
   // ─── Payments ────────────────────────────────────────────
 
-  onRecordPayment() {
+  onOpenPaymentDialog() {
     const inv = this.invoice();
-    if (!inv || this.paymentAmount <= 0) return;
-    this.savingPayment.set(true);
-
-    this.invoiceService.recordPayment(inv.public_id, {
-      payment_date: this.paymentDate,
-      amount: this.paymentAmount,
-      payment_method: this.paymentMethod,
-      reference_number: this.paymentRef || undefined,
-      notes: this.paymentNotes || undefined
-    } as any).subscribe({
-      next: () => {
-        this.savingPayment.set(false);
-        this.showPaymentForm.set(false);
-        this.resetPaymentForm();
-        this.loadInvoice(inv.public_id);
-      },
-      error: () => this.savingPayment.set(false)
+    if (!inv) return;
+    this.dialogService.create({
+      zContent: PaymentDialogComponent,
+      zHideFooter: true,
+      zClosable: false,
+      zWidth: '480px',
+      zCustomClasses: 'p-0 gap-0 overflow-hidden rounded-xl',
+      zData: {
+        invoice: inv,
+        onSuccess: () => this.loadInvoice(inv.public_id)
+      }
     });
   }
 
@@ -232,23 +243,6 @@ export class InvoiceDetailComponent implements OnInit {
         });
       }
     });
-  }
-
-  // Format a Date as YYYY-MM-DD using LOCAL components.
-  // toISOString() converts to UTC and can yield the wrong day in UTC+8.
-  private formatLocalDate(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  }
-
-  resetPaymentForm() {
-    this.paymentDate = this.formatLocalDate(new Date());
-    this.paymentAmount = 0;
-    this.paymentMethod = 'Bank Transfer';
-    this.paymentRef = '';
-    this.paymentNotes = '';
   }
 
   // ─── Navigation ──────────────────────────────────────────

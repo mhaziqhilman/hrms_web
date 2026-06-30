@@ -400,9 +400,17 @@
             @if (visibleColumns['status']) {
             <!-- Status -->
             <td>
-              <span [class]="getStatusColor(invoice.status)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
-                {{ invoice.status }}
-              </span>
+              <div class="flex flex-wrap items-center gap-1">
+                <span [class]="getStatusColor(invoice.status)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
+                  {{ invoice.status }}
+                </span>
+                @if (getPaymentStatus(invoice); as pay) {
+                <span [class]="pay.classes" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium">
+                  <z-icon [zType]="$any('circle-check')" class="w-3 h-3" />
+                  {{ pay.label }}
+                </span>
+                }
+              </div>
             </td>
             }
 

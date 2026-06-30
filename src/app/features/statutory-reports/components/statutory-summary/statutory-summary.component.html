@@ -1,0 +1,222 @@
+<div class="px-6 py-6 max-w-[1400px] mx-auto">
+  <!-- Header -->
+  <div class="flex items-start justify-between gap-4 mb-6">
+    <div>
+      <h1 class="text-[28px] font-semibold tracking-tight leading-none">Statutory Expenses</h1>
+      <p class="text-[13px] text-muted-foreground mt-2">
+        All EPF, SOCSO, EIS &amp; PCB in one place — see the full statutory cost and what drives it.
+      </p>
+    </div>
+
+    <z-select
+      zPlaceholder="Year"
+      [zValue]="selectedYear()"
+      (zValueChange)="onYearSelect($event)"
+      class="w-32 shrink-0">
+      @for (year of availableYears(); track year) {
+        <z-select-item [zValue]="year">{{ year }}</z-select-item>
+      }
+    </z-select>
+  </div>
+
+  <!-- Error -->
+  @if (error()) {
+    <div class="mb-4 bg-red-50 border border-red-200 rounded-lg px-4 py-3 flex items-center gap-2 text-red-800 text-sm">
+      <z-icon zType="triangle-alert" zSize="sm" />
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="flex items-center justify-center py-24 text-muted-foreground">
+      <z-icon zType="loader-circle" zSize="lg" class="animate-spin" />
+    </div>
+  } @else if (!hasData()) {
+    <!-- Empty -->
+    <div class="flex flex-col items-center justify-center py-24 text-center">
+      <div class="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-3">
+        <z-icon zType="file-chart-column" zSize="default" class="text-muted-foreground" />
+      </div>
+      <p class="text-sm font-medium text-foreground">No statutory data for {{ selectedYear() }}</p>
+      <p class="text-[13px] text-muted-foreground mt-1">Approved or paid payroll records will show up here.</p>
+    </div>
+  } @else if (summary(); as s) {
+    <!-- ============ Summary Cards ============ -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+      <!-- The headline: extra cost on top of salary -->
+      <div class="rounded-xl border border-border bg-card p-4 ring-1 ring-primary/10">
+        <div class="flex items-center gap-2 text-[12px] font-medium text-muted-foreground">
+          <z-icon zType="building-2" zSize="sm" class="text-primary" />
+          Employer statutory cost
+        </div>
+        <div class="text-2xl font-semibold tracking-tight mt-2">{{ formatCompact(s.totals.employer_statutory) }}</div>
+        <p class="text-[11px] text-muted-foreground mt-1">Extra company cost on top of salaries — this is what reduces profit.</p>
+      </div>
+
+      <!-- Total remitted -->
+      <div class="rounded-xl border border-border bg-card p-4">
+        <div class="flex items-center gap-2 text-[12px] font-medium text-muted-foreground">
+          <z-icon zType="landmark" zSize="sm" />
+          Total remitted to authorities
+        </div>
+        <div class="text-2xl font-semibold tracking-tight mt-2">{{ formatCompact(s.totals.total_remitted) }}</div>
+        <p class="text-[11px] text-muted-foreground mt-1">Employer + employee EPF/SOCSO/EIS + PCB sent to government.</p>
+      </div>
+
+      <!-- Employee deductions -->
+      <div class="rounded-xl border border-border bg-card p-4">
+        <div class="flex items-center gap-2 text-[12px] font-medium text-muted-foreground">
+          <z-icon zType="users" zSize="sm" />
+          Employee deductions
+        </div>
+        <div class="text-2xl font-semibold tracking-tight mt-2">{{ formatCompact(s.totals.employee_deductions) }}</div>
+        <p class="text-[11px] text-muted-foreground mt-1">Withheld from staff pay (not extra cost — just passed through).</p>
+      </div>
+
+      <!-- Total staff cost -->
+      <div class="rounded-xl border border-border bg-card p-4">
+        <div class="flex items-center gap-2 text-[12px] font-medium text-muted-foreground">
+          <z-icon zType="wallet" zSize="sm" />
+          Total staff cost
+        </div>
+        <div class="text-2xl font-semibold tracking-tight mt-2">{{ formatCompact(s.totals.total_staff_cost) }}</div>
+        <p class="text-[11px] text-muted-foreground mt-1">Gross salary + employer statutory for {{ s.year }}.</p>
+      </div>
+    </div>
+
+    <!-- ============ Cost stack (what drives the cash out) ============ -->
+    <div class="rounded-xl border border-border bg-card p-5 mb-5">
+      <h2 class="text-sm font-semibold mb-3">How the money goes out in {{ s.year }}</h2>
+      <div class="space-y-3">
+        <!-- Net to staff -->
+        <div>
+          <div class="flex items-center justify-between text-[13px] mb-1">
+            <span class="text-muted-foreground">Net salary paid to staff</span>
+            <span class="font-medium tabular-nums">{{ formatCurrency(s.totals.net_salary) }}</span>
+          </div>
+          <div class="h-2 rounded-full bg-muted overflow-hidden">
+            <div class="h-full bg-sky-500" [style.width.%]="s.totals.total_staff_cost ? (s.totals.net_salary / s.totals.total_staff_cost) * 100 : 0"></div>
+          </div>
+        </div>
+        <!-- Employee deductions remitted -->
+        <div>
+          <div class="flex items-center justify-between text-[13px] mb-1">
+            <span class="text-muted-foreground">Employee statutory remitted (EPF/SOCSO/EIS/PCB)</span>
+            <span class="font-medium tabular-nums">{{ formatCurrency(s.totals.employee_deductions) }}</span>
+          </div>
+          <div class="h-2 rounded-full bg-muted overflow-hidden">
+            <div class="h-full bg-amber-500" [style.width.%]="s.totals.total_staff_cost ? (s.totals.employee_deductions / s.totals.total_staff_cost) * 100 : 0"></div>
+          </div>
+        </div>
+        <!-- Employer statutory -->
+        <div>
+          <div class="flex items-center justify-between text-[13px] mb-1">
+            <span class="text-muted-foreground">Employer statutory contribution</span>
+            <span class="font-medium tabular-nums">{{ formatCurrency(s.totals.employer_statutory) }}</span>
+          </div>
+          <div class="h-2 rounded-full bg-muted overflow-hidden">
+            <div class="h-full bg-rose-500" [style.width.%]="s.totals.total_staff_cost ? (s.totals.employer_statutory / s.totals.total_staff_cost) * 100 : 0"></div>
+          </div>
+        </div>
+      </div>
+      <div class="flex items-center justify-between mt-4 pt-3 border-t border-border text-sm">
+        <span class="font-semibold">Total cash outflow for payroll</span>
+        <span class="font-semibold tabular-nums">{{ formatCurrency(s.totals.total_staff_cost) }}</span>
+      </div>
+    </div>
+
+    <!-- ============ Monthly breakdown ============ -->
+    <div class="rounded-xl border border-border bg-card mb-5 overflow-hidden">
+      <div class="px-5 py-3 border-b border-border flex items-center justify-between">
+        <h2 class="text-sm font-semibold">Monthly breakdown</h2>
+        <span class="text-[12px] text-muted-foreground">{{ s.employee_count }} employees</span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-[13px]">
+          <thead>
+            <tr class="text-muted-foreground border-b border-border">
+              <th class="text-left font-medium px-4 py-2.5">Month</th>
+              <th class="text-right font-medium px-4 py-2.5">Gross</th>
+              <th class="text-right font-medium px-4 py-2.5">EPF</th>
+              <th class="text-right font-medium px-4 py-2.5">SOCSO</th>
+              <th class="text-right font-medium px-4 py-2.5">EIS</th>
+              <th class="text-right font-medium px-4 py-2.5">PCB</th>
+              <th class="text-right font-medium px-4 py-2.5">Employer cost</th>
+              <th class="text-right font-medium px-4 py-2.5">Total cost</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (m of s.months; track m.month) {
+              <tr class="border-b border-border/60 hover:bg-muted/40">
+                <td class="px-4 py-2.5 font-medium">{{ getMonthShort(m.month) }}</td>
+                <td class="px-4 py-2.5 text-right tabular-nums">{{ formatCurrency(m.gross) }}</td>
+                <td class="px-4 py-2.5 text-right tabular-nums">{{ formatCurrency(m.epf_total) }}</td>
+                <td class="px-4 py-2.5 text-right tabular-nums">{{ formatCurrency(m.socso_total) }}</td>
+                <td class="px-4 py-2.5 text-right tabular-nums">{{ formatCurrency(m.eis_total) }}</td>
+                <td class="px-4 py-2.5 text-right tabular-nums">{{ formatCurrency(m.pcb) }}</td>
+                <td class="px-4 py-2.5 text-right tabular-nums text-rose-600">{{ formatCurrency(m.employer_statutory) }}</td>
+                <td class="px-4 py-2.5 text-right tabular-nums font-medium">{{ formatCurrency(m.total_staff_cost) }}</td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr class="border-t border-border bg-muted/40 font-semibold">
+              <td class="px-4 py-2.5">Total</td>
+              <td class="px-4 py-2.5 text-right tabular-nums">{{ formatCurrency(s.totals.gross) }}</td>
+              <td class="px-4 py-2.5 text-right tabular-nums">{{ formatCurrency(s.totals.epf_total) }}</td>
+              <td class="px-4 py-2.5 text-right tabular-nums">{{ formatCurrency(s.totals.socso_total) }}</td>
+              <td class="px-4 py-2.5 text-right tabular-nums">{{ formatCurrency(s.totals.eis_total) }}</td>
+              <td class="px-4 py-2.5 text-right tabular-nums">{{ formatCurrency(s.totals.pcb) }}</td>
+              <td class="px-4 py-2.5 text-right tabular-nums text-rose-600">{{ formatCurrency(s.totals.employer_statutory) }}</td>
+              <td class="px-4 py-2.5 text-right tabular-nums">{{ formatCurrency(s.totals.total_staff_cost) }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============ Per-employee breakdown ============ -->
+    <div class="rounded-xl border border-border bg-card overflow-hidden">
+      <div class="px-5 py-3 border-b border-border">
+        <h2 class="text-sm font-semibold">By employee</h2>
+        <p class="text-[12px] text-muted-foreground mt-0.5">Who costs what across {{ s.year }} — heaviest first.</p>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-[13px]">
+          <thead>
+            <tr class="text-muted-foreground border-b border-border">
+              <th class="text-left font-medium px-4 py-2.5">Employee</th>
+              <th class="text-center font-medium px-4 py-2.5">Months</th>
+              <th class="text-right font-medium px-4 py-2.5">Gross</th>
+              <th class="text-right font-medium px-4 py-2.5">EPF</th>
+              <th class="text-right font-medium px-4 py-2.5">SOCSO</th>
+              <th class="text-right font-medium px-4 py-2.5">EIS</th>
+              <th class="text-right font-medium px-4 py-2.5">PCB</th>
+              <th class="text-right font-medium px-4 py-2.5">Employer cost</th>
+              <th class="text-right font-medium px-4 py-2.5">Total cost</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (e of s.employees; track e.employee_id) {
+              <tr class="border-b border-border/60 hover:bg-muted/40">
+                <td class="px-4 py-2.5">
+                  <div class="font-medium text-foreground">{{ e.full_name }}</div>
+                  <div class="text-[11px] text-muted-foreground">{{ e.employee_id }}</div>
+                </td>
+                <td class="px-4 py-2.5 text-center text-muted-foreground">{{ e.months_count }}</td>
+                <td class="px-4 py-2.5 text-right tabular-nums">{{ formatCurrency(e.gross) }}</td>
+                <td class="px-4 py-2.5 text-right tabular-nums">{{ formatCurrency(e.epf_total) }}</td>
+                <td class="px-4 py-2.5 text-right tabular-nums">{{ formatCurrency(e.socso_total) }}</td>
+                <td class="px-4 py-2.5 text-right tabular-nums">{{ formatCurrency(e.eis_total) }}</td>
+                <td class="px-4 py-2.5 text-right tabular-nums">{{ formatCurrency(e.pcb) }}</td>
+                <td class="px-4 py-2.5 text-right tabular-nums text-rose-600">{{ formatCurrency(e.employer_statutory) }}</td>
+                <td class="px-4 py-2.5 text-right tabular-nums font-medium">{{ formatCurrency(e.total_staff_cost) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>

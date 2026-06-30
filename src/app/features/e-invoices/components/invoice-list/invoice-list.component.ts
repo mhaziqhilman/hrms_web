@@ -393,6 +393,21 @@ export class InvoiceListComponent implements OnInit, OnDestroy {
     return this.STATUS_COLORS[status] || 'bg-gray-100 text-gray-700';
   }
 
+  // Payment indicator (invoice-level). Returns null for unpaid invoices with
+  // no payment activity to avoid cluttering every row.
+  getPaymentStatus(invoice: Invoice): { label: string; classes: string } | null {
+    const paid = +invoice.amount_paid || 0;
+    const total = +invoice.total_amount || 0;
+    if (total <= 0) return null;
+    if (paid >= total) {
+      return { label: 'Paid', classes: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' };
+    }
+    if (paid > 0) {
+      return { label: 'Partial', classes: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' };
+    }
+    return null;
+  }
+
   getTotalCount(): number {
     const counts = this.analytics()?.statusCounts;
     if (!counts) return 0;

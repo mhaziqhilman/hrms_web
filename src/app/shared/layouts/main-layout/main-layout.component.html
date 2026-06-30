@@ -388,12 +388,20 @@
                 <div class="flex flex-col space-y-1 leading-none min-w-0">
                   <p class="font-normal text-sm truncate">{{ currentUser?.employee?.full_name || 'Admin User' }}</p>
                   <p class="text-xs text-muted-foreground truncate">{{ currentUser?.email || 'admin@hrms.com' }}</p>
+                  <span class="inline-flex items-center gap-1 mt-1 text-[10px] font-medium px-1.5 py-0.5 rounded bg-primary/10 text-primary w-fit">
+                    <z-icon zType="badge-check" class="w-3 h-3" />
+                    {{ subscriptionService.planName() }} plan
+                  </span>
                 </div>
               </div>
               <z-divider zSpacing="sm" />
               <button type="button" z-menu-item (click)="navigateToProfile()">
                 <z-icon zType="user" class="mr-2 w-4 h-4" />
                 Profile
+              </button>
+              <button type="button" z-menu-item (click)="navigateToBilling()">
+                <z-icon zType="credit-card" class="mr-2 w-4 h-4" />
+                Billing
               </button>
               <button type="button" z-menu-item (click)="navigateToSettings()">
                 <z-icon zType="settings" class="mr-2 w-4 h-4" />

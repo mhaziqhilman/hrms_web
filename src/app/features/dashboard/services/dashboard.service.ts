@@ -31,6 +31,13 @@ export interface AdminDashboardData {
     totalStatutory: number;
     totalPCB: number;
     totalNetSalary: number;
+    epfEmployee: number;
+    epfEmployer: number;
+    socsoEmployee: number;
+    socsoEmployer: number;
+    eisEmployee: number;
+    eisEmployer: number;
+    pcbEmployee: number;
   };
   payrollTrend: {
     year: number;
@@ -40,6 +47,12 @@ export interface AdminDashboardData {
     gross: number;
     statutory: number;
     pcb: number;
+    epfEmployee: number;
+    epfEmployer: number;
+    socsoEmployee: number;
+    socsoEmployer: number;
+    eisEmployee: number;
+    eisEmployer: number;
     isCurrent: boolean;
   }[];
   claimsPendingPayment: {

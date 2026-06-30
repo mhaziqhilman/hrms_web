@@ -1,0 +1,204 @@
+@if (loading()) {
+  <div class="flex items-center justify-center py-24">
+    <z-icon zType="loader-circle" class="w-8 h-8 animate-spin text-primary" />
+  </div>
+} @else {
+  <div class="space-y-5">
+    <!-- Header -->
+    <div class="flex items-start justify-between gap-4 flex-wrap">
+      <div class="min-w-0">
+        <button type="button" z-button zType="ghost" zSize="sm" (click)="back()" class="gap-1 -ml-2 mb-1 text-muted-foreground">
+          <z-icon zType="arrow-left" class="w-4 h-4" /> Cash Flow
+        </button>
+        <input z-input [(ngModel)]="title" (ngModelChange)="dirty.set(true)"
+               class="!text-[24px] !font-semibold !tracking-tight !border-none !px-0 !h-auto !bg-transparent !shadow-none focus:!ring-0 w-full"
+               [ngModelOptions]="{ updateOn: 'blur' }" />
+        <p class="text-[13px] text-muted-foreground">
+          {{ months.length ? months[0].label : '' }} – {{ months.length ? months[months.length - 1].label : '' }}
+          · {{ months.length }} months · {{ currency() }}
+        </p>
+      </div>
+      <div class="flex items-center gap-2 flex-wrap">
+        <button type="button" z-button zType="outline" (click)="toggleStatus()" class="gap-2">
+          <z-badge [zType]="status() === 'Final' ? 'soft-green' : 'soft-gray'" zShape="pill" class="text-xs">{{ status() }}</z-badge>
+        </button>
+        <button type="button" z-button zType="outline" (click)="pullActuals()" [disabled]="pulling()" class="gap-2">
+          @if (pulling()) { <z-icon zType="loader-circle" class="w-4 h-4 animate-spin" /> }
+          @else { <z-icon zType="refresh-cw" class="w-4 h-4" /> }
+          Pull actuals
+        </button>
+        <button type="button" z-button zType="outline" (click)="exportPdf()" [disabled]="exporting()" class="gap-2">
+          @if (exporting()) { <z-icon zType="loader-circle" class="w-4 h-4 animate-spin" /> }
+          @else { <z-icon zType="download" class="w-4 h-4" /> }
+          Export PDF
+        </button>
+        <button type="button" z-button (click)="save()" [disabled]="saving() || !dirty()" class="gap-2">
+          @if (saving()) { <z-icon zType="loader-circle" class="w-4 h-4 animate-spin" /> }
+          Save
+        </button>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="flex items-center justify-between gap-3 flex-wrap">
+      <z-segmented [zOptions]="viewOptions" [zDefaultValue]="view()" (zChange)="setView($event)" />
+      <div class="flex items-center gap-2 text-sm">
+        <label class="text-muted-foreground">Opening balance</label>
+        <input z-input type="number" step="0.01" [(ngModel)]="openingBalance" (ngModelChange)="bump()"
+               class="w-40 text-right font-medium" />
+      </div>
+    </div>
+
+    @if (view() === 'actual' && !showActualsAvailable()) {
+      <div class="text-[13px] text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 rounded-md px-3 py-2">
+        Type actual figures directly into the cells below, or click <strong>Pull actuals</strong> to auto-fill the invoice/bill/payroll/claim lines from real cash movements. Manual lines are never overwritten by a pull.
+      </div>
+    }
+
+    <!-- Grid -->
+    <div class="border border-border rounded-xl overflow-x-auto">
+      <table class="w-full border-collapse text-sm">
+        <thead>
+          <tr class="bg-muted/50">
+            <th class="sticky left-0 z-10 bg-muted/50 text-left font-medium px-3 py-2 min-w-[240px] border-b border-border">Line item</th>
+            @for (m of months; track m.index) {
+              <th class="text-right font-medium px-3 py-2 whitespace-nowrap border-b border-border min-w-[96px]">{{ m.label }}</th>
+            }
+            <th class="text-right font-semibold px-3 py-2 border-b border-border bg-muted min-w-[110px]">TOTAL</th>
+            <th class="border-b border-border w-10"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- INFLOWS -->
+          <tr class="bg-emerald-50/60 dark:bg-emerald-950/20">
+            <td class="sticky left-0 z-10 bg-emerald-50/60 dark:bg-emerald-950/20 px-3 py-1.5 font-semibold text-emerald-700 dark:text-emerald-400 uppercase text-[11px] tracking-wide" [attr.colspan]="months.length + 3">Cash Inflows</td>
+          </tr>
+          @for (line of inflowLines; track $index) {
+            <tr class="hover:bg-muted/30 group">
+              <td class="sticky left-0 z-10 bg-background group-hover:bg-muted/30 px-2 py-1 border-b border-border/50">
+                <input z-input [(ngModel)]="line.label" (ngModelChange)="onLineMeta()" placeholder="Line label"
+                       class="!h-8 !text-[13px] !border-none !shadow-none !bg-transparent w-full" />
+                <select [(ngModel)]="line.source" (ngModelChange)="onLineMeta()"
+                        class="mt-0.5 text-[11px] text-muted-foreground bg-transparent border-none focus:outline-none cursor-pointer">
+                  @for (o of sourceOptions; track o.value) { <option [value]="o.value">{{ o.label }}</option> }
+                </select>
+              </td>
+              @for (m of months; track m.index) {
+                <td class="px-1 py-0.5 border-b border-border/50">
+                  <input type="number" step="0.01" [(ngModel)]="cellArray(line)[m.index]" (ngModelChange)="bump()"
+                         class="w-full text-right text-[13px] px-1.5 py-1 rounded bg-transparent focus:bg-background focus:ring-1 focus:ring-ring outline-none" />
+                </td>
+              }
+              <td class="px-3 py-1 text-right font-medium text-foreground bg-muted/30 border-b border-border/50">{{ money(rowTotal(line)) }}</td>
+              <td class="px-1 text-center border-b border-border/50">
+                <button type="button" (click)="removeLine('inflow', $index)" class="text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100">
+                  <z-icon zType="trash" class="w-3.5 h-3.5" />
+                </button>
+              </td>
+            </tr>
+          }
+          <tr>
+            <td class="sticky left-0 z-10 bg-background px-2 py-1 border-b border-border" [attr.colspan]="1">
+              <button type="button" z-button zType="ghost" zSize="sm" (click)="addLine('inflow')" class="gap-1 text-muted-foreground">
+                <z-icon zType="plus" class="w-3.5 h-3.5" /> Add inflow
+              </button>
+            </td>
+            <td [attr.colspan]="months.length + 2" class="border-b border-border"></td>
+          </tr>
+          <!-- SUM Inflows -->
+          <tr class="bg-emerald-100/50 dark:bg-emerald-950/30 font-semibold">
+            <td class="sticky left-0 z-10 bg-emerald-100/50 dark:bg-emerald-950/30 px-3 py-1.5 text-emerald-800 dark:text-emerald-300">SUM (Inflows)</td>
+            @for (m of months; track m.index) {
+              <td class="px-3 py-1.5 text-right text-emerald-800 dark:text-emerald-300">{{ money(totals().inflowByMonth[m.index]) }}</td>
+            }
+            <td class="px-3 py-1.5 text-right text-emerald-800 dark:text-emerald-300 bg-emerald-200/40 dark:bg-emerald-900/30">{{ money(totals().inflowTotal) }}</td>
+            <td></td>
+          </tr>
+
+          <!-- OUTFLOWS -->
+          <tr class="bg-rose-50/60 dark:bg-rose-950/20">
+            <td class="sticky left-0 z-10 bg-rose-50/60 dark:bg-rose-950/20 px-3 py-1.5 font-semibold text-rose-700 dark:text-rose-400 uppercase text-[11px] tracking-wide" [attr.colspan]="months.length + 3">Cash Outflows</td>
+          </tr>
+          @for (line of outflowLines; track $index) {
+            <tr class="hover:bg-muted/30 group">
+              <td class="sticky left-0 z-10 bg-background group-hover:bg-muted/30 px-2 py-1 border-b border-border/50">
+                <input z-input [(ngModel)]="line.label" (ngModelChange)="onLineMeta()" placeholder="Line label"
+                       class="!h-8 !text-[13px] !border-none !shadow-none !bg-transparent w-full" />
+                <select [(ngModel)]="line.source" (ngModelChange)="onLineMeta()"
+                        class="mt-0.5 text-[11px] text-muted-foreground bg-transparent border-none focus:outline-none cursor-pointer">
+                  @for (o of sourceOptions; track o.value) { <option [value]="o.value">{{ o.label }}</option> }
+                </select>
+              </td>
+              @for (m of months; track m.index) {
+                <td class="px-1 py-0.5 border-b border-border/50">
+                  <input type="number" step="0.01" [(ngModel)]="cellArray(line)[m.index]" (ngModelChange)="bump()"
+                         class="w-full text-right text-[13px] px-1.5 py-1 rounded bg-transparent focus:bg-background focus:ring-1 focus:ring-ring outline-none" />
+                </td>
+              }
+              <td class="px-3 py-1 text-right font-medium text-foreground bg-muted/30 border-b border-border/50">{{ money(rowTotal(line)) }}</td>
+              <td class="px-1 text-center border-b border-border/50">
+                <button type="button" (click)="removeLine('outflow', $index)" class="text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100">
+                  <z-icon zType="trash" class="w-3.5 h-3.5" />
+                </button>
+              </td>
+            </tr>
+          }
+          <tr>
+            <td class="sticky left-0 z-10 bg-background px-2 py-1 border-b border-border">
+              <button type="button" z-button zType="ghost" zSize="sm" (click)="addLine('outflow')" class="gap-1 text-muted-foreground">
+                <z-icon zType="plus" class="w-3.5 h-3.5" /> Add outflow
+              </button>
+            </td>
+            <td [attr.colspan]="months.length + 2" class="border-b border-border"></td>
+          </tr>
+          <!-- SUM Outflows -->
+          <tr class="bg-rose-100/50 dark:bg-rose-950/30 font-semibold">
+            <td class="sticky left-0 z-10 bg-rose-100/50 dark:bg-rose-950/30 px-3 py-1.5 text-rose-800 dark:text-rose-300">SUM (Outflows)</td>
+            @for (m of months; track m.index) {
+              <td class="px-3 py-1.5 text-right text-rose-800 dark:text-rose-300">{{ money(totals().outflowByMonth[m.index]) }}</td>
+            }
+            <td class="px-3 py-1.5 text-right text-rose-800 dark:text-rose-300 bg-rose-200/40 dark:bg-rose-900/30">{{ money(totals().outflowTotal) }}</td>
+            <td></td>
+          </tr>
+
+          <!-- NET -->
+          <tr class="font-semibold border-t-2 border-border">
+            <td class="sticky left-0 z-10 bg-background px-3 py-1.5">Net Cash inflow/(outflow)</td>
+            @for (m of months; track m.index) {
+              <td class="px-3 py-1.5 text-right" [class.text-emerald-600]="totals().net[m.index] >= 0" [class.text-rose-600]="totals().net[m.index] < 0">{{ money(totals().net[m.index]) }}</td>
+            }
+            <td class="px-3 py-1.5 text-right bg-muted" [class.text-emerald-600]="totals().netTotal >= 0" [class.text-rose-600]="totals().netTotal < 0">{{ money(totals().netTotal) }}</td>
+            <td></td>
+          </tr>
+          <!-- OPENING -->
+          <tr class="text-muted-foreground">
+            <td class="sticky left-0 z-10 bg-background px-3 py-1.5">Opening cash balance</td>
+            @for (m of months; track m.index) {
+              <td class="px-3 py-1.5 text-right">{{ money(totals().opening[m.index]) }}</td>
+            }
+            <td class="bg-muted"></td>
+            <td></td>
+          </tr>
+          <!-- CLOSING -->
+          <tr class="font-semibold bg-muted/40">
+            <td class="sticky left-0 z-10 bg-muted/40 px-3 py-1.5">Closing cash balance</td>
+            @for (m of months; track m.index) {
+              <td class="px-3 py-1.5 text-right" [class.text-rose-600]="totals().closing[m.index] < 0">{{ money(totals().closing[m.index]) }}</td>
+            }
+            <td class="px-3 py-1.5 text-right bg-muted">{{ money(totals().closingFinal) }}</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Chart -->
+    <div class="border border-border rounded-xl p-4">
+      <h3 class="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+        <z-icon zType="bar-chart" class="w-4 h-4 text-muted-foreground" />
+        Cash position ({{ view() === 'actual' ? 'Actual' : 'Projected' }})
+      </h3>
+      <highcharts-chart [options]="chartOptions()" style="width: 100%; display: block;"></highcharts-chart>
+    </div>
+  </div>
+}

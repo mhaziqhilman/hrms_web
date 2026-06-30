@@ -4,6 +4,7 @@ import { RouterLink, RouterLinkActive, RouterOutlet, Router, NavigationEnd, Acti
 import { filter } from 'rxjs/operators';
 import { AuthService } from '@/core/services/auth.service';
 import { CompanyService } from '@/core/services/company.service';
+import { SubscriptionService } from '@/core/services/subscription.service';
 import { ThemeService } from '@/core/services/theme';
 import { UserProfileService } from '@/core/services/user-profile.service';
 import { DisplayService } from '@/core/services/display.service';
@@ -58,6 +59,7 @@ export class MainLayoutComponent implements OnInit {
   notificationService = inject(NotificationService);
   private displayService = inject(DisplayService);
   private settingsService = inject(SettingsService);
+  subscriptionService = inject(SubscriptionService);
 
   notificationMenuOpen = false;
   currentUser: User | null = null;
@@ -406,6 +408,10 @@ export class MainLayoutComponent implements OnInit {
 
   navigateToSettings() {
     this.router.navigate(['/settings/account']);
+  }
+
+  navigateToBilling() {
+    this.router.navigate(['/billing']);
   }
 
   logout() {

@@ -205,6 +205,52 @@ export interface PCBCP39Response {
   data: PCBCP39Data;
 }
 
+// ============ Statutory Expenses Summary (whole year, all components) ============
+
+// Shared shape for a decorated statutory bucket (a month row, an employee row, or totals)
+export interface StatutoryBucket {
+  gross: number;
+  epf_employee: number;
+  epf_employer: number;
+  epf_total: number;
+  socso_employee: number;
+  socso_employer: number;
+  socso_total: number;
+  eis_employee: number;
+  eis_employer: number;
+  eis_total: number;
+  pcb: number;
+  net_salary: number;
+  employer_statutory: number;   // employer EPF+SOCSO+EIS — extra cost on top of salary
+  employee_deductions: number;  // employee EPF+SOCSO+EIS+PCB — withheld & remitted
+  total_remitted: number;       // all statutory cash sent to authorities
+  total_staff_cost: number;     // gross + employer_statutory
+}
+
+export interface StatutoryMonthRow extends StatutoryBucket {
+  month: number;
+}
+
+export interface StatutoryEmployeeRow extends StatutoryBucket {
+  employee_id: string;
+  full_name: string;
+  months_count: number;
+}
+
+export interface StatutorySummaryData {
+  year: number;
+  employer: { name: string };
+  months: StatutoryMonthRow[];
+  totals: StatutoryBucket;
+  employees: StatutoryEmployeeRow[];
+  employee_count: number;
+}
+
+export interface StatutorySummaryResponse {
+  success: boolean;
+  data: StatutorySummaryData;
+}
+
 // Report type for navigation
 export type ReportType = 'ea' | 'epf' | 'socso' | 'eis' | 'pcb';
 

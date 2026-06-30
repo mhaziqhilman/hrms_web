@@ -83,7 +83,7 @@ const ADMIN_MENU: SidebarMenuGroup[] = [
   },
   {
     label: 'Finance',
-    roles: ['super_admin', 'admin', 'manager'],
+    roles: ['super_admin', 'admin'],
     items: [
       {
         title: 'Finance Dashboard',
@@ -105,6 +105,16 @@ const ADMIN_MENU: SidebarMenuGroup[] = [
         title: 'Bills & POs',
         icon: 'receipt-text',
         route: '/finance/bills'
+      },
+      {
+        title: 'Cash Flow',
+        icon: 'trending-up',
+        route: '/finance/cashflow'
+      },
+      {
+        title: 'Statutory Expenses',
+        icon: 'landmark',
+        route: '/statutory-reports/summary'
       }
     ]
   },
@@ -122,6 +132,12 @@ const ADMIN_MENU: SidebarMenuGroup[] = [
         title: 'Audit Log',
         icon: 'shield-check',
         route: '/audit-log',
+        roles: ['super_admin']
+      },
+      {
+        title: 'Subscriptions',
+        icon: 'credit-card',
+        route: '/admin/subscriptions',
         roles: ['super_admin']
       },
       {
@@ -181,6 +197,11 @@ const ADMIN_MENU: SidebarMenuGroup[] = [
         icon: 'shield',
         route: '/user-management',
         roles: ['super_admin', 'admin']
+      },
+      {
+        title: 'Billing',
+        icon: 'credit-card',
+        route: '/billing'
       },
       {
         title: 'Settings',
@@ -263,28 +284,13 @@ const MANAGER_MENU: SidebarMenuGroup[] = [
     ]
   },
   {
-    label: 'Finance',
-    items: [
-      {
-        title: 'Finance Dashboard',
-        icon: 'trending-up',
-        route: '/finance'
-      },
-      {
-        title: 'Projects',
-        icon: 'briefcase',
-        route: '/projects'
-      },
-      {
-        title: 'Bills & POs',
-        icon: 'receipt-text',
-        route: '/finance/bills'
-      }
-    ]
-  },
-  {
     label: 'Systems',
     items: [
+      {
+        title: 'Billing',
+        icon: 'credit-card',
+        route: '/billing'
+      },
       {
         title: 'Settings',
         icon: 'settings',
@@ -315,7 +321,7 @@ const MANAGER_MENU: SidebarMenuGroup[] = [
   }
 ];
 
-// (manager menu does not include e-Invoices — admin/super_admin only)
+// (manager & staff menus do not include Finance — admin/super_admin only)
 
 /**
  * Staff menu layout — personal-focused, no management features.
@@ -364,6 +370,11 @@ const STAFF_MENU: SidebarMenuGroup[] = [
   {
     label: 'Systems',
     items: [
+      {
+        title: 'Billing',
+        icon: 'credit-card',
+        route: '/billing'
+      },
       {
         title: 'Settings',
         icon: 'settings',

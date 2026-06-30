@@ -1,0 +1,95 @@
+<div class="p-6">
+  <!-- Title -->
+  <div class="flex items-center justify-between mb-4">
+    <h3 class="text-lg font-semibold text-foreground flex items-center gap-2">
+      <z-icon [zType]="$any('credit-card')" zSize="sm" />
+      Record Payment
+    </h3>
+    <button z-button zType="ghost" zSize="sm" class="h-7 w-7 p-0" (click)="cancel()">
+      <z-icon [zType]="$any('x')" zSize="sm" />
+    </button>
+  </div>
+
+  <!-- Outstanding balance banner -->
+  <div class="flex items-center justify-between rounded-lg border border-border bg-muted/40 px-4 py-3 mb-5">
+    <span class="text-sm text-muted-foreground">Outstanding balance</span>
+    <span class="text-lg font-semibold text-foreground">
+      {{ invoice.currency }} {{ formatCurrency(balanceDue()) }}
+    </span>
+  </div>
+
+  <!-- Form -->
+  <div class="space-y-4">
+    <!-- Amount -->
+    <div>
+      <label class="text-sm font-normal text-foreground block mb-1">Amount *</label>
+      <div class="flex gap-2">
+        <input type="number" min="0.01" [max]="balanceDue()" step="0.01"
+          class="flex-1 px-3 py-2 text-sm border rounded-md bg-background"
+          [class.border-input]="!amountExceeds()" [class.border-red-400]="amountExceeds()"
+          [ngModel]="paymentAmount()" (ngModelChange)="onAmountChange($event)" />
+        <button z-button zType="outline" zSize="sm" type="button" (click)="payFull()">
+          Pay full
+        </button>
+      </div>
+      @if (amountExceeds()) {
+      <p class="text-xs text-red-500 mt-1">Amount exceeds the outstanding balance.</p>
+      }
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- Date -->
+      <div>
+        <label class="text-sm font-normal text-foreground block mb-1">Date *</label>
+        <input type="date" class="w-full px-3 py-2 text-sm border border-input rounded-md bg-background"
+          [(ngModel)]="paymentDate" />
+      </div>
+      <!-- Method -->
+      <div>
+        <label class="text-sm font-normal text-foreground block mb-1">Method *</label>
+        <select class="w-full px-3 py-2 text-sm border border-input rounded-md bg-background"
+          [(ngModel)]="paymentMethod">
+          @for (m of PAYMENT_METHODS; track m) {
+          <option [value]="m">{{ m }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <!-- Reference -->
+    <div>
+      <label class="text-sm font-normal text-foreground block mb-1">Reference #</label>
+      <input type="text" class="w-full px-3 py-2 text-sm border border-input rounded-md bg-background"
+        [(ngModel)]="paymentRef" placeholder="Transaction reference" />
+    </div>
+
+    <!-- Notes -->
+    <div>
+      <label class="text-sm font-normal text-foreground block mb-1">Notes</label>
+      <input type="text" class="w-full px-3 py-2 text-sm border border-input rounded-md bg-background"
+        [(ngModel)]="paymentNotes" placeholder="Optional notes" />
+    </div>
+  </div>
+
+  <z-divider zSpacing="default" />
+
+  <!-- Remaining preview -->
+  <div class="flex items-center justify-between mb-5">
+    <span class="text-sm text-muted-foreground">Remaining after this payment</span>
+    <span class="text-base font-semibold" [class.text-emerald-600]="remainingAfter() === 0"
+      [class.text-foreground]="remainingAfter() > 0">
+      {{ invoice.currency }} {{ formatCurrency(remainingAfter()) }}
+    </span>
+  </div>
+
+  <!-- Actions -->
+  <div class="flex justify-end gap-2">
+    <button z-button zType="outline" zSize="sm" (click)="cancel()">Cancel</button>
+    <button z-button zSize="sm" [disabled]="!amountValid() || saving()" (click)="save()">
+      @if (saving()) {
+      <z-icon zType="loader-circle" zSize="sm" class="animate-spin mr-1.5" />
+      }
+      Save Payment
+    </button>
+  </div>
+</div>

@@ -89,7 +89,7 @@ export interface PnLSummary {
   expenses: {
     bills: { billed: number; paid: number; payable: number; count: number };
     claims: { approved: number; paid: number; count: number };
-    payroll: { gross: number; net_paid: number; count: number };
+    payroll: { gross: number; net_paid: number; employer_contrib_paid: number; total_cost_paid: number; count: number };
   };
   realized: { revenue: number; expense: number; profit: number; margin: number };
   unrealized: { revenue: number; expense: number; profit: number };

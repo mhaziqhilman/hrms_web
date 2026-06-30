@@ -441,6 +441,105 @@
         </z-card>
       </div>
 
+      <!-- Statutory Contributions Breakdown — EPF / SOCSO / EIS / PCB split by employee & employer -->
+      <div class="mb-8">
+        <z-card>
+          <div class="-mx-6 -my-6 p-5">
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-5">
+              <div class="flex items-center gap-2">
+                <span class="text-foreground">
+                  <z-icon zType="wallet" class="text-[16px]" />
+                </span>
+                <h3 class="text-base font-semibold text-foreground">Statutory Contributions Breakdown</h3>
+              </div>
+              <span class="text-[11px] font-medium text-muted-foreground">{{ displayPeriodLabel() }}{{ selectedTrendIndex() != null ? ' · selected' : '' }}</span>
+            </div>
+
+            <!-- Legend -->
+            <div class="flex items-center gap-4 mb-3 text-[10px] text-muted-foreground">
+              <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-rose-500"></span>Employee (deducted)</span>
+              <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-sky-500"></span>Employer (company cost)</span>
+            </div>
+
+            <!-- 4 contribution tiles -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
+              <!-- EPF -->
+              <div class="bg-muted/40 border border-border/70 rounded-lg p-3 inner-card">
+                <p class="text-[11px] font-semibold text-foreground">EPF <span class="font-normal text-muted-foreground">· Provident Fund</span></p>
+                <div class="grid grid-cols-2 gap-2 mt-2.5">
+                  <div>
+                    <p class="text-[10px] text-muted-foreground">Employee</p>
+                    <p class="text-xl font-bold text-rose-600 dark:text-rose-400 leading-none mt-0.5">RM {{ formatCounter(epfEmployeeAnimated()) }}</p>
+                  </div>
+                  <div>
+                    <p class="text-[10px] text-muted-foreground">Employer</p>
+                    <p class="text-xl font-bold text-sky-600 dark:text-sky-400 leading-none mt-0.5">RM {{ formatCounter(epfEmployerAnimated()) }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- SOCSO -->
+              <div class="bg-muted/40 border border-border/70 rounded-lg p-3 inner-card">
+                <p class="text-[11px] font-semibold text-foreground">SOCSO <span class="font-normal text-muted-foreground">· PERKESO</span></p>
+                <div class="grid grid-cols-2 gap-2 mt-2.5">
+                  <div>
+                    <p class="text-[10px] text-muted-foreground">Employee</p>
+                    <p class="text-xl font-bold text-rose-600 dark:text-rose-400 leading-none mt-0.5">RM {{ formatCounter(socsoEmployeeAnimated()) }}</p>
+                  </div>
+                  <div>
+                    <p class="text-[10px] text-muted-foreground">Employer</p>
+                    <p class="text-xl font-bold text-sky-600 dark:text-sky-400 leading-none mt-0.5">RM {{ formatCounter(socsoEmployerAnimated()) }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- EIS -->
+              <div class="bg-muted/40 border border-border/70 rounded-lg p-3 inner-card">
+                <p class="text-[11px] font-semibold text-foreground">EIS <span class="font-normal text-muted-foreground">· Insurance System</span></p>
+                <div class="grid grid-cols-2 gap-2 mt-2.5">
+                  <div>
+                    <p class="text-[10px] text-muted-foreground">Employee</p>
+                    <p class="text-xl font-bold text-rose-600 dark:text-rose-400 leading-none mt-0.5">RM {{ formatCounter(eisEmployeeAnimated()) }}</p>
+                  </div>
+                  <div>
+                    <p class="text-[10px] text-muted-foreground">Employer</p>
+                    <p class="text-xl font-bold text-sky-600 dark:text-sky-400 leading-none mt-0.5">RM {{ formatCounter(eisEmployerAnimated()) }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- PCB -->
+              <div class="bg-muted/40 border border-border/70 rounded-lg p-3 inner-card">
+                <p class="text-[11px] font-semibold text-foreground">PCB <span class="font-normal text-muted-foreground">· Income Tax</span></p>
+                <div class="grid grid-cols-2 gap-2 mt-2.5">
+                  <div>
+                    <p class="text-[10px] text-muted-foreground">Employee</p>
+                    <p class="text-xl font-bold text-rose-600 dark:text-rose-400 leading-none mt-0.5">RM {{ formatCounter(pcbEmployeeAnimated()) }}</p>
+                  </div>
+                  <div>
+                    <p class="text-[10px] text-muted-foreground">Employer</p>
+                    <p class="text-base font-semibold text-muted-foreground leading-none mt-1">N/A</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Totals footer -->
+            <div class="grid grid-cols-2 divide-x divide-border/70 border-t border-border/70 mt-4 pt-3">
+              <div class="px-3 first:pl-0">
+                <p class="text-[10px] text-muted-foreground">Total Employee Deductions</p>
+                <p class="text-[15px] font-bold text-rose-600 dark:text-rose-400">- RM {{ formatCounter(employeeStatutoryTotalAnimated()) }}</p>
+              </div>
+              <div class="px-3">
+                <p class="text-[10px] text-muted-foreground">Total Employer Contributions</p>
+                <p class="text-[15px] font-bold text-sky-600 dark:text-sky-400">RM {{ formatCounter(employerStatutoryTotalAnimated()) }}</p>
+              </div>
+            </div>
+          </div>
+        </z-card>
+      </div>
+
       <!-- Claims & Recent Activities (Variant 02) -->
       <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
         <!-- Claims Pending Payment — variant 02 -->

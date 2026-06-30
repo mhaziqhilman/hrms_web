@@ -90,6 +90,7 @@ export const API_CONFIG = {
     },
     statutoryReports: {
       periods: '/statutory-reports/periods',
+      summary: (year: number) => `/statutory-reports/summary/${year}`,
       eaEmployees: (year: number) => `/statutory-reports/ea/${year}/employees`,
       ea: (employeeId: number | string, year: number) => `/statutory-reports/ea/${employeeId}/${year}`,
       eaPdf: (employeeId: number | string, year: number) => `/statutory-reports/ea/${employeeId}/${year}/pdf`,
@@ -241,6 +242,30 @@ export const API_CONFIG = {
       sales: '/finance/sales',
       expenses: '/finance/expenses',
       projectsPnl: '/finance/projects-pnl'
+    },
+    cashflow: {
+      base: '/cashflow',
+      template: '/cashflow/template',
+      detail: (id: string) => `/cashflow/${id}`,
+      lines: (id: string) => `/cashflow/${id}/lines`,
+      actuals: (id: string) => `/cashflow/${id}/actuals`,
+      pdf: (id: string) => `/cashflow/${id}/pdf`
+    },
+    packages: {
+      base: '/packages'
+    },
+    subscription: {
+      me: '/subscription/me',
+      usage: '/subscription/usage',
+      history: '/subscription/history',
+      subscribe: '/subscription/subscribe',
+      change: '/subscription/change',
+      cancel: '/subscription/cancel'
+    },
+    adminSubscriptions: {
+      base: '/admin/subscriptions',
+      detail: (userId: number) => `/admin/subscriptions/${userId}`,
+      grantTrial: (userId: number) => `/admin/subscriptions/${userId}/grant-trial`
     },
     settings: {
       base: '/settings',
