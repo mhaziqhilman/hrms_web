@@ -53,8 +53,13 @@
   color: #ffffff;
   font-weight: 700;
   font-size: 20px;
-  background: linear-gradient(135deg, #4f46e5, #7c3aed 60%, #a855f7);
-  box-shadow: 0 8px 20px -8px rgba(124, 58, 237, 0.55);
+  background: linear-gradient(140deg, #1b3a6b, #2a6fdb);
+  box-shadow: 0 8px 20px -8px rgba(42, 111, 219, 0.55);
+}
+
+.login__logo img {
+  width: 30px;
+  height: 30px;
 }
 
 .login__brand-name {
