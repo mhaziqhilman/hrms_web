@@ -320,9 +320,9 @@ export class LeaveDashboardComponent implements OnInit, OnDestroy {
   }
 
   heatmapShade(weekValue: number): string {
-    if (weekValue === 0) return 'bg-slate-100';
-    if (weekValue <= 2) return 'bg-slate-300';
-    return 'bg-slate-700';
+    if (weekValue === 0) return 'bg-slate-100 dark:bg-slate-800';
+    if (weekValue <= 2) return 'bg-slate-300 dark:bg-slate-600';
+    return 'bg-slate-700 dark:bg-slate-400';
   }
 
   openApplyLeaveSheet(): void {

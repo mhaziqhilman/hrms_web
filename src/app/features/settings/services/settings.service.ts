@@ -6,11 +6,9 @@ import {
   SettingsResponse,
   AccountInfoResponse,
   UpdateSettingsResponse,
-  ChangePasswordResponse,
   AppearanceSettings,
   DisplaySettings,
-  NotificationSettings,
-  ChangePasswordRequest
+  NotificationSettings
 } from '../models/settings.model';
 
 @Injectable({ providedIn: 'root' })
@@ -36,10 +34,6 @@ export class SettingsService {
 
   updateNotifications(data: NotificationSettings): Observable<UpdateSettingsResponse> {
     return this.http.put<UpdateSettingsResponse>(`${this.apiUrl}/settings/notifications`, data);
-  }
-
-  changePassword(data: ChangePasswordRequest): Observable<ChangePasswordResponse> {
-    return this.http.post<ChangePasswordResponse>(`${this.apiUrl}/settings/change-password`, data);
   }
 
   uploadProfilePicture(file: File): Observable<{ success: boolean; message: string; data: { photo_url: string } }> {

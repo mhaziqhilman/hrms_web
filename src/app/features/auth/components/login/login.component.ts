@@ -62,6 +62,11 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.errorMessage = 'Social login failed. Please try again or use email login.';
     }
 
+    // Session terminated because company access was revoked (offboarded/removed)
+    if (this.route.snapshot.queryParams['reason'] === 'access-revoked') {
+      this.errorMessage = 'Your access to the company has been revoked. Please contact your administrator.';
+    }
+
     // Check if already authenticated
     if (this.authService.isAuthenticated()) {
       this.router.navigate([this.returnUrl]);

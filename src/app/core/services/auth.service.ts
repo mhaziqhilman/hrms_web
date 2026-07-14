@@ -1,7 +1,8 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap, catchError, throwError } from 'rxjs';
+import { Observable, BehaviorSubject, tap, map, catchError, throwError } from 'rxjs';
 import { Router } from '@angular/router';
+import { Capacitor } from '@capacitor/core';
 import { API_CONFIG, TOKEN_KEY, REFRESH_TOKEN_KEY, USER_KEY } from '../config/api.config';
 import {
   User,
@@ -109,15 +110,27 @@ export class AuthService {
     ).pipe(
       tap(() => {
         this.clearSession();
-        this.router.navigate(['/auth/login']);
+        this.navigateAfterLogout();
       }),
       catchError(err => {
         // Even if the API call fails, clear local session
         this.clearSession();
-        this.router.navigate(['/auth/login']);
+        this.navigateAfterLogout();
         return throwError(() => err);
       })
     );
+  }
+
+  /**
+   * Post-logout destination: the native app keeps its local login screen,
+   * the web app plays the signing-out transition back to the Nextura hub.
+   */
+  private navigateAfterLogout(): void {
+    if (Capacitor.isNativePlatform()) {
+      this.router.navigateByUrl('/m/login', { replaceUrl: true });
+    } else {
+      this.router.navigate(['/auth/signing-out']);
+    }
   }
 
   /**
@@ -283,6 +296,32 @@ export class AuthService {
    */
   handleOAuthCallback(token: string, user: User, refreshToken?: string): void {
     this.setSession(token, user, refreshToken);
+  }
+
+  /**
+   * Complete an SSO token handoff from the Nextura hub (nextura.my).
+   * Stores the token first (so the auth interceptor attaches it), then
+   * validates it by fetching the current user. On failure the partial
+   * session is cleared so the user falls back to a normal login.
+   */
+  completeSsoLogin(token: string, refreshToken?: string): Observable<User> {
+    localStorage.setItem(TOKEN_KEY, token);
+    if (refreshToken) {
+      localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+    }
+    return this.getCurrentUser().pipe(
+      map(response => {
+        if (!response.success || !response.data) {
+          throw new Error('Invalid session');
+        }
+        this.setSession(token, response.data, refreshToken);
+        return response.data;
+      }),
+      catchError(error => {
+        this.clearSession();
+        return throwError(() => error);
+      })
+    );
   }
 
   /**

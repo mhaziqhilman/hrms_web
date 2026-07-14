@@ -508,7 +508,7 @@ export class StaffDashboardComponent implements OnInit, OnDestroy {
       case 'WFH': return 'bg-indigo-500';
       case 'Late': return 'bg-amber-500';
       case 'Early Leave': return 'bg-sky-500';
-      default: return 'bg-slate-400';
+      default: return 'bg-slate-400 dark:bg-slate-500';
     }
   }
 

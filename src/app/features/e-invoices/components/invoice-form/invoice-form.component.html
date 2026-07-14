@@ -44,7 +44,9 @@
                       (click)="toggleLinkProject(); $event.currentTarget && ($any($event.currentTarget)).blur()"
                       class="relative h-5 w-9 shrink-0 cursor-pointer rounded-full transition-colors duration-200 focus:outline-none"
                       [class.bg-blue-600]="linkProjectEnabled()"
-                      [class.bg-slate-300]="!linkProjectEnabled()">
+                      [class.dark:bg-blue-500]="linkProjectEnabled()"
+                      [class.bg-slate-300]="!linkProjectEnabled()"
+                      [class.dark:bg-slate-600]="!linkProjectEnabled()">
                 <span
                   class="pointer-events-none absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform duration-200"
                   [class.translate-x-4]="linkProjectEnabled()">

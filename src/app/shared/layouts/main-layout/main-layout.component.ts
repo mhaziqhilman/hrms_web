@@ -456,7 +456,10 @@ export class MainLayoutComponent implements OnInit {
       wfh_rejected: 'circle-x',
       announcement_published: 'megaphone',
       team_member_joined: 'users',
-      policy_published: 'file-text'
+      policy_published: 'file-text',
+      overtime_submitted: 'timer',
+      overtime_approved: 'check-circle',
+      overtime_rejected: 'circle-x'
     };
     return icons[type] || 'bell';
   }
@@ -473,7 +476,10 @@ export class MainLayoutComponent implements OnInit {
       wfh_rejected: 'bg-red-500',
       announcement_published: 'bg-blue-500',
       team_member_joined: 'bg-purple-500',
-      policy_published: 'bg-amber-500'
+      policy_published: 'bg-amber-500',
+      overtime_submitted: 'bg-blue-500',
+      overtime_approved: 'bg-emerald-500',
+      overtime_rejected: 'bg-red-500'
     };
     return bgs[type] || 'bg-gray-500';
   }

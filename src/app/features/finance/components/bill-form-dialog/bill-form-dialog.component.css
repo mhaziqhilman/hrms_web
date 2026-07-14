@@ -36,7 +36,7 @@
   display: flex;
   flex-direction: column;
   scrollbar-width: thin;
-  scrollbar-color: hsl(0 0% 80%) transparent;
+  scrollbar-color: var(--border) transparent;
 }
 
 .dialog-body > * {
@@ -45,8 +45,8 @@
 
 .dialog-body::-webkit-scrollbar { width: 6px; }
 .dialog-body::-webkit-scrollbar-track { background: transparent; }
-.dialog-body::-webkit-scrollbar-thumb { background: hsl(0 0% 80%); border-radius: 3px; }
-.dialog-body::-webkit-scrollbar-thumb:hover { background: hsl(0 0% 70%); }
+.dialog-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+.dialog-body::-webkit-scrollbar-thumb:hover { background: var(--muted-foreground); }
 
 .dialog-footer {
   display: flex;
@@ -64,13 +64,13 @@
   padding: 1.25rem;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: hsl(0 0% 80%) transparent;
+  scrollbar-color: var(--border) transparent;
 }
 
 .dialog-summary::-webkit-scrollbar { width: 6px; }
 .dialog-summary::-webkit-scrollbar-track { background: transparent; }
-.dialog-summary::-webkit-scrollbar-thumb { background: hsl(0 0% 80%); border-radius: 3px; }
-.dialog-summary::-webkit-scrollbar-thumb:hover { background: hsl(0, 0%, 70%); }
+.dialog-summary::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+.dialog-summary::-webkit-scrollbar-thumb:hover { background: var(--muted-foreground); }
 
 .step-content {
   animation: fadeIn 0.2s ease;

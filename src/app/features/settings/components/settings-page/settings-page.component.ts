@@ -33,12 +33,6 @@ import { PayslipPdfService } from '@/features/payroll/services/payslip-pdf.servi
 
 type SectionType = 'account' | 'payslips' | 'appearance' | 'notifications' | 'display';
 
-interface PasswordStrength {
-  score: number;
-  label: string;
-  color: string;
-}
-
 @Component({
   selector: 'app-settings-page',
   standalone: true,
@@ -154,24 +148,6 @@ export class SettingsPageComponent implements OnInit {
   // Profile picture
   uploadingPhoto = signal(false);
   removingPhoto = signal(false);
-
-  // Change password form
-  savingPassword = signal(false);
-  showCurrentPassword = signal(false);
-  showNewPassword = signal(false);
-  showConfirmPassword = signal(false);
-  currentPassword = '';
-  newPassword = '';
-  confirmPassword = '';
-  passwordStrength = signal<PasswordStrength>({ score: 0, label: '', color: '' });
-
-  passwordRequirements = [
-    { label: 'At least 8 characters', check: (p: string) => p.length >= 8 },
-    { label: 'At least one uppercase letter', check: (p: string) => /[A-Z]/.test(p) },
-    { label: 'At least one lowercase letter', check: (p: string) => /[a-z]/.test(p) },
-    { label: 'At least one number', check: (p: string) => /[0-9]/.test(p) },
-    { label: 'At least one special character (@$!%*?&)', check: (p: string) => /[@$!%*?&]/.test(p) }
-  ];
 
   private readonly validSections: SectionType[] = ['account', 'payslips', 'appearance', 'notifications', 'display'];
 
@@ -536,113 +512,6 @@ export class SettingsPageComponent implements OnInit {
     return Math.min(this.currentPage() * this.pageSize, this.totalRecords());
   }
 
-  // --- Change Password ---
-
-  toggleCurrentPassword(): void {
-    this.showCurrentPassword.set(!this.showCurrentPassword());
-  }
-
-  toggleNewPassword(): void {
-    this.showNewPassword.set(!this.showNewPassword());
-  }
-
-  toggleConfirmPassword(): void {
-    this.showConfirmPassword.set(!this.showConfirmPassword());
-  }
-
-  onNewPasswordChange(): void {
-    this.updatePasswordStrength();
-  }
-
-  private updatePasswordStrength(): void {
-    const password = this.newPassword;
-    let score = 0;
-
-    if (password.length >= 8) score++;
-    if (password.length >= 12) score++;
-    if (/[A-Z]/.test(password)) score++;
-    if (/[a-z]/.test(password)) score++;
-    if (/[0-9]/.test(password)) score++;
-    if (/[@$!%*?&]/.test(password)) score++;
-
-    let label = '';
-    let color = '';
-
-    if (score === 0) {
-      label = '';
-      color = '';
-    } else if (score <= 2) {
-      label = 'Weak';
-      color = 'bg-red-500';
-    } else if (score <= 4) {
-      label = 'Fair';
-      color = 'bg-yellow-500';
-    } else if (score <= 5) {
-      label = 'Good';
-      color = 'bg-blue-500';
-    } else {
-      label = 'Strong';
-      color = 'bg-green-500';
-    }
-
-    this.passwordStrength.set({ score, label, color });
-  }
-
-  isRequirementMet(index: number): boolean {
-    return this.passwordRequirements[index].check(this.newPassword);
-  }
-
-  isPasswordFormValid(): boolean {
-    return (
-      this.currentPassword.length > 0 &&
-      this.passwordRequirements.every(req => req.check(this.newPassword)) &&
-      this.newPassword === this.confirmPassword
-    );
-  }
-
-  passwordsMatch(): boolean {
-    return this.confirmPassword.length === 0 || this.newPassword === this.confirmPassword;
-  }
-
-  changePassword(): void {
-    if (!this.isPasswordFormValid()) {
-      this.alertDialogService.warning({
-        zTitle: 'Validation Error',
-        zDescription: 'Please fill in all fields correctly',
-        zOkText: 'OK'
-      });
-      return;
-    }
-
-    this.savingPassword.set(true);
-
-    this.settingsService.changePassword({
-      currentPassword: this.currentPassword,
-      newPassword: this.newPassword
-    }).subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.alertDialogService.info({
-            zTitle: 'Success',
-            zDescription: 'Your password has been changed successfully',
-            zOkText: 'OK'
-          });
-          this.resetPasswordForm();
-        }
-        this.savingPassword.set(false);
-      },
-      error: (error) => {
-        this.savingPassword.set(false);
-        const message = error.error?.message || 'Failed to change password';
-        this.alertDialogService.warning({
-          zTitle: 'Error',
-          zDescription: message,
-          zOkText: 'OK'
-        });
-      }
-    });
-  }
-
   // --- Profile Picture ---
 
   getInitials(): string {
@@ -771,12 +640,5 @@ export class SettingsPageComponent implements OnInit {
         });
       }
     });
-  }
-
-  private resetPasswordForm(): void {
-    this.currentPassword = '';
-    this.newPassword = '';
-    this.confirmPassword = '';
-    this.passwordStrength.set({ score: 0, label: '', color: '' });
   }
 }

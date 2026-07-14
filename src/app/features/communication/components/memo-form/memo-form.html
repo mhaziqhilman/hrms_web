@@ -62,10 +62,10 @@
       <div class="memo-preview-sheet">
         <!-- Header -->
         <div class="memo-preview-head">
-          <z-icon zType="eye" class="w-4 h-4 text-slate-400 flex-none" />
+          <z-icon zType="eye" class="w-4 h-4 text-muted-foreground flex-none" />
           <div class="min-w-0">
             <p class="text-[13px] font-semibold text-slate-900 dark:text-slate-100 leading-tight">Preview</p>
-            <p class="text-[11.5px] text-slate-400 leading-tight mt-0.5">How this announcement appears in the feed</p>
+            <p class="text-[11.5px] text-muted-foreground leading-tight mt-0.5">How this announcement appears in the feed</p>
           </div>
         </div>
 
@@ -84,7 +84,7 @@
                       <p class="text-sm font-semibold text-slate-900 dark:text-slate-100 leading-tight">{{ authorName() }}</p>
                       <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-mono">{{ authorRole() }} · just now</p>
                     </div>
-                    <z-icon *ngIf="form.value.is_pinned" zType="pin" class="w-3.5 h-3.5 text-slate-400 rotate-12" />
+                    <z-icon *ngIf="form.value.is_pinned" zType="pin" class="w-3.5 h-3.5 text-muted-foreground rotate-12" />
                   </div>
                   <div *ngIf="categoryName()" class="mt-2.5 inline-flex items-center gap-1.5 px-1.5 h-5 rounded-md bg-orange-500/10 text-orange-700 dark:text-orange-300">
                     <span class="w-2 h-2 rounded-full bg-orange-500"></span>
@@ -107,18 +107,18 @@
               [innerHTML]="sanitizedContent()"></div>
 
             <div *ngIf="attachments().length" class="px-5 pt-1 pb-5 space-y-2">
-              <p class="text-[11px] uppercase tracking-wider text-slate-500 font-medium">Attachments ({{ attachments().length }})</p>
+              <p class="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">Attachments ({{ attachments().length }})</p>
               <div class="flex flex-wrap gap-2">
                 <a *ngFor="let att of attachments()" [href]="att.dataUrl" [download]="att.name"
                   class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/40 text-sm hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                  <z-icon [zType]="$any(getFileIcon(att.mime))" class="w-4 h-4 text-slate-500" />
+                  <z-icon [zType]="$any(getFileIcon(att.mime))" class="w-4 h-4 text-muted-foreground" />
                   <span class="font-medium text-slate-900 dark:text-slate-100">{{ att.name }}</span>
-                  <span class="text-xs text-slate-500 font-mono">{{ formatSize(att.size) }}</span>
+                  <span class="text-xs text-muted-foreground font-mono">{{ formatSize(att.size) }}</span>
                 </a>
               </div>
             </div>
 
-            <div class="px-4 py-2.5 flex items-center justify-between text-[11px] text-slate-500 border-t border-slate-200 dark:border-slate-800">
+            <div class="px-4 py-2.5 flex items-center justify-between text-[11px] text-muted-foreground border-t border-slate-200 dark:border-slate-800">
               <div class="flex items-center gap-3">
                 <span class="inline-flex items-center gap-1">
                   <z-icon zType="eye" class="w-3 h-3" /> 0 views
@@ -194,12 +194,14 @@
             <div z-menu-content class="w-48">
               <button type="button" z-menu-item (click)="toggleSetting('is_pinned')">
                 <z-icon zType="pin" class="w-3.5 h-3.5 mr-2 rotate-12"
-                  [class.text-emerald-600]="form.value.is_pinned" />
+                  [class.text-emerald-600]="form.value.is_pinned"
+                  [class.dark:text-emerald-400]="form.value.is_pinned" />
                 {{ form.value.is_pinned ? 'Unpin from top' : 'Pin to top' }}
               </button>
               <button type="button" z-menu-item (click)="toggleSetting('requires_acknowledgment')">
                 <z-icon zType="check" class="w-3.5 h-3.5 mr-2"
-                  [class.text-emerald-600]="form.value.requires_acknowledgment" />
+                  [class.text-emerald-600]="form.value.requires_acknowledgment"
+                  [class.dark:text-emerald-400]="form.value.requires_acknowledgment" />
                 {{ form.value.requires_acknowledgment ? 'Remove acknowledgment' : 'Require acknowledgment' }}
               </button>
               <button type="button" z-menu-item (click)="scrollToSetting('expires-anchor')">
@@ -215,7 +217,7 @@
           <textarea formControlName="summary" rows="2"
             placeholder="Add a one-line summary (optional)…"
             class="memo-summary-input w-full text-[15px] text-slate-500 dark:text-slate-400 italic leading-relaxed bg-transparent border-0 outline-none p-0 resize-none placeholder:text-slate-300 dark:placeholder:text-slate-700 placeholder:not-italic"></textarea>
-          <div class="flex items-center justify-between text-[11px] text-slate-400 mt-1 font-mono">
+          <div class="flex items-center justify-between text-[11px] text-muted-foreground mt-1 font-mono">
             <span *ngIf="isFieldInvalid('summary')" class="text-destructive">{{ getFieldError('summary') }}</span>
             <span class="ml-auto">{{ form.get('summary')?.value?.length || 0 }} / 500</span>
           </div>
@@ -254,7 +256,7 @@
             <z-icon zType="image" class="w-3 h-3" />
           </button>
           <span class="flex-1"></span>
-          <span class="text-[11px] text-slate-400 font-mono">Type "/" for commands</span>
+          <span class="text-[11px] text-muted-foreground font-mono">Type "/" for commands</span>
         </div>
 
         <input #imageInput type="file" accept="image/*" class="hidden"
@@ -281,11 +283,11 @@
           <div class="flex flex-wrap gap-2">
             <div *ngFor="let att of attachments()"
               class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/40 text-sm group">
-              <z-icon [zType]="$any(getFileIcon(att.mime))" class="w-4 h-4 text-slate-500" />
+              <z-icon [zType]="$any(getFileIcon(att.mime))" class="w-4 h-4 text-muted-foreground" />
               <span class="font-medium text-slate-900 dark:text-slate-100">{{ att.name }}</span>
-              <span class="text-xs text-slate-500 font-mono">{{ formatSize(att.size) }}</span>
+              <span class="text-xs text-muted-foreground font-mono">{{ formatSize(att.size) }}</span>
               <button type="button" z-button zType="ghost" zSize="sm" (click)="removeAttachment(att.id)"
-                title="Remove" class="ml-1 text-slate-400 hover:text-destructive">
+                title="Remove" class="ml-1 text-muted-foreground hover:text-destructive">
                 <z-icon zType="x" class="w-3 h-3" />
               </button>
             </div>
@@ -293,7 +295,7 @@
         </div>
 
         <!-- Word count footer -->
-        <div class="mt-6 flex items-center justify-between text-[11.5px] text-slate-400 font-mono">
+        <div class="mt-6 flex items-center justify-between text-[11.5px] text-muted-foreground font-mono">
           <span>{{ wordCount() }} words · {{ charCount() }} characters</span>
           <span>~{{ readMinutes() }} min read · markdown supported</span>
         </div>
@@ -353,7 +355,7 @@
             <div id="expires-anchor">
               <label class="flex items-center justify-between text-[12px] font-medium text-slate-700 dark:text-slate-300 mb-1.5">
                 Expires
-                <span class="text-[11px] text-slate-400 font-normal">optional</span>
+                <span class="text-[11px] text-muted-foreground font-normal">optional</span>
               </label>
               <div class="flex gap-1.5 items-center">
                 <div class="flex-1 min-w-0">
@@ -362,7 +364,7 @@
                     (dateChange)="onExpiresDateTime($event)" />
                 </div>
                 <button *ngIf="getExpiresDateTime()" type="button" z-button zType="outline" zSize="sm" (click)="onExpiresDateTime(null)"
-                  class="shrink-0 text-slate-400 hover:text-rose-600"
+                  class="shrink-0 text-muted-foreground hover:text-rose-600 dark:hover:text-rose-400"
                   title="Clear expiry">
                   <z-icon zType="x" class="w-3.5 h-3.5" />
                 </button>
@@ -384,7 +386,7 @@
                   <z-icon zType="users" class="w-3 h-3" />
                   {{ audienceHeaderLabel() }}
                 </span>
-                <span class="font-mono text-[12px] text-slate-500">{{ audienceCount() }}</span>
+                <span class="font-mono text-[12px] text-muted-foreground">{{ audienceCount() }}</span>
               </button>
             </div>
             <ng-template #audienceMenu>
@@ -408,7 +410,7 @@
 
             <!-- ALL -->
             <div *ngIf="form.value.target_audience === 'All'" class="px-3 py-3">
-              <p class="text-[11.5px] text-slate-400 flex items-center gap-1.5">
+              <p class="text-[11.5px] text-muted-foreground flex items-center gap-1.5">
                 <z-icon zType="info" class="w-3 h-3 flex-none" />
                 Targets everyone in the company<span *ngIf="companyEmployeeCount()"> · {{ companyEmployeeCount() }} employees</span>.
               </p>
@@ -430,9 +432,10 @@
                   <z-icon [zType]="isDepartmentSelected(d) ? $any('check') : $any('plus')"
                     class="w-3.5 h-3.5 flex-none"
                     [class.text-emerald-600]="isDepartmentSelected(d)"
-                    [class.text-slate-400]="!isDepartmentSelected(d)" />
+                    [class.dark:text-emerald-400]="isDepartmentSelected(d)"
+                    [class.text-muted-foreground]="!isDepartmentSelected(d)" />
                   <span class="flex-1 truncate">{{ d }}</span>
-                  <span class="font-mono text-[11px] text-slate-400">{{ departmentCount(d) }}</span>
+                  <span class="font-mono text-[11px] text-muted-foreground">{{ departmentCount(d) }}</span>
                 </button>
                 <p *ngIf="!departments().length" class="memo-audience-empty">No departments found</p>
               </div>
@@ -454,9 +457,10 @@
                   <z-icon [zType]="isPositionSelected(p) ? $any('check') : $any('plus')"
                     class="w-3.5 h-3.5 flex-none"
                     [class.text-emerald-600]="isPositionSelected(p)"
-                    [class.text-slate-400]="!isPositionSelected(p)" />
+                    [class.dark:text-emerald-400]="isPositionSelected(p)"
+                    [class.text-muted-foreground]="!isPositionSelected(p)" />
                   <span class="flex-1 truncate">{{ p }}</span>
-                  <span class="font-mono text-[11px] text-slate-400">{{ positionCount(p) }}</span>
+                  <span class="font-mono text-[11px] text-muted-foreground">{{ positionCount(p) }}</span>
                 </button>
                 <p *ngIf="!positions().length" class="memo-audience-empty">
                   {{ allEmployees().length ? 'No positions found' : 'Loading positions…' }}
@@ -475,13 +479,13 @@
                   </button>
                 </div>
                 <button type="button" z-button zType="ghost" zSize="sm" (click)="clearEmployeeSelection()"
-                  class="flex-none mt-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">
+                  class="flex-none mt-1 text-muted-foreground hover:text-foreground">
                   Clear
                 </button>
               </div>
               <div class="relative mb-2">
                 <z-icon zType="search"
-                  class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+                  class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
                 <input type="text" [value]="employeeSearch()" (input)="onEmployeeSearch($event)"
                   placeholder="Search by name, ID, role, or department…"
                   class="memo-audience-search" />
@@ -493,10 +497,11 @@
                   <z-icon [zType]="isEmployeeSelected(e.id) ? $any('check') : $any('plus')"
                     class="w-3.5 h-3.5 flex-none"
                     [class.text-emerald-600]="isEmployeeSelected(e.id)"
-                    [class.text-slate-400]="!isEmployeeSelected(e.id)" />
+                    [class.dark:text-emerald-400]="isEmployeeSelected(e.id)"
+                    [class.text-muted-foreground]="!isEmployeeSelected(e.id)" />
                   <span class="flex-1 min-w-0">
                     <span class="block truncate text-[12.5px] text-slate-700 dark:text-slate-200">{{ e.full_name }}</span>
-                    <span class="block truncate text-[10.5px] text-slate-400">
+                    <span class="block truncate text-[10.5px] text-muted-foreground">
                       <span class="font-mono">{{ e.employee_id }}</span> · {{ e.position }} · {{ e.department }}
                     </span>
                   </span>
@@ -519,10 +524,10 @@
               class="w-full flex items-center justify-between text-left gap-3">
               <div class="min-w-0">
                 <p class="text-[13px] font-medium text-slate-900 dark:text-slate-100 inline-flex items-center gap-1.5">
-                  <z-icon zType="pin" class="w-2.5 h-2.5 text-slate-500 rotate-12" />
+                  <z-icon zType="pin" class="w-2.5 h-2.5 text-muted-foreground rotate-12" />
                   Pin to top
                 </p>
-                <p class="text-[11.5px] text-slate-500 mt-0.5">Sticks in the sidebar &amp; top of feed</p>
+                <p class="text-[11.5px] text-muted-foreground mt-0.5">Sticks in the sidebar &amp; top of feed</p>
               </div>
               <span class="memo-switch flex-none" [class.on]="form.value.is_pinned"
                 role="switch" [attr.aria-checked]="form.value.is_pinned"></span>
@@ -532,10 +537,10 @@
               class="w-full flex items-center justify-between text-left gap-3">
               <div class="min-w-0">
                 <p class="text-[13px] font-medium text-slate-900 dark:text-slate-100 inline-flex items-center gap-1.5">
-                  <z-icon zType="check" class="w-2.5 h-2.5 text-slate-500" />
+                  <z-icon zType="check" class="w-2.5 h-2.5 text-muted-foreground" />
                   Require acknowledgment
                 </p>
-                <p class="text-[11.5px] text-slate-500 mt-0.5">Employees confirm they've read it</p>
+                <p class="text-[11.5px] text-muted-foreground mt-0.5">Employees confirm they've read it</p>
               </div>
               <span class="memo-switch flex-none" [class.on]="form.value.requires_acknowledgment"
                 role="switch" [attr.aria-checked]="form.value.requires_acknowledgment"></span>

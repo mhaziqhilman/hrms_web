@@ -72,40 +72,55 @@ export class OAuthCallbackComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const params = this.route.snapshot.queryParams;
+    // Tokens arrive in the URL *fragment* (#token=…) so they never reach
+    // servers or logs. Legacy query params are kept as a fallback for
+    // in-flight sessions during the transition.
+    const fragment = new URLSearchParams((window.location.hash || '').replace(/^#/, ''));
+    const query = this.route.snapshot.queryParams;
 
-    // Check for error from backend redirect
-    if (params['error']) {
+    // Scrub tokens from the address bar immediately
+    if (window.location.hash || query['token']) {
+      history.replaceState(null, '', window.location.pathname);
+    }
+
+    const error = fragment.get('error') || query['error'];
+    if (error) {
       this.error = true;
-      this.errorMessage = params['error'] === 'oauth_failed'
+      this.errorMessage = error === 'oauth_failed'
         ? 'OAuth authentication failed. Please try again or use email login.'
-        : params['error'];
+        : error;
       return;
     }
 
-    const token = params['token'];
-    const refreshToken = params['refreshToken'];
-    const userJson = params['user'];
+    const token = fragment.get('token') || query['token'];
+    const refreshToken = fragment.get('refresh') || query['refreshToken'] || undefined;
+    const next = this.sanitizeNext(fragment.get('next'));
 
-    if (!token || !userJson) {
+    if (!token) {
       this.error = true;
       this.errorMessage = 'Invalid authentication response. Please try again.';
       return;
     }
 
-    try {
-      const user: User = JSON.parse(decodeURIComponent(userJson));
-      this.authService.handleOAuthCallback(token, user, refreshToken);
-
-      // Check if user needs onboarding (no company)
-      if (!user.company_id && user.role !== 'super_admin') {
-        this.router.navigate(['/onboarding']);
-      } else {
-        this.router.navigate(['/dashboard']);
+    // Validate the token against the API and load the real profile —
+    // never trust user data carried in the URL.
+    this.authService.completeSsoLogin(token, refreshToken).subscribe({
+      next: (user: User) => {
+        if (!user.company_id && user.role !== 'super_admin') {
+          this.router.navigate(['/onboarding']);
+        } else {
+          this.router.navigateByUrl(next || '/dashboard');
+        }
+      },
+      error: () => {
+        this.error = true;
+        this.errorMessage = 'Failed to verify your session. Please try again.';
       }
-    } catch (e) {
-      this.error = true;
-      this.errorMessage = 'Failed to process authentication data. Please try again.';
-    }
+    });
+  }
+
+  /** Only allow same-app absolute paths (no external or protocol-relative URLs). */
+  private sanitizeNext(next: string | null): string | null {
+    return next && /^\/(?!\/)/.test(next) ? next : null;
   }
 }

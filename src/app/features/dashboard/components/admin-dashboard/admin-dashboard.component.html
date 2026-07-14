@@ -73,8 +73,8 @@
       <div class="mb-8">
         <z-card>
           <div class="p-6 text-center">
-            <z-icon zType="triangle-alert" class="text-red-500 text-4xl mb-3" />
-            <p class="text-red-600 font-medium mb-3">{{ error() }}</p>
+            <z-icon zType="triangle-alert" class="text-red-500 dark:text-red-400 text-4xl mb-3" />
+            <p class="text-red-600 dark:text-red-400 font-medium mb-3">{{ error() }}</p>
             <button z-button zType="outline" (click)="loadDashboard()">
               <z-icon zType="refresh-cw" class="mr-2" /> Retry
             </button>
@@ -233,7 +233,7 @@
               <p class="text-[11px] text-muted-foreground mb-1">Headcount</p>
               <div class="flex items-end justify-between">
                 <p class="text-2xl font-bold text-foreground leading-none">{{employeeStats.totalEmployees}}</p>
-                <span class="text-[11px] font-medium text-emerald-600 inline-flex items-center gap-0.5">
+                <span class="text-[11px] font-medium text-emerald-600 dark:text-emerald-400 inline-flex items-center gap-0.5">
                   <z-icon zType="chevron-up" class="text-[10px]" />
                   New +{{employeeStats.newHires}}
                 </span>

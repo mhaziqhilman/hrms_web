@@ -196,7 +196,7 @@ export class BillListComponent implements OnInit {
 
   statusDot(status: BillStatus): string {
     switch (status) {
-      case 'Draft': return 'bg-slate-400';
+      case 'Draft': return 'bg-muted-foreground';
       case 'Approved': return 'bg-blue-500';
       case 'Received': return 'bg-purple-500';
       case 'Partial_Paid': return 'bg-yellow-500';

@@ -1,15 +1,20 @@
 import { Routes } from '@angular/router';
 import { authGuard, onboardingGuard } from './core/guards/auth.guard';
 import { packageFeatureGuard } from './core/guards/package-feature.guard';
+import { appZoneGuard } from './core/guards/zone.guard';
 import { MainLayoutComponent } from './shared/layouts/main-layout/main-layout.component';
 
 export const routes: Routes = [
     {
+        // Marketing landing now lives in the Nextura Hub (nextura.my).
+        // The HR app's root goes straight to the app (authGuard → login if signed out).
         path: '',
-        loadChildren: () => import('./features/landing/landing-module').then(m => m.LandingModule)
+        pathMatch: 'full',
+        redirectTo: 'dashboard'
     },
     {
         path: 'auth',
+        canActivate: [appZoneGuard],
         loadChildren: () => import('./features/auth/auth-module').then(m => m.AuthModule)
     },
     {
@@ -18,13 +23,13 @@ export const routes: Routes = [
     },
     {
         path: 'onboarding',
-        canActivate: [onboardingGuard],
+        canActivate: [appZoneGuard, onboardingGuard],
         loadChildren: () => import('./features/onboarding/onboarding.routes').then(m => m.ONBOARDING_ROUTES)
     },
     {
         path: '',
         component: MainLayoutComponent,
-        canActivate: [authGuard],
+        canActivate: [appZoneGuard, authGuard],
         children: [
             {
                 path: 'dashboard',
@@ -53,6 +58,10 @@ export const routes: Routes = [
                 loadChildren: () => import('./features/claims/claims.routes').then(m => m.CLAIMS_ROUTES)
             },
             {
+                path: 'overtime',
+                loadChildren: () => import('./features/overtime/overtime.routes').then(m => m.OVERTIME_ROUTES)
+            },
+            {
                 path: 'documents',
                 canActivate: [packageFeatureGuard('document_management')],
                 loadChildren: () => import('./features/documents/documents.routes').then(m => m.DOCUMENTS_ROUTES)
@@ -67,9 +76,12 @@ export const routes: Routes = [
                 loadChildren: () => import('./features/statutory-reports/statutory-reports.routes').then(m => m.STATUTORY_REPORTS_ROUTES)
             },
             {
+                // Analytics temporarily hidden for all users — restore the loadChildren block to re-enable
                 path: 'analytics',
-                canActivate: [packageFeatureGuard('analytics')],
-                loadChildren: () => import('./features/analytics/analytics.routes').then(m => m.analyticsRoutes)
+                redirectTo: 'dashboard',
+                pathMatch: 'full'
+                // canActivate: [packageFeatureGuard('analytics')],
+                // loadChildren: () => import('./features/analytics/analytics.routes').then(m => m.analyticsRoutes)
             },
             {
                 path: 'personal',

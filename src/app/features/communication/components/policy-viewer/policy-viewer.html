@@ -155,10 +155,10 @@
         <span
           class="inline-flex items-center h-5 px-2 rounded-full text-[10.5px] font-medium"
           [ngClass]="{
-            'bg-emerald-50 text-emerald-700': policy()?.status === 'Active',
-            'bg-amber-50 text-amber-700': policy()?.status === 'Draft',
-            'bg-slate-100 text-slate-700': policy()?.status === 'Archived',
-            'bg-rose-50 text-rose-700': policy()?.status === 'Superseded'
+            'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300': policy()?.status === 'Active',
+            'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300': policy()?.status === 'Draft',
+            'bg-muted text-muted-foreground': policy()?.status === 'Archived',
+            'bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300': policy()?.status === 'Superseded'
           }"
         >
           <span
@@ -166,7 +166,7 @@
             [ngClass]="{
               'bg-emerald-500': policy()?.status === 'Active',
               'bg-amber-500': policy()?.status === 'Draft',
-              'bg-slate-400': policy()?.status === 'Archived',
+              'bg-slate-400 dark:bg-slate-500': policy()?.status === 'Archived',
               'bg-rose-500': policy()?.status === 'Superseded'
             }"
           ></span>
@@ -501,10 +501,10 @@
               <span
                 class="inline-flex items-center h-5 px-2 rounded-full text-[10.5px] font-medium"
                 [ngClass]="{
-                  'bg-emerald-50 text-emerald-700': version.status === 'Active',
-                  'bg-amber-50 text-amber-700': version.status === 'Draft',
-                  'bg-slate-100 text-slate-700': version.status === 'Archived',
-                  'bg-rose-50 text-rose-700': version.status === 'Superseded'
+                  'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300': version.status === 'Active',
+                  'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300': version.status === 'Draft',
+                  'bg-muted text-muted-foreground': version.status === 'Archived',
+                  'bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300': version.status === 'Superseded'
                 }"
               >
                 {{ version.status }}

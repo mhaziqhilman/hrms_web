@@ -344,7 +344,7 @@ export class AdminDashboardComponent implements OnInit {
       case 'info': return 'bg-indigo-500';
       case 'primary': return 'bg-sky-500';
       case 'warning': return 'bg-amber-500';
-      default: return 'bg-slate-400';
+      default: return 'bg-slate-400 dark:bg-slate-500';
     }
   }
 

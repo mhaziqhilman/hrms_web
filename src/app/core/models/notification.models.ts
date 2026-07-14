@@ -9,7 +9,10 @@ export type NotificationType =
   | 'wfh_rejected'
   | 'announcement_published'
   | 'team_member_joined'
-  | 'policy_published';
+  | 'policy_published'
+  | 'overtime_submitted'
+  | 'overtime_approved'
+  | 'overtime_rejected';
 
 export interface Notification {
   id: number;

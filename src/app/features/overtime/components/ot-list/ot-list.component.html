@@ -1,0 +1,220 @@
+<div class="flex-1 bg-background text-foreground">
+<main class="max-w-[1440px] mx-auto px-6 py-6">
+
+  <!-- Page header -->
+  <div class="flex items-start justify-between flex-wrap gap-4 mb-5">
+    <div>
+      <div class="flex items-center gap-2.5">
+        <h1 class="text-[24px] font-semibold tracking-tight leading-none">Overtime</h1>
+        @if (stats().requested > 0) {
+          <span class="font-mono text-[12px] font-medium bg-primary text-primary-foreground rounded-full px-2 py-0.5 leading-none pt-1">{{ stats().requested }}</span>
+        }
+      </div>
+      <p class="text-[13px] text-muted-foreground mt-2">Overtime requests and their approval status. Approved overtime is added to payroll automatically.</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <button (click)="exportCsv()" class="h-9 px-3.5 rounded-md border border-border bg-card text-[13px] font-medium text-foreground hover:bg-muted flex items-center gap-2 shad-card">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        Export
+      </button>
+      <button (click)="openForm()" class="h-9 px-4 rounded-md bg-primary text-primary-foreground text-[13px] font-medium hover:bg-primary/90 flex items-center gap-2 shad-card-lg">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        New Overtime
+      </button>
+    </div>
+  </div>
+
+  <!-- Summary cards -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-5">
+    <!-- Approval status -->
+    <div class="bg-card rounded-2xl border border-border shad-card p-5">
+      <div class="flex items-center gap-2.5 mb-4">
+        <span class="w-7 h-7 rounded-md bg-indigo-50 dark:bg-indigo-950/40 ring-1 ring-indigo-100 dark:ring-indigo-900 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+        </span>
+        <h2 class="text-[13px] font-semibold text-foreground">Approval Status</h2>
+      </div>
+      <div class="grid grid-cols-4 divide-x divide-border">
+        <div class="pr-4">
+          <p class="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">Requested</p>
+          <p class="font-mono text-[26px] font-semibold leading-none mt-2">{{ stats().requested }}</p>
+          <p class="text-[11px] mt-1.5 text-muted-foreground">total</p>
+        </div>
+        <div class="px-4">
+          <p class="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">Approved</p>
+          <p class="font-mono text-[26px] font-semibold leading-none mt-2 text-emerald-600 dark:text-emerald-400">{{ stats().approved }}</p>
+          <p class="text-[11px] mt-1.5 text-muted-foreground">to payroll</p>
+        </div>
+        <div class="px-4">
+          <p class="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">Rejected</p>
+          <p class="font-mono text-[26px] font-semibold leading-none mt-2 text-rose-600 dark:text-rose-400">{{ stats().rejected }}</p>
+          <p class="text-[11px] mt-1.5 text-muted-foreground">not paid</p>
+        </div>
+        <div class="pl-4">
+          <p class="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">Pending</p>
+          <p class="font-mono text-[26px] font-semibold leading-none mt-2 text-amber-600 dark:text-amber-400">{{ stats().pending }}</p>
+          <p class="text-[11px] mt-1.5"><span class="text-muted-foreground">needs review</span></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hours summary -->
+    <div class="bg-card rounded-2xl border border-border shad-card p-5">
+      <div class="flex items-center gap-2.5 mb-4">
+        <span class="w-7 h-7 rounded-md bg-emerald-50 dark:bg-emerald-950/40 ring-1 ring-emerald-100 dark:ring-emerald-900 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        </span>
+        <h2 class="text-[13px] font-semibold text-foreground">Overtime Hours Summary</h2>
+      </div>
+      <div class="grid grid-cols-4 divide-x divide-border">
+        <div class="pr-4">
+          <p class="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">Total Hours</p>
+          <p class="font-mono text-[26px] font-semibold leading-none mt-2">{{ stats().totalHours }}</p>
+          <p class="text-[11px] mt-1.5 text-muted-foreground">logged</p>
+        </div>
+        <div class="px-4">
+          <p class="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">Payout (RM)</p>
+          <p class="font-mono text-[26px] font-semibold leading-none mt-2">{{ stats().payout | number:'1.0-0' }}</p>
+          <p class="text-[11px] mt-1.5 text-muted-foreground">approved only</p>
+        </div>
+        <div class="px-4">
+          <p class="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">Avg / week</p>
+          <p class="font-mono text-[26px] font-semibold leading-none mt-2">{{ stats().avgWeek }}<span class="text-[14px] text-muted-foreground font-normal">h</span></p>
+          <p class="text-[11px] mt-1.5 text-muted-foreground">per active week</p>
+        </div>
+        <div class="pl-4">
+          <p class="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">Top day type</p>
+          @if (stats().topType) {
+            <p class="text-[15px] font-semibold leading-none mt-3">{{ dayTypeLabels[stats().topType!] }}</p>
+            <p class="text-[11px] mt-2"><span class="font-mono text-foreground">{{ stats().topPct }}%</span> <span class="text-muted-foreground">of hours</span></p>
+          } @else {
+            <p class="text-[15px] font-semibold leading-none mt-3 text-muted-foreground">—</p>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="flex items-center gap-2 flex-wrap mb-3">
+    <div class="relative w-64">
+      <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <input type="text" (input)="onSearch($event)" placeholder="Search employee or reason…" class="w-full h-9 pl-9 pr-3 rounded-md border border-border bg-card text-[13px] text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/30 shad-card" />
+    </div>
+    <div class="inline-flex h-9 items-center rounded-md border border-border bg-card p-1 text-[12px] shad-card">
+      <button class="seg-btn h-7 px-3 rounded font-medium text-muted-foreground border border-transparent" [attr.data-active]="activeStatus() === 'all'" (click)="setStatus('all')">All</button>
+      <button class="seg-btn h-7 px-3 rounded font-medium text-muted-foreground border border-transparent" [attr.data-active]="activeStatus() === 'Pending'" (click)="setStatus('Pending')">Pending @if (stats().pending > 0) {<span class="font-mono text-[10px] opacity-70">{{ stats().pending }}</span>}</button>
+      <button class="seg-btn h-7 px-3 rounded font-medium text-muted-foreground border border-transparent" [attr.data-active]="activeStatus() === 'Approved'" (click)="setStatus('Approved')">Approved</button>
+      <button class="seg-btn h-7 px-3 rounded font-medium text-muted-foreground border border-transparent" [attr.data-active]="activeStatus() === 'Rejected'" (click)="setStatus('Rejected')">Rejected</button>
+    </div>
+    <z-select class="w-40 shad-card rounded-md" zSize="default"
+              [zValue]="dayTypeFilter()" (zValueChange)="onDayTypeSelect($event)">
+      <z-select-item [zValue]="'all'">All day types</z-select-item>
+      <z-select-item [zValue]="'normal'">Weekday</z-select-item>
+      <z-select-item [zValue]="'rest_day'">Rest Day</z-select-item>
+      <z-select-item [zValue]="'public_holiday'">Public Holiday</z-select-item>
+    </z-select>
+    @if (isPrivileged && stats().pending > 0) {
+      <div class="ml-auto">
+        <button (click)="approveAllPending()" class="h-9 px-4 rounded-md bg-emerald-600 text-white text-[13px] font-medium hover:bg-emerald-700 flex items-center gap-2 shad-card-lg">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          Approve all pending
+        </button>
+      </div>
+    }
+  </div>
+
+  <!-- Bulk selection action bar (appears only when rows are selected) -->
+  @if (isPrivileged && selectedCount() > 0) {
+    <div class="flex items-center gap-3 mb-3 rounded-md border border-border bg-card px-4 py-2 shad-card">
+      <span class="text-[13px] font-medium text-foreground">{{ selectedCount() }} selected</span>
+      <button (click)="approveSelected()" class="h-8 px-3 rounded-md bg-emerald-600 text-white text-[12px] font-medium hover:bg-emerald-700 flex items-center gap-1.5">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        Approve selected
+      </button>
+      <button (click)="rejectSelected()" class="h-8 px-3 rounded-md border border-rose-200 dark:border-rose-900 text-rose-600 dark:text-rose-400 text-[12px] font-medium hover:bg-rose-50 dark:hover:bg-rose-950/40">Reject selected</button>
+      <button (click)="clearSelection()" class="ml-auto text-[12px] font-medium text-muted-foreground hover:text-foreground">Clear</button>
+    </div>
+  }
+
+  <!-- Table -->
+  <div class="bg-card rounded-2xl border border-border shad-card overflow-hidden">
+    <table class="w-full text-[13px]">
+      <thead>
+        <tr class="bg-muted/50 border-b border-border text-left">
+          @if (isPrivileged) {
+            <th class="pl-5 pr-3 py-3 w-10"><input type="checkbox" class="rounded accent-primary" [checked]="allPageSelected()" (change)="toggleSelectAll()"></th>
+            <th class="px-3 py-3 text-[11px] uppercase tracking-wide text-muted-foreground font-medium">Employee</th>
+          }
+          <th class="px-3 py-3 text-[11px] uppercase tracking-wide text-muted-foreground font-medium">OT Date</th>
+          <th class="px-3 py-3 text-[11px] uppercase tracking-wide text-muted-foreground font-medium">Day Type</th>
+          <th class="px-3 py-3 text-[11px] uppercase tracking-wide text-muted-foreground font-medium">Time</th>
+          <th class="px-3 py-3 text-[11px] uppercase tracking-wide text-muted-foreground font-medium">Duration</th>
+          <th class="px-3 py-3 text-[11px] uppercase tracking-wide text-muted-foreground font-medium text-right">Amount (RM)</th>
+          <th class="px-3 py-3 text-[11px] uppercase tracking-wide text-muted-foreground font-medium">Reason</th>
+          <th class="px-3 py-3 pr-5 text-[11px] uppercase tracking-wide text-muted-foreground font-medium text-right">Status / Action</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-border">
+        @if (!loading()) {
+          @for (row of paged(); track row.id) {
+            <tr data-row>
+              @if (isPrivileged) {
+                <td class="pl-5 pr-3 py-3"><input type="checkbox" class="rounded accent-primary" [checked]="isSelected(row)" (change)="toggleSelect(row)"></td>
+                <td class="px-3 py-3">
+                  <div class="font-medium text-foreground">{{ row.employee?.full_name || '—' }}</div>
+                  <div class="text-[11px] text-muted-foreground font-mono">{{ row.employee?.employee_id }}</div>
+                </td>
+              }
+              <td class="px-3 py-3 whitespace-nowrap text-foreground">{{ row.date | date:'mediumDate' }}</td>
+              <td class="px-3 py-3 text-foreground">{{ dayTypeLabels[row.day_type] }}</td>
+              <td class="px-3 py-3 whitespace-nowrap font-mono text-muted-foreground">{{ timeRange(row) }}</td>
+              <td class="px-3 py-3 font-mono text-foreground">{{ durationLabel(row) }}</td>
+              <td class="px-3 py-3 text-right font-mono font-semibold text-foreground">{{ row.amount | number:'1.2-2' }}</td>
+              <td class="px-3 py-3 max-w-[220px] truncate text-muted-foreground" [title]="row.reason || ''">{{ row.reason || '—' }}</td>
+              <td class="px-3 py-3 pr-5 text-right whitespace-nowrap">
+                @if (isPrivileged && row.status === 'Pending') {
+                  <button (click)="approve(row)" [disabled]="processingId() === row.public_id" class="h-7 px-3 rounded-md bg-emerald-600 text-white text-[12px] font-medium hover:bg-emerald-700 disabled:opacity-50">Approve</button>
+                  <button (click)="reject(row)" [disabled]="processingId() === row.public_id" class="h-7 px-3 rounded-md border border-rose-200 dark:border-rose-900 text-rose-600 dark:text-rose-400 text-[12px] font-medium hover:bg-rose-50 dark:hover:bg-rose-950/40 ml-1.5 disabled:opacity-50">Reject</button>
+                } @else {
+                  <div class="flex items-center justify-end gap-2">
+                    <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium" [class]="statusPill(row.status)">{{ row.status }}</span>
+                    @if (row.status === 'Pending') {
+                      <button (click)="remove(row)" class="w-7 h-7 rounded-md hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-rose-600 dark:hover:text-rose-400">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                      </button>
+                    }
+                  </div>
+                }
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+
+    @if (loading()) {
+      <div class="py-14 text-center text-[13px] text-muted-foreground">Loading…</div>
+    } @else if (filtered().length === 0) {
+      <div class="py-14 text-center text-[13px] text-muted-foreground">No overtime requests match your filters.</div>
+    }
+
+    <div class="border-t border-border px-5 py-3 flex items-center justify-between text-[12px] text-muted-foreground">
+      <span>Showing {{ paged().length }} of {{ filtered().length }} requests</span>
+      @if (totalPages() > 1) {
+        <div class="flex items-center gap-1">
+          <button class="h-7 px-2.5 rounded border border-border hover:bg-muted disabled:opacity-40" [disabled]="page() === 1" (click)="goToPage(page() - 1)">Prev</button>
+          @for (p of pageNumbers(); track p) {
+            <button class="h-7 px-2.5 rounded font-mono border"
+                    [class.bg-primary]="p === page()" [class.text-primary-foreground]="p === page()" [class.border-primary]="p === page()"
+                    [class.border-border]="p !== page()" [class.hover:bg-muted]="p !== page()"
+                    (click)="goToPage(p)">{{ p }}</button>
+          }
+          <button class="h-7 px-2.5 rounded border border-border hover:bg-muted disabled:opacity-40" [disabled]="page() === totalPages()" (click)="goToPage(page() + 1)">Next</button>
+        </div>
+      }
+    </div>
+  </div>
+
+</main>
+</div>

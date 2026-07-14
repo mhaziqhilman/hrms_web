@@ -55,11 +55,6 @@ export interface NotificationSettings {
   notify_policy_update: boolean;
 }
 
-export interface ChangePasswordRequest {
-  currentPassword: string;
-  newPassword: string;
-}
-
 // API Response types
 export interface SettingsResponse {
   success: boolean;
@@ -76,7 +71,3 @@ export interface UpdateSettingsResponse {
   message: string;
 }
 
-export interface ChangePasswordResponse {
-  success: boolean;
-  message: string;
-}

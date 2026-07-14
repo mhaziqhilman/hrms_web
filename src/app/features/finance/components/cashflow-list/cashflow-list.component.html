@@ -60,7 +60,9 @@
               <td class="text-right text-rose-600 dark:text-rose-400">{{ money(s.summary.total_outflows, s.currency) }}</td>
               <td class="text-right font-medium"
                   [class.text-emerald-600]="s.summary.net >= 0"
-                  [class.text-rose-600]="s.summary.net < 0">
+                  [class.dark:text-emerald-400]="s.summary.net >= 0"
+                  [class.text-rose-600]="s.summary.net < 0"
+                  [class.dark:text-rose-400]="s.summary.net < 0">
                 {{ money(s.summary.net, s.currency) }}
               </td>
               <td class="text-right font-semibold text-foreground">{{ money(s.summary.closing_balance, s.currency) }}</td>

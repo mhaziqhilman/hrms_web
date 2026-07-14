@@ -286,7 +286,7 @@ export class UserListComponent implements OnInit {
   unlinkEmployee(user: UserRecord): void {
     this.alertDialogService.confirm({
       zTitle: 'Unlink Employee',
-      zDescription: `Remove the link between user "${user.email}" and employee "${user.employee?.full_name}"?`,
+      zDescription: `Remove the link between user "${user.email}" and employee "${user.employee?.full_name}"? The user keeps their company access — use "Remove from Company" to revoke it entirely.`,
       zOkText: 'Unlink',
       zCancelText: 'Cancel',
       zOkDestructive: true,
@@ -299,6 +299,31 @@ export class UserListComponent implements OnInit {
             this.alertDialogService.warning({
               zTitle: 'Error',
               zDescription: err.error?.message || 'Failed to unlink employee',
+              zOkText: 'OK'
+            });
+          }
+        });
+      }
+    });
+  }
+
+  // --- Remove from Company (offboarding) ---
+  removeFromCompany(user: UserRecord): void {
+    this.alertDialogService.confirm({
+      zTitle: 'Remove from Company',
+      zDescription: `Remove "${user.email}" from this company? Their company access is revoked immediately: the membership is deleted, any employee profile is detached, and active sessions are terminated. The employee record and its history are kept.`,
+      zOkText: 'Remove',
+      zCancelText: 'Cancel',
+      zOkDestructive: true,
+      zOnOk: () => {
+        this.userService.removeUserFromCompany(user.id).subscribe({
+          next: () => {
+            this.loadUsers();
+          },
+          error: (err) => {
+            this.alertDialogService.warning({
+              zTitle: 'Error',
+              zDescription: err.error?.message || 'Failed to remove user from company',
               zOkText: 'OK'
             });
           }

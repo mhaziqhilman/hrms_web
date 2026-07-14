@@ -1,0 +1,7 @@
+:host {
+  display: block;
+  height: 100%;
+  /* Follow the user's font preference (ThemeService --font-family) */
+  font-family: var(--font-family);
+  color: rgb(15 23 42); /* slate-900 */
+}

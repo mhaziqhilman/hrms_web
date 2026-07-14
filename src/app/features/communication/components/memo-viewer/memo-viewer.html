@@ -267,7 +267,8 @@
               <span
                 class="absolute left-0 top-1 w-1.5 h-1.5 rounded-full"
                 [class.bg-rose-500]="isExpired()"
-                [class.bg-slate-300]="!isExpired()"
+                [class.bg-muted-foreground]="!isExpired()"
+                [class.opacity-40]="!isExpired()"
               ></span>
               <div class="text-[12px] font-medium text-foreground">{{ isExpired() ? 'Expired' : 'Expires' }}</div>
               <div class="text-[11px] text-muted-foreground font-mono">{{ memo()?.expires_at | appDate }}</div>
@@ -278,7 +279,7 @@
               <div class="text-[11px] text-muted-foreground font-mono">{{ memo()?.published_at | appDateTime }}</div>
             </li>
             <li class="relative pl-4">
-              <span class="absolute left-0 top-1 w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+              <span class="absolute left-0 top-1 w-1.5 h-1.5 rounded-full bg-muted-foreground/40"></span>
               <div class="text-[12px] font-medium text-foreground">Created</div>
               <div class="text-[11px] text-muted-foreground font-mono">{{ memo()?.created_at | appDateTime }}</div>
             </li>

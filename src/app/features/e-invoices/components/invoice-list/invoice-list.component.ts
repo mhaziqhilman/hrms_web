@@ -390,7 +390,7 @@ export class InvoiceListComponent implements OnInit, OnDestroy {
   }
 
   getStatusColor(status: string): string {
-    return this.STATUS_COLORS[status] || 'bg-gray-100 text-gray-700';
+    return this.STATUS_COLORS[status] || 'bg-muted text-muted-foreground';
   }
 
   // Payment indicator (invoice-level). Returns null for unpaid invoices with

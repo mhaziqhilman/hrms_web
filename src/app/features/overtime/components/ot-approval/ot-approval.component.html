@@ -1,0 +1,60 @@
+<div>
+  <div class="mb-6 flex items-start justify-between gap-4">
+    <div>
+      <h1 class="text-[28px] font-semibold tracking-tight leading-none">Overtime Approvals</h1>
+      <p class="text-[13px] text-muted-foreground mt-2">
+        Pending overtime requests from your team. Approved overtime flows into the next payroll run.
+      </p>
+    </div>
+    <button (click)="load()" class="shrink-0 rounded-md border border-input px-3 py-2 text-sm font-medium hover:bg-muted">
+      Refresh
+    </button>
+  </div>
+
+  <div class="rounded-lg border border-border overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-muted/50 text-left text-xs uppercase text-muted-foreground">
+        <tr>
+          <th class="px-4 py-3 font-medium">Employee</th>
+          <th class="px-4 py-3 font-medium">Date</th>
+          <th class="px-4 py-3 font-medium">Day type</th>
+          <th class="px-4 py-3 font-medium text-right">Hours</th>
+          <th class="px-4 py-3 font-medium text-right">Amount (RM)</th>
+          <th class="px-4 py-3 font-medium">Reason</th>
+          <th class="px-4 py-3 font-medium text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-border">
+        @if (loading()) {
+          <tr><td colspan="7" class="px-4 py-8 text-center text-muted-foreground">Loading…</td></tr>
+        } @else if (rows().length === 0) {
+          <tr><td colspan="7" class="px-4 py-8 text-center text-muted-foreground">No pending overtime requests.</td></tr>
+        } @else {
+          @for (row of rows(); track row.id) {
+            <tr class="hover:bg-muted/30">
+              <td class="px-4 py-3">
+                <div class="font-medium">{{ row.employee?.full_name || '—' }}</div>
+                <div class="text-xs text-muted-foreground">{{ row.employee?.employee_id }}</div>
+              </td>
+              <td class="px-4 py-3">{{ row.date | date:'mediumDate' }}</td>
+              <td class="px-4 py-3">{{ dayTypeLabels[row.day_type] }}</td>
+              <td class="px-4 py-3 text-right">{{ row.hours }}</td>
+              <td class="px-4 py-3 text-right font-medium">{{ row.amount | number:'1.2-2' }}</td>
+              <td class="px-4 py-3 max-w-[220px] truncate" [title]="row.reason || ''">{{ row.reason || '—' }}</td>
+              <td class="px-4 py-3 text-right whitespace-nowrap">
+                <button (click)="approve(row)" [disabled]="processingId() === row.public_id"
+                        class="rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:opacity-90 disabled:opacity-50">
+                  Approve
+                </button>
+                <button (click)="reject(row)" [disabled]="processingId() === row.public_id"
+                        class="ml-2 rounded-md border border-red-300 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-50">
+                  Reject
+                </button>
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

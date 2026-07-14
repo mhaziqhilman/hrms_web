@@ -27,6 +27,13 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       const isAuthEndpoint = req.url.includes('/auth/');
       const hasRefreshToken = !!localStorage.getItem(REFRESH_TOKEN_KEY);
 
+      // Offboarded / removed from company: the session is dead, no refresh will help
+      const errorCode = error.error?.code;
+      if (error.status === 403 && (errorCode === 'ACCOUNT_OFFBOARDED' || errorCode === 'NO_COMPANY_ACCESS')) {
+        clearAndRedirect(router, 'access-revoked');
+        return throwError(() => error);
+      }
+
       if (error.status === 401 && !isAuthEndpoint && hasRefreshToken) {
         // Attempt silent refresh
         return authService.refreshTokenRequest().pipe(
@@ -57,13 +64,13 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   );
 };
 
-function clearAndRedirect(router: Router): void {
+function clearAndRedirect(router: Router, reason?: string): void {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(REFRESH_TOKEN_KEY);
   localStorage.removeItem('hrms_user');
   if (!router.url.includes('/auth/login')) {
     router.navigate(['/auth/login'], {
-      queryParams: { returnUrl: router.url }
+      queryParams: reason ? { reason } : { returnUrl: router.url }
     });
   }
 }

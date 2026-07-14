@@ -49,11 +49,6 @@ export interface UpdateProfileRequest {
   photo_url?: string;
 }
 
-export interface ChangePasswordRequest {
-  currentPassword: string;
-  newPassword: string;
-}
-
 export interface MyPayslip {
   id: number;
   public_id: string;
@@ -162,11 +157,6 @@ export interface UpdateProfileResponse {
   success: boolean;
   message: string;
   data: EmployeeProfile;
-}
-
-export interface ChangePasswordResponse {
-  success: boolean;
-  message: string;
 }
 
 export interface MyPayslipsResponse {

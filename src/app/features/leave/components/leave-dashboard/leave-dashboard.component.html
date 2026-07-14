@@ -274,7 +274,8 @@
                   [class.ring-emerald-500]="lv.status === 'Approved'"
                   [class.ring-amber-500]="lv.status === 'Pending'"
                   [class.ring-rose-500]="lv.status === 'Rejected'"
-                  [class.ring-slate-300]="lv.status === 'Cancelled'"></span>
+                  [class.ring-slate-300]="lv.status === 'Cancelled'"
+                  [class.dark:ring-slate-600]="lv.status === 'Cancelled'"></span>
                 <p class="text-[13px] font-medium text-foreground leading-tight">
                   {{ lv.leave_type?.name }} · {{ lv.total_days }} day{{ lv.total_days === 1 ? '' : 's' }} {{ lv.status.toLowerCase() }}
                 </p>
@@ -373,9 +374,9 @@
             <h3 class="text-[14px] font-semibold tracking-tight text-foreground mt-0.5">{{ selectedYear() }} — by month</h3>
           </div>
           <div class="flex items-center gap-2 text-[11px] text-muted-foreground">
-            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-slate-100"></span>0</span>
-            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-slate-300"></span>1–2</span>
-            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-slate-700"></span>3+</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-slate-100 dark:bg-slate-800"></span>0</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-slate-300 dark:bg-slate-600"></span>1–2</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-slate-700 dark:bg-slate-400"></span>3+</span>
           </div>
         </div>
 

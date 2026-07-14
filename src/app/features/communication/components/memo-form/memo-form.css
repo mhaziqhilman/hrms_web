@@ -208,7 +208,7 @@
   padding: 16px 10px;
   text-align: center;
   font-size: 11.5px;
-  color: rgb(148 163 184);
+  color: var(--muted-foreground);
 }
 
 /* Toolbar button */
@@ -323,7 +323,7 @@
 .memo-preview-body ol { padding-left: 1.5em; margin: 0.5em 0; }
 .memo-preview-body ul { list-style: disc; }
 .memo-preview-body ol { list-style: decimal; }
-.memo-preview-body a { color: rgb(37 99 235); text-decoration: underline; }
+.memo-preview-body a { color: var(--primary); text-decoration: underline; }
 /* Pictures bleed edge-to-edge of the card — cancels the body's px-5 (1.25rem).
    ::ng-deep is required: [innerHTML] content isn't tagged for style scoping,
    and !important is required to beat the editor's inline img styles. */
@@ -342,9 +342,9 @@
   margin-bottom: 0 !important;
 }
 .memo-preview-body blockquote {
-  border-left: 3px solid rgb(226 232 240);
+  border-left: 3px solid var(--border);
   padding-left: 1em;
-  color: rgb(71 85 105);
+  color: var(--muted-foreground);
   margin: 0.8em 0;
   font-style: italic;
 }
@@ -355,7 +355,7 @@
   font-size: 10.5px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgb(100 116 139);
+  color: var(--muted-foreground);
   font-weight: 500;
 }
 

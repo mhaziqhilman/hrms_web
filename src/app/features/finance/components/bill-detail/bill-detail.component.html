@@ -1,13 +1,13 @@
 <div class="space-y-4" *ngIf="!loading() && bill() as b">
   <div class="flex items-start justify-between">
     <div>
-      <div class="text-xs text-slate-500 font-mono">{{ b.bill_number }}</div>
+      <div class="text-xs text-muted-foreground font-mono">{{ b.bill_number }}</div>
       <h1 class="text-2xl font-semibold">{{ b.vendor_name }}</h1>
-      <div class="text-sm text-slate-500 mt-1">
+      <div class="text-sm text-muted-foreground mt-1">
         {{ b.bill_type }} · {{ b.bill_date }}
         <span *ngIf="b.due_date"> · Due {{ b.due_date }}</span>
-        <span class="px-2 py-0.5 bg-slate-100 rounded-full text-xs ml-2">{{ b.status.replace('_', ' ') }}</span>
-        <a *ngIf="b.project" [routerLink]="['/projects', b.project.public_id]" class="text-blue-600 hover:underline ml-2 text-xs font-mono">
+        <span class="px-2 py-0.5 bg-muted rounded-full text-xs ml-2">{{ b.status.replace('_', ' ') }}</span>
+        <a *ngIf="b.project" [routerLink]="['/projects', b.project.public_id]" class="text-blue-600 dark:text-blue-400 hover:underline ml-2 text-xs font-mono">
           {{ b.project.code }}
         </a>
       </div>
@@ -23,35 +23,35 @@
   </div>
 
   <div class="grid grid-cols-3 gap-3">
-    <div class="bg-white p-4 rounded-md border border-slate-200">
-      <div class="text-xs text-slate-500">Total</div>
+    <div class="bg-card p-4 rounded-md border border-border">
+      <div class="text-xs text-muted-foreground">Total</div>
       <div class="text-xl font-semibold mt-1">{{ formatMoney(b.total_amount) }}</div>
     </div>
-    <div class="bg-white p-4 rounded-md border border-slate-200">
-      <div class="text-xs text-slate-500">Paid</div>
-      <div class="text-xl font-semibold mt-1 text-green-700">{{ formatMoney(b.amount_paid) }}</div>
+    <div class="bg-card p-4 rounded-md border border-border">
+      <div class="text-xs text-muted-foreground">Paid</div>
+      <div class="text-xl font-semibold mt-1 text-green-700 dark:text-green-400">{{ formatMoney(b.amount_paid) }}</div>
     </div>
-    <div class="bg-white p-4 rounded-md border border-slate-200">
-      <div class="text-xs text-slate-500">Balance Due</div>
-      <div class="text-xl font-semibold mt-1 text-red-700">{{ formatMoney(b.balance_due) }}</div>
+    <div class="bg-card p-4 rounded-md border border-border">
+      <div class="text-xs text-muted-foreground">Balance Due</div>
+      <div class="text-xl font-semibold mt-1 text-red-700 dark:text-red-400">{{ formatMoney(b.balance_due) }}</div>
     </div>
   </div>
 
-  <div class="bg-white p-4 rounded-md border border-slate-200">
+  <div class="bg-card p-4 rounded-md border border-border">
     <h3 class="font-medium mb-3">Vendor</h3>
     <div class="grid grid-cols-2 gap-2 text-sm">
-      <div><span class="text-slate-500">TIN:</span> {{ b.vendor_tin || '—' }}</div>
-      <div><span class="text-slate-500">Vendor Invoice #:</span> {{ b.vendor_invoice_number || '—' }}</div>
-      <div><span class="text-slate-500">Email:</span> {{ b.vendor_email || '—' }}</div>
-      <div><span class="text-slate-500">Category:</span> {{ b.category || '—' }}</div>
-      <div class="col-span-2"><span class="text-slate-500">Address:</span> {{ b.vendor_address || '—' }}</div>
+      <div><span class="text-muted-foreground">TIN:</span> {{ b.vendor_tin || '—' }}</div>
+      <div><span class="text-muted-foreground">Vendor Invoice #:</span> {{ b.vendor_invoice_number || '—' }}</div>
+      <div><span class="text-muted-foreground">Email:</span> {{ b.vendor_email || '—' }}</div>
+      <div><span class="text-muted-foreground">Category:</span> {{ b.category || '—' }}</div>
+      <div class="col-span-2"><span class="text-muted-foreground">Address:</span> {{ b.vendor_address || '—' }}</div>
     </div>
   </div>
 
-  <div class="bg-white rounded-md border border-slate-200 overflow-hidden">
-    <h3 class="font-medium p-4 border-b border-slate-200">Line Items</h3>
+  <div class="bg-card rounded-md border border-border overflow-hidden">
+    <h3 class="font-medium p-4 border-b border-border">Line Items</h3>
     <table class="w-full text-sm">
-      <thead class="bg-slate-50 text-left text-slate-600">
+      <thead class="bg-muted/50 text-left text-muted-foreground">
         <tr>
           <th class="p-3 font-medium">#</th>
           <th class="p-3 font-medium">Description</th>
@@ -62,7 +62,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let item of b.items" class="border-t border-slate-100">
+        <tr *ngFor="let item of b.items" class="border-t border-border">
           <td class="p-3">{{ item.item_number }}</td>
           <td class="p-3">{{ item.description }}</td>
           <td class="p-3 text-right">{{ item.quantity }}</td>
@@ -71,18 +71,18 @@
           <td class="p-3 text-right">{{ formatMoney(item.line_total) }}</td>
         </tr>
       </tbody>
-      <tfoot class="bg-slate-50 text-sm">
-        <tr><td colspan="5" class="p-3 text-right text-slate-600">Subtotal</td><td class="p-3 text-right">{{ formatMoney(b.subtotal) }}</td></tr>
-        <tr><td colspan="5" class="p-3 text-right text-slate-600">Tax</td><td class="p-3 text-right">{{ formatMoney(b.total_tax) }}</td></tr>
+      <tfoot class="bg-muted/50 text-sm">
+        <tr><td colspan="5" class="p-3 text-right text-muted-foreground">Subtotal</td><td class="p-3 text-right">{{ formatMoney(b.subtotal) }}</td></tr>
+        <tr><td colspan="5" class="p-3 text-right text-muted-foreground">Tax</td><td class="p-3 text-right">{{ formatMoney(b.total_tax) }}</td></tr>
         <tr><td colspan="5" class="p-3 text-right font-semibold">Total</td><td class="p-3 text-right font-semibold">{{ formatMoney(b.total_amount) }}</td></tr>
       </tfoot>
     </table>
   </div>
 
-  <div class="bg-white rounded-md border border-slate-200 overflow-hidden">
-    <h3 class="font-medium p-4 border-b border-slate-200">Payments</h3>
+  <div class="bg-card rounded-md border border-border overflow-hidden">
+    <h3 class="font-medium p-4 border-b border-border">Payments</h3>
     <table class="w-full text-sm">
-      <thead class="bg-slate-50 text-left text-slate-600">
+      <thead class="bg-muted/50 text-left text-muted-foreground">
         <tr>
           <th class="p-3 font-medium">Date</th>
           <th class="p-3 font-medium">Method</th>
@@ -92,51 +92,51 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let p of b.payments" class="border-t border-slate-100">
+        <tr *ngFor="let p of b.payments" class="border-t border-border">
           <td class="p-3">{{ p.payment_date }}</td>
           <td class="p-3">{{ p.payment_method }}</td>
           <td class="p-3">{{ p.reference_number || '—' }}</td>
-          <td class="p-3 text-right text-green-700">{{ formatMoney(p.amount) }}</td>
+          <td class="p-3 text-right text-green-700 dark:text-green-400">{{ formatMoney(p.amount) }}</td>
           <td class="p-3 text-right">
             <button *ngIf="isAdmin" z-button zType="ghost" zSize="sm" (click)="deletePayment(p.id)" class="text-destructive">Delete</button>
           </td>
         </tr>
         <tr *ngIf="!b.payments?.length">
-          <td colspan="5" class="p-6 text-center text-slate-400">No payments recorded.</td>
+          <td colspan="5" class="p-6 text-center text-muted-foreground">No payments recorded.</td>
         </tr>
       </tbody>
     </table>
   </div>
 
-  <div *ngIf="b.notes" class="bg-white p-4 rounded-md border border-slate-200">
+  <div *ngIf="b.notes" class="bg-card p-4 rounded-md border border-border">
     <h3 class="font-medium mb-2">Notes</h3>
-    <p class="text-sm text-slate-600 whitespace-pre-wrap">{{ b.notes }}</p>
+    <p class="text-sm text-muted-foreground whitespace-pre-wrap">{{ b.notes }}</p>
   </div>
 </div>
 
-<div *ngIf="loading()" class="p-8 text-center text-slate-400">Loading...</div>
+<div *ngIf="loading()" class="p-8 text-center text-muted-foreground">Loading...</div>
 
 <!-- Payment Modal -->
 <div *ngIf="showPaymentModal()" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-  <div class="bg-white rounded-md w-full max-w-md p-6 space-y-4">
+  <div class="bg-card rounded-md w-full max-w-md p-6 space-y-4">
     <h3 class="text-lg font-semibold">Record Payment</h3>
 
     <div>
       <label class="block text-sm font-medium mb-1">Payment Date</label>
       <input type="date" [(ngModel)]="payment.payment_date"
-             class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm" />
+             class="w-full px-3 py-2 border border-border rounded-md text-sm" />
     </div>
 
     <div>
       <label class="block text-sm font-medium mb-1">Amount</label>
       <input type="number" step="0.01" [(ngModel)]="payment.amount"
-             class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm" />
+             class="w-full px-3 py-2 border border-border rounded-md text-sm" />
     </div>
 
     <div>
       <label class="block text-sm font-medium mb-1">Method</label>
       <select [(ngModel)]="payment.payment_method"
-              class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm">
+              class="w-full px-3 py-2 border border-border rounded-md text-sm">
         <option value="Bank Transfer">Bank Transfer</option>
         <option value="Cash">Cash</option>
         <option value="Cheque">Cheque</option>
@@ -149,13 +149,13 @@
     <div>
       <label class="block text-sm font-medium mb-1">Reference #</label>
       <input [(ngModel)]="payment.reference_number"
-             class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm" />
+             class="w-full px-3 py-2 border border-border rounded-md text-sm" />
     </div>
 
     <div>
       <label class="block text-sm font-medium mb-1">Notes</label>
       <textarea [(ngModel)]="payment.notes" rows="2"
-                class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm"></textarea>
+                class="w-full px-3 py-2 border border-border rounded-md text-sm"></textarea>
     </div>
 
     <div class="flex justify-end gap-2">

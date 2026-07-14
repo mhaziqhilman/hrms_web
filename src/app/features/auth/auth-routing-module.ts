@@ -8,6 +8,8 @@ import { VerifyEmailPendingComponent } from './components/verify-email-pending/v
 import { VerifyEmailComponent } from './components/verify-email/verify-email.component';
 import { AcceptInvitationComponent } from './components/accept-invitation/accept-invitation.component';
 import { OAuthCallbackComponent } from './components/oauth-callback/oauth-callback.component';
+import { SsoCallbackComponent } from './components/sso-callback/sso-callback.component';
+import { SigningOutComponent } from './components/signing-out/signing-out.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -18,7 +20,9 @@ const routes: Routes = [
   { path: 'verify-email-pending', component: VerifyEmailPendingComponent },
   { path: 'verify-email', component: VerifyEmailComponent },
   { path: 'accept-invitation', component: AcceptInvitationComponent },
-  { path: 'oauth-callback', component: OAuthCallbackComponent }
+  { path: 'oauth-callback', component: OAuthCallbackComponent },
+  { path: 'sso', component: SsoCallbackComponent },
+  { path: 'signing-out', component: SigningOutComponent }
 ];
 
 @NgModule({

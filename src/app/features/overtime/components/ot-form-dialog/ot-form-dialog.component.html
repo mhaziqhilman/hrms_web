@@ -1,0 +1,140 @@
+<div class="flex flex-col h-full bg-card text-foreground">
+  <!-- Header -->
+  <div class="px-6 py-5 flex items-center justify-between border-b border-border">
+    <h2 class="text-[16px] font-semibold">New overtime request</h2>
+    <button (click)="close()" class="w-8 h-8 rounded-md hover:bg-muted flex items-center justify-center text-muted-foreground">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </button>
+  </div>
+
+  <!-- Body -->
+  <div class="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+    @if (isPrivileged) {
+      <div>
+        <label class="text-[12px] font-medium text-foreground">Employee</label>
+        <z-select class="mt-1.5 block w-full" zSize="sm" zPlaceholder="— Myself —"
+                  [zValue]="employeeId()" (zValueChange)="employeeId.set($event)">
+          <z-select-item [zValue]="SELF">— Myself —</z-select-item>
+          @for (emp of employees(); track emp.public_id) {
+            <z-select-item [zValue]="emp.public_id">{{ emp.full_name }} ({{ emp.employee_id }})</z-select-item>
+          }
+        </z-select>
+      </div>
+    }
+
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label class="text-[12px] font-medium text-foreground">Overtime date</label>
+        <z-date-picker class="mt-1.5 block w-full"
+                       [ngModel]="otDate()" [ngModelOptions]="{ standalone: true }"
+                       (ngModelChange)="onDateChange($event)"
+                       placeholder="Select date" zFormat="dd MMM yyyy" zSize="sm">
+        </z-date-picker>
+      </div>
+      <div>
+        <label class="text-[12px] font-medium text-foreground">Day type</label>
+        <z-select class="mt-1.5 block w-full" zSize="sm"
+                  [zValue]="dayType()" (zValueChange)="dayType.set($event)">
+          @for (d of dayTypes; track d.value) {
+            <z-select-item [zValue]="d.value">{{ d.label }} · {{ d.mult }}×</z-select-item>
+          }
+        </z-select>
+      </div>
+    </div>
+
+    <!-- Time steppers (same UX as the clock-in form) -->
+    <div class="grid grid-cols-2 gap-4">
+      <!-- Start -->
+      <div>
+        <label class="text-[12px] font-medium text-foreground block mb-1.5">Start time</label>
+        <div class="flex items-center gap-1.5">
+          <div class="flex flex-col items-center">
+            <button type="button" z-button zType="ghost" zSize="sm" (click)="adjustStart('hour', 1)">
+              <z-icon [zType]="$any('chevron-up')" class="w-3.5 h-3.5" />
+            </button>
+            <div class="bg-background border rounded-xl w-11 h-10 flex items-center justify-center text-base font-semibold tabular-nums shadow-sm">{{ padTwo(startHour()) }}</div>
+            <button type="button" z-button zType="ghost" zSize="sm" (click)="adjustStart('hour', -1)">
+              <z-icon [zType]="$any('chevron-down')" class="w-3.5 h-3.5" />
+            </button>
+          </div>
+          <span class="text-base font-semibold text-muted-foreground/50 pb-0.5">:</span>
+          <div class="flex flex-col items-center">
+            <button type="button" z-button zType="ghost" zSize="sm" (click)="adjustStart('minute', 5)">
+              <z-icon [zType]="$any('chevron-up')" class="w-3.5 h-3.5" />
+            </button>
+            <div class="bg-background border rounded-xl w-11 h-10 flex items-center justify-center text-base font-semibold tabular-nums shadow-sm">{{ padTwo(startMinute()) }}</div>
+            <button type="button" z-button zType="ghost" zSize="sm" (click)="adjustStart('minute', -5)">
+              <z-icon [zType]="$any('chevron-down')" class="w-3.5 h-3.5" />
+            </button>
+          </div>
+          <button type="button" z-button zType="outline" zSize="sm" (click)="toggleStartPeriod()">{{ startPeriod() }}</button>
+        </div>
+      </div>
+
+      <!-- End -->
+      <div>
+        <label class="text-[12px] font-medium text-foreground block mb-1.5">End time</label>
+        <div class="flex items-center gap-1.5">
+          <div class="flex flex-col items-center">
+            <button type="button" z-button zType="ghost" zSize="sm" (click)="adjustEnd('hour', 1)">
+              <z-icon [zType]="$any('chevron-up')" class="w-3.5 h-3.5" />
+            </button>
+            <div class="bg-background border rounded-xl w-11 h-10 flex items-center justify-center text-base font-semibold tabular-nums shadow-sm">{{ padTwo(endHour()) }}</div>
+            <button type="button" z-button zType="ghost" zSize="sm" (click)="adjustEnd('hour', -1)">
+              <z-icon [zType]="$any('chevron-down')" class="w-3.5 h-3.5" />
+            </button>
+          </div>
+          <span class="text-base font-semibold text-muted-foreground/50 pb-0.5">:</span>
+          <div class="flex flex-col items-center">
+            <button type="button" z-button zType="ghost" zSize="sm" (click)="adjustEnd('minute', 5)">
+              <z-icon [zType]="$any('chevron-up')" class="w-3.5 h-3.5" />
+            </button>
+            <div class="bg-background border rounded-xl w-11 h-10 flex items-center justify-center text-base font-semibold tabular-nums shadow-sm">{{ padTwo(endMinute()) }}</div>
+            <button type="button" z-button zType="ghost" zSize="sm" (click)="adjustEnd('minute', -5)">
+              <z-icon [zType]="$any('chevron-down')" class="w-3.5 h-3.5" />
+            </button>
+          </div>
+          <button type="button" z-button zType="outline" zSize="sm" (click)="toggleEndPeriod()">{{ endPeriod() }}</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live calculation -->
+    <div class="rounded-xl border border-border bg-muted/50 p-4">
+      <div class="flex items-center justify-between text-[13px]">
+        <span class="text-muted-foreground">Duration</span>
+        <span class="font-mono font-semibold">{{ durationLabel }}</span>
+      </div>
+      <div class="flex items-center justify-between text-[13px] mt-2">
+        <span class="text-muted-foreground">Hourly rate × multiplier</span>
+        <span class="font-mono text-foreground">
+          @if (hourlyRate !== null) { RM {{ hourlyRate | number:'1.2-2' }} × {{ multiplier }} }
+          @else { × {{ multiplier }} }
+        </span>
+      </div>
+      <div class="border-t border-border mt-3 pt-3 flex items-center justify-between">
+        <span class="text-[13px] font-medium text-foreground">Estimated payout</span>
+        <span class="font-mono text-[16px] font-semibold">
+          @if (estimate !== null) { RM {{ estimate | number:'1.2-2' }} }
+          @else { <span class="text-[12px] text-muted-foreground font-normal">calculated on submit</span> }
+        </span>
+      </div>
+    </div>
+
+    <div>
+      <label class="text-[12px] font-medium text-foreground">Reason</label>
+      <textarea [ngModel]="reason()" (ngModelChange)="reason.set($event)" [ngModelOptions]="{ standalone: true }"
+                rows="3" placeholder="e.g. Month-end payroll closing that cannot be deferred…"
+                class="mt-1.5 w-full px-3 py-2.5 rounded-md border border-border bg-card text-[13px] text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/30 resize-none"></textarea>
+      <p class="text-[11px] text-muted-foreground mt-1.5">Visible to the approving manager and kept on the payroll record.</p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="px-6 py-4 border-t border-border flex items-center justify-end gap-2">
+    <button (click)="close()" class="h-9 px-4 rounded-md border border-border text-[13px] font-medium text-foreground hover:bg-muted">Cancel</button>
+    <button (click)="submit()" [disabled]="submitting()" class="h-9 px-4 rounded-md bg-primary text-primary-foreground text-[13px] font-medium hover:bg-primary/90 disabled:opacity-50">
+      {{ submitting() ? 'Submitting…' : 'Submit request' }}
+    </button>
+  </div>
+</div>

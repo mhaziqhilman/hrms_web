@@ -6,8 +6,6 @@ import {
   EmployeeProfileResponse,
   UpdateProfileRequest,
   UpdateProfileResponse,
-  ChangePasswordRequest,
-  ChangePasswordResponse,
   MyPayslipsResponse,
   EmployeeDocumentsResponse,
   TeamMembersResponse
@@ -35,16 +33,6 @@ export class PersonalService {
   updateMyProfile(data: UpdateProfileRequest): Observable<UpdateProfileResponse> {
     return this.http.put<UpdateProfileResponse>(
       `${this.apiUrl}${API_CONFIG.endpoints.employees.me}`,
-      data
-    );
-  }
-
-  /**
-   * Change password
-   */
-  changePassword(data: ChangePasswordRequest): Observable<ChangePasswordResponse> {
-    return this.http.post<ChangePasswordResponse>(
-      `${this.apiUrl}${API_CONFIG.endpoints.auth.changePassword}`,
       data
     );
   }

@@ -127,6 +127,12 @@ export class UserManagementService {
     );
   }
 
+  removeUserFromCompany(userId: number): Observable<ApiResponse<UserRecord>> {
+    return this.http.delete<ApiResponse<UserRecord>>(
+      `${this.apiUrl}${API_CONFIG.endpoints.users.removeFromCompany(userId)}`
+    );
+  }
+
   getUnlinkedEmployees(): Observable<ApiResponse<UnlinkedEmployee[]>> {
     return this.http.get<ApiResponse<UnlinkedEmployee[]>>(
       `${this.apiUrl}${API_CONFIG.endpoints.users.unlinkedEmployees}`

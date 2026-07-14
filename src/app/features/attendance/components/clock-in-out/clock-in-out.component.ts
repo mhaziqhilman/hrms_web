@@ -362,12 +362,12 @@ export class ClockInOutComponent implements OnInit, OnDestroy {
             this.isClockedIn.set(false);
             this.clockOutTime.set(response.data.clock_out_time || null);
             this.totalHours.set(response.data.total_hours || 0);
-            this.success.set('Clocked out successfully!');
+            this.success.set(response.message || 'Clocked out successfully!');
 
             console.log('Clock out successful, is clocked in:', this.isClockedIn());
 
-            // Clear success message after 3 seconds
-            setTimeout(() => this.success.set(null), 3000);
+            // Clear success message after 6 seconds (auto-record messages are longer)
+            setTimeout(() => this.success.set(null), 6000);
 
             // Reload today's attendance to ensure state is synced
             setTimeout(() => this.loadTodayAttendance(), 500);

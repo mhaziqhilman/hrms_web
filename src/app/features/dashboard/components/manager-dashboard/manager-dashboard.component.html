@@ -62,7 +62,7 @@
       <div class="rounded-xl border border-border bg-card shadow-sm">
         <div class="p-10 flex flex-col items-center justify-center text-center">
           <div class="flex items-center justify-center w-14 h-14 rounded-full bg-red-500/10 mb-4">
-            <z-icon zType="triangle-alert" class="text-red-500 text-2xl" />
+            <z-icon zType="triangle-alert" class="text-red-500 dark:text-red-400 text-2xl" />
           </div>
           <p class="text-foreground font-medium mb-1">{{ error() }}</p>
           <p class="text-muted-foreground text-[13px] mb-5">Something went wrong while loading your team data.</p>
@@ -184,7 +184,7 @@
               </div>
               <div class="bg-card p-4">
                 <p class="text-[11.5px] text-muted-foreground mb-2 inline-flex items-center gap-1.5">
-                  <span class="w-2 h-2 rounded-sm bg-slate-400"></span>Not in yet
+                  <span class="w-2 h-2 rounded-sm bg-slate-400 dark:bg-slate-500"></span>Not in yet
                 </p>
                 <div class="flex items-baseline gap-1.5">
                   <p class="font-mono tabular-nums text-[28px] font-semibold leading-none"
@@ -355,7 +355,7 @@
             } @else {
             <div class="px-5 py-8 flex flex-col items-center text-center">
               <div class="flex items-center justify-center w-10 h-10 rounded-full bg-muted mb-2.5">
-                <z-icon zType="calendar" class="text-emerald-500 text-base" />
+                <z-icon zType="calendar" class="text-emerald-500 dark:text-emerald-400 text-base" />
               </div>
               <p class="text-[12.5px] font-medium text-foreground">No leave requests</p>
               <p class="text-[11.5px] text-muted-foreground mt-0.5">All caught up on leave approvals</p>
@@ -399,7 +399,7 @@
             } @else {
             <div class="px-5 py-8 flex flex-col items-center text-center">
               <div class="flex items-center justify-center w-10 h-10 rounded-full bg-muted mb-2.5">
-                <z-icon zType="house" class="text-emerald-500 text-base" />
+                <z-icon zType="house" class="text-emerald-500 dark:text-emerald-400 text-base" />
               </div>
               <p class="text-[12.5px] font-medium text-foreground">No WFH requests</p>
               <p class="text-[11.5px] text-muted-foreground mt-0.5">All work-from-home requests handled</p>
@@ -441,7 +441,7 @@
             } @else {
             <div class="px-5 py-8 flex flex-col items-center text-center">
               <div class="flex items-center justify-center w-10 h-10 rounded-full bg-muted mb-2.5">
-                <z-icon zType="check" class="text-emerald-500 text-base" />
+                <z-icon zType="check" class="text-emerald-500 dark:text-emerald-400 text-base" />
               </div>
               <p class="text-[12.5px] font-medium text-foreground">No claims pending</p>
               <p class="text-[11.5px] text-muted-foreground mt-0.5">All expense claims reviewed</p>

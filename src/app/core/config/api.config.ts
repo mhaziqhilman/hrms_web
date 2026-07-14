@@ -114,6 +114,7 @@ export const API_CONFIG = {
       toggleActive: (id: number) => `/users/${id}/toggle-active`,
       linkEmployee: (id: number) => `/users/${id}/link-employee`,
       unlinkEmployee: (id: number) => `/users/${id}/unlink-employee`,
+      removeFromCompany: (id: number) => `/users/${id}/company-membership`,
       resetPassword: (id: number) => `/users/${id}/reset-password`,
       unlinkedEmployees: '/users/unlinked-employees'
     },
@@ -145,6 +146,15 @@ export const API_CONFIG = {
       base: '/claim-types',
       detail: (id: number) => `/claim-types/${id}`,
       toggle: (id: number) => `/claim-types/${id}/toggle`
+    },
+    overtime: {
+      base: '/overtime',
+      team: '/overtime/team',
+      detail: (id: number | string) => `/overtime/${id}`,
+      approval: (id: number | string) => `/overtime/${id}/approval`,
+      suggestDayType: '/overtime/suggest-day-type',
+      suggestFromAttendance: '/overtime/suggest-from-attendance',
+      approvedTotal: '/overtime/approved-total'
     },
     publicHolidays: {
       base: '/public-holidays',

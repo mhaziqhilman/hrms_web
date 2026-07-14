@@ -382,7 +382,7 @@ export class InvoiceDetailComponent implements OnInit {
   }
 
   getStatusColor(status: string): string {
-    return this.STATUS_COLORS[status] || 'bg-gray-100 text-gray-700';
+    return this.STATUS_COLORS[status] || 'bg-muted text-muted-foreground';
   }
 
   canEdit(): boolean {

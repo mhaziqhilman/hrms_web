@@ -312,12 +312,12 @@ export const INVOICE_TYPE_LABELS: Record<string, string> = {
 };
 
 export const INVOICE_STATUS_COLORS: Record<string, string> = {
-  Draft: 'bg-gray-100 text-gray-700',
-  Pending: 'bg-amber-50 text-amber-700',
-  Submitted: 'bg-blue-50 text-blue-700',
-  Valid: 'bg-emerald-50 text-emerald-700',
-  Invalid: 'bg-red-50 text-red-700',
-  Cancelled: 'bg-gray-100 text-gray-500',
-  Superseded: 'bg-purple-50 text-purple-700',
-  Recorded: 'bg-indigo-50 text-indigo-700'
+  Draft: 'bg-muted text-muted-foreground',
+  Pending: 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400',
+  Submitted: 'bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400',
+  Valid: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400',
+  Invalid: 'bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-400',
+  Cancelled: 'bg-muted text-muted-foreground',
+  Superseded: 'bg-purple-50 text-purple-700 dark:bg-purple-950/40 dark:text-purple-400',
+  Recorded: 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-400'
 };

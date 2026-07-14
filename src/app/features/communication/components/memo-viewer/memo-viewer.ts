@@ -402,7 +402,7 @@ export class MemoViewerComponent implements OnInit {
     switch (status) {
       case 'Published': return 'bg-emerald-500';
       case 'Draft': return 'bg-amber-500';
-      default: return 'bg-slate-400';
+      default: return 'bg-slate-400 dark:bg-slate-500';
     }
   }
 }

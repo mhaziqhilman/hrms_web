@@ -1,0 +1,29 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  /* Follow the user's font preference (ThemeService --font-family) */
+  font-family: var(--font-family);
+  color: var(--foreground);
+}
+
+/* Mockup card shadows */
+.shad-card {
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+}
+.shad-card-lg {
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 1px 3px rgb(0 0 0 / 0.06);
+}
+
+/* Row hover (matches tr[data-row]:hover td) */
+tr[data-row]:hover td {
+  background: color-mix(in oklab, var(--muted) 70%, transparent);
+}
+
+/* Active segmented button */
+.seg-btn[data-active='true'] {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-color: var(--primary);
+}

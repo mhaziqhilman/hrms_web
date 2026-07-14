@@ -138,7 +138,7 @@
                       [class.bg-slate-300]="source() !== 'po'"
                       [class.dark:bg-slate-600]="source() !== 'po'">
                 <span
-                  class="pointer-events-none absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform duration-200"
+                  class="pointer-events-none absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-card shadow transition-transform duration-200"
                   [class.translate-x-4]="source() === 'po'">
                 </span>
               </button>
@@ -243,14 +243,14 @@
                       <label class="px-3 py-2 border border-input rounded-md text-sm bg-background cursor-pointer hover:bg-muted/50">
                         @if (!uploadingPo() && !poDocumentUrl) { <span>Upload PDF</span> }
                         @if (uploadingPo()) { <span>Uploading...</span> }
-                        @if (!uploadingPo() && poDocumentUrl) { <span class="text-emerald-700">Replace</span> }
+                        @if (!uploadingPo() && poDocumentUrl) { <span class="text-emerald-700 dark:text-emerald-400">Replace</span> }
                         <input type="file" accept="application/pdf,image/*" class="hidden" (change)="onPoFileSelected($event)" />
                       </label>
                       @if (poDocumentUrl && poFileName()) {
                         <span class="text-xs text-muted-foreground truncate max-w-[200px]">{{ poFileName() }}</span>
                       }
                       @if (poDocumentUrl && !poFileName()) {
-                        <span class="text-xs text-emerald-700">attached</span>
+                        <span class="text-xs text-emerald-700 dark:text-emerald-400">attached</span>
                       }
                     </div>
                   </z-form-control>

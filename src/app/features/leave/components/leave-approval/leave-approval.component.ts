@@ -421,15 +421,15 @@ export class LeaveApprovalComponent implements OnInit {
 
   getLeaveTypePillClasses(leaveTypeName?: string): string {
     const base = 'inline-flex items-center px-2 py-0.5 rounded-md ring-1 text-[11px] font-medium whitespace-nowrap';
-    if (!leaveTypeName) return `${base} bg-slate-50 text-slate-700 ring-slate-200`;
+    if (!leaveTypeName) return `${base} bg-slate-50 dark:bg-slate-900/40 text-slate-700 dark:text-slate-300 ring-slate-200 dark:ring-slate-700`;
     const name = leaveTypeName.toLowerCase();
-    if (name.includes('annual') || name.includes('vacation')) return `${base} bg-emerald-50 text-emerald-700 ring-emerald-200`;
-    if (name.includes('medical') || name.includes('sick') || name.includes('hospitalization')) return `${base} bg-violet-50 text-violet-700 ring-violet-200`;
-    if (name.includes('emergency')) return `${base} bg-amber-50 text-amber-700 ring-amber-200`;
-    if (name.includes('maternity') || name.includes('paternity')) return `${base} bg-pink-50 text-pink-700 ring-pink-200`;
-    if (name.includes('study')) return `${base} bg-sky-50 text-sky-700 ring-sky-200`;
-    if (name.includes('unpaid')) return `${base} bg-slate-100 text-slate-700 ring-slate-200`;
-    return `${base} bg-violet-50 text-violet-700 ring-violet-200`;
+    if (name.includes('annual') || name.includes('vacation')) return `${base} bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 ring-emerald-200 dark:ring-emerald-900`;
+    if (name.includes('medical') || name.includes('sick') || name.includes('hospitalization')) return `${base} bg-violet-50 dark:bg-violet-950/40 text-violet-700 dark:text-violet-400 ring-violet-200 dark:ring-violet-900`;
+    if (name.includes('emergency')) return `${base} bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 ring-amber-200 dark:ring-amber-900`;
+    if (name.includes('maternity') || name.includes('paternity')) return `${base} bg-pink-50 dark:bg-pink-950/40 text-pink-700 dark:text-pink-400 ring-pink-200 dark:ring-pink-900`;
+    if (name.includes('study')) return `${base} bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-400 ring-sky-200 dark:ring-sky-900`;
+    if (name.includes('unpaid')) return `${base} bg-slate-100 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 ring-slate-200 dark:ring-slate-700`;
+    return `${base} bg-violet-50 dark:bg-violet-950/40 text-violet-700 dark:text-violet-400 ring-violet-200 dark:ring-violet-900`;
   }
 
   getDaysSincePending(leave: Leave): number {

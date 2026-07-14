@@ -64,6 +64,11 @@ const ADMIN_MENU: SidebarMenuGroup[] = [
         route: '/claims'
       },
       {
+        title: 'Overtime',
+        icon: 'timer',
+        route: '/overtime'
+      },
+      {
         title: 'Documents',
         icon: 'folder-open',
         route: '/documents',
@@ -73,12 +78,13 @@ const ADMIN_MENU: SidebarMenuGroup[] = [
         title: 'Statutory Reports',
         icon: 'file-chart-column',
         route: '/statutory-reports'
-      },
-      {
-        title: 'Analytics',
-        icon: 'bar-chart-3',
-        route: '/analytics'
       }
+      // Temporarily hidden for all users — restore to re-enable Analytics
+      // ,{
+      //   title: 'Analytics',
+      //   icon: 'bar-chart-3',
+      //   route: '/analytics'
+      // }
     ]
   },
   {
@@ -277,6 +283,11 @@ const MANAGER_MENU: SidebarMenuGroup[] = [
         route: '/claims'
       },
       {
+        title: 'Overtime Approvals',
+        icon: 'timer',
+        route: '/overtime/approval'
+      },
+      {
         title: 'Attendance',
         icon: 'clock',
         route: '/attendance'
@@ -354,6 +365,11 @@ const STAFF_MENU: SidebarMenuGroup[] = [
         title: 'Claims',
         icon: 'file-text',
         route: '/claims'
+      },
+      {
+        title: 'Overtime',
+        icon: 'timer',
+        route: '/overtime'
       },
       {
         title: 'Notifications',

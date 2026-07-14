@@ -286,6 +286,13 @@
                           <z-icon zType="key-round" class="mr-2 w-4 h-4" />
                           Reset Password
                         </button>
+                        @if (user.role !== 'super_admin') {
+                          <button type="button" z-menu-item (click)="removeFromCompany(user)"
+                            class="text-destructive">
+                            <z-icon zType="user-minus" class="mr-2 w-4 h-4" />
+                            Remove from Company
+                          </button>
+                        }
                       </div>
                     </ng-template>
                   </div>
