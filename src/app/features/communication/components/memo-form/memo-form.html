@@ -36,19 +36,42 @@
       </div>
 
       <div class="flex items-center gap-2">
-        <button z-button zType="ghost" zSize="default" (click)="togglePreview()" class="gap-2">
+        <!-- Preview + Save draft — full buttons on desktop -->
+        <button z-button zType="ghost" zSize="default" (click)="togglePreview()" class="gap-2 max-md:hidden">
           <z-icon [zType]="previewMode() ? $any('pen-line') : $any('eye')" class="w-3.5 h-3.5" />
           {{ previewMode() ? 'Edit' : 'Preview' }}
         </button>
-        <button z-button zType="outline" zSize="default" (click)="saveAsDraft()" [zLoading]="saving()" class="gap-2">
+        <button z-button zType="outline" zSize="default" (click)="saveAsDraft()" [zLoading]="saving()" class="gap-2 max-md:hidden">
           <z-icon zType="save" class="w-3.5 h-3.5" />
           Save draft
           <span class="memo-kbd">⌘S</span>
         </button>
+
+        <!-- Mobile: secondary actions collapse into an overflow menu -->
+        <div class="md:hidden" z-menu [zMenuTriggerFor]="memoActionsMenu">
+          <button type="button" z-button zType="ghost" zSize="sm" class="px-2">
+            <z-icon zType="ellipsis-vertical" class="w-4 h-4" />
+          </button>
+        </div>
+        <ng-template #memoActionsMenu>
+          <div z-menu-content class="w-44">
+            <button type="button" z-menu-item (click)="togglePreview()">
+              <z-icon [zType]="previewMode() ? $any('pen-line') : $any('eye')" class="mr-2 w-4 h-4" />
+              {{ previewMode() ? 'Edit' : 'Preview' }}
+            </button>
+            <button type="button" z-menu-item (click)="saveAsDraft()" [disabled]="saving()">
+              <z-icon zType="save" class="mr-2 w-4 h-4" />
+              Save draft
+            </button>
+          </div>
+        </ng-template>
+
+        <!-- Publish — always visible (primary action) -->
         <button z-button zType="default" zSize="default" (click)="publish()" [zLoading]="saving()" class="gap-2">
           <z-icon zType="send" class="w-3.5 h-3.5" />
-          {{ isEditMode() ? 'Update & Publish' : 'Publish' }}
-          <span class="memo-kbd memo-kbd-dark">⌘↵</span>
+          <span class="max-md:hidden">{{ isEditMode() ? 'Update & Publish' : 'Publish' }}</span>
+          <span class="md:hidden">Publish</span>
+          <span class="memo-kbd memo-kbd-dark max-md:hidden">⌘↵</span>
         </button>
       </div>
     </div>

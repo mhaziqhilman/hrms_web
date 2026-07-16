@@ -7,6 +7,7 @@ import { Subscription, finalize } from 'rxjs';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { ZardIconComponent } from '@/shared/components/icon/icon.component';
+import { NexturaLogoComponent } from '@/shared/components/nextura-logo/nextura-logo.component';
 
 @Component({
   selector: 'app-verify-email',
@@ -16,7 +17,8 @@ import { ZardIconComponent } from '@/shared/components/icon/icon.component';
     RouterModule,
     ZardCardComponent,
     ZardButtonComponent,
-    ZardIconComponent
+    ZardIconComponent,
+    NexturaLogoComponent
   ],
   templateUrl: './verify-email.component.html'
 })

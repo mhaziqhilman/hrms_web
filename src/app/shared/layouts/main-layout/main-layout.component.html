@@ -1,8 +1,21 @@
 <z-layout class="min-h-screen bg-sidebar">
   <!-- Sidebar -->
   <z-sidebar [zWidth]="250" [zCollapsedWidth]="70" [zCollapsible]="true" [zCollapsed]="sidebarCollapsed()"
-    (zCollapsedChange)="onSidebarCollapsedChange($event)" [zTrigger]="noTrigger" class="p-0! sticky top-0 h-screen border-r-0!">
+    (zCollapsedChange)="onSidebarCollapsedChange($event)" [zTrigger]="noTrigger"
+    class="p-0! sticky top-0 h-screen border-r-0! max-md:hidden">
     <ng-template #noTrigger></ng-template>
+    <ng-container [ngTemplateOutlet]="sidebarNav"></ng-container>
+  </z-sidebar>
+
+  <!-- Mobile nav drawer (below md: only; a plain fixed panel we fully control) -->
+  <aside
+    class="md:hidden fixed inset-y-0 left-0 z-[70] w-[260px] max-w-[85vw] flex flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border shadow-xl transition-transform duration-200"
+    [class.-translate-x-full]="!mobileDrawerOpen()">
+    <ng-container [ngTemplateOutlet]="sidebarNav"></ng-container>
+  </aside>
+
+  <!-- Shared sidebar nav — rendered in the desktop sidebar and the mobile drawer -->
+  <ng-template #sidebarNav>
     <nav class="flex h-full flex-col">
       <!-- Company Switcher -->
       <div [class]="'flex-shrink-0 border-b ' + (sidebarCollapsed() ? 'p-2' : 'p-3')">
@@ -243,7 +256,12 @@
         </ng-template>
       </div>
     </nav>
-  </z-sidebar>
+  </ng-template>
+
+  <!-- Mobile drawer backdrop (below md: only; inert on desktop) -->
+  <div class="md:hidden fixed inset-0 z-[60] bg-black/50 transition-opacity duration-200"
+    [class.opacity-0]="!mobileDrawerOpen()" [class.pointer-events-none]="!mobileDrawerOpen()"
+    (click)="closeMobileDrawer()"></div>
 
   <!-- SidebarInset -->
   <main class="relative flex flex-1 flex-col bg-background md:m-2 md:ml-0 md:rounded-xl md:shadow overflow-x-clip min-w-0">
@@ -252,7 +270,12 @@
       <div class="relative flex w-full h-full items-center lg:gap-4 justify-between">
         <!-- Left: Sidebar Toggle & Breadcrumb -->
         <div class="flex items-center gap-2 lg:gap-4 z-10">
-          <a type="button" z-button zType="ghost" zSize="sm" (click)="toggleSidebar()">
+          <!-- Mobile: open nav drawer -->
+          <a type="button" z-button zType="ghost" zSize="sm" class="md:hidden" (click)="openMobileDrawer()">
+            <z-icon zType="panel-left" />
+          </a>
+          <!-- Desktop: collapse sidebar -->
+          <a type="button" z-button zType="ghost" zSize="sm" class="max-md:hidden" (click)="toggleSidebar()">
             <z-icon zType="panel-left" />
           </a>
           <z-divider zOrientation="vertical" class="h-6 mx-0 hidden md:block" />
@@ -309,7 +332,7 @@
           </div>
 
           <ng-template #notificationDropdown>
-            <div z-menu-content class="w-[380px] p-0">
+            <div z-menu-content class="w-[min(380px,calc(100vw-2rem))] p-0">
               <!-- Header -->
               <div class="flex items-center justify-between px-4 py-3">
                 <h4 class="font-medium text-sm">Notifications</h4>

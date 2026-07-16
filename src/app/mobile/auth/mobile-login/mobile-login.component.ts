@@ -15,6 +15,7 @@ import { AuthService } from '@/core/services/auth.service';
 import { TOKEN_KEY, REFRESH_TOKEN_KEY } from '@/core/config/api.config';
 import { ZardIconComponent } from '@/shared/components/icon/icon.component';
 import type { ZardIcon } from '@/shared/components/icon/icons';
+import { NexturaLogoComponent } from '@/shared/components/nextura-logo/nextura-logo.component';
 import { BiometricService, BiometryKind } from '@/mobile/services/biometric.service';
 import { NativeService } from '@/mobile/services/native.service';
 import { PushService } from '@/mobile/services/push.service';
@@ -23,7 +24,7 @@ import { ZardAlertDialogService } from '@/shared/components/alert-dialog/alert-d
 @Component({
   selector: 'app-mobile-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, ZardIconComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, ZardIconComponent, NexturaLogoComponent],
   templateUrl: './mobile-login.component.html',
   styleUrls: ['./mobile-login.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,

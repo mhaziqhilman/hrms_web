@@ -158,7 +158,7 @@ export class StaffDashboardComponent implements OnInit, OnDestroy {
       zHideFooter: true,
       zClosable: false,
       zWidth: '800px',
-      zCustomClasses: 'p-0 gap-0 overflow-hidden',
+      zCustomClasses: 'p-0 gap-0 md:overflow-hidden max-md:!w-[calc(100vw-1.5rem)] max-md:!max-w-[calc(100vw-1.5rem)]',
       zData: {
         onSuccess: () => this.loadDashboard()
       }

@@ -10,6 +10,7 @@ import { ZardButtonComponent } from '@/shared/components/button/button.component
 import { ZardInputDirective } from '@/shared/components/input/input.directive';
 import { ZardFormLabelComponent } from '@/shared/components/form/form-label.component';
 import { ZardIconComponent } from '@/shared/components/icon/icon.component';
+import { NexturaLogoComponent } from '@/shared/components/nextura-logo/nextura-logo.component';
 
 @Component({
   selector: 'app-reset-password',
@@ -22,7 +23,8 @@ import { ZardIconComponent } from '@/shared/components/icon/icon.component';
     ZardButtonComponent,
     ZardInputDirective,
     ZardFormLabelComponent,
-    ZardIconComponent
+    ZardIconComponent,
+    NexturaLogoComponent
   ],
   templateUrl: './reset-password.component.html',
   styleUrls: ['./reset-password.component.css']

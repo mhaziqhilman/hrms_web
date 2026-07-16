@@ -90,13 +90,17 @@ export class MainLayoutComponent implements OnInit {
   contentWrapperClass = computed(() => {
     switch (this.contentLayout()) {
       case 'full':
-        return 'flex-1 flex flex-col w-full';
+        return 'flex-1 flex flex-col w-full max-md:pb-24';
       case 'reading':
-        return 'flex-1 w-full mx-auto max-w-5xl p-6';
+        return 'flex-1 w-full mx-auto max-w-5xl p-4 md:p-6 max-md:pb-24';
       default:
-        return 'flex-1 w-full mx-auto max-w-[1600px] p-6';
+        return 'flex-1 w-full mx-auto max-w-[1600px] p-4 md:p-6 max-md:pb-24';
     }
   });
+
+  // Mobile off-canvas nav drawer (below md: only). On desktop the sidebar is
+  // in-flow and this is inert.
+  mobileDrawerOpen = signal(false);
 
   // Sidebar collapse state driven by ThemeService
   get sidebarCollapsed() {
@@ -117,6 +121,8 @@ export class MainLayoutComponent implements OnInit {
       .subscribe(() => {
         this.breadcrumbs.set(this.createBreadcrumbs(this.activatedRoute.root));
         this.contentLayout.set(this.resolveContentLayout());
+        // Close the mobile nav drawer after any navigation.
+        this.mobileDrawerOpen.set(false);
       });
 
     // Initialize breadcrumbs + content layout immediately
@@ -204,6 +210,16 @@ export class MainLayoutComponent implements OnInit {
 
   toggleSidebar() {
     this.themeService.setSidebarCollapsed(!this.sidebarCollapsed());
+  }
+
+  openMobileDrawer(): void {
+    // Force the shared sidebar into its expanded form for the drawer.
+    this.themeService.setSidebarCollapsed(false);
+    this.mobileDrawerOpen.set(true);
+  }
+
+  closeMobileDrawer(): void {
+    this.mobileDrawerOpen.set(false);
   }
 
   onSidebarCollapsedChange(collapsed: boolean) {

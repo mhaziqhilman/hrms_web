@@ -54,6 +54,7 @@ export class ZardDialogService {
     if (isPlatformBrowser(this.platformId)) {
       const overlayConfig = new OverlayConfig({
         hasBackdrop: true,
+        backdropClass: ['cdk-overlay-backdrop', 'bg-black/80'],
         positionStrategy: this.overlay.position().global(),
       });
 

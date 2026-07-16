@@ -20,7 +20,7 @@
         zSize="sm"
         [zValue]="employeeId()"
         (zValueChange)="onEmployeeChange($event)"
-        class="flex-1">
+        class="flex-1 min-w-0">
         @for (emp of employees(); track emp.public_id) {
           <z-select-item [zValue]="emp.public_id">
             {{ emp.full_name }} ({{ emp.employee_id }})
@@ -32,7 +32,7 @@
 }
 
 @if (initialLoading()) {
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-0 h-[480px]">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-0 md:h-[480px]">
     <!-- LEFT: Skeleton Clock Display -->
     <div class="flex flex-col items-center justify-center p-8 bg-muted/20 border-r">
       <z-skeleton class="h-4 w-48 mb-1.5" />
@@ -60,9 +60,9 @@
 }
 
 @if (!initialLoading()) {
-<div class="grid grid-cols-1 md:grid-cols-2 gap-0 h-[480px]">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-0 md:h-[480px]">
   <!-- LEFT: Clock Display -->
-  <div class="flex flex-col items-center justify-center p-8 bg-muted/20 border-r overflow-hidden">
+  <div class="flex flex-col items-center justify-center p-8 bg-muted/20 md:border-r max-md:border-b md:overflow-hidden">
     <!-- Live Clock -->
     <p class="text-sm text-muted-foreground mb-1.5">{{ getClockDate() }}</p>
     <p class="text-4xl font-semibold tabular-nums text-foreground tracking-tight mb-5">{{ getClockHours() }}</p>
@@ -136,7 +136,7 @@
   </div>
 
   <!-- RIGHT: Form -->
-  <div class="flex flex-col p-6 overflow-y-auto">
+  <div class="flex flex-col p-6 md:overflow-y-auto">
     <!-- Mode Toggle -->
     <div class="flex justify-center mb-6">
       <z-segmented

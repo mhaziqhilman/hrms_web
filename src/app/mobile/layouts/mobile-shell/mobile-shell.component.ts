@@ -6,6 +6,7 @@ import { AuthService } from '@/core/services/auth.service';
 import { NativeService } from '@/mobile/services/native.service';
 import { ZardIconComponent } from '@/shared/components/icon/icon.component';
 import type { ZardIcon } from '@/shared/components/icon/icons';
+import { NexturaLogoComponent } from '@/shared/components/nextura-logo/nextura-logo.component';
 
 interface TabItem {
   path: string;
@@ -16,7 +17,7 @@ interface TabItem {
 @Component({
   selector: 'app-mobile-shell',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, ZardIconComponent],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, ZardIconComponent, NexturaLogoComponent],
   templateUrl: './mobile-shell.component.html',
   styleUrls: ['./mobile-shell.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,

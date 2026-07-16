@@ -37,9 +37,9 @@
     </div>
   }
 
-  <!-- Bento grid -->
+  <!-- Bento — stacks (flex) on mobile so col-span is ignored; 12-col grid bento at md+ -->
   @if (!loading() && balanceData()) {
-    <div class="grid grid-cols-12 auto-rows-[100px] gap-4">
+    <div class="flex flex-col gap-4 md:grid md:grid-cols-12 md:auto-rows-[100px]">
 
       <!-- HERO: Primary entitlement -->
       @if (heroTile(); as hero) {
@@ -256,7 +256,7 @@
       }
 
       <!-- Recent activity (tall tile) -->
-      <div class="col-span-12 lg:col-span-3 row-span-4 bg-card rounded-2xl border shad-card p-5 flex flex-col">
+      <div class="col-span-12 lg:col-span-3 row-span-4 bg-card rounded-2xl border shad-card p-5 flex flex-col max-md:order-1">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">Recent activity</p>
@@ -309,7 +309,7 @@
       }
 
       <!-- Policy / Carry-forward -->
-      <div class="col-span-12 lg:col-span-6 row-span-2 min-h-[240px] bg-card rounded-2xl border shad-card p-5">
+      <div class="col-span-12 lg:col-span-6 row-span-2 min-h-[240px] bg-card rounded-2xl border shad-card p-5 max-md:order-2">
         <div class="flex items-center justify-between mb-3">
           <div>
             <p class="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">Policy</p>
@@ -367,7 +367,7 @@
       </div>
 
       <!-- Year heatmap -->
-      <div class="col-span-12 lg:col-span-6 row-span-2 min-h-[230px] bg-card rounded-2xl border shad-card p-5">
+      <div class="col-span-12 lg:col-span-6 row-span-2 min-h-[230px] bg-card rounded-2xl border shad-card p-5 max-md:order-3">
         <div class="flex items-center justify-between mb-3">
           <div>
             <p class="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">Usage map</p>

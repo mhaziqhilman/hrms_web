@@ -7,6 +7,7 @@ import { InvitationService } from '../../../../core/services/invitation.service'
 import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { ZardIconComponent } from '@/shared/components/icon/icon.component';
+import { NexturaLogoComponent } from '@/shared/components/nextura-logo/nextura-logo.component';
 
 @Component({
   selector: 'app-onboarding-choice',
@@ -16,7 +17,8 @@ import { ZardIconComponent } from '@/shared/components/icon/icon.component';
     RouterModule,
     ZardCardComponent,
     ZardButtonComponent,
-    ZardIconComponent
+    ZardIconComponent,
+    NexturaLogoComponent
   ],
   templateUrl: './onboarding-choice.component.html'
 })

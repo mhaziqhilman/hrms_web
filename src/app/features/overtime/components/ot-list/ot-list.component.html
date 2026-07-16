@@ -34,7 +34,7 @@
         </span>
         <h2 class="text-[13px] font-semibold text-foreground">Approval Status</h2>
       </div>
-      <div class="grid grid-cols-4 divide-x divide-border">
+      <div class="grid grid-cols-2 sm:grid-cols-4 divide-x divide-border max-sm:divide-x-0 max-sm:gap-y-2">
         <div class="pr-4">
           <p class="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">Requested</p>
           <p class="font-mono text-[26px] font-semibold leading-none mt-2">{{ stats().requested }}</p>
@@ -66,7 +66,7 @@
         </span>
         <h2 class="text-[13px] font-semibold text-foreground">Overtime Hours Summary</h2>
       </div>
-      <div class="grid grid-cols-4 divide-x divide-border">
+      <div class="grid grid-cols-2 sm:grid-cols-4 divide-x divide-border max-sm:divide-x-0 max-sm:gap-y-2">
         <div class="pr-4">
           <p class="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">Total Hours</p>
           <p class="font-mono text-[26px] font-semibold leading-none mt-2">{{ stats().totalHours }}</p>

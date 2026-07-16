@@ -57,11 +57,6 @@
   box-shadow: 0 8px 20px -8px rgba(42, 111, 219, 0.55);
 }
 
-.login__logo img {
-  width: 30px;
-  height: 30px;
-}
-
 .login__brand-name {
   font-size: 15px;
   font-weight: 600;

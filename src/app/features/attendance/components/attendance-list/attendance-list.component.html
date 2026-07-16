@@ -11,14 +11,14 @@
 
   @if (hasProfile()) {
     <!-- Header -->
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
       <!-- Left: Title + Divider + Date Navigator -->
-      <div class="flex items-center gap-4">
+      <div class="flex items-center gap-4 flex-wrap max-md:w-full">
         <div>
           <h1 class="text-[28px] font-semibold tracking-tight leading-none text-foreground">Attendance</h1>
           <p class="text-[13px] text-muted-foreground mt-2">Track daily attendance and work-from-home records</p>
         </div>
-        <z-divider zOrientation="vertical" class="h-10" />
+        <z-divider zOrientation="vertical" class="h-10 max-md:hidden" />
         <!-- Date Navigator -->
         <div class="inline-flex items-center bg-card border rounded-lg overflow-hidden">
           <button z-button zType="ghost" zSize="sm" (click)="navigateDate(-1)"
@@ -37,7 +37,7 @@
       </div>
 
       <!-- Right: Action Buttons -->
-      <div class="flex gap-2">
+      <div class="flex gap-2 max-md:w-full">
         <button z-button zType="outline" (click)="openWfhSheet()" class="gap-2">
           <z-icon [zType]="$any('home')" class="w-4 h-4" />
           WFH Application

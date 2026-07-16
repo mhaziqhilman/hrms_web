@@ -20,6 +20,8 @@ import { ZardAvatarComponent } from '@/shared/components/avatar/avatar.component
 import { ZardDividerComponent } from '@/shared/components/divider/divider.component';
 import { ZardEmptyComponent } from '@/shared/components/empty/empty.component';
 import { ZardSkeletonComponent } from '@/shared/components/skeleton/skeleton.component';
+import { ZardSelectComponent } from '@/shared/components/select/select.component';
+import { ZardSelectItemComponent } from '@/shared/components/select/select-item.component';
 
 export type ProfileTabId = 'personal' | 'employment' | 'contact' | 'payslips' | 'documents' | 'statutory' | 'my-team';
 
@@ -46,6 +48,8 @@ export interface ProfileTabDef {
     ZardDividerComponent,
     ZardEmptyComponent,
     ZardSkeletonComponent,
+    ZardSelectComponent,
+    ZardSelectItemComponent,
     MyPayslipsComponent
   ],
   templateUrl: './my-profile.component.html',

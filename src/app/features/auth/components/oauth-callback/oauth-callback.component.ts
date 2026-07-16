@@ -8,6 +8,7 @@ import { User } from '../../../../core/models/auth.models';
 import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { ZardButtonComponent } from '@/shared/components/button/button.component';
 import { ZardIconComponent } from '@/shared/components/icon/icon.component';
+import { NexturaLogoComponent } from '@/shared/components/nextura-logo/nextura-logo.component';
 
 @Component({
   selector: 'app-oauth-callback',
@@ -17,7 +18,8 @@ import { ZardIconComponent } from '@/shared/components/icon/icon.component';
     RouterModule,
     ZardCardComponent,
     ZardButtonComponent,
-    ZardIconComponent
+    ZardIconComponent,
+    NexturaLogoComponent
   ],
   template: `
     <div class="min-h-screen flex items-center justify-center bg-background p-4">
@@ -25,7 +27,7 @@ import { ZardIconComponent } from '@/shared/components/icon/icon.component';
         <!-- Logo Section -->
         <div class="flex justify-center mb-8">
           <a routerLink="/" class="flex items-center">
-            <img alt="Nexura Logo" src="assets/images/Nexura_Logo.png" class="h-16 md:h-20" />
+            <app-nextura-logo [markSize]="44" [textSize]="30" />
           </a>
         </div>
 

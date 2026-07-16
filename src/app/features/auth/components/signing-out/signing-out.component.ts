@@ -6,6 +6,7 @@ import { environment } from '../../../../../environments/environment';
 // ZardUI Components
 import { ZardCardComponent } from '@/shared/components/card/card.component';
 import { ZardIconComponent } from '@/shared/components/icon/icon.component';
+import { NexturaLogoComponent } from '@/shared/components/nextura-logo/nextura-logo.component';
 
 /**
  * Signing Out — shown after logout while the browser is handed back to the
@@ -20,14 +21,15 @@ import { ZardIconComponent } from '@/shared/components/icon/icon.component';
   imports: [
     CommonModule,
     ZardCardComponent,
-    ZardIconComponent
+    ZardIconComponent,
+    NexturaLogoComponent
   ],
   template: `
     <div class="min-h-screen flex items-center justify-center bg-background p-4">
       <div class="w-full max-w-md">
         <!-- Logo Section -->
         <div class="flex justify-center mb-8">
-          <img alt="Nexura Logo" src="assets/images/Nexura_Logo.png" class="h-16 md:h-20" />
+          <app-nextura-logo [markSize]="44" [textSize]="30" />
         </div>
 
         <z-card class="border shadow-lg">

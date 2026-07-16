@@ -452,13 +452,13 @@
 
   <!-- Pagination -->
   @if (!loading() && !error() && employees().length > 0) {
-  <div class="flex items-center justify-between mt-4">
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mt-4">
     <div class="text-sm text-muted-foreground">
       Showing {{ (currentPage() - 1) * limit() + 1 }} to
       {{ Math.min(currentPage() * limit(), totalEmployees()) }} of
       {{ totalEmployees() }} users
     </div>
-    <div class="flex items-center gap-1">
+    <div class="flex items-center gap-1 flex-wrap">
       <button z-button zType="outline" zSize="sm" (click)="onPageChange(currentPage() - 1)"
         [disabled]="currentPage() === 1">
         Previous

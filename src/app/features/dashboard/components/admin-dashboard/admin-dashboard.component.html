@@ -347,7 +347,7 @@
             </div>
 
             <!-- Hero net + trend bars (chart pinned to far right) -->
-            <div class="flex items-end justify-between mb-4">
+            <div class="flex flex-col items-start gap-3 sm:flex-row sm:items-end sm:justify-between mb-4">
               <div>
                 <p class="text-[11px] text-muted-foreground mb-1">Total Net Salary</p>
                 <p class="text-3xl font-bold text-foreground leading-none">RM {{ formatCounter(netSalaryAnimated()) }}</p>
@@ -673,7 +673,7 @@
           } @else {
             <ul class="divide-y divide-border">
               @for (leave of recentLeaveRequests; track leave.id; let i = $index) {
-                <li class="px-5 py-4 flex items-center gap-4 hover:bg-muted/40 transition">
+                <li class="px-5 py-4 flex flex-wrap items-center gap-x-4 gap-y-3 hover:bg-muted/40 transition">
                   <span class="w-9 h-9 rounded-full text-white text-[12px] font-semibold flex items-center justify-center shrink-0 bg-gradient-to-br"
                     [class]="getAvatarGradient(i)">
                     {{ getInitials(leave.employee) }}
@@ -686,12 +686,15 @@
                       <span class="text-[11px] text-muted-foreground">· {{ leave.days }} day{{ leave.days === 1 ? '' : 's' }}</span>
                     </div>
                   </div>
-                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-300 ring-1 ring-amber-200 dark:ring-amber-500/30 text-[11px] font-medium shrink-0">
-                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>{{ leave.status }}
-                  </span>
-                  <div class="flex items-center gap-1.5 shrink-0">
-                    <button z-button zType="outline" zSize="sm" class="text-[11px] h-7 px-2.5" (click)="navigateTo('/leave/approvals')">Reject</button>
-                    <button z-button zSize="sm" class="text-[11px] h-7 px-2.5 bg-emerald-600 hover:bg-emerald-700 text-white" (click)="navigateTo('/leave/approvals')">Approve</button>
+                  <!-- Status + actions: own full-width row on mobile, inline on desktop -->
+                  <div class="flex items-center justify-end gap-2 w-full sm:w-auto">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-300 ring-1 ring-amber-200 dark:ring-amber-500/30 text-[11px] font-medium shrink-0">
+                      <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>{{ leave.status }}
+                    </span>
+                    <div class="flex items-center gap-1.5 shrink-0">
+                      <button z-button zType="outline" zSize="sm" class="text-[11px] h-7 px-2.5" (click)="navigateTo('/leave/approvals')">Reject</button>
+                      <button z-button zSize="sm" class="text-[11px] h-7 px-2.5 bg-emerald-600 hover:bg-emerald-700 text-white" (click)="navigateTo('/leave/approvals')">Approve</button>
+                    </div>
                   </div>
                 </li>
               }

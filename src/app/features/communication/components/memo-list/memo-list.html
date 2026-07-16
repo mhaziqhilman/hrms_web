@@ -12,7 +12,7 @@
           }
         </p>
       </div>
-      <div class="flex items-center gap-2">
+      <div class="flex flex-wrap items-center gap-2 max-md:w-full">
         <!-- Date Range Filter -->
         <z-date-picker placeholder="From date" zFormat="dd-MM-yyyy" zType="outline" zSize="default"
           [ngModel]="dateFrom()" (dateChange)="onDateFromChange($event)"></z-date-picker>

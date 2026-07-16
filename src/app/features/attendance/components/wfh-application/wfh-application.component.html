@@ -1,11 +1,11 @@
 <div>
   <!-- Header -->
-  <div class="flex items-center justify-between mb-6">
+  <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
     <div>
       <h1 class="text-[28px] font-semibold tracking-tight leading-none text-foreground">Work From Home</h1>
       <p class="text-[13px] text-muted-foreground mt-2">Apply for WFH and track your applications</p>
     </div>
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-2 max-md:w-full">
       @if (isHRManager()) {
         <a z-button zType="outline" routerLink="/attendance/wfh/approvals" class="gap-2">
           <z-icon zType="check-circle" class="w-4 h-4" />

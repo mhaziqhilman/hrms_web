@@ -12,6 +12,7 @@ import { ZardInputDirective } from '@/shared/components/input/input.directive';
 import { ZardFormLabelComponent } from '@/shared/components/form/form-label.component';
 import { ZardIconComponent } from '@/shared/components/icon/icon.component';
 import { ZardDividerComponent } from '@/shared/components/divider/divider.component';
+import { NexturaLogoComponent } from '@/shared/components/nextura-logo/nextura-logo.component';
 
 @Component({
   selector: 'app-company-setup-wizard',
@@ -25,7 +26,8 @@ import { ZardDividerComponent } from '@/shared/components/divider/divider.compon
     ZardInputDirective,
     ZardFormLabelComponent,
     ZardIconComponent,
-    ZardDividerComponent
+    ZardDividerComponent,
+    NexturaLogoComponent
   ],
   templateUrl: './company-setup-wizard.component.html'
 })

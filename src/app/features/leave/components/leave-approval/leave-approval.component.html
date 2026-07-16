@@ -277,19 +277,22 @@
               </div>
             </div>
 
-            <!-- Type -->
-            <div class="qc-col-meta">
-              <p class="qc-meta-label">Type</p>
-              <span class="mt-1 inline-block" [class]="getLeaveTypePillClasses(leave.leave_type?.name)">
-                {{ leave.leave_type?.name }}
-              </span>
-            </div>
+            <!-- Type + Period: side-by-side on mobile, part of the 4-col row on desktop -->
+            <div class="grid grid-cols-2 gap-4 md:contents">
+              <!-- Type -->
+              <div class="qc-col-meta">
+                <p class="qc-meta-label">Type</p>
+                <span class="mt-1 inline-block" [class]="getLeaveTypePillClasses(leave.leave_type?.name)">
+                  {{ leave.leave_type?.name }}
+                </span>
+              </div>
 
-            <!-- Period -->
-            <div class="qc-col-meta">
-              <p class="qc-meta-label">Period</p>
-              <p class="qc-meta-value">{{ formatPeriod(leave) }}</p>
-              <p class="qc-meta-sub">{{ getDaysCountShort(leave) }}{{ leave.attachment_url ? ' · 📎 attachment' : '' }}</p>
+              <!-- Period -->
+              <div class="qc-col-meta">
+                <p class="qc-meta-label">Period</p>
+                <p class="qc-meta-value">{{ formatPeriod(leave) }}</p>
+                <p class="qc-meta-sub">{{ getDaysCountShort(leave) }}{{ leave.attachment_url ? ' · 📎 attachment' : '' }}</p>
+              </div>
             </div>
 
             <!-- Actions -->
@@ -303,7 +306,7 @@
               </button>
               <button
                 type="button"
-                class="qc-action-btn is-reject"
+                class="qc-action-btn is-reject max-md:flex-1 max-md:justify-center"
                 [disabled]="processingLeaveId() === leave.public_id"
                 [zTooltip]="'Reject with reason'"
                 (click)="viewLeaveDetails(leave)">
@@ -312,7 +315,7 @@
               </button>
               <button
                 type="button"
-                class="qc-action-btn is-approve"
+                class="qc-action-btn is-approve max-md:flex-1 max-md:justify-center"
                 [disabled]="processingLeaveId() === leave.public_id"
                 (click)="quickApprove(leave)">
                 @if (processingLeaveId() === leave.public_id) {

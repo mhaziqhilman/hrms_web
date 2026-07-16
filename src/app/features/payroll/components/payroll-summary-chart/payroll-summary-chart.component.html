@@ -11,8 +11,8 @@
     <p class="text-xs text-muted-foreground mt-1">{{ year() }} year-to-date payroll</p>
   </div>
 
-  <!-- Chart layer: absolute, with breathing room below x-axis labels -->
-  <div class="absolute inset-x-0 bottom-3 z-0">
+  <!-- Chart layer: absolute overlay on desktop; flows below the total on mobile -->
+  <div class="absolute inset-x-0 bottom-3 z-0 max-md:static max-md:mt-1 max-md:pb-2">
     <highcharts-chart [options]="chartOptions()" class="block w-full"></highcharts-chart>
   </div>
 </div>

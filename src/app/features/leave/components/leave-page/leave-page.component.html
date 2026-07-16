@@ -1,11 +1,11 @@
 <div>
   <!-- Page header -->
-  <div class="flex items-center justify-between mb-6">
+  <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
     <div>
       <h1 class="text-[28px] font-semibold tracking-tight leading-none text-foreground">Leave Management</h1>
       <p class="text-[13px] text-muted-foreground mt-2">Apply for leave and track requests across your team</p>
     </div>
-    <div class="flex gap-2">
+    <div class="flex gap-2 max-md:w-full">
       @if (!isStaff()) {
         <button z-button zType="outline" routerLink="/leave/approvals" class="gap-2">
           <z-icon zType="circle-check" class="w-4 h-4" />
@@ -20,7 +20,7 @@
   </div>
 
   <!-- Unified filter + tab card -->
-  <div class="bg-card rounded-2xl border shad-card p-4 mb-4 flex items-center gap-3 flex-wrap min-h-[64px]">
+  <div class="bg-card rounded-2xl border shad-card p-4 mb-4 flex items-center gap-3 flex-wrap min-h-[64px] max-md:flex-col max-md:items-stretch">
 
     <!-- Left side: tab-specific filters (animated swap) -->
     <div class="flex items-center gap-3 flex-wrap flex-1 min-w-0">
@@ -93,7 +93,7 @@
                   (backdropClick)="closePicker()"
                   (detach)="closePicker()">
                   <div
-                    class="z-30 w-[420px] bg-popover text-popover-foreground rounded-xl border shadow-lg overflow-hidden"
+                    class="z-30 w-[min(420px,calc(100vw-2rem))] bg-popover text-popover-foreground rounded-xl border shadow-lg overflow-hidden"
                     (keydown)="onPickerKeydown($event)">
 
                     <!-- Search -->
@@ -413,13 +413,13 @@
     </div>
 
     <!-- Right side: nav pills (always visible) -->
-    <div class="flex items-center gap-1 bg-muted rounded-lg p-1 ml-auto">
+    <div class="flex items-center gap-1 bg-muted rounded-lg p-1 ml-auto max-md:ml-0 max-md:w-full">
       <a
         routerLink="/leave/dashboard"
         routerLinkActive="bg-background text-foreground shadow-sm"
         [routerLinkActiveOptions]="{ exact: false }"
         #dashLink="routerLinkActive"
-        class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-normal transition-colors no-underline"
+        class="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-normal transition-colors no-underline max-md:flex-1"
         [class.text-muted-foreground]="!dashLink.isActive"
         [class.hover:text-foreground]="!dashLink.isActive">
         <z-icon zType="layout-dashboard" class="w-4 h-4" />
@@ -429,7 +429,7 @@
         routerLink="/leave/list"
         routerLinkActive="bg-background text-foreground shadow-sm"
         #listLink="routerLinkActive"
-        class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-normal transition-colors no-underline"
+        class="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-normal transition-colors no-underline max-md:flex-1"
         [class.text-muted-foreground]="!listLink.isActive"
         [class.hover:text-foreground]="!listLink.isActive">
         <z-icon zType="list" class="w-4 h-4" />
@@ -439,7 +439,7 @@
         routerLink="/leave/calendar"
         routerLinkActive="bg-background text-foreground shadow-sm"
         #calLink="routerLinkActive"
-        class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-normal transition-colors no-underline"
+        class="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-normal transition-colors no-underline max-md:flex-1"
         [class.text-muted-foreground]="!calLink.isActive"
         [class.hover:text-foreground]="!calLink.isActive">
         <z-icon zType="calendar-check" class="w-4 h-4" />
